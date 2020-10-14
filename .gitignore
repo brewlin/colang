@@ -1,0 +1,8 @@
+*.pyc
+*.si4project
+*CMakeCache*
+.idea
+bin
+.vscode
+*.out
+*.o
