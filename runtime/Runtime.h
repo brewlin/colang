@@ -5,6 +5,7 @@
 #ifndef LANG_RUNTIME_H
 #define LANG_RUNTIME_H
 #include "Context.h"
+#include "Expression.h"
 /**
  * 运行时
  */
@@ -27,7 +28,7 @@ public:
     //存储全局所有的待执行语句
     std::vector<Statement*>       stmts;
     //保存全局 静态字符串
-    std::vector<Expression*>      strs;
+    std::vector<StringExpr*>      strs;
 
     llvm::LLVMContext             llvmContext;
     llvm::IRBuilder<>             builder;

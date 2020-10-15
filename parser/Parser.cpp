@@ -261,12 +261,6 @@ void Parser::parse()
         }else{
         //判断 StringExpr ，需要保存一份 asm 生成的时候需要提前注册到数据段
             Statement* stmt = parseStatement();
-            if(typeid(*stmt) == typeid(ExpressionStmt)){
-                ExpressionStmt * st = dynamic_cast<ExpressionStmt*>(stmt);
-                if(typeid(st->expr) == typeid(StringExpr))
-                    rt->strs.push_back(st->expr);
-            }
-
             rt->addStatement(stmt);
         }
 

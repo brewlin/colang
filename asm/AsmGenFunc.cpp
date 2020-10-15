@@ -52,13 +52,13 @@ void AsmGen::CreateFunction(Function *fn)
     }
 
     //如果没有block则为函数声明
-//    if(fn->block){
-//        //接下来就是注册 block块
-//        for(auto& stmt : f->block->stmts){
-//            //TODO: 处理返回值
-//            stmt->asmgen(rt,ctx);
-//        }
-//    }
+    if(fn->block){
+        //接下来就是注册 block块
+        for(auto& stmt : f->block->stmts){
+            //TODO: 处理返回值
+            stmt->asmgen(rt,ctx);
+        }
+    }
     if(fn->name == "main")
         writeln("  mov $0, %%rax");
 

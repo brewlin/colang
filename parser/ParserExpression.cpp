@@ -192,6 +192,8 @@ Expression* Parser::parsePrimaryExpr()
         auto val     = getCurrentLexeme();
         currentToken = next();
         auto* ret    = new StringExpr(line,column);
+        //将静态字符作为全局定义
+        rt->strs.push_back(ret);
         ret->literal = val;
         return ret;
     }else if(getCurrentToken() == LIT_CHAR)

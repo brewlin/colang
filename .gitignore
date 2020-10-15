@@ -6,3 +6,4 @@ bin
 .vscode
 *.out
 *.o
+cmake-build-debug

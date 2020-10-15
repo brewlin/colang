@@ -12,11 +12,10 @@ using namespace std;
  */
 void AsmGen::registerStrings()
 {
-    for(auto &sexpr:rt->strs){
+    for(auto &var:rt->strs){
         stringstream ss;
-        ss << ".L.." << count++;
-        StringExpr* var = dynamic_cast<StringExpr*>(sexpr);
         string r;
+        ss << ".L.." << count++;
         ss >> r;
         var->name = r;
         CreateGlobalString(var);
@@ -30,12 +29,28 @@ void AsmGen::registerStrings()
 void AsmGen::CreateGlobalString(StringExpr *var)
 {
     //默认全局变量
-    writeln("  .globl %s", var->name.c_str());
+//    writeln("  .globl %s", var->name.c_str());
 
-    writeln("  .data");
-    writeln("  .type %s, @object", var->name.c_str());
-    writeln("  .size %s, %d", var->name.c_str(), var->name.length());
-    writeln("  .align %d", 1);
+//    writeln("  .data");
+//    writeln("  .type %s, @object", var->name.c_str());
+//    writeln("  .size %s, %d", var->literal.c_str(), var->literal.length());
+//    writeln("  .align %d", 1);
     writeln("%s:", var->name.c_str());
-    writeln("  .string %s",var->name.c_str());
+    writeln("  .string \"%s\"",var->literal.c_str());
+}
+/**
+ * 加载变量 计算变量
+ * @param expr
+ */
+void AsmGen::GenAddr(IdentExpr *var)
+{
+    // 局部变量 的栈偏移量之前就已经计算出来了 这里只需要
+    if (node->var->is_local) {
+        writeln("  lea %d(%%rbp), %%rax", var->offset);
+        return;
+    }
+    // 全局变量 直接根据标号来引用即可
+    writeln("  lea %s(%%rip), %%rax", var->name.c_str());
+    return;
+
 }

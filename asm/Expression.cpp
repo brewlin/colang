@@ -55,6 +55,7 @@ Value ArrayExpr::asmgen(Runtime* rt,std::deque<Context*> ctx){
  * @return
  */
 Value IdentExpr::asmgen(Runtime* rt,std::deque<Context*> ctx){
+
     //变量遍历表 看是否存在
     for(auto p = ctx.crbegin(); p != ctx.crend(); ++p){
         auto* ctx = *p;
