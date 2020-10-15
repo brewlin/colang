@@ -51,6 +51,24 @@ void AsmGen::GenAddr(IdentExpr *var)
     }
     // 全局变量 直接根据标号来引用即可
     writeln("  lea %s(%%rip), %%rax", var->name.c_str());
-    return;
+
+}
+/**
+ *
+ * @param type
+ */
+void AsmGen::Load(ValueType type)
+{
+    char *insn = "movz";
+    switch (type){
+        case Double:
+            println("  movsd (%%rax), %%xmm0");
+        case Char:
+            println("  %sbl (%%rax), %%eax", insn);
+        case Int:
+            println("  movsxd (%%rax), %%rax");
+        default:
+            println("  mov (%%rax), %%rax");
+    }
 
 }

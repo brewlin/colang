@@ -15,10 +15,12 @@ ExecResult IfStmt::asmgen(Runtime *rt, std::deque<Context *> ctx)
 {
     ExecResult ret(ExecNormal);
     //对判断条件的表达式求值
+    //1. 可能是遍历
     Value cond = this->cond->asmgen(rt,ctx);
 //    if(!cond.isType<Bool>())
 //        panic("TypeError: expects bool type in while condition at line %d col %d\n",
 //              line,column);
+    
     //条件为真
     if(cond.isTrue()){
 //    if(cond.cast<bool>()){

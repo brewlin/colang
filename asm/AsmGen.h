@@ -43,6 +43,7 @@ public:
     //寄存器相关
     static void store_gp(int r, int offset, int sz);
     static void GenAddr(IdentExpr* var);
+    static void Load(ValueType     type);
 
 };
 
