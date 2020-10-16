@@ -70,29 +70,19 @@ Function* Parser::parseFuncDef(Context *ctx)
     if(ctx->hasFunc(getCurrentLexeme()))
         panic("SyntaxError: already define function :%s\n",getCurrentLexeme().c_str());
     auto* node = new Function;
+    //start parse function
+    currentFunc = node;
+
     node->name = getCurrentLexeme();
     //指向 func name'(') 括号
     currentToken = next();
     assert(getCurrentToken() == TK_LPAREN);
     //解析函数参数
     node->params = parseParameterList();
-    //将变量名单独保存一份 for asm generate
-    for(auto &s:node->params){
-        auto p = new StringExpr(line,column);
-        p->literal = s;
-        node->params_var.push_back(p);
-    }
     //解析block 函数主体表达式
     node->block = parseBlock();
-
-    //需要将 block 里的 本地变量保存一份，在 asm create 需要计算栈空间
-    for(auto* p:node->block->stmts){
-        if(typeid(*p) == typeid(ExpressionStmt)){
-            ExpressionStmt* st = dynamic_cast<ExpressionStmt*>(p);
-            if(typeid(st->expr) == typeid(IdentExpr))
-                node->locals.push_back(st->expr);
-        }
-    }
+    //leave parse function
+    currentFunc = nullptr;
     return node;
 }
 

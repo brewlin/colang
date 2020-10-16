@@ -70,9 +70,8 @@ void AsmGen::assign_offsets() {
 
         int gp = 0, fp = 0;
         //TODO:假定所有参数类型为 int 8字节
-        for(auto &param: fn->params_var){
-            StringExpr* var = dynamic_cast<StringExpr*>(param);
-//        for (Obj *var = fn->params; var; var = var->next) {
+        for(auto param : fn->params_var){
+            IdentExpr* var = param.second;
             top = ALIGN_UP(top, 8);
             var->offset = top;
             top += 8;
@@ -80,11 +79,26 @@ void AsmGen::assign_offsets() {
         //TODO: 在parser ast function时 将本地局部变量加入 fn->locals 方便计算偏移量
         // Assign offsets to pass-by-register parameters and local variables.
         for(auto local:fn->locals){
-            StringExpr* var = dynamic_cast<StringExpr*>(local);
+            IdentExpr* var = local.second;
             bottom += 8;
             bottom = ALIGN_UP(bottom, 8);
             var->offset = -bottom;
         }
         fn->stack_size = ALIGN_UP(bottom, 16);
     }
+}
+
+//创建上下文 准备执行函数
+void AsmGen::enterContext(std::deque<Context *> ctx)
+{
+    auto* temp = new Context;
+    ctx.push_back(temp);
+}
+//离开上下文
+void AsmGen::leaveContext(std::deque<Context *> ctx)
+{
+    auto* tempContext = ctx.back();
+    ctx.pop_back();
+    delete tempContext;
+
 }

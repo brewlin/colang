@@ -5,6 +5,7 @@
 #include "Statement.h"
 #include "Utils.h"
 #include "Interpreter.h"
+#include "AsmGen.h"
 /**
  * if 控制语句执行
  * @param rt
@@ -14,22 +15,35 @@
 ExecResult IfStmt::asmgen(Runtime *rt, std::deque<Context *> ctx)
 {
     ExecResult ret(ExecNormal);
+    int c = AsmGen::count ++;
     //对判断条件的表达式求值
-    //1. 可能是遍历
     Value cond = this->cond->asmgen(rt,ctx);
-//    if(!cond.isType<Bool>())
-//        panic("TypeError: expects bool type in while condition at line %d col %d\n",
-//              line,column);
-    
-    //条件为真
-    if(cond.isTrue()){
-//    if(cond.cast<bool>()){
-        Interpreter::enterContext(ctx);
+    AsmGen::CreateCmp(cond.type);
+    AsmGen::writeln("  je  .L.else.%d", c);
 
-        //顺序执行所有的 block 语句
-        for(auto& stmt : block->stmts){
+    AsmGen::enterContext(ctx);
+
+    //顺序执行所有的 block 语句
+    for(auto& stmt : block->stmts){
 //            std::cout << stmt->toString() <<std::endl;
-            ret = stmt->asmgen(rt,ctx);
+        ret = stmt->asmgen(rt,ctx);
+        if(ret.execType == ExecReturn)
+            break;
+        else if(ret.execType == ExecBreak)
+            break;
+        else if(ret.execType == ExecContinue)
+            break;
+    }
+    AsmGen::leaveContext(ctx);
+    AsmGen::writeln("  jmp .L.end.%d", c);
+    AsmGen::writeln(".L.else.%d:", c);
+
+    if(elseBlock != nullptr){
+        AsmGen::enterContext(ctx);
+        //执行 else 里的语句块
+        for(auto& elseStmt : elseBlock->stmts){
+//                std::cout << elseStmt->toString() <<std::endl;
+            ret =  elseStmt->asmgen(rt,ctx);
             if(ret.execType == ExecReturn)
                 break;
             else if(ret.execType == ExecBreak)
@@ -37,27 +51,12 @@ ExecResult IfStmt::asmgen(Runtime *rt, std::deque<Context *> ctx)
             else if(ret.execType == ExecContinue)
                 break;
         }
-        Interpreter::leaveContext(ctx);
-    }else{
-        //如果有else 关键字 则需要执行
-        if(elseBlock != nullptr){
-            Interpreter::enterContext(ctx);
-            //执行 else 里的语句块
-            for(auto& elseStmt : elseBlock->stmts){
-//                std::cout << elseStmt->toString() <<std::endl;
-                ret =  elseStmt->asmgen(rt,ctx);
-                if(ret.execType == ExecReturn)
-                    break;
-                else if(ret.execType == ExecBreak)
-                    break;
-                else if(ret.execType == ExecContinue)
-                    break;
-            }
-            //离开上下文
-            Interpreter::leaveContext(ctx);
-        }
+        //离开上下文
+        AsmGen::leaveContext(ctx);
     }
-    //TODO: 需要支持 else if 关键字
+    AsmGen::writeln(".L.end.%d:", c);
+
+
     return ret;
 }
 /**

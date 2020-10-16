@@ -8,6 +8,7 @@
 #include <string>
 
 struct Expression;
+struct IdentExpr;
 /**
  * 函数
  */
@@ -23,8 +24,8 @@ struct Function{
     std::string rettype;
 
     //保存函数块内的本地变量 for asm gen offset
-    std::vector<Expression*> locals;
-    std::vector<Expression*> params_var;
+    std::unordered_map<std::string,IdentExpr*> locals;
+    std::unordered_map<std::string,IdentExpr*> params_var;
     //表示该函数所需要的栈空间 一般是本地变量的总和
     int                      stack_size;
 

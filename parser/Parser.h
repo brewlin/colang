@@ -79,6 +79,8 @@ private:
     std::tuple<Token ,std::string> currentToken;
 	//全局ast树运行时
 	Runtime* rt;
+	//当前function
+	Function* currentFunc;
 };
 
 

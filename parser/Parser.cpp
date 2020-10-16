@@ -337,7 +337,6 @@ Block* Parser::parseBlock()
  */
 std::vector<std::string> Parser::parseParameterList()
 {
-
     std::vector<std::string> node;
     currentToken = next();
     //是否解析到 ')'
@@ -349,10 +348,15 @@ std::vector<std::string> Parser::parseParameterList()
     //解析所有括号内的参数 (..,..,..)
     while(getCurrentToken() != TK_RPAREN){
         //所有的参数都必须是 ident 或者 逗号,
-       if(getCurrentToken() == TK_IDENT)
+       if(getCurrentToken() == TK_IDENT){
+           //将参数单独保存一份 需要计算 栈偏移量
+           if(currentFunc)
+               currentFunc->params_var[getCurrentLexeme()] = new IdentExpr(getCurrentLexeme(),line,column);
            node.push_back(getCurrentLexeme());
-       else
-           assert(getCurrentToken() == TK_COMMA);
+       }
+       else{
+            assert(getCurrentToken() == TK_COMMA);
+       }
        //继续下一个token读取
        currentToken = next();
     }

@@ -19,7 +19,7 @@ static const char *argreg64[] = {"%rdi", "%rsi", "%rdx", "%rcx", "%r8", "%r9"};
  * @param offset
  * @param sz
  */
-void AsmGen::store_gp(int r, int offset, int sz)
+void AsmGen::Store_gp(int r, int offset, int sz)
 {
     switch (sz) {
         case 1:
@@ -40,6 +40,25 @@ void AsmGen::store_gp(int r, int offset, int sz)
                 writeln("  shr $8, %s", argreg64[r]);
             }
             return;
+    }
+
+}
+/**
+ * @param type
+ */
+void AsmGen::Store(ValueType type)
+{
+    //将栈顶 rax 的值保存到 rdi中
+    Pop("%rdi");
+
+    switch (type) {
+        case Char:
+        case Int:
+        case Bool:
+            writeln("  mov %%eax, (%%rdi)");
+            return;
+        case Double:
+            writeln("  movsd %%xmm0, (%%rdi)");
     }
 
 }

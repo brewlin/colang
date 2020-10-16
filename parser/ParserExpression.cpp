@@ -24,6 +24,11 @@ Expression* Parser::parseExpression(short oldPrecedence)
             typeid(*p) != typeid(MemberExpr)) {
             panic("SyntaxError: can not assign to %s\n", typeid(*p).name());
         }
+        if (typeid(*p) == typeid(IdentExpr) && currentFunc){
+            IdentExpr* var = dynamic_cast<IdentExpr*>(p);
+            currentFunc->locals[var->identname] = var;
+        }
+
         // 创建赋值表达式
         auto* assignExpr = new AssignExpr(line, column);
         // 获取赋值符号，因为赋值符号不止=，还有+=，%=这种复合赋值

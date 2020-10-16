@@ -20,10 +20,11 @@ class AsmGen {
     std::deque<Context*> ctx;
     Runtime* rt;
     Parser* p;
+
+public:
     //用于生产全局唯一变量
     static int count;
 
-public:
     explicit AsmGen(const std::string& filename);
     ~AsmGen();
     void execute();
@@ -32,18 +33,24 @@ public:
 
 public:
     static void writeln(const char *fmt, ...);
+    static void enterContext(std::deque<Context *> ctx);
+    static void leaveContext(std::deque<Context *> ctx);
 
     void registerStrings();
     //创建全局string
     static void CreateGlobalString(StringExpr* expr);
 
     void registerFuncs();
-    static void CreateFunction(Function* fn);
+    static void CreateFunction(Function* fn,Runtime* rt,std::deque<Context*> ctx);
 
     //寄存器相关
-    static void store_gp(int r, int offset, int sz);
+    static void Store_gp(int r, int offset, int sz);
+    static void Store(ValueType type);
     static void GenAddr(IdentExpr* var);
     static void Load(ValueType     type);
+    static void CreateCmp(ValueType type);
+    static void Push();
+    static void Pop(char* arg);
 
 };
 

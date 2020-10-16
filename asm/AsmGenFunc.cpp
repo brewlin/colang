@@ -16,7 +16,7 @@ void AsmGen::registerFuncs()
 {
     Debug("register functions")
     for(Function* &f:rt->order_funcs){
-        CreateFunction(f);
+        CreateFunction(f,rt,ctx);
     }
 
 }
@@ -24,7 +24,7 @@ void AsmGen::registerFuncs()
  * 注册fn
  * @param f
  */
-void AsmGen::CreateFunction(Function *fn)
+void AsmGen::CreateFunction(Function *fn, Runtime *rt, std::deque<Context *> ctx)
 {
     Debug("create function :%s",fn->name.c_str())
 
@@ -47,14 +47,14 @@ void AsmGen::CreateFunction(Function *fn)
     for(auto &param:fn->params_var){
         //默认 int long 8字节
         //这里将函数参数保存栈上
-        StringExpr* var = dynamic_cast<StringExpr*>(param);
-        store_gp(gp++, var->offset, 8);
+        IdentExpr* var = param.second;
+        Store_gp(gp++, var->offset, 8);
     }
 
     //如果没有block则为函数声明
     if(fn->block){
         //接下来就是注册 block块
-        for(auto& stmt : f->block->stmts){
+        for(auto& stmt : fn->block->stmts){
             //TODO: 处理返回值
             stmt->asmgen(rt,ctx);
         }

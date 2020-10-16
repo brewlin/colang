@@ -23,6 +23,7 @@ Value CharExpr::asmgen(Runtime* rt,
 }
 
 Value IntExpr::asmgen(Runtime* rt, std::deque<Context*> ctx) {
+    AsmGen::writeln("  mov $%ld, %%rax", this->literal);
     return Value(Int, this->literal);
 }
 
@@ -106,11 +107,18 @@ Value IndexExpr::asmgen(Runtime* rt,std::deque<Context*> ctx) {
  * @return
  */
 Value AssignExpr::asmgen(Runtime* rt,std::deque<Context*> ctx){
-    //对运算符右值求值
-    Value rhs = this->rhs->asmgen(rt,ctx);
     //如果左值是一个标识符 表达式: a = 13;
     if(typeid(*lhs) == typeid(IdentExpr)){
-        std::string identname = dynamic_cast<IdentExpr*>(lhs)->identname;
+        IdentExpr* varExpr = dynamic_cast<IdentExpr*>(lhs);
+        //进行赋值 和 变量定义
+        AsmGen::GenAddr(varExpr);
+        //保存rax寄存器的值 因为下面右值计算的时候会用到rax寄存器
+        AsmGen::Push();
+        //对运算符右值求值
+        Value rhs = this->rhs->asmgen(rt,ctx);
+        AsmGen::Store(rhs.type);
+
+        std::string identname = varExpr->identname;
         for(auto p = ctx.crbegin(); p != ctx.crend(); ++p){
             //查看变量表是否存在该 变量
             if(auto* var = (*p)->getVar(identname); var != nullptr){
@@ -119,11 +127,14 @@ Value AssignExpr::asmgen(Runtime* rt,std::deque<Context*> ctx){
                 return rhs;
             }
         }
+
         //说明不存在该变量 则需要重新定义
         (ctx.back())->createVar(identname,rhs);
+        return rhs;
         //可能是索引运算如: a[1] = 123
     }else if(typeid(*lhs) == typeid(IndexExpr))
     {
+        Value rhs = this->rhs->asmgen(rt,ctx);
         std::string identname = dynamic_cast<IndexExpr*>(lhs)->identname;
         Value   index     = dynamic_cast<IndexExpr*>(lhs)->index->asmgen(rt,ctx);
         //如果索引不是int则panic : a["1"];
@@ -146,11 +157,11 @@ Value AssignExpr::asmgen(Runtime* rt,std::deque<Context*> ctx){
         }
         //创建一个变量
         (ctx.back()->createVar(identname,rhs));
+        return rhs;
         //其他情况 非法
     }else{
         panic("SyntaxError: can not assign to %s at line %d, %col\n", typeid(lhs).name(),line,column);
     }
-    return rhs;
 }
 
 /**
