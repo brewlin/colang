@@ -1,0 +1,13 @@
+extern int printf(string)
+
+func test(b){
+    if(b){
+        printf("OK",b)
+    }else{
+        printf("Error",b)
+    }
+}
+func main(){
+    a = 1
+    test(a)
+}
