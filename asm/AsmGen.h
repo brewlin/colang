@@ -22,6 +22,12 @@ class AsmGen {
     Parser* p;
 
 public:
+    static const char* argreg8[] ;
+    static const char* argreg16[];
+    static const char* argreg32[];
+    static const char* argreg64[];
+
+public:
     //用于生产全局唯一变量
     static int count;
 
@@ -50,9 +56,18 @@ public:
     static void Load(ValueType     type);
     static void CreateCmp(ValueType type);
     static void Push();
-    static void Pop(char* arg);
+    static void Pop(const char* arg);
+    static int  Push_arg(Runtime *rt,std::deque<Context *> prevCtxChain,std::vector<Expression *> &args);
+    static void Pop_arg(std::vector<Expression *> &args);
 
+    //current function
+    static Function* currentFunc;
 };
 
+
+
+//6个寄存器用于保存函数参数，多的就存放在栈上
+#define GP_MAX 6
+#define FP_MAX 8
 
 #endif //COMPILER_ASMGEN_H

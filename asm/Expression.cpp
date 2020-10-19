@@ -5,6 +5,7 @@
 #include "Expression.h"
 #include "Interpreter.h"
 #include "AsmGen.h"
+#include "Log.h"
 
 //===---------------------------------------------------------------------===//
 // 计算所有的表达式 并返回一个 Value 结构，
@@ -34,6 +35,7 @@ Value DoubleExpr::asmgen(Runtime* rt,
 
 Value StringExpr::asmgen(Runtime* rt,
                            std::deque<Context*> ctx) {
+    AsmGen::writeln("  lea %s(%%rip), %%rax", name.c_str());
     return Value(String, this->literal);
 }
 /**
@@ -64,8 +66,10 @@ Value IdentExpr::asmgen(Runtime* rt,std::deque<Context*> ctx){
     for(auto p = ctx.crbegin(); p != ctx.crend(); ++p){
         auto* ctx = *p;
         if(auto* var = ctx->getVar(this->identname);var != nullptr){
+
+            Function* f = AsmGen::currentFunc;
             //地址生成
-            AsmGen::GenAddr(this);
+            AsmGen::GenAddr(f->locals[identname]);
             AsmGen::Load(var->value.type);
             //["a",123] return 123
             return var->value;
@@ -111,7 +115,9 @@ Value AssignExpr::asmgen(Runtime* rt,std::deque<Context*> ctx){
     if(typeid(*lhs) == typeid(IdentExpr)){
         IdentExpr* varExpr = dynamic_cast<IdentExpr*>(lhs);
         //进行赋值 和 变量定义
-        AsmGen::GenAddr(varExpr);
+        Function* f = AsmGen::currentFunc;
+        //f->locals 保存了本地变量的 唯一偏移量，所以需要通过name 来找到对应的 变量
+        AsmGen::GenAddr(f->locals[varExpr->identname]);
         //保存rax寄存器的值 因为下面右值计算的时候会用到rax寄存器
         AsmGen::Push();
         //对运算符右值求值
@@ -171,21 +177,27 @@ Value AssignExpr::asmgen(Runtime* rt,std::deque<Context*> ctx){
  * @return
  */
 Value FunCallExpr::asmgen(Runtime* rt,std::deque<Context*> ctx){
-    //内置函数: 查找管局函数变是否存在该 函数
-    if(auto* builtinFunc = rt->getBuiltinFunc(this->funcname) ; builtinFunc != nullptr){
-        std::vector<Value> arguments;
-        //封装参数进行函数传参
-        for(auto e : this->args)
-            arguments.push_back(e->asmgen(rt,ctx));
-        //将函数调用的结果返回
-        return builtinFunc(rt,ctx,arguments);
-    }
+    int gp = 0, fp = 0;
     //用户定义函数: 通过函数名查找该函数
     if(auto* func = rt->getFunc(this->funcname); func != nullptr){
         //TODO: 函数默认传参
         if(func->params.size() != this->args.size())
-            panic("ArgumentError: expects %d arguments but got %d\n",func->params.size(),this->args.size());
-        return Interpreter::callFunction(rt,func,ctx,this->args);
+            Debug("ArgumentError: expects %d arguments but got %d\n",func->params.size(),this->args.size());
+        int stack_args = AsmGen::Push_arg(rt,ctx,args);
+        //加载函数名
+        // 将函数名的地址保存到 rax中
+        AsmGen::writeln("  mov %s@GOTPCREL(%%rip), %%rax", funcname.c_str());
+        for(auto arg : args){
+            if (gp < GP_MAX)
+                AsmGen::Pop(AsmGen::argreg64[gp++]);
+        }
+
+        AsmGen::writeln("  mov %%rax, %%r10");
+        AsmGen::writeln("  mov $%d, %%rax", fp);
+        AsmGen::writeln("  call *%%r10");
+        AsmGen::writeln("  add $%d, %%rsp", stack_args * 8);
+        return Value(Null);
+
     }
     panic(
             "RuntimeError: can not find function definition of %s in both "

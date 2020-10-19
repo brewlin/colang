@@ -16,7 +16,9 @@ void AsmGen::registerFuncs()
 {
     Debug("register functions")
     for(Function* &f:rt->order_funcs){
+        currentFunc = f;
         CreateFunction(f,rt,ctx);
+        currentFunc = nullptr;
     }
 
 }
@@ -26,6 +28,8 @@ void AsmGen::registerFuncs()
  */
 void AsmGen::CreateFunction(Function *fn, Runtime *rt, std::deque<Context *> ctx)
 {
+    //extern 不需要 翻译
+    if(fn->isExtern) return;
     Debug("create function :%s",fn->name.c_str())
 
     //定义函数块 名

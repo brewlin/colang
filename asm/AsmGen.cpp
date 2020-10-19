@@ -7,6 +7,7 @@
 #include "AsmGen.h"
 
 int AsmGen::count = 0;
+Function* AsmGen::currentFunc = nullptr;
 FILE *output_file;
 /**
  * 写入 asm file

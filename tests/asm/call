@@ -1,0 +1,5 @@
+extern int printf(string)
+func main(){
+    a = 1
+    printf("a=%s\n",a)
+}

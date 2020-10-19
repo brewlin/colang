@@ -230,7 +230,7 @@ std::tuple<Token,std::string> Parser::next() {
         return std::make_tuple(TK_LT, "<");
     }
     //匹配失败 直接print后 exit
-    panic("SynxaxError: unknown token %c\n",c);
+    panic("SynxaxError: unknown token '%c' line:%d column:%d\n",c,line,column);
     return std::make_tuple(INVALID,"invalid");
 }
 

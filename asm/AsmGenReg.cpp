@@ -6,6 +6,9 @@
  **/
 
 #include "AsmGen.h"
+
+
+
 /**
 * 加载变量 计算变量
 * @param expr
@@ -27,7 +30,7 @@ void AsmGen::GenAddr(IdentExpr *var)
  */
 void AsmGen::Load(ValueType type)
 {
-    char *insn = "movz";
+    const char *insn = "movz";
 
     switch (type){
         case Double:
@@ -60,14 +63,43 @@ void AsmGen::CreateCmp(ValueType type)
             writeln("  xorpd %%xmm1, %%xmm1");
             writeln("  ucomisd %%xmm1, %%xmm0");
             return;
+        default:
+            writeln("  cmp $0, %%eax");
+            return;
     }
 }
 void AsmGen::Push()
 {
     writeln("  push %%rax");
 }
-void AsmGen::Pop(char *arg)
+void AsmGen::Pop(const char *arg)
 {
     writeln("  pop %s",arg);
+}
+/**
+ * 加载函数调用参数，这些参数都已经作为本地变量保存在栈上了
+ * 这里要做的就是将他们加载到寄存器中
+ * 1. 达到6个参数则用 DI, RSI,RDX, RCX, R8 and R9 寄存器.
+ * 每个参数占 8字节
+ * TODO: 只支持 int
+ * @return
+ */
+int AsmGen::Push_arg(Runtime *rt,std::deque<Context *> prevCtxChain,std::vector<Expression *> &args)
+{
+    int stack = 0, gp = 0, fp = 0;
 
+    //尽可能的加载跟多参数到寄存器  需要倒序
+    for (int i = args.size() - 1; i >= 0; i--) {
+        //栈参数
+        if (gp++ >= GP_MAX) {
+            stack++;
+        }
+        args[i]->asmgen(rt,prevCtxChain);
+        Push();
+    }
+    if (stack % 2 == 1) {
+        writeln("  sub $8, %%rsp");
+        stack++;
+    }
+    return stack;
 }
