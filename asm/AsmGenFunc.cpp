@@ -55,13 +55,26 @@ void AsmGen::CreateFunction(Function *fn, Runtime *rt, std::deque<Context *> ctx
         Store_gp(gp++, var->offset, 8);
     }
 
+
     //如果没有block则为函数声明
-    if(fn->block){
+    if(fn->block)
+    {
+        //创建一个新的上下文链
+        std::deque<Context*> funcCtxChain;
+        //进入新的上下文
+        enterContext(funcCtxChain);
+        auto* funcCtx = funcCtxChain.back();
+        for(int i = 0; i < fn->params.size() ; i ++){
+            //将实参值放入新的上下文中 创建变量
+            Value null{Null};
+            funcCtx->createVar(fn->params[i],null);
+        }
         //接下来就是注册 block块
         for(auto& stmt : fn->block->stmts){
             //TODO: 处理返回值
-            stmt->asmgen(rt,ctx);
+            stmt->asmgen(rt,funcCtxChain);
         }
+        leaveContext(funcCtxChain);
     }
     if(fn->name == "main")
         writeln("  mov $0, %%rax");

@@ -1,0 +1,15 @@
+extern void sleep(int)
+extern int  printf(string)
+
+func main(){
+    a = 3
+    while(a){
+        printf("a=%d\n",a)
+        sleep(1)
+        a = 0
+        b = 0
+    }
+    while(b){
+        printf("not suppose to  be here!\n")
+    }
+}

@@ -39,7 +39,7 @@ public:
 
 public:
     static void writeln(const char *fmt, ...);
-    static void enterContext(std::deque<Context *> ctx);
+    static void enterContext(std::deque<Context *> &ctx);
     static void leaveContext(std::deque<Context *> ctx);
 
     void registerStrings();

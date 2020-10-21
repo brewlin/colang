@@ -68,41 +68,25 @@ ExecResult IfStmt::asmgen(Runtime *rt, std::deque<Context *> ctx)
 ExecResult WhileStmt::asmgen(Runtime *rt, std::deque<Context *> ctx)
 {
     ExecResult ret;
+
+    int c = AsmGen::count ++;
+    //表示循环开始的 标签：
+    AsmGen::writeln(".L.begin.%d:", c);
+    //对判断条件的表达式求值
     Value cond = this->cond->asmgen(rt,ctx);
+    AsmGen::CreateCmp(cond.type);
+    AsmGen::writeln("  je  .L.while.end.%d", c);
 
-    Interpreter::enterContext(ctx);
-    //判断条件是否为真
-    while(cond.cast<bool>()){
-        //内层循环不断执行 while语句块
-        //外层用于判断 条件是否继续为true
-        for(auto& stmt : block->stmts){
+    AsmGen::enterContext(ctx);
+    //内层循环不断执行 while语句块
+    //外层用于判断 条件是否继续为true
+    for(auto& stmt : block->stmts){
 //            std::cout << stmt->toString() <<std::endl;
-            ret = stmt->asmgen(rt,ctx);
-            if(ret.execType == ExecReturn){
-                goto outside;
-
-            }else if(ret.execType == ExecBreak){
-                //这里表示可能有多长循环 如果内部break 不能影响到外部的执行
-                //所以在返回到外层循环时 恢复到 normal状态 因为外层还需要继续执行
-                ret.execType = ExecNormal;
-                goto outside;
-            }else if(ret.execType == ExecContinue)
-            {
-                //模拟continue 中断下面的指令继续执行
-                ret.execType = ExecNormal;
-                break;
-            }
-        }
-        //继续检查条件是否成立
-        cond = this->cond->asmgen(rt,ctx);
-        if(!cond.isType<Bool>())
-            panic(
-                    "TypeError: expects bool type in while condition at line %d, "
-                    "col %d\n",
-                    line, column);
+        ret = stmt->asmgen(rt,ctx);
     }
-    outside:
-    Interpreter::leaveContext(ctx);
+    AsmGen::leaveContext(ctx);
+    AsmGen::writeln("  jmp .L.begin.%d",c);
+    AsmGen::writeln(".L.while.end.%d:", c);
     return ret;
 }
 /**

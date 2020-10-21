@@ -90,7 +90,7 @@ void AsmGen::assign_offsets() {
 }
 
 //创建上下文 准备执行函数
-void AsmGen::enterContext(std::deque<Context *> ctx)
+void AsmGen::enterContext(std::deque<Context *> &ctx)
 {
     auto* temp = new Context;
     ctx.push_back(temp);

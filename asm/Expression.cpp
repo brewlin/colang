@@ -63,9 +63,9 @@ Value ArrayExpr::asmgen(Runtime* rt,std::deque<Context*> ctx){
 Value IdentExpr::asmgen(Runtime* rt,std::deque<Context*> ctx){
 
     //变量遍历表 看是否存在
-//    for(auto p = ctx.crbegin(); p != ctx.crend(); ++p){
-//        auto* ctx = *p;
-//        if(auto* var = ctx->getVar(this->identname);var != nullptr){
+    for(auto p = ctx.crbegin(); p != ctx.crend(); ++p){
+        auto* ctx = *p;
+        if(auto* var = ctx->getVar(this->identname);var != nullptr){
 
             Function* f = AsmGen::currentFunc;
             //地址生成
@@ -79,10 +79,10 @@ Value IdentExpr::asmgen(Runtime* rt,std::deque<Context*> ctx){
             //["a",123] return 123
             return Value(Null);
 //            return var->value;
-//        }
-//    }
-//    panic("RuntimeError:use of undefined variable %s at line %d co %d\n",
-//          identname.c_str(),this->line,this->column);
+        }
+    }
+    panic("RuntimeError:use of undefined variable %s at line %d co %d\n",
+          identname.c_str(),this->line,this->column);
 }
 /**
  * 索引 数组
