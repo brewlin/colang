@@ -19,12 +19,12 @@ find_package(LLVM REQUIRED CONFIG)
 include_directories(${LLVM_INCLUDE_DIRS})
 add_definitions(${LLVM_DEFINITIONS})
 add_definitions("-g -std=c++17")
-include_directories(. asm ast parser pkg runtime compiler interpreter)
+include_directories(. asm ast parser pkg runtime llvm interpreter)
 
 
 add_subdirectory(ast)
 add_subdirectory(asm)
-add_subdirectory(compiler)
+add_subdirectory(llvm)
 add_subdirectory(runtime)
 add_subdirectory(parser)
 add_subdirectory(pkg)
@@ -39,11 +39,11 @@ llvm_map_components_to_libnames(llvm_libs support core irreader)
 target_link_libraries(
         do
         asm
-        ast interpreter compiler
+        ast interpreter llvm
         runtime
         parser
         interpreter ast asm
-        compiler parser runtime
+        llvm parser runtime
         pkg
         ${llvm_libs}
 )

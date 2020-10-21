@@ -4,7 +4,7 @@
  *@Version 1.0
  **/
 #include "interpreter/Interpreter.h"
-#include "compiler/Compiler.h"
+#include "llvm/Compiler.h"
 #include "asm/AsmGen.h"
 
 int print_help () {
