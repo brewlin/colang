@@ -64,8 +64,9 @@ public:
     //asmgen 相关
 public:
     //处于循环时的context 需要设置
-    std::string break_str;
-    int         break_point;
+    std::string end_str;
+    std::string start_str;
+    int         point;
 
 };
 #endif //LANG_CONTEXT_H

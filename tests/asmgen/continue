@@ -1,0 +1,16 @@
+extern void sleep(int)
+extern int  printf(string)
+
+func test_continue(){
+    a = 3
+    while(a){
+        a = 0
+        continue
+        printf("continue a=%d\n",a)
+    }
+}
+
+
+func main(){
+    test_continue()
+}

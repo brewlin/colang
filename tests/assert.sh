@@ -28,6 +28,10 @@ read_dir(){
 install_env(){
     cmake ..
     make
+
+    if [  "$?" != 0 ]; then
+        echo "\033[31m make failed \033[0m"
+    fi
 }
 install_env
 read_dir asmgen

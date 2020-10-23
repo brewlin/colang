@@ -17,5 +17,5 @@ func test_while(){
 
 
 func main(){
-    test_while();
+    test_while()
 }

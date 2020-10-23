@@ -8,7 +8,20 @@ func test_while_break(){
         break
     }
 }
+func break_double(){
+    b = 1
+    while(b){
+        c = 1
+        printf("outside\n")
+        while(c){
+            printf("inside\n")
+            break
+        }
+        break
+    }
+}
 
 func main(){
     test_while_break()
+    break_double()
 }
