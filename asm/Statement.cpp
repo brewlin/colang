@@ -69,6 +69,8 @@ ExecResult WhileStmt::asmgen(Runtime *rt, std::deque<Context *> ctx)
 {
     ExecResult ret;
 
+
+
     int c = AsmGen::count ++;
     //表示循环开始的 标签：
     AsmGen::writeln(".L.begin.%d:", c);
@@ -78,6 +80,9 @@ ExecResult WhileStmt::asmgen(Runtime *rt, std::deque<Context *> ctx)
     AsmGen::writeln("  je  .L.while.end.%d", c);
 
     AsmGen::enterContext(ctx);
+    //设置当前ctx 所处的 count计数  用于定位标签
+    ctx.back()->break_point = c;
+    ctx.back()->break_str   = ".L.while.end";
     //内层循环不断执行 while语句块
     //外层用于判断 条件是否继续为true
     for(auto& stmt : block->stmts){
@@ -85,6 +90,7 @@ ExecResult WhileStmt::asmgen(Runtime *rt, std::deque<Context *> ctx)
         ret = stmt->asmgen(rt,ctx);
     }
     AsmGen::leaveContext(ctx);
+
     AsmGen::writeln("  jmp .L.begin.%d",c);
     AsmGen::writeln(".L.while.end.%d:", c);
     return ret;
@@ -124,6 +130,11 @@ ExecResult ReturnStmt::asmgen(Runtime *rt, std::deque<Context *> ctx)
  */
 ExecResult BreakStmt::asmgen(Runtime *rt, std::deque<Context *> ctx)
 {
+    //判断当前是否处在循环中
+    Context* c = ctx.back();
+    if(c->break_point && !c->break_str.empty()){
+        AsmGen::writeln("  jmp %s.%d",c->break_str.c_str(),c->break_point);
+    }
     return ExecResult(ExecBreak);
 }
 /**

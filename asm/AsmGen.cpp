@@ -49,10 +49,11 @@ void AsmGen::execute()
     registerFuncs();
 
     fclose(output_file);
-    FILE *out = fopen("./asm.s", "w");
-    std::cout << buf <<std::endl;
+    FILE *out = fopen("./tmp.s", "w");
+//    std::cout << buf <<std::endl;
     fwrite(buf, buflen, 1, out);
     fclose(out);
+    system("gcc -g tmp.s");
 }
 /**
  * 计算

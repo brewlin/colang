@@ -1,0 +1,14 @@
+extern void sleep(int)
+extern int  printf(string)
+
+func test_while_break(){
+    a = 10
+    while(a){
+        printf("break\n")
+        break
+    }
+}
+
+func main(){
+    test_while_break()
+}

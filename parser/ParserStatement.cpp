@@ -27,7 +27,7 @@ Statement* Parser::parseStatement()
             break;
         case KW_BREAK:
             currentToken = next();
-            node = parseReturnStmt();
+            node = new BreakStmt(line,column);
             break;
         case KW_CONTINUE:
             currentToken = next();

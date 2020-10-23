@@ -60,5 +60,12 @@ public:
     std::vector<Function*> order_funcs;
     //标记变量是否是 函数参数
     std::map<std::string, bool> isFuncArg;
+
+    //asmgen 相关
+public:
+    //处于循环时的context 需要设置
+    std::string break_str;
+    int         break_point;
+
 };
 #endif //LANG_CONTEXT_H

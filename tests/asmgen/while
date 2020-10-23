@@ -1,15 +1,21 @@
 extern void sleep(int)
 extern int  printf(string)
 
-func main(){
+func test_while(){
     a = 3
+    b = 0
     while(a){
         printf("a=%d\n",a)
         sleep(1)
         a = 0
-        b = 0
+        b = 1
     }
-    while(b){
-        printf("not suppose to  be here!\n")
+    if(b){
+        printf("!\n")
     }
+}
+
+
+func main(){
+    test_while();
 }
