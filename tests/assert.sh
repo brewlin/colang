@@ -6,6 +6,11 @@ assert(){
     ./do -s $input
     if [  "$?" = 0 ]; then
         actual=`./a.out`
+        if [  "$?" != 0 ]; then
+            rm ./a.out
+            echo "\033[31m exec failed \033[0m"
+            exit 1
+        fi
         echo "output:"
         echo "$actual"
         rm ./a.out

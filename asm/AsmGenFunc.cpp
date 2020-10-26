@@ -64,6 +64,8 @@ void AsmGen::CreateFunction(Function *fn, Runtime *rt, std::deque<Context *> ctx
         //进入新的上下文
         enterContext(funcCtxChain);
         auto* funcCtx = funcCtxChain.back();
+        funcCtx->currentFunc = fn->name;
+
         for(int i = 0; i < fn->params.size() ; i ++){
             //将实参值放入新的上下文中 创建变量
             Value null{Null};

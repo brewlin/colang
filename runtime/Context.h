@@ -67,6 +67,8 @@ public:
     std::string end_str;
     std::string start_str;
     int         point;
+    //保存当前函数名
+    std::string currentFunc;
 
 };
 #endif //LANG_CONTEXT_H

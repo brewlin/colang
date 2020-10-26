@@ -119,6 +119,12 @@ ExecResult ExpressionStmt::asmgen(Runtime *rt, std::deque<Context *> ctx)
 ExecResult ReturnStmt::asmgen(Runtime *rt, std::deque<Context *> ctx)
 {
     Value retVal = this->ret->asmgen(rt,ctx);
+    for(auto p = ctx.crbegin(); p != ctx.crend(); ++p) {
+        //如果该变量不是 array 则抛出类型错误，不能对非数组变量进行索引操作
+        std::string funcName = (*p)->currentFunc;
+        if (!funcName.empty())
+            AsmGen::writeln("  jmp .L.return.%s",funcName.c_str());
+    }
     return ExecResult(ExecReturn,retVal);
 }
 /**
