@@ -49,9 +49,13 @@ void AsmGen::CreateFunction(Function *fn, Runtime *rt, std::deque<Context *> ctx
     //TODO:可变参数
     int gp = 0, fp = 0;
     for(auto &param:fn->params_var){
+        //保存参数到栈上，如果偏移量大于0 表示异常，因为通过bp来索引会影响其他函数栈参数
         //默认 int long 8字节
         //这里将函数参数保存栈上
         IdentExpr* var = param.second;
+        //栈参数是保存在调用方的，所以这里不需要存储调用方的栈参数
+        if (var->offset > 0)
+            continue;
         Store_gp(gp++, var->offset, 8);
     }
 

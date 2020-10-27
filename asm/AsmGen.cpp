@@ -67,16 +67,26 @@ void AsmGen::assign_offsets() {
 
         // 如果该函数参数太多，那么超出部分将存放到栈上
         // 第一个栈参数 通过 rbp+16来定位
+        // 超过6个参数后 其他参数放在调用方的栈上，而不是被调用方，那么被调用方则需要通过 offset(%rbp) 来定位
         int top = 16;
         int bottom = 0;
 
         int gp = 0, fp = 0;
         //TODO:假定所有参数类型为 int 8字节
+
         for(auto param : fn->params_var){
             IdentExpr* var = param.second;
-            top = ALIGN_UP(top, 8);
-            var->offset = top;
-            top += 8;
+            //寄存器参数，需要存储在被调用方栈上 offset 为负
+            if (gp++ < GP_MAX){
+                bottom += 8;
+                bottom = ALIGN_UP(bottom, 8);
+                var->offset = -bottom;
+            //栈参数  需要存储在调用方本地栈上
+            } else{
+                top = ALIGN_UP(top, 8);
+                var->offset = top;
+                top += 8;
+            }
         }
         //TODO: 在parser ast function时 将本地局部变量加入 fn->locals 方便计算偏移量
         // Assign offsets to pass-by-register parameters and local variables.

@@ -6,8 +6,10 @@ func test(b){
     }else{
         printf("Error",b)
     }
+    return 22
 }
 func main(){
     a = 1
-    test(a)
+    c = test(a)
+    printf("res:%d\n",c)
 }
