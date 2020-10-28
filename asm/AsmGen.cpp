@@ -74,8 +74,7 @@ void AsmGen::assign_offsets() {
         int gp = 0, fp = 0;
         //TODO:假定所有参数类型为 int 8字节
 
-        for(auto param : fn->params_var){
-            IdentExpr* var = param.second;
+        for(auto var : fn->params_order_var){
             //寄存器参数，需要存储在被调用方栈上 offset 为负
             if (gp++ < GP_MAX){
                 bottom += 8;

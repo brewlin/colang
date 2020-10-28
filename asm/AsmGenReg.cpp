@@ -94,12 +94,13 @@ int AsmGen::Push_arg(Runtime *rt,std::deque<Context *> prevCtxChain,std::vector<
         if (gp++ >= GP_MAX) {
             stack++;
         }
+        //读取每个变量到rax寄存器上
         args[i]->asmgen(rt,prevCtxChain);
         Push();
     }
-    if (stack % 2 == 1) {
-        writeln("  sub $8, %%rsp");
-        stack++;
-    }
+//    if (stack % 2 == 1) {
+//        writeln("  sub $8, %%rsp");
+//        stack++;
+//    }
     return stack;
 }

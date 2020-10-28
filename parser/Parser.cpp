@@ -350,8 +350,11 @@ std::vector<std::string> Parser::parseParameterList()
         //所有的参数都必须是 ident 或者 逗号,
        if(getCurrentToken() == TK_IDENT){
            //将参数单独保存一份 需要计算 栈偏移量
-           if(currentFunc)
-               currentFunc->params_var[getCurrentLexeme()] = new IdentExpr(getCurrentLexeme(),line,column);
+           if(currentFunc){
+               IdentExpr* var = new IdentExpr(getCurrentLexeme(),line,column);
+               currentFunc->params_var[getCurrentLexeme()] = var;
+               currentFunc->params_order_var.push_back(var);
+           }
            node.push_back(getCurrentLexeme());
        }
        else{

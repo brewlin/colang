@@ -25,7 +25,9 @@ struct Function{
 
     //保存函数块内的本地变量 for asm gen offset
     std::unordered_map<std::string,IdentExpr*> locals;
+    //这里保存两份加快查找 因为函数参数在计算栈偏移量的时候和顺序有关
     std::unordered_map<std::string,IdentExpr*> params_var;
+    std::vector<IdentExpr*>                    params_order_var;
     //表示该函数所需要的栈空间 一般是本地变量的总和
     int                      stack_size;
 
