@@ -54,8 +54,8 @@ llvm::Value* ArrayExpr::compiler(Runtime* rt, std::deque<Context*> ctx){
 //    std::vector<Value> elements;
     //数组内的元素可能类型不同 如 [1,"2","3"] 所以需要遍历生成Value 存入vector中
 //    for(auto& e: this->literal)
-        //遍历调用 eval 生成 Value
-//        elements.push_back(e->eval(rt,ctx));
+        //遍历调用 interpret 生成 Value
+//        elements.push_back(e->interpret(rt,ctx));
     return nullptr;
 //    return Value(Array,elements);
 }

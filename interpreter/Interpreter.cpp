@@ -25,10 +25,10 @@ Interpreter::~Interpreter() {
  * @param ctx
  * @return
  */
-Value Expression::eval(Runtime *rt, std::deque<Context *> ctx)
+Value Expression::interpret(Runtime *rt, std::deque<Context *> ctx)
 {
     panic(
-        "RuntimeError: can not evaluate abstract expression at line %d, column "
+        "RuntimeError: can not interpretuate abstract expression at line %d, column "
         "%d\n",
         line, column);
 }
@@ -114,7 +114,7 @@ Value Interpreter::callFunction(Runtime *rt, Function *f, std::deque<Context *> 
         std::string paramname = f->params[i];
         //从之前的上下文链中求实参的值
         //TODO: need figure out
-        Value argvalue = args[i]->eval(rt,prevCtxChain);
+        Value argvalue = args[i]->interpret(rt,prevCtxChain);
         //将实参值放入新的上下文中 创建变量
         funcCtx->createVar(f->params[i],argvalue);
     }

@@ -15,7 +15,7 @@ ExecResult IfStmt::interpret(Runtime *rt, std::deque<Context *> ctx)
 {
     ExecResult ret(ExecNormal);
     //对判断条件的表达式求值
-    Value cond = this->cond->eval(rt,ctx);
+    Value cond = this->cond->interpret(rt,ctx);
 //    if(!cond.isType<Bool>())
 //        panic("TypeError: expects bool type in while condition at line %d col %d\n",
 //              line,column);
@@ -67,7 +67,7 @@ ExecResult IfStmt::interpret(Runtime *rt, std::deque<Context *> ctx)
 ExecResult WhileStmt::interpret(Runtime *rt, std::deque<Context *> ctx)
 {
     ExecResult ret;
-    Value cond = this->cond->eval(rt,ctx);
+    Value cond = this->cond->interpret(rt,ctx);
 
     Interpreter::enterContext(ctx);
     //判断条件是否为真
@@ -93,7 +93,7 @@ ExecResult WhileStmt::interpret(Runtime *rt, std::deque<Context *> ctx)
             }
         }
         //继续检查条件是否成立
-        cond = this->cond->eval(rt,ctx);
+        cond = this->cond->interpret(rt,ctx);
         if(!cond.isType<Bool>())
             panic(
                     "TypeError: expects bool type in while condition at line %d, "
@@ -115,7 +115,7 @@ ExecResult ExpressionStmt::interpret(Runtime *rt, std::deque<Context *> ctx)
 
 //    std::cout << expr->toString() <<std::endl;
     //对表达式求值
-    this->expr->eval(rt,ctx);
+    this->expr->interpret(rt,ctx);
     return ExecResult(ExecNormal);
 }
 /**
@@ -128,7 +128,7 @@ ExecResult ExpressionStmt::interpret(Runtime *rt, std::deque<Context *> ctx)
  */
 ExecResult ReturnStmt::interpret(Runtime *rt, std::deque<Context *> ctx)
 {
-    Value retVal = this->ret->eval(rt,ctx);
+    Value retVal = this->ret->interpret(rt,ctx);
     return ExecResult(ExecReturn,retVal);
 }
 /**

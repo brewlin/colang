@@ -8,29 +8,29 @@
 //===---------------------------------------------------------------------===//
 // 计算所有的表达式 并返回一个 Value 结构，
 
-Value NullExpr::eval(Runtime* rt,std::deque<Context*> ctx)
+Value NullExpr::interpret(Runtime* rt,std::deque<Context*> ctx)
 {
     return Value(Null);
 }
-Value BoolExpr::eval(Runtime* rt,std::deque<Context*> ctx)
+Value BoolExpr::interpret(Runtime* rt,std::deque<Context*> ctx)
 {
     return Value(Bool,this->literal);
 }
-Value CharExpr::eval(Runtime* rt,
+Value CharExpr::interpret(Runtime* rt,
                          std::deque<Context*> ctx) {
     return Value(Char, this->literal);
 }
 
-Value IntExpr::eval(Runtime* rt, std::deque<Context*> ctx) {
+Value IntExpr::interpret(Runtime* rt, std::deque<Context*> ctx) {
     return Value(Int, this->literal);
 }
 
-Value DoubleExpr::eval(Runtime* rt,
+Value DoubleExpr::interpret(Runtime* rt,
                            std::deque<Context*> ctx) {
     return Value(Double, this->literal);
 }
 
-Value StringExpr::eval(Runtime* rt,
+Value StringExpr::interpret(Runtime* rt,
                            std::deque<Context*> ctx) {
     return Value(String, this->literal);
 }
@@ -40,12 +40,12 @@ Value StringExpr::eval(Runtime* rt,
  * @param ctx
  * @return
  */
-Value ArrayExpr::eval(Runtime* rt,std::deque<Context*> ctx){
+Value ArrayExpr::interpret(Runtime* rt,std::deque<Context*> ctx){
     std::vector<Value> elements;
     //数组内的元素可能类型不同 如 [1,"2","3"] 所以需要遍历生成Value 存入vector中
     for(auto& e: this->literal)
-        //遍历调用 eval 生成 Value
-        elements.push_back(e->eval(rt,ctx));
+        //遍历调用 interpret 生成 Value
+        elements.push_back(e->interpret(rt,ctx));
     return Value(Array,elements);
 }
 /**
@@ -54,7 +54,7 @@ Value ArrayExpr::eval(Runtime* rt,std::deque<Context*> ctx){
  * @param ctx
  * @return
  */
-Value IdentExpr::eval(Runtime* rt,std::deque<Context*> ctx){
+Value IdentExpr::interpret(Runtime* rt,std::deque<Context*> ctx){
     //变量遍历表 看是否存在
     for(auto p = ctx.crbegin(); p != ctx.crend(); ++p){
         auto* ctx = *p;
@@ -72,12 +72,12 @@ Value IdentExpr::eval(Runtime* rt,std::deque<Context*> ctx){
  * @param ctx
  * @return
  */
-Value IndexExpr::eval(Runtime* rt,std::deque<Context*> ctx) {
+Value IndexExpr::interpret(Runtime* rt,std::deque<Context*> ctx) {
     for(auto p = ctx.crbegin();p != ctx.crend(); ++p){
         //查看 a 变量是否存在 var 对应的应该是一个  vector
         if(auto* var = (*p)->getVar(this->identname); var != nullptr){
             //将当前index 转换为  Value
-            auto idx = this->index->eval(rt,ctx);
+            auto idx = this->index->interpret(rt,ctx);
             //判断 索引是不是 int类型
             if(!idx.isType<Int>())
                 panic("TypeError:expects index is int type at line %d col %d\n",line,column);
@@ -98,9 +98,9 @@ Value IndexExpr::eval(Runtime* rt,std::deque<Context*> ctx) {
  * @param ctx
  * @return
  */
-Value AssignExpr::eval(Runtime* rt,std::deque<Context*> ctx){
+Value AssignExpr::interpret(Runtime* rt,std::deque<Context*> ctx){
     //对运算符右值求值
-    Value rhs = this->rhs->eval(rt,ctx);
+    Value rhs = this->rhs->interpret(rt,ctx);
     //如果左值是一个标识符 表达式: a = 13;
     if(typeid(*lhs) == typeid(IdentExpr)){
         std::string identname = dynamic_cast<IdentExpr*>(lhs)->identname;
@@ -118,7 +118,7 @@ Value AssignExpr::eval(Runtime* rt,std::deque<Context*> ctx){
     }else if(typeid(*lhs) == typeid(IndexExpr))
     {
         std::string identname = dynamic_cast<IndexExpr*>(lhs)->identname;
-        Value   index     = dynamic_cast<IndexExpr*>(lhs)->index->eval(rt,ctx);
+        Value   index     = dynamic_cast<IndexExpr*>(lhs)->index->interpret(rt,ctx);
         //如果索引不是int则panic : a["1"];
         if(!index.isType<Int>())
             panic("TypeError: expects index is int type to variable %s at line %d co %d\n",identname.c_str(),line,column);
@@ -152,13 +152,13 @@ Value AssignExpr::eval(Runtime* rt,std::deque<Context*> ctx){
  * @param ctx
  * @return
  */
-Value FunCallExpr::eval(Runtime* rt,std::deque<Context*> ctx){
+Value FunCallExpr::interpret(Runtime* rt,std::deque<Context*> ctx){
     //内置函数: 查找管局函数变是否存在该 函数
     if(auto* builtinFunc = rt->getBuiltinFunc(this->funcname) ; builtinFunc != nullptr){
         std::vector<Value> arguments;
         //封装参数进行函数传参
         for(auto e : this->args)
-            arguments.push_back(e->eval(rt,ctx));
+            arguments.push_back(e->interpret(rt,ctx));
         //将函数调用的结果返回
         return builtinFunc(rt,ctx,arguments);
     }
@@ -181,10 +181,10 @@ Value FunCallExpr::eval(Runtime* rt,std::deque<Context*> ctx){
  * @param ctx
  * @return
  */
-Value BinaryExpr::eval(Runtime* rt,std::deque<Context*> ctx)
+Value BinaryExpr::interpret(Runtime* rt,std::deque<Context*> ctx)
 {
-    Value lhs = this->lhs ? this->lhs->eval(rt,ctx) : Value(Null);
-    Value rhs = this->rhs ? this->rhs->eval(rt,ctx) : Value(Null);
+    Value lhs = this->lhs ? this->lhs->interpret(rt,ctx) : Value(Null);
+    Value rhs = this->rhs ? this->rhs->interpret(rt,ctx) : Value(Null);
 
     Token  opt = this->opt;
     //lhs != null & rhs == null 一元求值
@@ -201,7 +201,7 @@ Value BinaryExpr::eval(Runtime* rt,std::deque<Context*> ctx)
  * @param ctx
  * @return
  */
-Value NewExpr::eval(Runtime* rt,std::deque<Context*> ctx)
+Value NewExpr::interpret(Runtime* rt,std::deque<Context*> ctx)
 {
     return Value(String,type);
 }
@@ -212,7 +212,7 @@ Value NewExpr::eval(Runtime* rt,std::deque<Context*> ctx)
  * @param ctx
  * @return
  */
-Value MemberExpr::eval(Runtime* rt,std::deque<Context*> ctx)
+Value MemberExpr::interpret(Runtime* rt,std::deque<Context*> ctx)
 {
     return Value(String,varname);
 }
@@ -222,7 +222,7 @@ Value MemberExpr::eval(Runtime* rt,std::deque<Context*> ctx)
  * @param ctx
  * @return
  */
-Value MemberCallExpr::eval(Runtime* rt,std::deque<Context*> ctx)
+Value MemberCallExpr::interpret(Runtime* rt,std::deque<Context*> ctx)
 {
     return Value(String,varname);
 }
