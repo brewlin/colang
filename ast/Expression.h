@@ -17,7 +17,7 @@ struct  Expression : public AstNode {
 
     virtual Value        interpret(Runtime* rt,std::deque<Context*> ctx);
     virtual Value        asmgen(Runtime* rt,std::deque<Context*> ctx) = 0;
-    virtual llvm::Value* compiler(Runtime* rt,std::deque<Context*> ctx) = 0;
+    virtual llvm::Value* irgen(Runtime* rt,std::deque<Context*> ctx) = 0;
     virtual string       toString() = 0;
 };
 
@@ -27,7 +27,7 @@ struct BoolExpr : public Expression{
 
     Value        interpret(Runtime* rt,std::deque<Context*> ctx) override;
     Value        asmgen(Runtime* rt,std::deque<Context*> ctx) override;
-    llvm::Value* compiler(Runtime* rt,std::deque<Context*> ctx) override;
+    llvm::Value* irgen(Runtime* rt,std::deque<Context*> ctx) override;
     std::string  toString() override;
 };
 struct CharExpr : public Expression {
@@ -36,7 +36,7 @@ struct CharExpr : public Expression {
 
     Value        interpret(Runtime* rt, std::deque<Context*> ctx) override;
     Value        asmgen(Runtime* rt, std::deque<Context*> ctx) override;
-    llvm::Value* compiler(Runtime* rt, std::deque<Context*> ctx) override;
+    llvm::Value* irgen(Runtime* rt, std::deque<Context*> ctx) override;
     std::string  toString() override;
 };
 
@@ -45,7 +45,7 @@ struct NullExpr : public Expression {
 
     Value        interpret(Runtime* rt, std::deque<Context*> ctx) override;
     Value        asmgen(Runtime* rt, std::deque<Context*> ctx) override;
-    llvm::Value* compiler(Runtime* rt, std::deque<Context*> ctx) override;
+    llvm::Value* irgen(Runtime* rt, std::deque<Context*> ctx) override;
     std::string  toString() override;
 };
 
@@ -55,7 +55,7 @@ struct IntExpr : public Expression {
 
     Value        interpret(Runtime* rt, std::deque<Context*> ctx) override;
     Value        asmgen(Runtime* rt, std::deque<Context*> ctx) override;
-    llvm::Value* compiler(Runtime* rt, std::deque<Context*> ctx) override;
+    llvm::Value* irgen(Runtime* rt, std::deque<Context*> ctx) override;
     std::string  toString() override;
 };
 
@@ -66,7 +66,7 @@ struct DoubleExpr : public Expression {
 
     Value        interpret(Runtime* rt, std::deque<Context*> ctx) override;
     Value        asmgen(Runtime* rt, std::deque<Context*> ctx) override;
-    llvm::Value* compiler(Runtime* rt, std::deque<Context*> ctx) override;
+    llvm::Value* irgen(Runtime* rt, std::deque<Context*> ctx) override;
     std::string  toString() override;
 };
 /**
@@ -82,7 +82,7 @@ struct StringExpr : public Expression {
 
     Value        interpret(Runtime* rt, std::deque<Context*> ctx) override;
     Value        asmgen(Runtime* rt, std::deque<Context*> ctx) override;
-    llvm::Value* compiler(Runtime* rt, std::deque<Context*> ctx) override;
+    llvm::Value* irgen(Runtime* rt, std::deque<Context*> ctx) override;
     std::string  toString() override;
 };
 
@@ -92,7 +92,7 @@ struct ArrayExpr : public Expression {
 
     Value        interpret(Runtime* rt, std::deque<Context*> ctx) override;
     Value        asmgen(Runtime* rt, std::deque<Context*> ctx) override;
-    llvm::Value* compiler(Runtime* rt, std::deque<Context*> ctx) override;
+    llvm::Value* irgen(Runtime* rt, std::deque<Context*> ctx) override;
     std::string  toString() override;
 };
 
@@ -110,7 +110,7 @@ struct IdentExpr : public Expression {
 
     Value        interpret(Runtime* rt, std::deque<Context*> ctx) override;
     Value        asmgen(Runtime* rt, std::deque<Context*> ctx) override;
-    llvm::Value* compiler(Runtime* rt, std::deque<Context*> ctx) override;
+    llvm::Value* irgen(Runtime* rt, std::deque<Context*> ctx) override;
     std::string  toString() override;
 };
 
@@ -122,7 +122,7 @@ struct IndexExpr : public Expression {
 
     Value        interpret(Runtime* rt, std::deque<Context*> ctx) override;
     Value        asmgen(Runtime* rt, std::deque<Context*> ctx) override;
-    llvm::Value* compiler(Runtime* rt, std::deque<Context*> ctx) override;
+    llvm::Value* irgen(Runtime* rt, std::deque<Context*> ctx) override;
     std::string  toString() override;
 };
 
@@ -134,7 +134,7 @@ struct BinaryExpr : public Expression {
 
     Value        interpret(Runtime* rt, std::deque<Context*> ctx) override;
     Value        asmgen(Runtime* rt, std::deque<Context*> ctx) override;
-    llvm::Value* compiler(Runtime* rt, std::deque<Context*> ctx) override;
+    llvm::Value* irgen(Runtime* rt, std::deque<Context*> ctx) override;
     std::string  toString() override;
 };
 
@@ -145,7 +145,7 @@ struct FunCallExpr : public Expression {
 
     Value        interpret(Runtime* rt, std::deque<Context*> ctx) override;
     Value        asmgen(Runtime* rt, std::deque<Context*> ctx) override;
-    llvm::Value* compiler(Runtime* rt, std::deque<Context*> ctx) override;
+    llvm::Value* irgen(Runtime* rt, std::deque<Context*> ctx) override;
     std::string  toString() override;
 };
 
@@ -159,7 +159,7 @@ struct AssignExpr : public Expression {
 
     Value        interpret(Runtime* rt, std::deque<Context*> ctx) override;
     Value        asmgen(Runtime* rt, std::deque<Context*> ctx) override;
-    llvm::Value* compiler(Runtime* rt, std::deque<Context*> ctx) override;
+    llvm::Value* irgen(Runtime* rt, std::deque<Context*> ctx) override;
     std::string  toString() override;
 };
 
@@ -169,7 +169,7 @@ struct NewExpr : public Expression {
 
     Value        interpret(Runtime* rt, std::deque<Context*> ctx) override;
     Value        asmgen(Runtime* rt, std::deque<Context*> ctx) override;
-    llvm::Value* compiler(Runtime* rt, std::deque<Context*> ctx) override;
+    llvm::Value* irgen(Runtime* rt, std::deque<Context*> ctx) override;
     std::string  toString() override;
 };
 struct MemberExpr : public Expression {
@@ -179,7 +179,7 @@ struct MemberExpr : public Expression {
 
     Value        interpret(Runtime* rt, std::deque<Context*> ctx) override;
     Value        asmgen(Runtime* rt, std::deque<Context*> ctx) override;
-    llvm::Value* compiler(Runtime* rt, std::deque<Context*> ctx) override;
+    llvm::Value* irgen(Runtime* rt, std::deque<Context*> ctx) override;
     std::string  toString() override;
 };
 struct MemberCallExpr : public Expression {
@@ -191,7 +191,7 @@ struct MemberCallExpr : public Expression {
 
     Value        interpret(Runtime* rt, std::deque<Context*> ctx) override;
     Value        asmgen(Runtime* rt, std::deque<Context*> ctx) override;
-    llvm::Value* compiler(Runtime* rt, std::deque<Context*> ctx) override;
+    llvm::Value* irgen(Runtime* rt, std::deque<Context*> ctx) override;
     std::string  toString() override;
 };;
 

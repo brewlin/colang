@@ -34,7 +34,7 @@ public:
 
 private:
     std::unordered_map<std::string,Variable*> vars;
-    //TODO:compiler save baiscblock
+    //TODO:irgen save baiscblock
     //解释器相关的参数
 public:
     std::unordered_map<std::string,Function*> funcs;
@@ -56,7 +56,7 @@ public:
     std::map<std::string, llvm::Value*> locals;
     // 变量的类型名: a => double
     std::map<std::string, std::string> types;
-    //顺序存储函数表 for compiler bin
+    //顺序存储函数表 for irgen bin
     std::vector<Function*> order_funcs;
     //标记变量是否是 函数参数
     std::map<std::string, bool> isFuncArg;

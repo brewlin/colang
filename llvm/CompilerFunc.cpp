@@ -43,7 +43,7 @@ void Compiler::registerDefaultMain()
         Debug("%s",stmtstr.c_str());
         //执行表达式语句
 //        stmt->interpret(rt,ctx);
-        stmt->compiler(rt,ctx);
+        stmt->irgen(rt,ctx);
 //        stmt->interpret(rt,ctx);
     }
     rt->builder.CreateRet(ctx.back()->returnValue);
@@ -136,7 +136,7 @@ void Compiler::declarationFunc(Runtime* rt,std::deque<Context*> ctx,Function* f)
         //接下来就是注册 block块
         for(auto& stmt : f->block->stmts){
             //TODO: 处理返回值
-            stmt->compiler(rt,ctx);
+            stmt->irgen(rt,ctx);
         }
         llvm::Value* retv = ctx.back()->returnValue;
         if( retv) rt->builder.CreateRet(retv);

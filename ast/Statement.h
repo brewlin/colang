@@ -19,7 +19,7 @@ struct Statement : public AstNode {
 
     virtual ExecResult   interpret(Runtime* rt, std::deque<Context*> ctx);
     virtual ExecResult   asmgen(Runtime* rt, std::deque<Context*> ctx) = 0;
-    virtual llvm::Value* compiler(Runtime* rt, std::deque<Context*> ctx)  = 0;
+    virtual llvm::Value* irgen(Runtime* rt, std::deque<Context*> ctx)  = 0;
     virtual std::string  toString() = 0;
 
 };
@@ -29,7 +29,7 @@ struct BreakStmt : public Statement {
 
     ExecResult   interpret(Runtime* rt, std::deque<Context*> ctx) override;
     ExecResult   asmgen(Runtime* rt, std::deque<Context*> ctx) override;
-    llvm::Value* compiler(Runtime* rt, std::deque<Context*> ctx) override;
+    llvm::Value* irgen(Runtime* rt, std::deque<Context*> ctx) override;
     std::string  toString() override;
 };
 
@@ -38,7 +38,7 @@ struct ContinueStmt : public Statement {
 
     ExecResult   interpret(Runtime* rt, std::deque<Context*> ctx) override;
     ExecResult   asmgen(Runtime* rt, std::deque<Context*> ctx) override;
-    llvm::Value* compiler(Runtime* rt, std::deque<Context*> ctx)  override;
+    llvm::Value* irgen(Runtime* rt, std::deque<Context*> ctx)  override;
     std::string  toString() override;
 };
 
@@ -51,7 +51,7 @@ struct ExpressionStmt : public Statement {
 
     ExecResult   interpret(Runtime* rt, std::deque<Context*> ctx) override;
     ExecResult   asmgen(Runtime* rt, std::deque<Context*> ctx) override;
-    llvm::Value* compiler(Runtime* rt, std::deque<Context*> ctx) override;
+    llvm::Value* irgen(Runtime* rt, std::deque<Context*> ctx) override;
     std::string  toString() override;
 };
 
@@ -61,7 +61,7 @@ struct ReturnStmt : public Statement {
 
     ExecResult   interpret(Runtime* rt, std::deque<Context*> ctx) override;
     ExecResult   asmgen(Runtime* rt, std::deque<Context*> ctx) override;
-    llvm::Value* compiler(Runtime* rt, std::deque<Context*> ctx) override;
+    llvm::Value* irgen(Runtime* rt, std::deque<Context*> ctx) override;
     std::string  toString() override;
 };
 
@@ -74,7 +74,7 @@ struct IfStmt : public Statement {
 
     ExecResult   interpret(Runtime* rt, std::deque<Context*> ctx) override;
     ExecResult   asmgen(Runtime* rt, std::deque<Context*> ctx) override;
-    llvm::Value* compiler(Runtime* rt, std::deque<Context*> ctx) override;
+    llvm::Value* irgen(Runtime* rt, std::deque<Context*> ctx) override;
     std::string  toString() override;
 };
 
@@ -85,7 +85,7 @@ struct WhileStmt : public Statement {
 
     ExecResult   interpret(Runtime* rt, std::deque<Context*> ctx) override;
     ExecResult   asmgen(Runtime* rt, std::deque<Context*> ctx) override;
-    llvm::Value* compiler(Runtime* rt, std::deque<Context*> ctx) override;
+    llvm::Value* irgen(Runtime* rt, std::deque<Context*> ctx) override;
     std::string  toString() override;
 };
 

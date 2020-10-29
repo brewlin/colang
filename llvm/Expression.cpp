@@ -11,35 +11,35 @@
 // 计算所有的表达式 并返回一个 Value 结构，
 
 //用0表示一个 nullptr
-llvm::Value* NullExpr::compiler(Runtime* rt, std::deque<Context*> ctx)
+llvm::Value* NullExpr::irgen(Runtime* rt, std::deque<Context*> ctx)
 {
     return llvm::ConstantInt::get(llvm::Type::getInt32Ty(rt->llvmContext), 0, true);
 //    return Value(Null);
 }
-llvm::Value* BoolExpr::compiler(Runtime* rt, std::deque<Context*> ctx)
+llvm::Value* BoolExpr::irgen(Runtime* rt, std::deque<Context*> ctx)
 {
     return llvm::ConstantInt::get(llvm::Type::getInt32Ty(rt->llvmContext), this->literal, true);
 //    return Value(Bool,this->literal);
 }
 //字面值
-llvm::Value* CharExpr::compiler(Runtime* rt, std::deque<Context*> ctx){
+llvm::Value* CharExpr::irgen(Runtime* rt, std::deque<Context*> ctx){
 
 //    return rt->builder.CreateGlobalString(this->literal, "char");
     return llvm::ConstantInt::get(llvm::Type::getInt8Ty(rt->llvmContext), this->literal, true);
 //    return Value(Char, this->literal);
 }
 //int类型
-llvm::Value* IntExpr::compiler(Runtime* rt, std::deque<Context*> ctx){
+llvm::Value* IntExpr::irgen(Runtime* rt, std::deque<Context*> ctx){
     return llvm::ConstantInt::get(llvm::Type::getInt32Ty(rt->llvmContext), this->literal, true);
 //    return Value(Int, this->literal);
 }
 
-llvm::Value* DoubleExpr::compiler(Runtime* rt, std::deque<Context*> ctx){
+llvm::Value* DoubleExpr::irgen(Runtime* rt, std::deque<Context*> ctx){
     return llvm::ConstantFP::get(llvm::Type::getDoubleTy(rt->llvmContext), this->literal);
 //    return Value(Double, this->literal);
 }
 
-llvm::Value* StringExpr::compiler(Runtime* rt, std::deque<Context*> ctx){
+llvm::Value* StringExpr::irgen(Runtime* rt, std::deque<Context*> ctx){
 //    return ConstantPointerNull::get(llvm::Type::getInt8PtrTy(rt->llvmContext),this->literal);
     return rt->builder.CreateGlobalString(this->literal, "string");
 //    return Value(String, this->literal);
@@ -50,7 +50,7 @@ llvm::Value* StringExpr::compiler(Runtime* rt, std::deque<Context*> ctx){
  * @param ctx
  * @return
  */
-llvm::Value* ArrayExpr::compiler(Runtime* rt, std::deque<Context*> ctx){
+llvm::Value* ArrayExpr::irgen(Runtime* rt, std::deque<Context*> ctx){
 //    std::vector<Value> elements;
     //数组内的元素可能类型不同 如 [1,"2","3"] 所以需要遍历生成Value 存入vector中
 //    for(auto& e: this->literal)
@@ -63,7 +63,7 @@ llvm::Value* ArrayExpr::compiler(Runtime* rt, std::deque<Context*> ctx){
  * 这里是获取变量
  * 这里的变量可能没有初始化 可能返回了一个空
  */
-llvm::Value* IdentExpr::compiler(Runtime* rt, std::deque<Context*> ctx){
+llvm::Value* IdentExpr::irgen(Runtime* rt, std::deque<Context*> ctx){
     //变量遍历表 看是否存在
 //    for(auto p = ctx.crbegin(); p != ctx.crend(); ++p){
 //        auto* ctx = *p;
@@ -100,7 +100,7 @@ llvm::Value* IdentExpr::compiler(Runtime* rt, std::deque<Context*> ctx){
  * @param ctx
  * @return
  */
-llvm::Value* IndexExpr::compiler(Runtime* rt, std::deque<Context*> ctx) {
+llvm::Value* IndexExpr::irgen(Runtime* rt, std::deque<Context*> ctx) {
     return nullptr;
 }
 
@@ -111,11 +111,11 @@ llvm::Value* IndexExpr::compiler(Runtime* rt, std::deque<Context*> ctx) {
  * @param ctx
  * @return
  */
-llvm::Value* AssignExpr::compiler(Runtime* rt, std::deque<Context*> ctx)
+llvm::Value* AssignExpr::irgen(Runtime* rt, std::deque<Context*> ctx)
 {
     /**
      * 1. 查看变量是否存在
-     * 2. 对右边进行递归 compiler
+     * 2. 对右边进行递归 irgen
      * 2. 不存在则先创建变量
      * 3. 对变量进行赋值
      */
@@ -129,7 +129,7 @@ llvm::Value* AssignExpr::compiler(Runtime* rt, std::deque<Context*> ctx)
         lhsname = dynamic_cast<IdentExpr*>(lhs)->identname;
         dst = Compiler::getVar(ctx,lhsname);
         //先求值，用于判断类型 这里对右边子树进行递归求值
-        exp = rhs->compiler(rt,ctx);
+        exp = rhs->irgen(rt,ctx);
         //这里可能会发现该变量没有定义
         //因为我们是动态类型所以这里需要主动注册该变量
         //该变量第一次使用，需要定义变量名
@@ -158,9 +158,9 @@ llvm::Value* AssignExpr::compiler(Runtime* rt, std::deque<Context*> ctx)
     //成员变量赋值
     }else if(typeid(*lhs) == typeid(MemberExpr))
     {
-        //lhs MemberExpr->compiler()
-        dst = lhs->compiler(rt,ctx);
-        exp = rhs->compiler(rt,ctx);
+        //lhs MemberExpr->irgen()
+        dst = lhs->irgen(rt,ctx);
+        exp = rhs->irgen(rt,ctx);
         exp = Compiler::binaryOper(rt,ctx,opt,dst,exp);
     }
 
@@ -182,7 +182,7 @@ llvm::Value* AssignExpr::compiler(Runtime* rt, std::deque<Context*> ctx)
  * @param ctx
  * @return
  */
-llvm::Value* FunCallExpr::compiler(Runtime* rt, std::deque<Context*> ctx){
+llvm::Value* FunCallExpr::irgen(Runtime* rt, std::deque<Context*> ctx){
     Debug("Create method call of %s",funcname.c_str());
     llvm::Function * calleeF = rt->llvmModule->getFunction(this->funcname);
     if( !calleeF ){
@@ -205,7 +205,7 @@ llvm::Value* FunCallExpr::compiler(Runtime* rt, std::deque<Context*> ctx){
     for(auto it=this->args.begin(); it!=this->args.end(); it++){
         auto arg = *it;
         //args 里面存储的his expression* 表达式，所以需要求值后再存入
-        llvm::Value* tm = arg->compiler(rt,ctx);
+        llvm::Value* tm = arg->irgen(rt,ctx);
         Debug("call arg typeid(*it):%s type:%s",typeid(*arg).name(),Compiler::getTypeStr(tm).c_str());
         //结构体访问 需要解引用
         if(typeid(*arg) == typeid(MemberExpr)) {
@@ -213,7 +213,7 @@ llvm::Value* FunCallExpr::compiler(Runtime* rt, std::deque<Context*> ctx){
             tm = rt->builder.CreateLoad(tm);
         }
         argsv.push_back(tm);
-        if( !argsv.back() ){        // if any argument compiler(Runtime* rt, std::deque<Context*> ctx)fail
+        if( !argsv.back() ){        // if any argument irgen(Runtime* rt, std::deque<Context*> ctx)fail
             return nullptr;
         }
     }
@@ -226,10 +226,10 @@ llvm::Value* FunCallExpr::compiler(Runtime* rt, std::deque<Context*> ctx){
  * @param ctx
  * @return
  */
-llvm::Value* BinaryExpr::compiler(Runtime* rt, std::deque<Context*> ctx)
+llvm::Value* BinaryExpr::irgen(Runtime* rt, std::deque<Context*> ctx)
 {
-    llvm::Value* lhs = this->lhs ? this->lhs->compiler(rt,ctx) : nullptr;
-    llvm::Value* rhs = this->rhs ? this->rhs->compiler(rt,ctx) : nullptr;
+    llvm::Value* lhs = this->lhs ? this->lhs->irgen(rt,ctx) : nullptr;
+    llvm::Value* rhs = this->rhs ? this->rhs->irgen(rt,ctx) : nullptr;
 
     Token  opt = this->opt;
     //lhs != null & rhs == null 一元求值
@@ -247,7 +247,7 @@ llvm::Value* BinaryExpr::compiler(Runtime* rt, std::deque<Context*> ctx)
  * @param ctx
  * @return
  */
-llvm::Value* NewExpr::compiler(Runtime* rt, std::deque<Context*> ctx)
+llvm::Value* NewExpr::irgen(Runtime* rt, std::deque<Context*> ctx)
 {
     Debug("new expr got: type:%s",this->type.c_str());
     //获取struct 类型
@@ -279,7 +279,7 @@ llvm::Value* NewExpr::compiler(Runtime* rt, std::deque<Context*> ctx)
  * @param ctx
  * @return
  */
-llvm::Value* MemberExpr::compiler(Runtime* rt, std::deque<Context*> ctx)
+llvm::Value* MemberExpr::irgen(Runtime* rt, std::deque<Context*> ctx)
 {
     Debug("got member expr varname:%s membername:%s",varname.c_str(),membername.c_str());
     return Compiler::getStructMember(rt,ctx,varname,membername);
@@ -291,7 +291,7 @@ llvm::Value* MemberExpr::compiler(Runtime* rt, std::deque<Context*> ctx)
  * @param ctx
  * @return
  */
-llvm::Value* MemberCallExpr::compiler(Runtime* rt, std::deque<Context*> ctx){
+llvm::Value* MemberCallExpr::irgen(Runtime* rt, std::deque<Context*> ctx){
     //method = structname::methodname
     std::string funcname = ctx.back()->types[varname] + "::"+membername;
     Debug("got member call expr varname:%s membername:%s funcname:%s",varname.c_str(),membername.c_str(),funcname.c_str());
@@ -306,8 +306,8 @@ llvm::Value* MemberCallExpr::compiler(Runtime* rt, std::deque<Context*> ctx){
     //将ast里定义的value 参数 转换为 llvm::value
     for(auto it=this->args.begin(); it!=this->args.end(); it++){
         //args 里面存储的his expression* 表达式，所以需要求值后再存入
-        argsv.push_back((*it)->compiler(rt, ctx));
-        if( !argsv.back() ){        // if any argument compiler(Runtime* rt, std::deque<Context*> ctx)fail
+        argsv.push_back((*it)->irgen(rt, ctx));
+        if( !argsv.back() ){        // if any argument irgen(Runtime* rt, std::deque<Context*> ctx)fail
             return nullptr;
         }
     }

@@ -2,7 +2,7 @@
 assert(){
     expected="$1"
     input="$2"
-    echo "start compiler $input ..."
+    echo "start irgen $input ..."
     ./do -s $input
     if [  "$?" = 0 ]; then
         actual=`./a.out`
