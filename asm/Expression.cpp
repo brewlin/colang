@@ -6,6 +6,7 @@
 #include "Interpreter.h"
 #include "AsmGen.h"
 #include "Log.h"
+#include "Internal.h"
 
 //===---------------------------------------------------------------------===//
 // 计算所有的表达式 并返回一个 Value 结构，
@@ -128,6 +129,9 @@ Value AssignExpr::asmgen(Runtime* rt,std::deque<Context*> ctx){
         AsmGen::Push();
         //对运算符右值求值
         Value rhs = this->rhs->asmgen(rt,ctx);
+        //运算需要调用统一的方法
+        Internal::CallOperator(this->opt);
+        //执行结果存储
         AsmGen::Store(rhs.type);
 
         std::string identname = varExpr->identname;

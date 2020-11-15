@@ -48,7 +48,6 @@ public:
 
     void registerFuncs();
     static void CreateFunction(Function* fn,Runtime* rt,std::deque<Context*> ctx);
-
     //寄存器相关
     static void Store_gp(int r, int offset, int sz);
     static void Store(ValueType type);
@@ -56,6 +55,7 @@ public:
     static void Load(ValueType     type);
     static void CreateCmp(ValueType type);
     static void Push();
+    static void PushS(const char* arg);
     static void Pop(const char* arg);
     static int  Push_arg(Runtime *rt,std::deque<Context *> prevCtxChain,std::vector<Expression *> &args);
     static void Pop_arg(std::vector<Expression *> &args);

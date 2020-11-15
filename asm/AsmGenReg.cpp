@@ -68,6 +68,10 @@ void AsmGen::CreateCmp(ValueType type)
             return;
     }
 }
+void AsmGen::PushS(const char *arg)
+{
+    writeln("  push %s",arg);
+}
 void AsmGen::Push()
 {
     writeln("  push %%rax");

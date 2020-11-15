@@ -29,6 +29,7 @@ add_subdirectory(runtime)
 add_subdirectory(parser)
 add_subdirectory(pkg)
 add_subdirectory(interpreter)
+add_subdirectory(internal)
 
 add_executable(do do.cpp)
 
