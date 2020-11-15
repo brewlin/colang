@@ -34,6 +34,25 @@ Parser::~Parser()
 {
     fs.close();
 }
+// parseNumber
+std::tuple<Token,std::string> Parser::parseNumber(char first)
+{
+    std::string lexeme{first};
+    bool isDouble = false;
+    char cn = peekNextChar();
+    char c  = first;
+    //每一次遍历先判断下一个数是不是数字，如果不是则中断当前解析，不然会浪费下一个字符
+    //peek 则不会出现这种问题
+    while((cn >= '0' && cn <= '9') || (!isDouble && cn == '.')){
+        if(c == '.')
+            isDouble = true;
+        c = getNextChar();
+        cn = peekNextChar();
+        lexeme += c;
+    }
+    return !isDouble ? make_tuple(LIT_INT,lexeme)
+                     : make_tuple(LIT_DOUBLE,lexeme);
+}
 //逐字解析 直到找到合法的token
 std::tuple<Token,std::string> Parser::next() {
     char c = getNextChar();
@@ -77,20 +96,7 @@ std::tuple<Token,std::string> Parser::next() {
     }
     //解析数字 int or double
     if(c >= '0' && c <= '9'){
-        std::string lexeme{c};
-        bool isDouble = false;
-        char cn = peekNextChar();
-        //每一次遍历先判断下一个数是不是数字，如果不是则中断当前解析，不然会浪费下一个字符
-        //peek 则不会出现这种问题
-        while((cn >= '0' && cn <= '9') || (!isDouble && cn == '.')){
-            if(c == '.')
-                isDouble = true;
-            c = getNextChar();
-            cn = peekNextChar();
-            lexeme += c;
-        }
-        return !isDouble ? make_tuple(LIT_INT,lexeme)
-                         : make_tuple(LIT_DOUBLE,lexeme);
+        return parseNumber(c);
     }
     //解析关键字
     if( (c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') || c == '_'){
@@ -158,6 +164,9 @@ std::tuple<Token,std::string> Parser::next() {
         if(cn == '='){
             c = getNextChar();
             return std::make_tuple(TK_MINUS_AGN,"-=");
+        }else if(cn >= '0' && cn <= '9'){
+            //负数
+            return parseNumber('-');
         }
         return std::make_tuple(TK_MINUS,"-");
     }

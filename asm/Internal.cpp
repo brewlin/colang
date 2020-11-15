@@ -48,3 +48,12 @@ void Internal::newobject(int type, long data)
     AsmGen::writeln("  mov $%d, %%rax", 0);
     AsmGen::writeln("  call *%%r9");
 }
+void Internal::isTrue()
+{
+    AsmGen::writeln("  mov %%rax, %%rdi");
+
+    AsmGen::writeln("  mov %s@GOTPCREL(%%rip), %%rax", "isTrue");
+    AsmGen::writeln("  mov %%rax, %%r9");
+    AsmGen::writeln("  mov $%d, %%rax", 0);
+    AsmGen::writeln("  call *%%r9");
+}

@@ -1,8 +1,11 @@
 extern string println(string,string,string)
 
 func main(){
-    a = 1
-    println("OK %d %s\n",a,"sdfs")
-
+    a = -1323
+    if(a){
+        println("failed %d %s\n",a,"sdfs")
+    }else{
+        println("ok %d %s\n",a,"sdfs")
+    }
 }
 

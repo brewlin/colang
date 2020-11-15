@@ -6,6 +6,7 @@
 #include "Utils.h"
 #include "Interpreter.h"
 #include "AsmGen.h"
+#include "Internal.h"
 /**
  * if 控制语句执行
  * @param rt
@@ -18,6 +19,9 @@ ExecResult IfStmt::asmgen(Runtime *rt, std::deque<Context *> ctx)
     int c = AsmGen::count ++;
     //对判断条件的表达式求值
     Value cond = this->cond->asmgen(rt,ctx);
+    //判断是否为true
+    Internal::isTrue();
+
     AsmGen::CreateCmp(cond.type);
     AsmGen::writeln("  je  .L.else.%d", c);
 

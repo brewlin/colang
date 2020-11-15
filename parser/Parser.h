@@ -64,6 +64,9 @@ private:
 
     short           precedence(Token op);
     Block*          parseBlock();
+
+    std::tuple <Token ,std::string> parseNumber(char first);
+
     std::tuple <Token ,std::string> next();
     std::vector<std::string> parseParameterList();
     std::vector<Statement*> parseStatementList();
