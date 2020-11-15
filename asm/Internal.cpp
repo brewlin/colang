@@ -24,3 +24,27 @@ void Internal::CallOperator(Token opt) {
     AsmGen::writeln("  call *%%r9");
     AsmGen::writeln("  add $%d, %%rsp", 0);
 }
+void Internal::gc_malloc()
+{
+
+    AsmGen::writeln("  mov $%ld, %%rdi", sizeof(CoreValue));
+    AsmGen::writeln("  mov %s@GOTPCREL(%%rip), %%rax", "malloc");
+    AsmGen::writeln("  mov %%rax, %%r9");
+    AsmGen::writeln("  mov $%d, %%rax", 0);
+    AsmGen::writeln("  call *%%r9");
+    AsmGen::writeln("  add $%d, %%rsp", 0);
+}
+/**
+ * @return
+ */
+void Internal::newobject(int type, long data)
+{
+    AsmGen::writeln("  mov $%ld, %%rdi", type);
+    if(type != String)
+        AsmGen::writeln("  mov $%ld, %%rsi", data);
+
+    AsmGen::writeln("  mov %s@GOTPCREL(%%rip), %%rax", "newobject");
+    AsmGen::writeln("  mov %%rax, %%r9");
+    AsmGen::writeln("  mov $%d, %%rax", 0);
+    AsmGen::writeln("  call *%%r9");
+}

@@ -55,12 +55,13 @@ void AsmGen::Store(ValueType type)
         case Char:
         case Int:
         case Bool:
-            writeln("  mov %%eax, (%%rdi)");
-            return;
+//            writeln("  mov %%eax, (%%rdi)");
+//            return;
         case Double:
-            writeln("  movsd %%xmm0, (%%rdi)");
+//            writeln("  movsd %%xmm0, (%%rdi)");
         default:
-            writeln("  mov %%eax, (%%rdi)");
+            //现在所有的变量都是指针类型，都是8字节
+            writeln("  mov %%rax, (%%rdi)");
     }
 
 }

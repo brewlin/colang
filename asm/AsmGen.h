@@ -15,6 +15,15 @@
 
 #define ALIGN_UP(x,a) (((x) + (a - 1)) & ~(a - 1))
 
+struct CoreValue{
+    int     type;    //0
+
+    int     interger; //4
+    double  long_interger;//8
+    char    cchar;//16
+    char*   string;//17
+    int     boolean;//25
+};
 
 class AsmGen {
     std::deque<Context*> ctx;

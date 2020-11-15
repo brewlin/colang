@@ -1,0 +1,8 @@
+extern string println(string,string,string)
+
+func main(){
+    a = 1
+    println("OK %d %s\n",a,"sdfs")
+
+}
+

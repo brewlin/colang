@@ -34,14 +34,14 @@ void AsmGen::Load(ValueType type)
 
     switch (type){
         case Double:
-            writeln("  movsd (%%rax), %%xmm0");
-            return;
+//            writeln("  movsd (%%rax), %%xmm0");
+//            return;
         case Char:
-            writeln("  %sbl (%%rax), %%eax", insn);
-            return;
+//            writeln("  %sbl (%%rax), %%eax", insn);
+//            return;
         case Int:
-            writeln("  movsxd (%%rax), %%rax");
-            return;
+//            writeln("  movsxd (%%rax), %%rax");
+//            return;
         default:
             writeln("  mov (%%rax), %%rax");
             return;

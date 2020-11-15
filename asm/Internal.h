@@ -11,5 +11,7 @@ class Internal
 {
 public:
     static void CallOperator(Token opt);
+    static void newobject(int type,long data);
+    static void gc_malloc();
 };
 #endif //LANG_INTERNAL_H

@@ -48,10 +48,13 @@ enum Token {
  */
 typedef struct core_value
 {
-    //value 的类型
     int  type;
-    ///可以存储任意类型
-    void*      data;
+
+    int     interger;
+    double  long_interger;
+    char    cchar;
+    char*   string;
+    int     boolean;
 }CoreValue;
 
 CoreValue* value_plus(CoreValue* lhs,CoreValue* rhs);

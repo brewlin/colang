@@ -7,36 +7,76 @@
 #include "AsmGen.h"
 #include "Log.h"
 #include "Internal.h"
+#include "../ast/Ast.h"
+#include "../ast/Value.h"
 
 //===---------------------------------------------------------------------===//
 // 计算所有的表达式 并返回一个 Value 结构，
 
 Value NullExpr::asmgen(Runtime* rt,std::deque<Context*> ctx)
 {
+    Internal::newobject(Null,NULL);
+//    Internal::gc_malloc();
+//    AsmGen::writeln("  mov $%ld, (%%rax)", Null);
+
     return Value(Null);
 }
 Value BoolExpr::asmgen(Runtime* rt,std::deque<Context*> ctx)
 {
+    Internal::newobject(Bool,this->literal);
+//    Internal::gc_malloc();
+//    AsmGen::writeln("  mov $%ld, (%%rax)", Bool);
+//    AsmGen::writeln("  mov $%ld, %d(%%rax)", this->literal,25);
+
     return Value(Bool,this->literal);
 }
 Value CharExpr::asmgen(Runtime* rt,
                          std::deque<Context*> ctx) {
+
+    Internal::newobject(Char,this->literal);
+//    Internal::gc_malloc();
+//    AsmGen::writeln("  mov $%ld, (%%rax)", Char);
+//    AsmGen::writeln("  mov $%ld, %d(%%rax)", this->literal,16);
+
     return Value(Char, this->literal);
 }
 
 Value IntExpr::asmgen(Runtime* rt, std::deque<Context*> ctx) {
-    AsmGen::writeln("  mov $%ld, %%rax", this->literal);
+
+    Internal::newobject(Int,this->literal);
+//    Internal::gc_malloc();
+//    AsmGen::writeln("  mov $%ld,%%rdi",Int);
+//    AsmGen::writeln("  mov %%rdi, (%%rax)");
+//    AsmGen::writeln("  mov $%ld,%%rdi",this->literal);
+//    AsmGen::writeln("  mov %%rdi, %d(%%rax)", this->literal,4);
+
+
     return Value(Int, this->literal);
 }
 
 Value DoubleExpr::asmgen(Runtime* rt,
                            std::deque<Context*> ctx) {
-    return Value(Double, this->literal);
+    Internal::newobject(Double,this->literal);
+//    Internal::gc_malloc();
+//    AsmGen::writeln("  mov $%ld, (%%rax)", Double);
+//    AsmGen::writeln("  mov $%ld, %d(%%rax)", this->literal,8);
+
+
+    return Value(Int, this->literal);
 }
 
 Value StringExpr::asmgen(Runtime* rt,
-                           std::deque<Context*> ctx) {
-    AsmGen::writeln("  lea %s(%%rip), %%rax", name.c_str());
+                         std::deque<Context*> ctx) {
+
+    AsmGen::writeln("  lea %s(%%rip), %%rsi", name.c_str());
+    Internal::newobject(String,NULL);
+//    Internal::gc_malloc();
+//    AsmGen::writeln("  mov $%ld,%%rdi",String);
+//    AsmGen::writeln("  mov %%rdi, (%%rax)", String);
+//
+//    AsmGen::writeln("  lea %s(%%rip), %%rdi", name.c_str());
+//    AsmGen::writeln("  mov %%rdi, %d(%%rax)", 17);
+
     return Value(String, this->literal);
 }
 /**

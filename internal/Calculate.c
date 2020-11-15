@@ -13,6 +13,8 @@ CoreValue* binaryOper(int opt, CoreValue *lhs, CoreValue* rhs)
         return NULL;
     }
     switch (opt){
+        case TK_ASSIGN:
+            return rhs;
         case TK_PLUS:
             return value_plus(lhs,rhs);
         case TK_MINUS:

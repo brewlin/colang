@@ -8,7 +8,7 @@ CoreValue* value_plus(CoreValue* lhs,CoreValue* rhs) {
     if (lhs->type == Int && rhs->type == Int)
     {
         result->type = Int;
-        *(int*)result->data = *(int*)lhs->data + *(int*)rhs->data;
+        result->interger = lhs->interger + rhs->interger;
     }
     return result;
 }
