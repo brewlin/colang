@@ -66,6 +66,7 @@ private:
     Block*          parseBlock();
 
     std::tuple <Token ,std::string> parseNumber(char first);
+    std::tuple <Token ,std::string> parseKeyword(char c);
 
     std::tuple <Token ,std::string> next();
     std::vector<std::string> parseParameterList();

@@ -55,6 +55,37 @@ std::tuple<Token,std::string> Parser::parseNumber(char first)
     return !isDouble ? make_tuple(LIT_INT,lexeme)
                      : make_tuple(LIT_DOUBLE,lexeme);
 }
+std::tuple<Token,std::string> Parser::parseKeyword(char c)
+{
+    std::string lexeme{c};
+    ch cn,cn1,cn2;
+
+    while((cn >= 'a' && cn <= 'z') || (cn >= 'A' && cn <= 'Z') || cn == '_' || (cn >= '0' && cn <= '9')){
+        c = getNextChar();
+        lexeme += c;
+        cn = peekNextChar();
+    }
+    cn1 = peekNextChar();
+    cn2 = peekNextChar();
+    //解析结构体的成员访问和赋值
+    if(cn == '.' && cn1 != '.'){
+        c = getNextChar();
+        return std::make_tuple(TK_DOT,lexeme);
+    }
+    //... eat 2 dot
+    if(cn == '.' && cn1 == '.'){
+        if(cn2 != '.')
+            panic("SynxaxError: tri-dot error\n");
+        //eat 2 dot ,now left 1 dot
+        c = getNextChar();
+        c = getNextChar();
+    }
+    //返回标识符
+    auto result = keywords.find(lexeme);
+    return result != keywords.end()
+           ? std::make_tuple(result->second,lexeme)
+           : std::make_tuple(TK_IDENT,      lexeme);
+}
 //逐字解析 直到找到合法的token
 std::tuple<Token,std::string> Parser::next() {
     char c = getNextChar();
@@ -102,23 +133,7 @@ std::tuple<Token,std::string> Parser::next() {
     }
     //解析关键字
     if( (c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') || c == '_'){
-        std::string lexeme{c};
-        char cn = peekNextChar();
-        //解析结构体的成员访问和赋值
-        if(cn == '.'){
-            c = getNextChar();
-            return std::make_tuple(TK_DOT,lexeme);
-        }
-        while((cn >= 'a' && cn <= 'z') || (cn >= 'A' && cn <= 'Z') || cn == '_' || (cn >= '0' && cn <= '9')){
-            c = getNextChar();
-            lexeme += c;
-            cn = peekNextChar();
-        }
-        //返回标识符
-        auto result = keywords.find(lexeme);
-        return result != keywords.end()
-                      ? std::make_tuple(result->second,lexeme)
-                      : std::make_tuple(TK_IDENT,      lexeme);
+        return parseKeyword();
     };
 
     //字符解析 只支持单个字符:'c'
@@ -360,9 +375,14 @@ std::vector<std::string> Parser::parseParameterList()
     while(getCurrentToken() != TK_RPAREN){
         //所有的参数都必须是 ident 或者 逗号,
        if(getCurrentToken() == TK_IDENT){
+           char cn = peekNextChar();
            //将参数单独保存一份 需要计算 栈偏移量
            if(currentFunc){
                IdentExpr* var = new IdentExpr(getCurrentLexeme(),line,column);
+               if(cn == '.'){
+                   var->is_multi = true;
+                   currentToken = getNextChar();
+               }
                currentFunc->params_var[getCurrentLexeme()] = var;
                currentFunc->params_order_var.push_back(var);
            }

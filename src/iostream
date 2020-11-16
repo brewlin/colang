@@ -1,0 +1,8 @@
+extern int printf(string,...)
+
+# 可变参数前一个是参数个数
+func println(fmt,args...)
+{
+   #目前所有的...都是进行的解引用传参
+   printf(fmt,args)
+}
