@@ -29,6 +29,8 @@ Parser::Parser(const std::string &filename,Runtime* rt)
     fs.open(filename);
     if(!fs.is_open()) panic("ParserError: can not open script file :%s\n",filename.c_str());
 	this->rt = rt;
+	//clear
+	this->currentFunc = nullptr;
 }
 Parser::~Parser()
 {
