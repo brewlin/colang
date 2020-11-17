@@ -87,6 +87,10 @@ void AsmGen::assign_offsets() {
                 top += 8;
             }
         }
+        //如果是可变参数强制空出6个空闲栈即可
+        if(fn->is_multi){
+            bottom = 48;
+        }
         //TODO: 在parser ast function时 将本地局部变量加入 fn->locals 方便计算偏移量
         // Assign offsets to pass-by-register parameters and local variables.
         for(auto local:fn->locals){
@@ -95,7 +99,21 @@ void AsmGen::assign_offsets() {
             bottom = ALIGN_UP(bottom, 8);
             var->offset = -bottom;
         }
-        fn->stack_size = ALIGN_UP(bottom, 16);
+        //如果是可变参数需要临时创建几个栈变量
+        if(fn->is_multi){
+            bottom += 8;
+            fn->size = - bottom;
+            bottom += 8;
+            fn->stack = - bottom;
+            bottom += 8;
+            fn->l_stack = - bottom;
+            bottom += 8;
+            fn->g_stack = - bottom;
+
+            fn->stack_size = ALIGN_UP(bottom, 16);
+        }else{
+            fn->stack_size = ALIGN_UP(bottom, 16);
+        }
     }
 }
 

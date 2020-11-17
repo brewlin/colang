@@ -230,22 +230,52 @@ Value FunCallExpr::asmgen(Runtime* rt,std::deque<Context*> ctx){
     int gp = 0, fp = 0;
     //用户定义函数: 通过函数名查找该函数
     if(auto* func = rt->getFunc(this->funcname); func != nullptr){
+
         //TODO: 函数默认传参
         if(func->params.size() != this->args.size())
             Debug("ArgumentError: expects %d arguments but got %d\n",func->params.size(),this->args.size());
-        int stack_args = AsmGen::Push_arg(rt,ctx,args);
-        //加载函数名
-        // 将函数名的地址保存到 rax中
-        for(auto arg : args){
-            if (gp < GP_MAX)
-                AsmGen::Pop(AsmGen::argreg64[gp++]);
-        }
+
+        int stack_args = AsmGen::Push_arg(rt,ctx,args,func->is_multi);
+
+        //把参数寄存器给填满了
+        for (int i = 0; i < GP_MAX; ++i)
+            AsmGen::Pop(AsmGen::argreg64[gp++]);
 
         AsmGen::writeln("  mov %s@GOTPCREL(%%rip), %%rax", funcname.c_str());
         AsmGen::writeln("  mov %%rax, %%r10");
         AsmGen::writeln("  mov $%d, %%rax", fp);
         AsmGen::writeln("  call *%%r10");
-        AsmGen::writeln("  add $%d, %%rsp", stack_args * 8);
+
+        bool have_depointer = false;
+        Function* cfunc = AsmGen::currentFunc;
+        for(auto arg : args){
+            if (typeid(*arg) == typeid(IdentExpr) && cfunc){
+                IdentExpr* var = dynamic_cast<IdentExpr*>(arg);
+                if(auto res = cfunc->params_var.find(var->identname) ; res != cfunc->params_var.end()){
+                    IdentExpr* var2  = res->second;
+                    if(var2->is_multi)
+                        have_depointer = true;
+                }
+            }
+        }
+
+        //如果当前函数调用存在解引用可变参数则需要动态计算函数栈上移的大小
+        if(AsmGen::currentFunc && AsmGen::currentFunc->is_multi && have_depointer)
+        {
+            int c = AsmGen::count++;
+            AsmGen::writeln("  mov -8(%%rbp),%%rdi");
+            AsmGen::writeln("  mov %%rdi,%d(%%rbp)",AsmGen::currentFunc->stack);
+            AsmGen::writeln("  sub $-7,%d(%%rbp)",AsmGen::currentFunc->stack);
+            //判断如果此时有栈参数则需要去除
+            AsmGen::writeln("  cmp $0,%d(%%rbp)",AsmGen::currentFunc->stack);
+            AsmGen::writeln("  jle .L.if.end.%d",c);
+            AsmGen::writeln("  cmp %d(%%rbp),%%rdi",AsmGen::currentFunc->stack);
+            AsmGen::writeln("  add %%rdi, %%rsp", stack_args * 8);
+            AsmGen::writeln(".L.if.end.%d:",c);
+        }else{
+            AsmGen::writeln("  add $%d, %%rsp", stack_args * 8);
+
+        }
         return Value(Null);
 
     }

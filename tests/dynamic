@@ -1,0 +1,13 @@
+extern int printf(string)
+extern int println(string)
+
+func println1(args...)
+{
+   println(args)
+}
+
+func main(){
+    println1("stirng:%s,int:%d\n","sdfs",123)
+
+}
+

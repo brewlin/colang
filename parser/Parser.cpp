@@ -58,8 +58,9 @@ std::tuple<Token,std::string> Parser::parseNumber(char first)
 std::tuple<Token,std::string> Parser::parseKeyword(char c)
 {
     std::string lexeme{c};
-    ch cn,cn1,cn2;
+    char cn,cn1,cn2;
 
+    cn = peekNextChar();
     while((cn >= 'a' && cn <= 'z') || (cn >= 'A' && cn <= 'Z') || cn == '_' || (cn >= '0' && cn <= '9')){
         c = getNextChar();
         lexeme += c;
@@ -133,7 +134,7 @@ std::tuple<Token,std::string> Parser::next() {
     }
     //解析关键字
     if( (c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') || c == '_'){
-        return parseKeyword();
+        return parseKeyword(c);
     };
 
     //字符解析 只支持单个字符:'c'
@@ -380,8 +381,11 @@ std::vector<std::string> Parser::parseParameterList()
            if(currentFunc){
                IdentExpr* var = new IdentExpr(getCurrentLexeme(),line,column);
                if(cn == '.'){
-                   var->is_multi = true;
-                   currentToken = getNextChar();
+                   //当前函数有可变参数函数
+                   currentFunc->is_multi = true;
+                   var->is_multi         = true;
+                   //eat . dot
+                   getNextChar();
                }
                currentFunc->params_var[getCurrentLexeme()] = var;
                currentFunc->params_order_var.push_back(var);

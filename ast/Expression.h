@@ -100,13 +100,15 @@ struct IdentExpr : public Expression {
     explicit IdentExpr(std::string identname, int line, int column)
             : Expression(line, column),
             identname(std::move(identname)),
-            is_local(true){}
+            is_local(true),
+            is_multi(false){}
     std::string  identname;
     //在 asm generate 时 作为 bp 偏移量
     int          offset;
     //在asm  generate 时作为 唯一标号
     std::string  name;
     bool         is_local;
+    bool         is_multi;
 
     Value        interpret(Runtime* rt, std::deque<Context*> ctx) override;
     Value        asmgen(Runtime* rt, std::deque<Context*> ctx) override;

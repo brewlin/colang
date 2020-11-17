@@ -4,6 +4,7 @@
  */
 #ifndef LANG_TYPE_H
 #define LANG_TYPE_H
+#include <stdio.h>
 
 enum ValueType { Int,Double,String,Bool,Char,Null,Array};
 //TYPE TOKEN
