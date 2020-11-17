@@ -1,8 +1,8 @@
 #include "CoreValue.h"
 
 
-int println(CoreValue* str,CoreValue* a1,CoreValue* a2)
+int println(char* str,long a,long b)
 {
-    printf(str->string,a1->interger,a2->interger);
+    printf(str,a,b);
     return 1;
 }

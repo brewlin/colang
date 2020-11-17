@@ -9,12 +9,12 @@ CoreValue* newobject(int type,long data)
     switch (type){
         case Int:
             ret->type = Int;
-            ret->interger = (int)data;
+            ret->data = (int)data;
             break;
         case Double:
         case String:
             ret->type = String;
-            ret->string = (char*)data;
+            ret->data = (long)data;
         case Bool:
         case Char:
         case Null:
@@ -23,4 +23,17 @@ CoreValue* newobject(int type,long data)
             ret->type = Null;
     }
     return ret;
+}
+long get_object_value(CoreValue* obj){
+    if(!obj) return NULL;
+
+    switch (obj->type){
+        case Int:
+        case Double:
+        case Bool:
+        case Char:
+        case String:
+            return obj->data;
+    }
+    return NULL;
 }

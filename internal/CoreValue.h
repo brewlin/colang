@@ -49,13 +49,8 @@ enum Token {
  */
 typedef struct core_value
 {
-    int  type;
-
-    int     interger;
-    double  long_interger;
-    char    cchar;
-    char*   string;
-    int     boolean;
+    long type;
+    long data;
 }CoreValue;
 
 CoreValue* value_plus(CoreValue* lhs,CoreValue* rhs);

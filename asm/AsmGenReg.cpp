@@ -6,7 +6,7 @@
  **/
 
 #include "AsmGen.h"
-
+#include "Internal.h"
 
 
 /**
@@ -85,7 +85,6 @@ void AsmGen::Pop(const char *arg)
  * 这里要做的就是将他们加载到寄存器中
  * 1. 达到6个参数则用 DI, RSI,RDX, RCX, R8 and R9 寄存器.
  * 每个参数占 8字节
- * TODO: 只支持 int
  * @return
  */
 int AsmGen::Push_arg(Runtime *rt,std::deque<Context *> prevCtxChain,std::vector<Expression *> &args,bool is_multi)
@@ -111,12 +110,33 @@ int AsmGen::Push_arg(Runtime *rt,std::deque<Context *> prevCtxChain,std::vector<
     {
         int c = AsmGen::count++;
         //直接保存所有的寄存器
-        writeln("  mov -16(%%rbp),%%rdi");
-        writeln("  mov -24(%%rbp),%%rsi");
-        writeln("  mov -32(%%rbp),%%rdx");
-        writeln("  mov -40(%%rbp),%%rcx");
-        writeln("  mov -48(%%rbp),%%r8");
-        writeln("  mov 16(%%rbp),%%r9");
+        writeln("  mov -16(%%rbp),%%rax");
+        Internal::get_object_value();
+        writeln("  mov %%rax,%%rdi");
+        writeln("  push %%rdi");
+
+
+        writeln("  mov -24(%%rbp),%%rax");
+        Internal::get_object_value();
+        writeln("  mov %%rax,%%rsi");
+
+        writeln("  mov -32(%%rbp),%%rax");
+        Internal::get_object_value();
+        writeln("  mov %%rax,%%rdx");
+
+        writeln("  mov -40(%%rbp),%%rax");
+        Internal::get_object_value();
+        writeln("  mov %%rax,%%rcx");
+
+        writeln("  mov -48(%%rbp),%%rax");
+        Internal::get_object_value();
+        writeln("  mov %%rax,%%r8");
+
+        writeln("  mov 16(%%rbp),%%rax");
+        Internal::get_object_value();
+        writeln("  mov %%rax,%%r9");
+
+        writeln("  pop %%rdi");
 
         //接下来存储栈参数
 

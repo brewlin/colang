@@ -4,7 +4,7 @@
  * rsp 栈顶是 lhs
  * rax 寄存器是 rhs
  * binaryOper(opt,lhs,rhs) 只有三个参数
- * "%rdi", "%rsi", "%rdx", "%rcx", "%r8", "%r9"
+ * "%rdi", "%rsi", "%rdx", "%rcx", "%r8", "%r10"
  * @param opt
  */
 void Internal::CallOperator(Token opt) {
@@ -19,9 +19,9 @@ void Internal::CallOperator(Token opt) {
     //第三个参数 rhs
     AsmGen::writeln("  mov %%rax, %%rdx");
     AsmGen::writeln("  mov %s@GOTPCREL(%%rip), %%rax", "binaryOper");
-    AsmGen::writeln("  mov %%rax, %%r9");
+    AsmGen::writeln("  mov %%rax, %%r10");
     AsmGen::writeln("  mov $%d, %%rax", 0);
-    AsmGen::writeln("  call *%%r9");
+    AsmGen::writeln("  call *%%r10");
     AsmGen::writeln("  add $%d, %%rsp", 0);
 }
 void Internal::gc_malloc()
@@ -29,9 +29,9 @@ void Internal::gc_malloc()
 
     AsmGen::writeln("  mov $%ld, %%rdi", sizeof(CoreValue));
     AsmGen::writeln("  mov %s@GOTPCREL(%%rip), %%rax", "malloc");
-    AsmGen::writeln("  mov %%rax, %%r9");
+    AsmGen::writeln("  mov %%rax, %%r10");
     AsmGen::writeln("  mov $%d, %%rax", 0);
-    AsmGen::writeln("  call *%%r9");
+    AsmGen::writeln("  call *%%r10");
     AsmGen::writeln("  add $%d, %%rsp", 0);
 }
 /**
@@ -44,16 +44,25 @@ void Internal::newobject(int type, long data)
         AsmGen::writeln("  mov $%ld, %%rsi", data);
 
     AsmGen::writeln("  mov %s@GOTPCREL(%%rip), %%rax", "newobject");
-    AsmGen::writeln("  mov %%rax, %%r9");
+    AsmGen::writeln("  mov %%rax, %%r10");
     AsmGen::writeln("  mov $%d, %%rax", 0);
-    AsmGen::writeln("  call *%%r9");
+    AsmGen::writeln("  call *%%r10");
 }
 void Internal::isTrue()
 {
     AsmGen::writeln("  mov %%rax, %%rdi");
 
     AsmGen::writeln("  mov %s@GOTPCREL(%%rip), %%rax", "isTrue");
-    AsmGen::writeln("  mov %%rax, %%r9");
+    AsmGen::writeln("  mov %%rax, %%r10");
     AsmGen::writeln("  mov $%d, %%rax", 0);
-    AsmGen::writeln("  call *%%r9");
+    AsmGen::writeln("  call *%%r10");
+}
+void Internal::get_object_value()
+{
+    AsmGen::writeln("  mov %%rax, %%rdi");
+
+    AsmGen::writeln("  mov %s@GOTPCREL(%%rip), %%rax", "get_object_value");
+    AsmGen::writeln("  mov %%rax, %%r10");
+    AsmGen::writeln("  mov $%d, %%rax", 0);
+    AsmGen::writeln("  call *%%r10");
 }

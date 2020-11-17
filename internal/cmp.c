@@ -5,15 +5,15 @@
 int isTrue(CoreValue* cond){
     switch (cond->type){
         case Int:
-            return cond->interger >= 0;
+            return cond->data >= 0;
         case Double:
-            return cond->long_interger >= 0;
+            return cond->data >= 0;
         case String:
-            return cond->string != NULL;
+            return cond->data != NULL;
         case Bool:
-            return cond->boolean;
+            return cond->data;
         case Char:
-            return cond->cchar != 0;
+            return cond->data != 0;
         case Null:
             return 0;
         default:
