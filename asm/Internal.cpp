@@ -59,10 +59,14 @@ void Internal::isTrue()
 }
 void Internal::get_object_value()
 {
+
+
+    AsmGen::writeln("  push %%rdi");
     AsmGen::writeln("  mov %%rax, %%rdi");
 
     AsmGen::writeln("  mov %s@GOTPCREL(%%rip), %%rax", "get_object_value");
     AsmGen::writeln("  mov %%rax, %%r10");
     AsmGen::writeln("  mov $%d, %%rax", 0);
     AsmGen::writeln("  call *%%r10");
+    AsmGen::writeln("  pop %%rdi");
 }

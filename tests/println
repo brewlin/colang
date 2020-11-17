@@ -3,9 +3,9 @@ import iostream
 func main(){
     a = -1323
     if(a){
-        println("failed %d %s\n",a,"sdfs")
+        println("a is negative not should be here %d %s\n",a,"wrong")
     }else{
-        println("ok %d %s\n",a,"sdfs")
+        println("ok %d %s\n",a,"it's clear")
     }
 }
 

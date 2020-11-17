@@ -1,12 +1,11 @@
-extern void sleep(int)
-extern int  printf(string)
+import iostream
 
 func test_continue(){
     a = 3
     while(a){
         a = 0
         continue
-        printf("continue a=%d\n",a)
+        println("continue a=%d\n",a)
     }
 }
 

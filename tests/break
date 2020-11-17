@@ -1,10 +1,9 @@
-extern void sleep(int)
-extern int  printf(string)
+import iostream
 
 func test_while_break(){
     a = 10
     while(a){
-        printf("break\n")
+        println("break\n")
         break
     }
 }
@@ -12,9 +11,9 @@ func break_double(){
     b = 1
     while(b){
         c = 1
-        printf("outside\n")
+        println("outside\n")
         while(c){
-            printf("inside\n")
+            println("inside\n")
             break
         }
         break

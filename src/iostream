@@ -1,8 +1,6 @@
-extern int printf(string,...)
+extern int printf(string)
+extern void sleep(int)
 
-# 可变参数前一个是参数个数
-func println(args...)
-{
-   #目前所有的...都是进行的解引用传参
+func println(args...){
    printf(args)
 }

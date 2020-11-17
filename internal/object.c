@@ -19,6 +19,7 @@ CoreValue* newobject(int type,long data)
         case Char:
         case Null:
         case Array:
+            return ret;
         default:
             ret->type = Null;
     }

@@ -1,17 +1,16 @@
-extern void sleep(int)
-extern int  printf(string)
+import iostream
 
 func test_while(){
     a = 3
     b = 0
     while(a){
-        printf("a=%d\n",a)
+        println("a=%d\n",a)
         sleep(1)
         a = 0
         b = 1
     }
     if(b){
-        printf("!\n")
+        println("!\n")
     }
 }
 

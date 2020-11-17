@@ -1,26 +1,26 @@
-extern int printf(string)
+import iostream
 
 func test(b){
     if(b){
-        printf("OK",b)
+        println("OK",b)
     }else{
-        printf("Error",b)
+        println("Error",b)
     }
     return 22
 }
 func equal_6(a,b,c,d,e,f){
-    printf("equal_6:\n")
-    printf("res:%d %d %d %d %d %d \n",a,b,c,d,e,f)
+    println("equal_6:\n")
+    println("res:%d %d %d %d %d %d \n",a,b,c,d,e,f)
 }
 func over_6(a,b,c,d,e,f,h,i,j)
 {
-    printf("over_6:\n")
-    printf("res:%d %d %d %d %d %d %d %d %d\n",a,b,c,d,e,f,h,i,j)
+    println("over_6:\n")
+    println("res:%d %d %d %d %d %d %d %d %d\n",a,b,c,d,e,f,h,i,j)
 }
 func main(){
     a = 1
     c = test(a)
-    printf("res:%d\n",c)
+    println("res:%d\n",c)
     equal_6(1,2,3,4,5,6)
 
     over_6(1,2,3,4,5,6,7,8,9)

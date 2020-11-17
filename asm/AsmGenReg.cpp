@@ -113,8 +113,6 @@ int AsmGen::Push_arg(Runtime *rt,std::deque<Context *> prevCtxChain,std::vector<
         writeln("  mov -16(%%rbp),%%rax");
         Internal::get_object_value();
         writeln("  mov %%rax,%%rdi");
-        writeln("  push %%rdi");
-
 
         writeln("  mov -24(%%rbp),%%rax");
         Internal::get_object_value();
@@ -135,8 +133,6 @@ int AsmGen::Push_arg(Runtime *rt,std::deque<Context *> prevCtxChain,std::vector<
         writeln("  mov 16(%%rbp),%%rax");
         Internal::get_object_value();
         writeln("  mov %%rax,%%r9");
-
-        writeln("  pop %%rdi");
 
         //接下来存储栈参数
 
@@ -163,7 +159,9 @@ int AsmGen::Push_arg(Runtime *rt,std::deque<Context *> prevCtxChain,std::vector<
         writeln("  lea (%%rbp),%%rax");
 
         writeln("  add %d(%%rbp),%%rax",currentFunc->stack);
-        writeln("  push (%%rax)");
+        writeln("  mov (%%rax),%%rax");
+        Internal::get_object_value();
+        writeln("  push %%rax");
 
         writeln("  sub $1,%d(%%rbp)",currentFunc->size);
         //while condition

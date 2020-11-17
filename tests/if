@@ -1,4 +1,4 @@
-extern string printf(string)
+import iostream
 
 func main(){
     a = 1
@@ -7,7 +7,7 @@ func main(){
     }else{
         a = 5
     }
-    printf("OK")
+    println("OK\n")
 
 }
 
