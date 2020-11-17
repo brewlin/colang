@@ -7,7 +7,7 @@ func println1(args...)
 }
 
 func main(){
-    println1("stirng:%s,int:%d\n","sdfs",123)
+    println1("%d %d \n",1,2)
 
 }
 

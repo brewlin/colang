@@ -111,50 +111,45 @@ int AsmGen::Push_arg(Runtime *rt,std::deque<Context *> prevCtxChain,std::vector<
     {
         int c = AsmGen::count++;
         //直接保存所有的寄存器
+        writeln("  mov -16(%%rbp),%%rdi");
+        writeln("  mov -24(%%rbp),%%rsi");
+        writeln("  mov -32(%%rbp),%%rdx");
+        writeln("  mov -40(%%rbp),%%rcx");
+        writeln("  mov -48(%%rbp),%%r8");
+        writeln("  mov 16(%%rbp),%%r9");
+
+        //接下来存储栈参数
+
         //忽略第一个参数从第二个参数开始算起来
-        writeln("  mov -8(%%rbp),%%rdi");
-        writeln("  mov %%rdi,%d(%%rbp)",currentFunc->size);
+        writeln("  mov -8(%%rbp),%%rax");
+        writeln("  sub $6,%%rax");
+        writeln("  mov %%rax,%d(%%rbp)",currentFunc->size);
 
-        writeln("  mov $0,%%rdi");
-        writeln("  mov %%rdi,%d(%%rbp)",currentFunc->stack);
-
-        writeln("  mov $-8,%%rdi");
-        writeln("  mov %%rdi,%d(%%rbp)",currentFunc->l_stack);
-
-        writeln("  mov $16,%%rdi");
-        writeln("  mov %%rdi,%d(%%rbp)",currentFunc->g_stack);
+        writeln("  mov $16,%%rax");
+        writeln("  mov %%rax,%d(%%rbp)",currentFunc->stack);
 
 //        while
+
         writeln("  jmp .L.while.end.%d",c);
         writeln(".L.while.%d:",c);
-        //if
-        writeln(".L.if.%d:",c);
 
-        writeln("  mov %d(%%rbp),%%rdi",currentFunc->stack);
-        writeln("  cmp $4,%rdi");
-        writeln("  jg .L.else.%d",c);
-        writeln("  sub $8,%d(%%rbp)",currentFunc->l_stack);
-        //push stack
+        //         stack = 16 + (size * 8);
+        //         push(gstack(%rbp)
+        //         size --;
+        writeln("  mov %d(%%rbp),%%rax",currentFunc->size);
+        writeln("  imul $8,%%rax");
+        writeln("  add $16,%%rax");
+        writeln("  mov %%rax,%d(%%rbp)",currentFunc->stack);
         writeln("  lea (%%rbp),%%rax");
-        writeln("  mov %d(%%rbp),%%rdi",currentFunc->l_stack);
-        writeln("  add %%rdi,%%rax");
-        writeln("  push (%%rax)");
-        writeln("  jmp .L.if.end.%d",c);
-        //else
-        writeln(".L.else.%d:",c);
-        writeln("  add $8,%d(%%rbp)",currentFunc->g_stack);
-        writeln("  lea (%%rbp),%%rax");
-        writeln("  mov %d(%%rbp),%%rdi",currentFunc->g_stack);
-        writeln("  add %%rdi,%%rax");
+
+        writeln("  add %d(%%rbp),%%rax",currentFunc->stack);
         writeln("  push (%%rax)");
 
-        writeln(".L.if.end.%d:",c);
         writeln("  sub $1,%d(%%rbp)",currentFunc->size);
-        writeln("  add $1,%d(%%rbp)",currentFunc->stack);
         //while condition
         writeln(".L.while.end.%d:",c);
-        writeln("  mov %d(%%rbp),%%rdi",currentFunc->size);
-        writeln("  cmp $0,%%rdi");
+        writeln("  mov %d(%%rbp),%%rax",currentFunc->size);
+        writeln("  cmp $0,%%rax");
         writeln("  jg  .L.while.%d",c);
 
     //不需要对可变参数进行解引用，顺序存储寄存器即可

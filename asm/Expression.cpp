@@ -228,6 +228,19 @@ Value AssignExpr::asmgen(Runtime* rt,std::deque<Context*> ctx){
  */
 Value FunCallExpr::asmgen(Runtime* rt,std::deque<Context*> ctx){
     int gp = 0, fp = 0;
+
+    bool have_depointer = false;
+    Function* cfunc = AsmGen::currentFunc;
+    for(auto arg : args){
+        if (typeid(*arg) == typeid(IdentExpr) && cfunc){
+            IdentExpr* var = dynamic_cast<IdentExpr*>(arg);
+            if(auto res = cfunc->params_var.find(var->identname) ; res != cfunc->params_var.end()){
+                IdentExpr* var2  = res->second;
+                if(var2->is_multi)
+                    have_depointer = true;
+            }
+        }
+    }
     //用户定义函数: 通过函数名查找该函数
     if(auto* func = rt->getFunc(this->funcname); func != nullptr){
 
@@ -238,26 +251,19 @@ Value FunCallExpr::asmgen(Runtime* rt,std::deque<Context*> ctx){
         int stack_args = AsmGen::Push_arg(rt,ctx,args,func->is_multi);
 
         //把参数寄存器给填满了
-        for (int i = 0; i < GP_MAX; ++i)
-            AsmGen::Pop(AsmGen::argreg64[gp++]);
+        if(cfunc && cfunc->is_multi && have_depointer)
+        {
+           //do nothing
+        }else{
+            for (int i = 0; i < GP_MAX; ++i)
+                AsmGen::Pop(AsmGen::argreg64[gp++]);
+        }
 
         AsmGen::writeln("  mov %s@GOTPCREL(%%rip), %%rax", funcname.c_str());
         AsmGen::writeln("  mov %%rax, %%r10");
         AsmGen::writeln("  mov $%d, %%rax", fp);
         AsmGen::writeln("  call *%%r10");
 
-        bool have_depointer = false;
-        Function* cfunc = AsmGen::currentFunc;
-        for(auto arg : args){
-            if (typeid(*arg) == typeid(IdentExpr) && cfunc){
-                IdentExpr* var = dynamic_cast<IdentExpr*>(arg);
-                if(auto res = cfunc->params_var.find(var->identname) ; res != cfunc->params_var.end()){
-                    IdentExpr* var2  = res->second;
-                    if(var2->is_multi)
-                        have_depointer = true;
-                }
-            }
-        }
 
         //如果当前函数调用存在解引用可变参数则需要动态计算函数栈上移的大小
         if(AsmGen::currentFunc && AsmGen::currentFunc->is_multi && have_depointer)
