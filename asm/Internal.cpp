@@ -39,6 +39,9 @@ void Internal::gc_malloc()
  */
 void Internal::newobject(int type, long data)
 {
+    AsmGen::writeln("  push %%rdi");
+    AsmGen::writeln("  push %%rsi");
+
     AsmGen::writeln("  mov $%ld, %%rdi", type);
     if(type != String)
         AsmGen::writeln("  mov $%ld, %%rsi", data);
@@ -47,6 +50,9 @@ void Internal::newobject(int type, long data)
     AsmGen::writeln("  mov %%rax, %%r10");
     AsmGen::writeln("  mov $%d, %%rax", 0);
     AsmGen::writeln("  call *%%r10");
+
+    AsmGen::writeln("  pop %%rsi");
+    AsmGen::writeln("  pop %%rdi");
 }
 void Internal::isTrue()
 {

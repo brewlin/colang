@@ -137,7 +137,10 @@ int AsmGen::Push_arg(Runtime *rt,std::deque<Context *> prevCtxChain,std::vector<
         //接下来存储栈参数
 
         //忽略第一个参数从第二个参数开始算起来
+        //如果要读取上层的变量值 需要调用get_object_value 切记
         writeln("  mov -8(%%rbp),%%rax");
+        Internal::get_object_value();
+
         writeln("  sub $6,%%rax");
         writeln("  mov %%rax,%d(%%rbp)",currentFunc->size);
 
@@ -191,7 +194,8 @@ int AsmGen::Push_arg(Runtime *rt,std::deque<Context *> prevCtxChain,std::vector<
         //如果是可变参数，第一个参数填充数字个数
         if(is_multi){
             stack -- ;
-            writeln("  mov $%d,%%rax",args.size());
+            Internal::newobject(Int,args.size());
+//            writeln("  mov $%d,%%rax",args.size());
             Push();
         }
     }
