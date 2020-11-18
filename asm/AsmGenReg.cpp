@@ -61,7 +61,7 @@ void AsmGen::Pop(const char *arg)
  */
 int AsmGen::Push_arg(Runtime *rt,std::deque<Context *> prevCtxChain,std::vector<Expression *> &args,bool is_multi)
 {
-    int stack = 0, gp = 0, fp = 0;
+    int stack = 0, gp = 0;
 
     //查看当前调用函数参数里有没有可变参数
     bool current_call_have_im = false;
@@ -148,11 +148,10 @@ int AsmGen::Push_arg(Runtime *rt,std::deque<Context *> prevCtxChain,std::vector<
     //不需要对可变参数进行解引用，顺序存储寄存器即可
     }else{
         //小于6个参数，也需要把6个参数寄存器给补齐了
-        if(args.size() < 6){
-            for (int i = 0; i < 6 - args.size(); ++i) {
+        if(args.size() < 6)
+            for (int i = 0; i < (6 - (int)args.size()); ++i)
                 writeln("  push $0");
-            }
-        }
+
         //尽可能的加载跟多参数到寄存器  需要倒序
         for (int i = args.size() - 1; i >= 0; i--) {
             //栈参数

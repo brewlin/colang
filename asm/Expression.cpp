@@ -14,7 +14,7 @@
 
 void  NullExpr::asmgen(Runtime* rt,std::deque<Context*> ctx)
 {
-    Internal::newobject(Null,NULL);
+    Internal::newobject(Null,0);
 //    Internal::gc_malloc();
 //    AsmGen::writeln("  mov $%ld, (%%rax)", Null);
 
@@ -60,8 +60,9 @@ void  DoubleExpr::asmgen(Runtime* rt,
 void  StringExpr::asmgen(Runtime* rt,
                          std::deque<Context*> ctx) {
 
+    //string类型 传的是地址 需要调用方构造
     AsmGen::writeln("  lea %s(%%rip), %%rsi", name.c_str());
-    Internal::newobject(String,NULL);
+    Internal::newobject(String,0);
 //    Internal::gc_malloc();
 //    AsmGen::writeln("  mov $%ld,%%rdi",String);
 //    AsmGen::writeln("  mov %%rdi, (%%rax)", String);

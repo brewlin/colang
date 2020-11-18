@@ -5,13 +5,6 @@
 #include "Context.h"
 
 
-Context::Context() {}
-Context::~Context()
-{
-    for(auto v : vars)
-        delete v.second;
-}
-
 /**
  * 是否存在该变量
  * @param identname

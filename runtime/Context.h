@@ -15,8 +15,7 @@
  */
 class Context{
 public:
-    explicit Context();
-    virtual  ~Context();
+    explicit Context() = default;
 
     //全局变量表 操作
     bool       hasVar(const std::string& identname);

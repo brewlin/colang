@@ -72,7 +72,7 @@ void AsmGen::assign_offsets() {
         int top = 16;
         int bottom = 0;
 
-        int gp = 0, fp = 0;
+        int gp = 0;
         //TODO:假定所有参数类型为 int 8字节
 
         for(auto var : fn->params_order_var){
