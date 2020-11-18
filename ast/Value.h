@@ -4,19 +4,20 @@
  */
 #ifndef LANG_TYPE_H
 #define LANG_TYPE_H
-#include <any>
 #include <deque>
 #include <string>
-#include <unordered_map>
 #include <vector>
-#include "Block.h"
 #include "Function.h"
 
-
-enum ValueType { Int,Double,String,Bool,Char,Null,Array};
-enum ExecutionResultType{ ExecNormal,ExecReturn,ExecBreak,ExecContinue};
-
-
+#define Null   0
+#define Int    1
+#define Double 2
+#define String 3
+#define Bool   4
+#define Char   5
+#define Array  6
+#define Map    7
+#define Object 8
 
 /**
  * 函数
@@ -31,35 +32,6 @@ struct Struct {
     std::vector<std::string> members;
     //成员函数
     std::vector<Function*> funcs;
-};
-
-/**
- * 动态变量类型定义
- */
-struct Value{
-    explicit Value(){}
-    explicit Value(ValueType type)
-            :type(type){}
-    explicit Value(ValueType type,std::any data)
-            :type(type),data(std::move(data)){}
-
-    template <int doType>
-    inline  bool isType(){
-        return this->type == doType;
-    }
-    template <typename _CastingType>
-    inline _CastingType cast(){
-        return std::any_cast<_CastingType>(data);
-    }
-    template <typename  _DataType>
-    inline  void set(_DataType data){
-        this->data = std::make_any<_DataType>(std::move(data));
-    }
-
-    //value 的类型
-    ValueType  type{};
-    ///可以存储任意类型
-    std::any data;
 };
 
 

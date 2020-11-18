@@ -5,7 +5,7 @@ cmake_minimum_required(VERSION 3.10)
 
 project(do)
 
-add_definitions("-g -std=c++17")
+add_definitions("-g -Wall")
 
 include_directories(. asm ast parser pkg runtime)
 

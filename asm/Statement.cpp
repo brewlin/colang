@@ -6,6 +6,7 @@
 #include "Utils.h"
 #include "AsmGen.h"
 #include "Internal.h"
+#include "Block.h"
 /**
  * if 控制语句执行
  * @param rt
@@ -16,11 +17,11 @@ void IfStmt::asmgen(Runtime *rt, std::deque<Context *> ctx)
 {
     int c = AsmGen::count ++;
     //对判断条件的表达式求值
-    Value cond = this->cond->asmgen(rt,ctx);
+    this->cond->asmgen(rt,ctx);
     //判断是否为true
     Internal::isTrue();
 
-    AsmGen::CreateCmp(cond.type);
+    AsmGen::CreateCmp();
     AsmGen::writeln("  je  .L.else.%d", c);
 
     AsmGen::enterContext(ctx);
@@ -60,8 +61,8 @@ void WhileStmt::asmgen(Runtime *rt, std::deque<Context *> ctx)
     //表示循环开始的 标签：
     AsmGen::writeln(".L.while.begin.%d:", c);
     //对判断条件的表达式求值
-    Value cond = this->cond->asmgen(rt,ctx);
-    AsmGen::CreateCmp(cond.type);
+    this->cond->asmgen(rt,ctx);
+    AsmGen::CreateCmp();
     AsmGen::writeln("  je  .L.while.end.%d", c);
 
     AsmGen::enterContext(ctx);

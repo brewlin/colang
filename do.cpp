@@ -21,6 +21,7 @@ int print_help () {
 int llvmgen(char* argv[])
 {
     Debug("llvm generate");
+    std::cout << "not finish llvm yet" <<std::endl;
 //    Compiler c(argv[2]);
 //    c.execute();
 //    c.printIR();

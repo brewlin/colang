@@ -7,6 +7,7 @@
 
 #include "AsmGen.h"
 #include "Log.h"
+#include "Block.h"
 
 
 /**

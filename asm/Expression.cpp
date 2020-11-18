@@ -10,26 +10,23 @@
 #include "Value.h"
 
 //===---------------------------------------------------------------------===//
-// 计算所有的表达式 并返回一个 Value 结构，
+// 计算所有的表达式 并返回一个 void  结构，
 
-Value NullExpr::asmgen(Runtime* rt,std::deque<Context*> ctx)
+void  NullExpr::asmgen(Runtime* rt,std::deque<Context*> ctx)
 {
     Internal::newobject(Null,NULL);
 //    Internal::gc_malloc();
 //    AsmGen::writeln("  mov $%ld, (%%rax)", Null);
 
-    return Value(Null);
 }
-Value BoolExpr::asmgen(Runtime* rt,std::deque<Context*> ctx)
+void  BoolExpr::asmgen(Runtime* rt,std::deque<Context*> ctx)
 {
     Internal::newobject(Bool,this->literal);
 //    Internal::gc_malloc();
 //    AsmGen::writeln("  mov $%ld, (%%rax)", Bool);
 //    AsmGen::writeln("  mov $%ld, %d(%%rax)", this->literal,25);
-
-    return Value(Bool,this->literal);
 }
-Value CharExpr::asmgen(Runtime* rt,
+void  CharExpr::asmgen(Runtime* rt,
                          std::deque<Context*> ctx) {
 
     Internal::newobject(Char,this->literal);
@@ -37,10 +34,9 @@ Value CharExpr::asmgen(Runtime* rt,
 //    AsmGen::writeln("  mov $%ld, (%%rax)", Char);
 //    AsmGen::writeln("  mov $%ld, %d(%%rax)", this->literal,16);
 
-    return Value(Char, this->literal);
 }
 
-Value IntExpr::asmgen(Runtime* rt, std::deque<Context*> ctx) {
+void  IntExpr::asmgen(Runtime* rt, std::deque<Context*> ctx) {
 
     Internal::newobject(Int,this->literal);
 //    Internal::gc_malloc();
@@ -49,11 +45,9 @@ Value IntExpr::asmgen(Runtime* rt, std::deque<Context*> ctx) {
 //    AsmGen::writeln("  mov $%ld,%%rdi",this->literal);
 //    AsmGen::writeln("  mov %%rdi, %d(%%rax)", this->literal,4);
 
-
-    return Value(Int, this->literal);
 }
 
-Value DoubleExpr::asmgen(Runtime* rt,
+void  DoubleExpr::asmgen(Runtime* rt,
                            std::deque<Context*> ctx) {
     Internal::newobject(Double,this->literal);
 //    Internal::gc_malloc();
@@ -61,10 +55,9 @@ Value DoubleExpr::asmgen(Runtime* rt,
 //    AsmGen::writeln("  mov $%ld, %d(%%rax)", this->literal,8);
 
 
-    return Value(Int, this->literal);
 }
 
-Value StringExpr::asmgen(Runtime* rt,
+void  StringExpr::asmgen(Runtime* rt,
                          std::deque<Context*> ctx) {
 
     AsmGen::writeln("  lea %s(%%rip), %%rsi", name.c_str());
@@ -76,7 +69,6 @@ Value StringExpr::asmgen(Runtime* rt,
 //    AsmGen::writeln("  lea %s(%%rip), %%rdi", name.c_str());
 //    AsmGen::writeln("  mov %%rdi, %d(%%rax)", 17);
 
-    return Value(String, this->literal);
 }
 /**
  * 数组变量生成
@@ -84,13 +76,13 @@ Value StringExpr::asmgen(Runtime* rt,
  * @param ctx
  * @return
  */
-Value ArrayExpr::asmgen(Runtime* rt,std::deque<Context*> ctx){
-    std::vector<Value> elements;
-    //数组内的元素可能类型不同 如 [1,"2","3"] 所以需要遍历生成Value 存入vector中
-    for(auto& e: this->literal)
-        //遍历调用 asmgen 生成 Value
-        elements.push_back(e->asmgen(rt,ctx));
-    return Value(Array,elements);
+void  ArrayExpr::asmgen(Runtime* rt,std::deque<Context*> ctx){
+//    std::vector<Value> elements;
+//    //数组内的元素可能类型不同 如 [1,"2","3"] 所以需要遍历生成Value 存入vector中
+//    for(auto& e: this->literal)
+//        //遍历调用 asmgen 生成 Value
+//        elements.push_back(e->asmgen(rt,ctx));
+
 }
 /**
  * load 变量
@@ -100,25 +92,23 @@ Value ArrayExpr::asmgen(Runtime* rt,std::deque<Context*> ctx){
  * @param ctx
  * @return
  */
-Value IdentExpr::asmgen(Runtime* rt,std::deque<Context*> ctx){
+void  IdentExpr::asmgen(Runtime* rt,std::deque<Context*> ctx){
 
     //变量遍历表 看是否存在
     for(auto p = ctx.crbegin(); p != ctx.crend(); ++p){
         auto* ctx = *p;
-        if(auto* var = ctx->getVar(this->identname);var != nullptr){
+
+        if(auto* var = ctx->getVar(this->identname);var != nullptr)
+        {
 
             Function* f = AsmGen::currentFunc;
             //地址生成
-            if(f->locals[identname] == nullptr){
+            if(f->locals[identname] == nullptr)
                 AsmGen::GenAddr(f->params_var[identname]);
-            }else{
+            else
                 AsmGen::GenAddr(f->locals[identname]);
-            }
-//            AsmGen::Load(var->value.type);
-            AsmGen::Load(Int);
-            //["a",123] return 123
-            return Value(Null);
-//            return var->value;
+            AsmGen::Load();
+            return;
         }
     }
     parse_err("RuntimeError:use of undefined variable %s at line %d co %d\n",
@@ -130,7 +120,7 @@ Value IdentExpr::asmgen(Runtime* rt,std::deque<Context*> ctx){
  * @param ctx
  * @return
  */
-Value IndexExpr::asmgen(Runtime* rt,std::deque<Context*> ctx) {
+void  IndexExpr::asmgen(Runtime* rt,std::deque<Context*> ctx) {
     //没找到 数组变量 抛出异常 exit退出
     parse_err("RuntimeError:use of undefined variable %s aat line %d col %d\n",identname.c_str(),line,column);
 }
@@ -141,7 +131,7 @@ Value IndexExpr::asmgen(Runtime* rt,std::deque<Context*> ctx) {
  * @param ctx
  * @return
  */
-Value AssignExpr::asmgen(Runtime* rt,std::deque<Context*> ctx){
+void  AssignExpr::asmgen(Runtime* rt,std::deque<Context*> ctx){
     //如果左值是一个标识符 表达式: a = 13;
     if(typeid(*lhs) == typeid(IdentExpr)){
         IdentExpr* varExpr = dynamic_cast<IdentExpr*>(lhs);
@@ -152,16 +142,16 @@ Value AssignExpr::asmgen(Runtime* rt,std::deque<Context*> ctx){
         //保存rax寄存器的值 因为下面右值计算的时候会用到rax寄存器
         AsmGen::Push();
         //对运算符右值求值
-        Value rhs = this->rhs->asmgen(rt,ctx);
+        this->rhs->asmgen(rt,ctx);
         //运算需要调用统一的方法
         Internal::CallOperator(this->opt);
         //执行结果存储
-        AsmGen::Store(rhs.type);
+        AsmGen::Store();
 
         std::string identname = varExpr->identname;
         //说明不存在该变量 则需要重新定义
         (ctx.back())->createVar(identname,varExpr);
-        return rhs;
+        return;
         //可能是索引运算如: a[1] = 123
     }
     parse_err("SyntaxError: can not assign to %s at line %d, %col\n", typeid(lhs).name(),line,column);
@@ -173,7 +163,7 @@ Value AssignExpr::asmgen(Runtime* rt,std::deque<Context*> ctx){
  * @param ctx
  * @return
  */
-Value FunCallExpr::asmgen(Runtime* rt,std::deque<Context*> ctx){
+void  FunCallExpr::asmgen(Runtime* rt,std::deque<Context*> ctx){
     int gp = 0, fp = 0;
 
     bool have_depointer = false;
@@ -229,7 +219,7 @@ Value FunCallExpr::asmgen(Runtime* rt,std::deque<Context*> ctx){
             AsmGen::writeln("  add $%d, %%rsp", stack_args * 8);
 
         }
-        return Value(Null);
+        return;
 
     }
     parse_err(
@@ -244,11 +234,10 @@ Value FunCallExpr::asmgen(Runtime* rt,std::deque<Context*> ctx){
  * @param ctx
  * @return
  */
-Value BinaryExpr::asmgen(Runtime* rt,std::deque<Context*> ctx)
+void  BinaryExpr::asmgen(Runtime* rt,std::deque<Context*> ctx)
 {
-//    Value lhs = this->lhs ? this->lhs->asmgen(rt,ctx) : Value(Null);
-//    Value rhs = this->rhs ? this->rhs->asmgen(rt,ctx) : Value(Null);
-    return Value(Null);
+//    void  lhs = this->lhs ? this->lhs->asmgen(rt,ctx) : void (Null);
+//    void  rhs = this->rhs ? this->rhs->asmgen(rt,ctx) : void (Null);
 }
 /**
  * TODO: 只实现了 llvm编译的new
@@ -258,9 +247,9 @@ Value BinaryExpr::asmgen(Runtime* rt,std::deque<Context*> ctx)
  * @param ctx
  * @return
  */
-Value NewExpr::asmgen(Runtime* rt,std::deque<Context*> ctx)
+void  NewExpr::asmgen(Runtime* rt,std::deque<Context*> ctx)
 {
-    return Value(String,type);
+
 }
 /**
  *
@@ -269,9 +258,8 @@ Value NewExpr::asmgen(Runtime* rt,std::deque<Context*> ctx)
  * @param ctx
  * @return
  */
-Value MemberExpr::asmgen(Runtime* rt,std::deque<Context*> ctx)
+void  MemberExpr::asmgen(Runtime* rt,std::deque<Context*> ctx)
 {
-    return Value(String,varname);
 }
 /**
  * TODO: asm struct call
@@ -279,8 +267,8 @@ Value MemberExpr::asmgen(Runtime* rt,std::deque<Context*> ctx)
  * @param ctx
  * @return
  */
-Value MemberCallExpr::asmgen(Runtime* rt,std::deque<Context*> ctx)
+void  MemberCallExpr::asmgen(Runtime* rt,std::deque<Context*> ctx)
 {
-    return Value(String,varname);
+
 }
 

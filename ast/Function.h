@@ -6,6 +6,9 @@
 #ifndef COMPILER_FUNCTION_H
 #define COMPILER_FUNCTION_H
 #include <string>
+#include <unordered_map>
+#include <vector>
+#include "Block.h"
 
 struct Expression;
 struct IdentExpr;

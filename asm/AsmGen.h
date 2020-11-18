@@ -59,10 +59,10 @@ public:
     static void CreateFunction(Function* fn,Runtime* rt,std::deque<Context*> ctx);
     //寄存器相关
     static void Store_gp(int r, int offset, int sz);
-    static void Store(ValueType type);
+    static void Store();
     static void GenAddr(IdentExpr* var);
-    static void Load(ValueType     type);
-    static void CreateCmp(ValueType type);
+    static void Load();
+    static void CreateCmp();
     static void Push();
     static void PushS(const char* arg);
     static void Pop(const char* arg);

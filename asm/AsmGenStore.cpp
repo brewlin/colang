@@ -46,22 +46,11 @@ void AsmGen::Store_gp(int r, int offset, int sz)
 /**
  * @param type
  */
-void AsmGen::Store(ValueType type)
+void AsmGen::Store()
 {
     //将栈顶 rax 的值保存到 rdi中
     Pop("%rdi");
-
-    switch (type) {
-        case Char:
-        case Int:
-        case Bool:
-//            writeln("  mov %%eax, (%%rdi)");
-//            return;
-        case Double:
-//            writeln("  movsd %%xmm0, (%%rdi)");
-        default:
-            //现在所有的变量都是指针类型，都是8字节
-            writeln("  mov %%rax, (%%rdi)");
-    }
+    //现在所有的变量都是指针类型，都是8字节
+    writeln("  mov %%rax, (%%rdi)");
 
 }

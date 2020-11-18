@@ -28,45 +28,17 @@ void AsmGen::GenAddr(IdentExpr *var)
  *
  * @param type
  */
-void AsmGen::Load(ValueType type)
+void AsmGen::Load()
 {
-    const char *insn = "movz";
-
-    switch (type){
-        case Double:
-//            writeln("  movsd (%%rax), %%xmm0");
-//            return;
-        case Char:
-//            writeln("  %sbl (%%rax), %%eax", insn);
-//            return;
-        case Int:
-//            writeln("  movsxd (%%rax), %%rax");
-//            return;
-        default:
-            writeln("  mov (%%rax), %%rax");
-            return;
-    }
+    writeln("  mov (%%rax), %%rax");
 
 }
 /**
  * @param type
  */
-void AsmGen::CreateCmp(ValueType type)
+void AsmGen::CreateCmp()
 {
-    switch (type) {
-        case Int:
-        case Char:
-        case Bool:
-            writeln("  cmp $0, %%eax");
-            return;
-        case Double:
-            writeln("  xorpd %%xmm1, %%xmm1");
-            writeln("  ucomisd %%xmm1, %%xmm0");
-            return;
-        default:
-            writeln("  cmp $0, %%eax");
-            return;
-    }
+    writeln("  cmp $0, %%eax");
 }
 void AsmGen::PushS(const char *arg)
 {

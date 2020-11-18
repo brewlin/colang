@@ -3,6 +3,7 @@
  * @date   2020/9/1
  */
 #include "Parser.h"
+#include "Block.h"
 #include "Log.h"
 
 /**
