@@ -58,8 +58,8 @@ private:
 
     //parse keywords
     void 			parseImport();
-    Function*       parseFuncDef(Context* ctx);
-    Function*       parseExternDef(Context* ctx);
+    Function*       parseFuncDef(Runtime* rt);
+    Function*       parseExternDef(Runtime* rt);
     void            parseStructDef();
 
     short           precedence(Token op);

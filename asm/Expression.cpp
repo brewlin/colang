@@ -131,21 +131,6 @@ Value IdentExpr::asmgen(Runtime* rt,std::deque<Context*> ctx){
  * @return
  */
 Value IndexExpr::asmgen(Runtime* rt,std::deque<Context*> ctx) {
-    for(auto p = ctx.crbegin();p != ctx.crend(); ++p){
-        //查看 a 变量是否存在 var 对应的应该是一个  vector
-        if(auto* var = (*p)->getVar(this->identname); var != nullptr){
-            //将当前index 转换为  Value
-            auto idx = this->index->asmgen(rt,ctx);
-            //判断 索引是不是 int类型
-            if(!idx.isType<Int>())
-                parse_err("TypeError:expects index is int type at line %d col %d\n",line,column);
-            //判断有没有越界 index >= size(var) var->value是一个vector类型
-            if(idx.cast<int>() >= var->value.cast<std::vector<Value>>().size())
-                parse_err("IndexError: index %d out of range at line %d col %d\n",idx.cast<int>(),line,column);
-            //返回数组索引对应的那个 值  也就是 return a[1]
-            return var->value.cast<std::vector<Value>>()[idx.cast<int>()];
-        }
-    }
     //没找到 数组变量 抛出异常 exit退出
     parse_err("RuntimeError:use of undefined variable %s aat line %d col %d\n",identname.c_str(),line,column);
 }
@@ -175,7 +160,7 @@ Value AssignExpr::asmgen(Runtime* rt,std::deque<Context*> ctx){
 
         std::string identname = varExpr->identname;
         //说明不存在该变量 则需要重新定义
-        (ctx.back())->createVar(identname,rhs);
+        (ctx.back())->createVar(identname,varExpr);
         return rhs;
         //可能是索引运算如: a[1] = 123
     }

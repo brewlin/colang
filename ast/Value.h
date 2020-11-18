@@ -56,26 +56,11 @@ struct Value{
         this->data = std::make_any<_DataType>(std::move(data));
     }
 
-    bool  isTrue();
     //value 的类型
     ValueType  type{};
     ///可以存储任意类型
     std::any data;
 };
-struct ExecResult{
-    explicit ExecResult():execType(ExecNormal){}
-    explicit ExecResult(ExecutionResultType execType):execType(execType){}
-    explicit ExecResult(ExecutionResultType execType,Value retValue)
-            :execType(execType),retValue(retValue){}
 
-    ExecutionResultType  execType;
-    Value retValue;
-};
-
-struct Variable{
-    explicit Variable() = default;
-    std::string name;
-    Value value;
-};
 
 #endif //LANG_TYPE_H

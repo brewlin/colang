@@ -12,20 +12,32 @@
 class Runtime : public Context
 {
 public:
-    explicit        Runtime();
-    explicit        Runtime(const std::string& name);
+    explicit        Runtime() = default;
     void            addStatement(Statement* stmt);
     std::vector<Statement*> getStatements();
 
+    //全局函数表 操作
+    void       addFunc(const std::string& name,Function* f);
+    bool       hasFunc(const std::string& name);
+    Function*  getFunc(const std::string& name);
+
+    //结构体操作
+    void       addStruct(const std::string& name,Struct* f);
+    bool       hasStruct(const std::string& name);
+    Struct*    getStruct(const std::string& name);
 public:
+    //存储结构体定义
+    std::unordered_map<std::string,Struct*>    structs;
+
+    //顺序存储函数表 for irgen bin
+    std::vector<Function*> order_funcs;
+    //存储全局函数
+    std::unordered_map<std::string,Function*>  funcs;
     //存储全局所有的待执行语句
     std::vector<Statement*>       stmts;
     //保存全局 静态字符串
     std::vector<StringExpr*>      strs;
 
-    llvm::LLVMContext             llvmContext;
-    llvm::IRBuilder<>             builder;
-    std::unique_ptr<llvm::Module> llvmModule;
 };
 
 #endif //LANG_RUNTIME_H

@@ -56,10 +56,10 @@ void Parser::parseStructDef()
 }
 /**
  * 解析函数表达式
- * @param ctx
+ * @param rt
  * @return
  */
-Function* Parser::parseFuncDef(Context *ctx)
+Function* Parser::parseFuncDef(Runtime* rt)
 {
     Debug("found function. start parser..");
     //当前是否已经解析到 func 关键字
@@ -67,7 +67,7 @@ Function* Parser::parseFuncDef(Context *ctx)
     //获取函数名
     currentToken = next();
     //检查是否重复定义
-    if(ctx->hasFunc(getCurrentLexeme()))
+    if(rt->hasFunc(getCurrentLexeme()))
         parse_err("SyntaxError: already define function :%s\n",getCurrentLexeme().c_str());
     auto* node = new Function;
     //start parse function
@@ -88,10 +88,10 @@ Function* Parser::parseFuncDef(Context *ctx)
 
 /**
  * 解析函数表达式
- * @param ctx
+ * @param rt
  * @return
  */
-Function* Parser::parseExternDef(Context *ctx)
+Function* Parser::parseExternDef(Runtime* rt)
 {
     Debug("found extern .start parser..");
     //当前是否已经解析到 func 关键字

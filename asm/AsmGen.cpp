@@ -5,6 +5,7 @@
  *@Version 1.0
  **/
 #include "AsmGen.h"
+#include <cstdarg>
 
 int AsmGen::count = 0;
 Function* AsmGen::currentFunc = nullptr;
@@ -23,7 +24,7 @@ void AsmGen::writeln(const char *fmt, ...) {
 }
 
 AsmGen::AsmGen(const std::string &filename) {
-    rt = new Runtime("main");
+    rt = new Runtime();
     p = new Parser(filename,rt);
 }
 AsmGen::~AsmGen() {
