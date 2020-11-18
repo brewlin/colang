@@ -18,7 +18,7 @@ std::string repeatString(int count, const std::string& str);
 
 std::vector<Value> repeatArray(int count, std::vector<Value>&& arr);
 
-[[noreturn]] void panic(char const* const format, ...);
+[[noreturn]] void parse_err(char const* const format, ...);
 
 template <typename _DesireType, typename... _ArgumentType>
 inline bool anyone(_DesireType k, _ArgumentType... args) {

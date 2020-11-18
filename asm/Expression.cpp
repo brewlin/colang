@@ -121,7 +121,7 @@ Value IdentExpr::asmgen(Runtime* rt,std::deque<Context*> ctx){
 //            return var->value;
         }
     }
-    panic("RuntimeError:use of undefined variable %s at line %d co %d\n",
+    parse_err("RuntimeError:use of undefined variable %s at line %d co %d\n",
           identname.c_str(),this->line,this->column);
 }
 /**
@@ -138,16 +138,16 @@ Value IndexExpr::asmgen(Runtime* rt,std::deque<Context*> ctx) {
             auto idx = this->index->asmgen(rt,ctx);
             //判断 索引是不是 int类型
             if(!idx.isType<Int>())
-                panic("TypeError:expects index is int type at line %d col %d\n",line,column);
+                parse_err("TypeError:expects index is int type at line %d col %d\n",line,column);
             //判断有没有越界 index >= size(var) var->value是一个vector类型
             if(idx.cast<int>() >= var->value.cast<std::vector<Value>>().size())
-                panic("IndexError: index %d out of range at line %d col %d\n",idx.cast<int>(),line,column);
+                parse_err("IndexError: index %d out of range at line %d col %d\n",idx.cast<int>(),line,column);
             //返回数组索引对应的那个 值  也就是 return a[1]
             return var->value.cast<std::vector<Value>>()[idx.cast<int>()];
         }
     }
     //没找到 数组变量 抛出异常 exit退出
-    panic("RuntimeError:use of undefined variable %s aat line %d col %d\n",identname.c_str(),line,column);
+    parse_err("RuntimeError:use of undefined variable %s aat line %d col %d\n",identname.c_str(),line,column);
 }
 
 /**
@@ -179,7 +179,7 @@ Value AssignExpr::asmgen(Runtime* rt,std::deque<Context*> ctx){
         return rhs;
         //可能是索引运算如: a[1] = 123
     }
-    panic("SyntaxError: can not assign to %s at line %d, %col\n", typeid(lhs).name(),line,column);
+    parse_err("SyntaxError: can not assign to %s at line %d, %col\n", typeid(lhs).name(),line,column);
 }
 
 /**
@@ -247,7 +247,7 @@ Value FunCallExpr::asmgen(Runtime* rt,std::deque<Context*> ctx){
         return Value(Null);
 
     }
-    panic(
+    parse_err(
             "RuntimeError: can not find function definition of %s in both "
             "built-in "
             "functions and user defined functions\n",

@@ -43,7 +43,7 @@ void Parser::parseStructDef()
             f->structname = s->name;
             s->funcs.push_back(f);
         }else{
-            panic("SynatxError: token:%d string:%s  line:%d column:%d\n",
+            parse_err("SynatxError: token:%d string:%s  line:%d column:%d\n",
                 getCurrentToken(),
                 getCurrentLexeme().c_str(),
                 line,column);
@@ -68,7 +68,7 @@ Function* Parser::parseFuncDef(Context *ctx)
     currentToken = next();
     //检查是否重复定义
     if(ctx->hasFunc(getCurrentLexeme()))
-        panic("SyntaxError: already define function :%s\n",getCurrentLexeme().c_str());
+        parse_err("SyntaxError: already define function :%s\n",getCurrentLexeme().c_str());
     auto* node = new Function;
     //start parse function
     currentFunc = node;

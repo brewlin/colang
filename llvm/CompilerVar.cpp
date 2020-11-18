@@ -167,7 +167,7 @@ llvm::Value* Compiler::binaryOper(Runtime* rt,std::deque<Context*>& ctx,Token op
         case TK_DIV:
             return fp ? rt->builder.CreateFDiv(L, R, "divftmp") : rt->builder.CreateSDiv(L, R, "divtmp");
         case TK_BITAND:
-//            return fp ? panic("Double type has no AND operation") : rt->builder.CreateAnd(L, R, "andtmp");
+//            return fp ? parse_err("Double type has no AND operation") : rt->builder.CreateAnd(L, R, "andtmp");
             return fp ? nullptr : rt->builder.CreateAnd(L, R, "andtmp");
         case TK_BITOR:
             return fp ? nullptr : rt->builder.CreateOr(L, R, "ortmp");

@@ -73,7 +73,7 @@ llvm::Value* IdentExpr::irgen(Runtime* rt, std::deque<Context*> ctx){
 //    }
     llvm::Value* value = Compiler::getVar(ctx,identname);
     if( !value ){
-        panic("RuntimeError:use of undefined variable %s at line %d co %d\n",
+        parse_err("RuntimeError:use of undefined variable %s at line %d co %d\n",
           identname.c_str(),line,column);
         return nullptr;
     }

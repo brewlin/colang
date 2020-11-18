@@ -101,7 +101,7 @@ void Compiler::initStruct(Runtime* rt,llvm::Value *obj, Struct* s)
 //    structPtr->setAlignment(4);
     auto structPtr = rt->builder.CreateLoad(varPtr, "structPtr");
     if( !structPtr->getType()->isStructTy() ){
-        panic("The variable is not struct");
+        parse_err("The variable is not struct");
     }
 
     string structName = structPtr->getType()->getStructName().str();

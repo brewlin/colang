@@ -27,7 +27,7 @@ Parser::Parser(const std::string &filename,Runtime* rt)
           {"new",     KW_NEW},
           {"go",       KW_GO}}){
     fs.open(filename);
-    if(!fs.is_open()) panic("ParserError: can not open script file :%s\n",filename.c_str());
+    if(!fs.is_open()) parse_err("ParserError: can not open script file :%s\n",filename.c_str());
 	this->rt = rt;
 	//clear
 	this->currentFunc = nullptr;
@@ -76,7 +76,7 @@ std::tuple<Token,std::string> Parser::parseKeyword(char c)
     //... eat 2 dot
     if(cn == '.' && cn1 == '.'){
         if(cn2 != '.')
-            panic("SynxaxError: tri-dot error\n");
+            parse_err("SynxaxError: tri-dot error\n");
         //eat 2 dot ,now left 1 dot
         c = getNextChar();
         c = getNextChar();
@@ -142,7 +142,7 @@ std::tuple<Token,std::string> Parser::next() {
         std::string lexeme;
         lexeme += getNextChar();
         if (peekNextChar() != '\'') {
-            panic("SynxaxError: a character literal should surround with single-quote\n");
+            parse_err("SynxaxError: a character literal should surround with single-quote\n");
         }
         c = getNextChar();
         return std::make_tuple(LIT_CHAR, lexeme);
@@ -257,7 +257,7 @@ std::tuple<Token,std::string> Parser::next() {
         return std::make_tuple(TK_LT, "<");
     }
     //匹配失败 直接print后 exit
-    panic("SynxaxError: unknown token '%c' line:%d column:%d\n",c,line,column);
+    parse_err("SynxaxError: unknown token '%c' line:%d column:%d\n",c,line,column);
     return std::make_tuple(INVALID,"invalid");
 }
 

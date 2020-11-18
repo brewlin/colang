@@ -140,7 +140,7 @@ void Compiler::declarationFunc(Runtime* rt,std::deque<Context*> ctx,Function* f)
         }
         llvm::Value* retv = ctx.back()->returnValue;
         if( retv) rt->builder.CreateRet(retv);
-        else return panic("Function block return value not founded");
+        else return parse_err("Function block return value not founded");
 
         leaveContext(ctx);
     }

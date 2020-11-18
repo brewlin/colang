@@ -56,25 +56,6 @@ struct Value{
         this->data = std::make_any<_DataType>(std::move(data));
     }
 
-    Value operator+(Value rhs);
-    Value operator-(Value rhs);
-    Value operator*(Value rhs);
-    Value operator/(Value rhs);
-    Value operator%(Value rhs);
-
-    Value operator&&(Value rhs);
-    Value operator||(Value rhs);
-
-    Value operator==(Value rhs);
-    Value operator!=(Value rhs);
-    Value operator>(Value rhs);
-    Value operator>=(Value rhs);
-    Value operator<(Value rhs);
-    Value operator<=(Value rhs);
-
-    Value operator&(Value rhs);
-    Value operator|(Value rhs);
-
     bool  isTrue();
     //value 的类型
     ValueType  type{};

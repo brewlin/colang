@@ -22,7 +22,7 @@ Expression* Parser::parseExpression(short oldPrecedence)
         if (typeid(*p) != typeid(IdentExpr) &&
             typeid(*p) != typeid(IndexExpr) &&
             typeid(*p) != typeid(MemberExpr)) {
-            panic("SyntaxError: can not assign to %s\n", typeid(*p).name());
+            parse_err("SyntaxError: can not assign to %s\n", typeid(*p).name());
         }
         if (typeid(*p) == typeid(IdentExpr) && currentFunc){
             IdentExpr* var = dynamic_cast<IdentExpr*>(p);
