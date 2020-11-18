@@ -19,7 +19,7 @@ find_package(LLVM REQUIRED CONFIG)
 include_directories(${LLVM_INCLUDE_DIRS})
 add_definitions(${LLVM_DEFINITIONS})
 add_definitions("-g -std=c++17")
-include_directories(. asm ast parser pkg runtime llvm interpreter)
+include_directories(. asm ast parser pkg runtime llvm )
 
 
 add_subdirectory(ast)
@@ -28,7 +28,6 @@ add_subdirectory(llvm)
 add_subdirectory(runtime)
 add_subdirectory(parser)
 add_subdirectory(pkg)
-add_subdirectory(interpreter)
 add_subdirectory(internal)
 
 add_executable(do do.cpp)
@@ -37,14 +36,14 @@ add_executable(do do.cpp)
 llvm_map_components_to_libnames(llvm_libs support core irreader)
 
 # Link against LLVM libraries
+# 越基础的库就要越放后面，保证链接正常
 target_link_libraries(
         do
-        asm
-        ast interpreter llvm
-        runtime
         parser
-        interpreter ast asm
-        llvm parser runtime
+        asm
+        llvm
+        ast
+        runtime
         pkg
         ${llvm_libs}
 )

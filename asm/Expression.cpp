@@ -3,12 +3,11 @@
  * @date   2020/9/6
  */
 #include "Expression.h"
-#include "Interpreter.h"
 #include "AsmGen.h"
 #include "Log.h"
 #include "Internal.h"
-#include "../ast/Ast.h"
-#include "../ast/Value.h"
+#include "Ast.h"
+#include "Value.h"
 
 //===---------------------------------------------------------------------===//
 // 计算所有的表达式 并返回一个 Value 结构，
@@ -175,49 +174,12 @@ Value AssignExpr::asmgen(Runtime* rt,std::deque<Context*> ctx){
         AsmGen::Store(rhs.type);
 
         std::string identname = varExpr->identname;
-        for(auto p = ctx.crbegin(); p != ctx.crend(); ++p){
-            //查看变量表是否存在该 变量
-            if(auto* var = (*p)->getVar(identname); var != nullptr){
-                //进行赋值操作 并返回右值
-                var->value = Interpreter::assignSwitch(this->opt,var->value,rhs);
-                return rhs;
-            }
-        }
-
         //说明不存在该变量 则需要重新定义
         (ctx.back())->createVar(identname,rhs);
         return rhs;
         //可能是索引运算如: a[1] = 123
-    }else if(typeid(*lhs) == typeid(IndexExpr))
-    {
-        Value rhs = this->rhs->asmgen(rt,ctx);
-        std::string identname = dynamic_cast<IndexExpr*>(lhs)->identname;
-        Value   index     = dynamic_cast<IndexExpr*>(lhs)->index->asmgen(rt,ctx);
-        //如果索引不是int则panic : a["1"];
-        if(!index.isType<Int>())
-            panic("TypeError: expects index is int type to variable %s at line %d co %d\n",identname.c_str(),line,column);
-        //通过全局变量表 找到该数组
-        for(auto p = ctx.crbegin(); p != ctx.crend(); ++p){
-            //如果该变量不是 array 则抛出类型错误，不能对非数组变量进行索引操作
-            if(auto * var = (*p)->getVar(identname); var != nullptr){
-                if(!var->value.isType<Array>())
-                    panic("TypeError: expects array type of vaiable %s  ate line %d %col\n",identname.c_str(),line,column);
-                //转换为 vector 操作
-                auto&& temp = var->value.cast<std::vector<Value>>();
-                temp[index.cast<int>()] = Interpreter::assignSwitch(
-                        this->opt,temp[index.cast<int>()],rhs);
-                //右值转移数据
-                var->value.data = std::move(temp);
-                return rhs;
-            }
-        }
-        //创建一个变量
-        (ctx.back()->createVar(identname,rhs));
-        return rhs;
-        //其他情况 非法
-    }else{
-        panic("SyntaxError: can not assign to %s at line %d, %col\n", typeid(lhs).name(),line,column);
     }
+    panic("SyntaxError: can not assign to %s at line %d, %col\n", typeid(lhs).name(),line,column);
 }
 
 /**
@@ -299,18 +261,12 @@ Value FunCallExpr::asmgen(Runtime* rt,std::deque<Context*> ctx){
  */
 Value BinaryExpr::asmgen(Runtime* rt,std::deque<Context*> ctx)
 {
-    Value lhs = this->lhs ? this->lhs->asmgen(rt,ctx) : Value(Null);
-    Value rhs = this->rhs ? this->rhs->asmgen(rt,ctx) : Value(Null);
-
-    Token  opt = this->opt;
-    //lhs != null & rhs == null 一元求值
-    if(!lhs.isType<Null>() && rhs.isType<Null>())
-        return Interpreter::calcUnaryExpr(lhs,opt,line,column);
-    //二元求值
-    return Interpreter::calcBinaryExpr(lhs,opt,rhs,line,column);
+//    Value lhs = this->lhs ? this->lhs->asmgen(rt,ctx) : Value(Null);
+//    Value rhs = this->rhs ? this->rhs->asmgen(rt,ctx) : Value(Null);
+    return Value(Null);
 }
 /**
- * TODO: 只实现了 编译的new 未实现 interpreter的new
+ * TODO: 只实现了 llvm编译的new
  * 针对结构体的变量定义
  * b = new Http
  * @param rt
@@ -323,7 +279,7 @@ Value NewExpr::asmgen(Runtime* rt,std::deque<Context*> ctx)
 }
 /**
  *
- * TODO: 待实现interprter 的结构体
+ * TODO: asm struct
  * @param rt
  * @param ctx
  * @return
@@ -333,7 +289,7 @@ Value MemberExpr::asmgen(Runtime* rt,std::deque<Context*> ctx)
     return Value(String,varname);
 }
 /**
- * TODO: 未实现interpreter 的结构体内部函数调用
+ * TODO: asm struct call
  * @param rt
  * @param ctx
  * @return

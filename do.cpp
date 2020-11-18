@@ -3,14 +3,12 @@
  *@Date 2020/9/2 0002 下午 3:23
  *@Version 1.0
  **/
-#include "interpreter/Interpreter.h"
 #include "llvm/Compiler.h"
 #include "asm/AsmGen.h"
 
 int print_help () {
     fprintf(stderr,
             "usage: ./do [options] file.  可用的选项:\n"
-            "  -i       动态解析运行\n"
             "  -s       直接将ast转为asm汇编\n"
             "  -llvm    通过llvm将ast转为ams汇编\n"
             "  -print   打印ast节点\n"
@@ -32,16 +30,6 @@ int llvmgen(char* argv[])
 /**
  * @param argv
  */
-int interpreter(char* argv[])
-{
-    Debug("interpreter");
-    Interpreter dolang(argv[2]);
-    dolang.execute();
-    return 0;
-}
-/**
- * @param argv
- */
 int asmgen(char* argv[])
 {
     Debug("asm generate");
@@ -57,9 +45,6 @@ int print_ast(char* argv[]){
 int main(int argc,char* argv[])
 {
     if (argc < 3) return print_help();
-
-    if (!strcmp(argv[1], "-i"))
-        return interpreter(argv);
 
     if (!strcmp(argv[1], "-s"))
         return asmgen(argv);

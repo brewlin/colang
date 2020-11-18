@@ -15,7 +15,6 @@ struct  Expression : public AstNode {
     using AstNode::AstNode;
     virtual              ~Expression() = default;
 
-    virtual Value        interpret(Runtime* rt,std::deque<Context*> ctx);
     virtual Value        asmgen(Runtime* rt,std::deque<Context*> ctx) = 0;
     virtual llvm::Value* irgen(Runtime* rt,std::deque<Context*> ctx) = 0;
     virtual string       toString() = 0;
@@ -25,7 +24,6 @@ struct BoolExpr : public Expression{
     explicit BoolExpr(int line,int column):Expression(line,column){}
     bool literal;
 
-    Value        interpret(Runtime* rt,std::deque<Context*> ctx) override;
     Value        asmgen(Runtime* rt,std::deque<Context*> ctx) override;
     llvm::Value* irgen(Runtime* rt,std::deque<Context*> ctx) override;
     std::string  toString() override;
@@ -34,7 +32,6 @@ struct CharExpr : public Expression {
     explicit CharExpr(int line, int column) : Expression(line, column) {}
     char literal;
 
-    Value        interpret(Runtime* rt, std::deque<Context*> ctx) override;
     Value        asmgen(Runtime* rt, std::deque<Context*> ctx) override;
     llvm::Value* irgen(Runtime* rt, std::deque<Context*> ctx) override;
     std::string  toString() override;
@@ -43,7 +40,6 @@ struct CharExpr : public Expression {
 struct NullExpr : public Expression {
     explicit     NullExpr(int line, int column) : Expression(line, column) {}
 
-    Value        interpret(Runtime* rt, std::deque<Context*> ctx) override;
     Value        asmgen(Runtime* rt, std::deque<Context*> ctx) override;
     llvm::Value* irgen(Runtime* rt, std::deque<Context*> ctx) override;
     std::string  toString() override;
@@ -53,7 +49,6 @@ struct IntExpr : public Expression {
     explicit     IntExpr(int line, int column) : Expression(line, column) {}
     int          literal;
 
-    Value        interpret(Runtime* rt, std::deque<Context*> ctx) override;
     Value        asmgen(Runtime* rt, std::deque<Context*> ctx) override;
     llvm::Value* irgen(Runtime* rt, std::deque<Context*> ctx) override;
     std::string  toString() override;
@@ -64,7 +59,6 @@ struct DoubleExpr : public Expression {
 
     double       literal;
 
-    Value        interpret(Runtime* rt, std::deque<Context*> ctx) override;
     Value        asmgen(Runtime* rt, std::deque<Context*> ctx) override;
     llvm::Value* irgen(Runtime* rt, std::deque<Context*> ctx) override;
     std::string  toString() override;
@@ -80,7 +74,6 @@ struct StringExpr : public Expression {
     std::string  name;
     int          offset;
 
-    Value        interpret(Runtime* rt, std::deque<Context*> ctx) override;
     Value        asmgen(Runtime* rt, std::deque<Context*> ctx) override;
     llvm::Value* irgen(Runtime* rt, std::deque<Context*> ctx) override;
     std::string  toString() override;
@@ -90,7 +83,6 @@ struct ArrayExpr : public Expression {
     explicit     ArrayExpr(int line, int column) : Expression(line, column) {}
     std::vector<Expression*> literal;
 
-    Value        interpret(Runtime* rt, std::deque<Context*> ctx) override;
     Value        asmgen(Runtime* rt, std::deque<Context*> ctx) override;
     llvm::Value* irgen(Runtime* rt, std::deque<Context*> ctx) override;
     std::string  toString() override;
@@ -110,7 +102,6 @@ struct IdentExpr : public Expression {
     bool         is_local;
     bool         is_multi;
 
-    Value        interpret(Runtime* rt, std::deque<Context*> ctx) override;
     Value        asmgen(Runtime* rt, std::deque<Context*> ctx) override;
     llvm::Value* irgen(Runtime* rt, std::deque<Context*> ctx) override;
     std::string  toString() override;
@@ -122,7 +113,6 @@ struct IndexExpr : public Expression {
     std::string identname;
     Expression* index;
 
-    Value        interpret(Runtime* rt, std::deque<Context*> ctx) override;
     Value        asmgen(Runtime* rt, std::deque<Context*> ctx) override;
     llvm::Value* irgen(Runtime* rt, std::deque<Context*> ctx) override;
     std::string  toString() override;
@@ -134,7 +124,6 @@ struct BinaryExpr : public Expression {
     Token        opt{};
     Expression*  rhs{};
 
-    Value        interpret(Runtime* rt, std::deque<Context*> ctx) override;
     Value        asmgen(Runtime* rt, std::deque<Context*> ctx) override;
     llvm::Value* irgen(Runtime* rt, std::deque<Context*> ctx) override;
     std::string  toString() override;
@@ -145,7 +134,6 @@ struct FunCallExpr : public Expression {
     std::string funcname;
     std::vector<Expression*> args;
 
-    Value        interpret(Runtime* rt, std::deque<Context*> ctx) override;
     Value        asmgen(Runtime* rt, std::deque<Context*> ctx) override;
     llvm::Value* irgen(Runtime* rt, std::deque<Context*> ctx) override;
     std::string  toString() override;
@@ -159,7 +147,6 @@ struct AssignExpr : public Expression {
     Expression*  rhs{};
 
 
-    Value        interpret(Runtime* rt, std::deque<Context*> ctx) override;
     Value        asmgen(Runtime* rt, std::deque<Context*> ctx) override;
     llvm::Value* irgen(Runtime* rt, std::deque<Context*> ctx) override;
     std::string  toString() override;
@@ -169,7 +156,6 @@ struct NewExpr : public Expression {
     explicit NewExpr(int line, int column) : Expression(line, column) {}
     std::string type;
 
-    Value        interpret(Runtime* rt, std::deque<Context*> ctx) override;
     Value        asmgen(Runtime* rt, std::deque<Context*> ctx) override;
     llvm::Value* irgen(Runtime* rt, std::deque<Context*> ctx) override;
     std::string  toString() override;
@@ -179,7 +165,6 @@ struct MemberExpr : public Expression {
     std::string  varname;
     std::string  membername;
 
-    Value        interpret(Runtime* rt, std::deque<Context*> ctx) override;
     Value        asmgen(Runtime* rt, std::deque<Context*> ctx) override;
     llvm::Value* irgen(Runtime* rt, std::deque<Context*> ctx) override;
     std::string  toString() override;
@@ -191,7 +176,6 @@ struct MemberCallExpr : public Expression {
 
     std::vector<Expression*> args;
 
-    Value        interpret(Runtime* rt, std::deque<Context*> ctx) override;
     Value        asmgen(Runtime* rt, std::deque<Context*> ctx) override;
     llvm::Value* irgen(Runtime* rt, std::deque<Context*> ctx) override;
     std::string  toString() override;

@@ -4,7 +4,6 @@
  */
 #include "Statement.h"
 #include "Utils.h"
-#include "Interpreter.h"
 #include "AsmGen.h"
 #include "Internal.h"
 /**

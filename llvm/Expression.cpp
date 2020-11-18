@@ -3,7 +3,6 @@
  * @date   2020/9/6
  */
 #include "Expression.h"
-#include "Interpreter.h"
 #include "Compiler.h"
 #include "Log.h"
 
