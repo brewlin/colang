@@ -26,11 +26,18 @@ struct Block;
  */
 class Parser {
 public:
-    //防止 实例化对象被隐式转换了
-    explicit Parser(const std::string& filename,Runtime* rt);
+    /**
+     * @param filename  要打开的文件名
+     * @param rt        全局table表 存储了所有的函数、变量等
+     * @param package   当前文件对应的包名
+     */
+    explicit Parser(const std::string& filename,Runtime* rt,std::string package);
     static void printLex(const std::string& filename);
     ~Parser();
 
+    //获取包名
+    std::string getpkgname();
+    //执行文件解析生成ast树
     void parse();
 
 private:
@@ -61,6 +68,7 @@ private:
     Function*       parseFuncDef(Runtime* rt);
     Function*       parseExternDef(Runtime* rt);
     void            parseStructDef();
+    void            parsePackageDef();
 
     short           precedence(Token op);
     Block*          parseBlock();
@@ -78,13 +86,15 @@ private:
     //打开脚本文件
     std::fstream fs;
     //保存关键字
-    const std::unordered_map<std::string,Token > keywords;
+    std::unordered_map<std::string,Token > keywords;
     //当前token
     std::tuple<Token ,std::string> currentToken;
 	//全局ast树运行时
 	Runtime* rt;
 	//当前function
 	Function* currentFunc;
+	//当前包名
+	std::string package;
 };
 
 

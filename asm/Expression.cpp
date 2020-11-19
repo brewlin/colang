@@ -8,6 +8,7 @@
 #include "Internal.h"
 #include "Ast.h"
 #include "Value.h"
+#include "Parser.h"
 
 //===---------------------------------------------------------------------===//
 // 计算所有的表达式 并返回一个 void  结构，
@@ -197,7 +198,13 @@ void  FunCallExpr::asmgen(Runtime* rt,std::deque<Context*> ctx){
                 AsmGen::Pop(AsmGen::argreg64[gp++]);
         }
 
-        AsmGen::writeln("  mov %s@GOTPCREL(%%rip), %%rax", funcname.c_str());
+        //需要判断是不是外部链接函数，否则需要加上包名
+        if(func->isExtern || cfunc->parser->getpkgname() != func->parser->getpkgname()){
+            AsmGen::writeln("  mov %s@GOTPCREL(%%rip), %%rax", funcname.c_str());
+        } else{
+            std::string called = func->parser->getpkgname() + "." + funcname;
+            AsmGen::writeln("  mov %s@GOTPCREL(%%rip), %%rax", called.c_str());
+        }
         AsmGen::writeln("  mov %%rax, %%r10");
         AsmGen::writeln("  mov $%d, %%rax", fp);
         AsmGen::writeln("  call *%%r10");

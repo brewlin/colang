@@ -12,12 +12,14 @@
 
 struct Expression;
 struct IdentExpr;
+class Parser;
 /**
  * 函数
  */
 struct Function{
     //函数定义 函数声明  外部函数
-    explicit Function():isExtern(false),isObj(false),is_multi(false){};
+    explicit Function()
+    :isExtern(false),isObj(false),parser(nullptr),is_multi(false){};
     ~Function(){delete block;}
 
     std::string name;
@@ -25,6 +27,9 @@ struct Function{
     bool        isObj;
     std::string structname;
     std::string rettype;
+
+    //parser
+    Parser* parser;
 
     //保存函数块内的本地变量 for asm gen offset
     std::unordered_map<std::string,IdentExpr*> locals;

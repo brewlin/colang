@@ -51,6 +51,7 @@ public:
     static void enterContext(std::deque<Context *> &ctx);
     static void leaveContext(std::deque<Context *> ctx);
 
+    void registerMain();
     void registerStrings();
     //创建全局string
     static void CreateGlobalString(StringExpr* expr);

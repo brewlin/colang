@@ -5,7 +5,7 @@ cmake_minimum_required(VERSION 3.10)
 
 project(do)
 
-add_definitions("-g -Wall -std=c++17")
+add_definitions("-g -Wall -std=c++17 ")
 
 include_directories(. asm ast parser pkg runtime)
 
@@ -18,4 +18,4 @@ add_subdirectory(internal)
 
 add_executable(do do.cpp)
 
-target_link_libraries(do parser asm ast runtime pkg)
+target_link_libraries(do parser asm ast runtime pkg -lstdc++fs)

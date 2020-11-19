@@ -8,6 +8,7 @@
 #include "AsmGen.h"
 #include "Log.h"
 #include "Block.h"
+#include "Parser.h"
 
 
 /**
@@ -31,13 +32,14 @@ void AsmGen::CreateFunction(Function *fn, Runtime *rt, std::deque<Context *> ctx
 {
     //extern 不需要 翻译
     if(fn->isExtern) return;
-    Debug("create function :%s",fn->name.c_str())
+    std::string funcname = fn->parser->getpkgname() + "." + fn->name;
+    Debug("create function :%s",funcname.c_str())
 
     //定义函数块 名
-    writeln("  .globl %s", fn->name.c_str());
+    writeln("  .globl %s", funcname.c_str());
     writeln("  .text");
-    writeln("  .type %s, @function", fn->name.c_str());
-    writeln("%s:", fn->name.c_str());
+    writeln("  .type %s, @function", funcname.c_str());
+    writeln("%s:", funcname.c_str());
 
     //标记函数 start
     //保存rbp栈帧
@@ -71,7 +73,7 @@ void AsmGen::CreateFunction(Function *fn, Runtime *rt, std::deque<Context *> ctx
         //进入新的上下文
         enterContext(funcCtxChain);
         auto* funcCtx = funcCtxChain.back();
-        funcCtx->cur_funcname = fn->name;
+        funcCtx->cur_funcname = funcname;
 
         for(auto arg : fn->params_order_var){
             //将实参值放入新的上下文中 创建变量
@@ -87,8 +89,7 @@ void AsmGen::CreateFunction(Function *fn, Runtime *rt, std::deque<Context *> ctx
     if(fn->name == "main")
         writeln("  mov $0, %%rax");
 
-    // Epilogue
-    writeln(".L.return.%s:", fn->name.c_str());
+    writeln(".L.return.%s:", funcname.c_str());
     writeln("  mov %%rbp, %%rsp");
     writeln("  pop %%rbp");
     writeln("  ret");

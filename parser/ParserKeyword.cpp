@@ -7,6 +7,35 @@
 
 #include "Parser.h"
 #include "Log.h"
+#include <fstream>
+#include <iostream>
+#include <experimental/filesystem>
+namespace filesys = std::experimental::filesystem;
+/**
+ * 解析包名是否正确
+ */
+void Parser::parsePackageDef()
+{
+    Debug("check package is correct..");
+    if(getCurrentToken() != KW_PACKAGE)
+        parse_err("SynatxError: need :package but got :%s  line:%d column:%d\n",
+                  getCurrentLexeme().c_str(),
+                  line,column);
+
+    //解析包名
+    currentToken = next();
+    assert(getCurrentToken() == TK_IDENT);
+    std::string pkgname = getCurrentLexeme();
+    if(pkgname != this->package){
+        parse_err("SynatxError: inconsistent package name token:%d string:%s  line:%d column:%d\n",
+                  getCurrentToken(),
+                  getCurrentLexeme().c_str(),
+                  line,column);
+    }
+    //eat next
+    currentToken = next();
+}
+
 /**
  * 解析结构体定义
  */
@@ -70,6 +99,9 @@ Function* Parser::parseFuncDef(Runtime* rt)
     if(rt->hasFunc(getCurrentLexeme()))
         parse_err("SyntaxError: already define function :%s\n",getCurrentLexeme().c_str());
     auto* node = new Function;
+
+    //set parser
+    node->parser = this;
     //start parse function
     currentFunc = node;
 
@@ -136,9 +168,29 @@ void Parser::parseImport()
     if(srcpath.empty())
         srcpath = "./";
     std::string abpath  = srcpath+"/"+getCurrentLexeme();
-    Debug("Parser: new import file:%s",abpath.c_str());
-    Parser ipt(abpath,rt);
+    Debug("Parser: package import:%s",abpath.c_str());
+
+    std::error_code ec;
+    if (!filesys::is_directory(abpath, ec))
+        parse_err("RuntimeError: package not exist :%s\n",abpath.c_str());
+
+    //包名一般是一个目录，当前会遍历目录下所有的文件进行解析
+    for(auto& p: filesys::directory_iterator(abpath)){
+        std::error_code ec;
+        if (filesys::is_regular_file(p.path(), ec)){
+            string filepath = p.path();
+            string ext = filepath.substr(filepath.size()-3,filepath.size() - 1);
+            if(ext != ".do") continue;
+
+            //不需要释放，在汇编生成的时候需要用到
+            Parser *ipt = new Parser(filepath,rt,getCurrentLexeme());
+            ipt->parse();
+        }
+        if (ec)
+            parse_err("RuntimeError: package import failed :%s\n",ec.message().c_str());
+    }
+
+    //get next
     currentToken = next();
-    ipt.parse();
 
 }

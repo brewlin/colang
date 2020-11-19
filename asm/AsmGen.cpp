@@ -10,22 +10,10 @@
 int AsmGen::count = 0;
 Function* AsmGen::currentFunc = nullptr;
 FILE *output_file;
-/**
- * 写入 asm file
- * @param fmt
- * @param ...
- */
-void AsmGen::writeln(const char *fmt, ...) {
-    va_list ap;
-    va_start(ap, fmt);
-    vfprintf(output_file, fmt, ap);
-    va_end(ap);
-    fprintf(output_file, "\n");
-}
 
 AsmGen::AsmGen(const std::string &filename) {
     rt = new Runtime();
-    p = new Parser(filename,rt);
+    p = new Parser(filename,rt,"main");
 }
 AsmGen::~AsmGen() {
     delete  p;
@@ -38,10 +26,12 @@ void AsmGen::execute()
     this->p->parse();
     this->ctx.push_back(new Context);
 
-
     char *buf;
     size_t buflen;
     output_file = open_memstream(&buf, &buflen);
+
+    //register main
+    registerMain();
     //1 计算变量的栈偏移量
     assign_offsets();
     //2 注册全局 string
@@ -56,13 +46,32 @@ void AsmGen::execute()
     fclose(out);
     system("gcc -g tmp.s -L./internal -linternal");
 }
+void AsmGen::registerMain()
+{
+    writeln("  .globl main");
+    writeln("  .text");
+    writeln("  .type main, @function");
+    writeln("main:");
+    writeln("  push %%rbp");
+    writeln("  mov %%rsp, %%rbp");
+    writeln("  sub $%d, %%rsp", 0);
+    writeln("  mov %s@GOTPCREL(%%rip), %%rax", "main.main");
+    writeln("  mov %%rax, %%r10");
+    writeln("  mov $%d, %%rax", 0);
+    writeln("  call *%%r10");
+    writeln("  mov %%rbp, %%rsp");
+    writeln("  pop %%rbp");
+    writeln("  ret");
+
+}
 /**
  * 计算
  * 函数参数栈偏移量
  * 函数局部变量栈偏移量
  * 函数栈空间大小
  */
-void AsmGen::assign_offsets() {
+void AsmGen::assign_offsets()
+{
     //顺序遍历所有的 Function
     for (auto* fn : rt->order_funcs){
 
@@ -131,4 +140,16 @@ void AsmGen::leaveContext(std::deque<Context *> ctx)
     ctx.pop_back();
     delete tempContext;
 
+}
+/**
+ * 写入 asm file
+ * @param fmt
+ * @param ...
+ */
+void AsmGen::writeln(const char *fmt, ...) {
+    va_list ap;
+    va_start(ap, fmt);
+    vfprintf(output_file, fmt, ap);
+    va_end(ap);
+    fprintf(output_file, "\n");
 }

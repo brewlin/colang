@@ -1,5 +1,6 @@
+package fmt
+
 extern int printf(string)
-extern void sleep(int)
 
 func println(args...){
    printf(args)
