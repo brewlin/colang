@@ -19,7 +19,7 @@ class Parser;
 struct Function{
     //函数定义 函数声明  外部函数
     explicit Function()
-    :isExtern(false),isObj(false),parser(nullptr),is_multi(false){};
+    :isExtern(false),isObj(false),parser(nullptr),is_variadic(false){};
     ~Function(){delete block;}
 
     std::string name;
@@ -37,7 +37,7 @@ struct Function{
     std::unordered_map<std::string,IdentExpr*> params_var;
     std::vector<IdentExpr*>                    params_order_var;
     //这里表示当前函数参数有可变参数，需要进行可变参数传参
-    bool                                       is_multi;
+    bool                                       is_variadic;
     int                                        size;
     int                                        stack;
     int                                        l_stack;

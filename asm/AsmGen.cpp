@@ -98,7 +98,7 @@ void AsmGen::assign_offsets()
             }
         }
         //如果是可变参数强制空出6个空闲栈即可
-        if(fn->is_multi){
+        if(fn->is_variadic){
             bottom = 48;
         }
         //TODO: 在parser ast function时 将本地局部变量加入 fn->locals 方便计算偏移量
@@ -110,7 +110,7 @@ void AsmGen::assign_offsets()
             var->offset = -bottom;
         }
         //如果是可变参数需要临时创建几个栈变量
-        if(fn->is_multi){
+        if(fn->is_variadic){
             bottom += 8;
             fn->size = - bottom;
             bottom += 8;

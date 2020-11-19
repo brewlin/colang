@@ -84,14 +84,14 @@ struct IdentExpr : public Expression {
             : Expression(line, column),
             identname(std::move(identname)),
             is_local(true),
-            is_multi(false){}
+            is_variadic(false){}
     std::string  identname;
     //在 asm generate 时 作为 bp 偏移量
     int          offset;
     //在asm  generate 时作为 唯一标号
     std::string  name;
     bool         is_local;
-    bool         is_multi;
+    bool         is_variadic;
 
     llvm::Value* irgen(Runtime* rt, std::deque<Context*> ctx) override;
     std::string  toString() override;

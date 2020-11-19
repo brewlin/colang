@@ -175,7 +175,7 @@ void  FunCallExpr::asmgen(Runtime* rt,std::deque<Context*> ctx){
             IdentExpr* var = dynamic_cast<IdentExpr*>(arg);
             if(auto res = cfunc->params_var.find(var->identname) ; res != cfunc->params_var.end()){
                 IdentExpr* var2  = res->second;
-                if(var2->is_multi)
+                if(var2->is_variadic)
                     have_depointer = true;
             }
         }
@@ -187,10 +187,10 @@ void  FunCallExpr::asmgen(Runtime* rt,std::deque<Context*> ctx){
         if(func->params.size() != this->args.size())
             Debug("ArgumentError: expects %d arguments but got %d\n",(int)func->params.size(),(int)this->args.size());
 
-        int stack_args = AsmGen::Push_arg(rt,ctx,args,func->is_multi);
+        int stack_args = AsmGen::Push_arg(rt,ctx,args,func->is_variadic);
 
         //把参数寄存器给填满了
-        if(cfunc && cfunc->is_multi && have_depointer)
+        if(cfunc && cfunc->is_variadic && have_depointer)
         {
            //do nothing
         }else{
@@ -219,7 +219,7 @@ void  FunCallExpr::asmgen(Runtime* rt,std::deque<Context*> ctx){
 
 
         //如果当前函数调用存在解引用可变参数则需要动态计算函数栈上移的大小
-        if(AsmGen::currentFunc && AsmGen::currentFunc->is_multi && have_depointer)
+        if(AsmGen::currentFunc && AsmGen::currentFunc->is_variadic && have_depointer)
         {
             int c = AsmGen::count++;
             AsmGen::writeln("  mov -8(%%rbp),%%rdi");

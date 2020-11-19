@@ -59,7 +59,7 @@ void AsmGen::Pop(const char *arg)
  * 每个参数占 8字节
  * @return
  */
-int AsmGen::Push_arg(Runtime *rt,std::deque<Context *> prevCtxChain,std::vector<Expression *> &args,bool is_multi)
+int AsmGen::Push_arg(Runtime *rt,std::deque<Context *> prevCtxChain,std::vector<Expression *> &args,bool is_variadic)
 {
     int stack = 0, gp = 0;
 
@@ -71,14 +71,14 @@ int AsmGen::Push_arg(Runtime *rt,std::deque<Context *> prevCtxChain,std::vector<
             IdentExpr* var = dynamic_cast<IdentExpr*>(arg);
             if(auto res = currentFunc->params_var.find(var->identname) ; res != currentFunc->params_var.end()){
                 IdentExpr* var2  = res->second;
-                if(var2->is_multi)
+                if(var2->is_variadic)
                     current_call_have_im = true;
             }
         }
     }
 
     //说明需要对当前可变参数进行解引用
-    if(currentFunc && currentFunc->is_multi && current_call_have_im)
+    if(currentFunc && currentFunc->is_variadic && current_call_have_im)
     {
         int c = AsmGen::count++;
         //第一个参数是从 -16算起，因为-8是参数个数需要忽略
@@ -152,7 +152,7 @@ int AsmGen::Push_arg(Runtime *rt,std::deque<Context *> prevCtxChain,std::vector<
             Push();
         }
         //如果是可变参数，第一个参数填充数字个数
-        if(is_multi){
+        if(is_variadic){
             stack -- ;
             Internal::newobject(Int,args.size());
 //            writeln("  mov $%d,%%rax",args.size());

@@ -337,8 +337,8 @@ std::vector<std::string> Parser::parseParameterList()
                               line,column);
                 }
                 //走到这里说明一定是 tri-dot
-                currentFunc->is_multi = true;
-                var->is_multi = true;
+                currentFunc->is_variadic = true;
+                var->is_variadic = true;
             }
             node.push_back(getCurrentLexeme());
         }
