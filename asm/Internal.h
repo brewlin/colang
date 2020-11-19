@@ -6,6 +6,7 @@
 #define LANG_INTERNAL_H
 
 #include "Ast.h"
+#include <string>
 
 class Internal
 {
@@ -15,5 +16,6 @@ public:
     static void gc_malloc();
     static void isTrue();
     static void get_object_value();
+    static void call(std::string funcname);
 };
 #endif //LANG_INTERNAL_H

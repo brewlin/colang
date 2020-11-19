@@ -62,6 +62,7 @@ void WhileStmt::asmgen(Runtime *rt, std::deque<Context *> ctx)
     AsmGen::writeln(".L.while.begin.%d:", c);
     //对判断条件的表达式求值
     this->cond->asmgen(rt,ctx);
+    Internal::isTrue();
     AsmGen::CreateCmp();
     AsmGen::writeln("  je  .L.while.end.%d", c);
 

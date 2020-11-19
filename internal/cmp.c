@@ -5,9 +5,9 @@
 int isTrue(CoreValue* cond){
     switch (cond->type){
         case Int:
-            return cond->data >= 0;
+            return cond->data > 0;
         case Double:
-            return cond->data >= 0;
+            return cond->data > 0;
         case String:
             return cond->data != NULL;
         case Bool:

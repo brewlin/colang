@@ -13,26 +13,16 @@ void Internal::CallOperator(Token opt) {
 //        call_binary_oper(this->opt);
     //第一个参数 opt
     AsmGen::writeln("  mov $%ld, %%rdi", opt);
-    //第二个参数 lhs
-    AsmGen::Pop("%rsi");
-    AsmGen::PushS("%rsi");
-    //第三个参数 rhs
+    //第二个参数 lhs 在栈顶的
+    AsmGen::writeln("  mov (%%rsp),%rsi");
+    //第三个参数 rhs 在rax寄存器的
     AsmGen::writeln("  mov %%rax, %%rdx");
-    AsmGen::writeln("  mov %s@GOTPCREL(%%rip), %%rax", "binaryOper");
-    AsmGen::writeln("  mov %%rax, %%r10");
-    AsmGen::writeln("  mov $%d, %%rax", 0);
-    AsmGen::writeln("  call *%%r10");
-    AsmGen::writeln("  add $%d, %%rsp", 0);
+    call("binaryOper");
 }
 void Internal::gc_malloc()
 {
-
     AsmGen::writeln("  mov $%ld, %%rdi", sizeof(CoreValue));
-    AsmGen::writeln("  mov %s@GOTPCREL(%%rip), %%rax", "malloc");
-    AsmGen::writeln("  mov %%rax, %%r10");
-    AsmGen::writeln("  mov $%d, %%rax", 0);
-    AsmGen::writeln("  call *%%r10");
-    AsmGen::writeln("  add $%d, %%rsp", 0);
+    call("malloc");
 }
 /**
  * @return
@@ -46,10 +36,7 @@ void Internal::newobject(int type, long data)
     if(type != String)
         AsmGen::writeln("  mov $%ld, %%rsi", data);
 
-    AsmGen::writeln("  mov %s@GOTPCREL(%%rip), %%rax", "newobject");
-    AsmGen::writeln("  mov %%rax, %%r10");
-    AsmGen::writeln("  mov $%d, %%rax", 0);
-    AsmGen::writeln("  call *%%r10");
+    call("newobject");
 
     AsmGen::writeln("  pop %%rsi");
     AsmGen::writeln("  pop %%rdi");
@@ -57,22 +44,19 @@ void Internal::newobject(int type, long data)
 void Internal::isTrue()
 {
     AsmGen::writeln("  mov %%rax, %%rdi");
-
-    AsmGen::writeln("  mov %s@GOTPCREL(%%rip), %%rax", "isTrue");
-    AsmGen::writeln("  mov %%rax, %%r10");
-    AsmGen::writeln("  mov $%d, %%rax", 0);
-    AsmGen::writeln("  call *%%r10");
+    call("isTrue");
 }
 void Internal::get_object_value()
 {
-
-
     AsmGen::writeln("  push %%rdi");
     AsmGen::writeln("  mov %%rax, %%rdi");
-
-    AsmGen::writeln("  mov %s@GOTPCREL(%%rip), %%rax", "get_object_value");
+    call("get_object_value");
+    AsmGen::writeln("  pop %%rdi");
+}
+void Internal::call(std::string funcname)
+{
+    AsmGen::writeln("  mov %s@GOTPCREL(%%rip), %%rax", funcname.c_str());
     AsmGen::writeln("  mov %%rax, %%r10");
     AsmGen::writeln("  mov $%d, %%rax", 0);
     AsmGen::writeln("  call *%%r10");
-    AsmGen::writeln("  pop %%rdi");
 }

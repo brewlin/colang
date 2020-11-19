@@ -81,26 +81,15 @@ int AsmGen::Push_arg(Runtime *rt,std::deque<Context *> prevCtxChain,std::vector<
     if(currentFunc && currentFunc->is_multi && current_call_have_im)
     {
         int c = AsmGen::count++;
-        //直接保存所有的寄存器
-        writeln("  mov -16(%%rbp),%%rax");
-        Internal::get_object_value();
-        writeln("  mov %%rax,%%rdi");
-
-        writeln("  mov -24(%%rbp),%%rax");
-        Internal::get_object_value();
-        writeln("  mov %%rax,%%rsi");
-
-        writeln("  mov -32(%%rbp),%%rax");
-        Internal::get_object_value();
-        writeln("  mov %%rax,%%rdx");
-
-        writeln("  mov -40(%%rbp),%%rax");
-        Internal::get_object_value();
-        writeln("  mov %%rax,%%rcx");
-
-        writeln("  mov -48(%%rbp),%%rax");
-        Internal::get_object_value();
-        writeln("  mov %%rax,%%r8");
+        //第一个参数是从 -16算起，因为-8是参数个数需要忽略
+        int params = -16;
+        //保存所有的寄存器
+        for (int i = 0; i < 5; ++i) {
+            writeln("  mov %d(%%rbp),%%rax",params);
+            Internal::get_object_value();
+            writeln("  mov %%rax,%s",AsmGen::argreg64[i]);
+            params += -8;
+        }
 
         writeln("  mov 16(%%rbp),%%rax");
         Internal::get_object_value();

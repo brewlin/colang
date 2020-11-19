@@ -1,32 +1,38 @@
 #!/bin/bash
+log(){
+    str="$1"
+    echo -e "\033[32m $str \033[0m "
+}
+failed(){
+    str="$1"
+    echo -e "\033[31m $str \033[0m"
+    exit 1
+}
 assert(){
     expected="$1"
     input="$2"
-    echo "start irgen $input ..."
+    log "[compile] ./do -s $input ..."
     ./do -s $input
     if [  "$?" = 0 ]; then
         actual=`./a.out`
         if [  "$?" != 0 ]; then
             rm ./a.out
-            echo "\033[31m exec failed \033[0m"
-            exit 1
+            failed "exec failed"
         fi
-        echo "output:"
         echo "$actual"
         rm ./a.out
         return
     fi
-    echo "\033[31m [compile] $input failed \033[0m"
-    exit 1
+    failed "[compile] $input failed"
 }
 read_dir(){
-    for file in `ls $1`
+    for file in `ls *.do`
     do
-     if [ -d $1"/"$file ] ; then
-        read_dir $1"/"$file
+     if [ -d $file ] ; then
+        read_dir $file
      else
-        assert "OK" $1"/"$file
-        echo "\033[32m [compile] $file pass! \033[0m \n"
+        assert "OK" $file
+        log "[compile] $file passed!"
      fi
     done
 }
@@ -35,10 +41,9 @@ install_env(){
     make
 
     if [  "$?" != 0 ]; then
-        echo "\033[31m make failed \033[0m"
+        failed "make failed"
     fi
 }
 install_env
-read_dir asmgen
-echo
-echo "\033[32m all passing..... \033[0m"
+read_dir
+log "all passing...."

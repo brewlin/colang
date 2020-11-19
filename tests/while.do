@@ -5,7 +5,7 @@ func test_while(){
     b = 0
     while(a){
         println("a=%d\n",a)
-        sleep(1)
+        #sleep(1)
         a = 0
         b = 1
     }
