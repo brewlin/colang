@@ -95,6 +95,7 @@ private:
 	Function* currentFunc;
 	//当前包名
 	std::string package;
+
 };
 
 

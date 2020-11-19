@@ -180,10 +180,10 @@ void  FunCallExpr::asmgen(Runtime* rt,std::deque<Context*> ctx){
             }
         }
     }
-    //用户定义函数: 通过函数名查找该函数
-    if(auto* func = rt->getFunc(this->funcname); func != nullptr){
+    //用户定义函数: 通过函数名查找该函数 : 如果不是包名方式调用函数  则需要走extern
+    if(auto* func = rt->getFunc(this->funcname,!is_pkgcall); func != nullptr){
 
-        //TODO: 函数默认传参
+        //只会进行提示，现在默认已实现不足6个参数会默认置0
         if(func->params.size() != this->args.size())
             Debug("ArgumentError: expects %d arguments but got %d\n",(int)func->params.size(),(int)this->args.size());
 

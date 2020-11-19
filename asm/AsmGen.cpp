@@ -64,6 +64,17 @@ void AsmGen::registerMain()
     writeln("  ret");
 
 }
+void AsmGen::update_pkgcall()
+{
+
+    //顺序遍历所有的 Function
+    for (auto* fn : rt->order_funcs){
+        if(fn->isExtern) continue;
+
+
+
+    }
+}
 /**
  * 计算
  * 函数参数栈偏移量

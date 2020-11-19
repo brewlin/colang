@@ -18,8 +18,8 @@ public:
 
     //全局函数表 操作
     void       addFunc(const std::string& name,Function* f);
-    bool       hasFunc(const std::string& name);
-    Function*  getFunc(const std::string& name);
+    bool       hasFunc(const std::string& name,bool is_extern = false);
+    Function*  getFunc(const std::string& name,bool is_extern = false);
 
     //结构体操作
     void       addStruct(const std::string& name,Struct* f);
@@ -33,10 +33,12 @@ public:
     std::vector<Function*> order_funcs;
     //存储全局函数
     std::unordered_map<std::string,Function*>  funcs;
+    std::unordered_map<std::string,Function*>  extern_funcs;
     //存储全局所有的待执行语句
     std::vector<Statement*>       stmts;
     //保存全局 静态字符串
     std::vector<StringExpr*>      strs;
+    //每个包下面保存所有的函数
 
 };
 

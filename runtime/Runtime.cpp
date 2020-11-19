@@ -21,26 +21,38 @@ void Runtime::addStatement(Statement* stmt)
 void Runtime::addFunc(const std::string &name, Function *f)
 {
     order_funcs.push_back(f);
-    funcs.insert(std::make_pair(name,f));
+
+    if(f->isExtern)
+        extern_funcs.insert(std::make_pair(name,f));
+    else
+        funcs.insert(std::make_pair(name,f));
 }
 /**
  * 检查是否存在该函数
  * @param name
  * @return
  */
-bool Runtime::hasFunc(const std::string &name)
+bool Runtime::hasFunc(const std::string &name, bool is_extern)
 {
-    return funcs.count(name) == 1;
+    if(is_extern)
+        return extern_funcs.count(name) == 1;
+    else
+        return funcs.count(name) == 1;
 }
 /**
  * 获取一个func
  * @param name
  * @return
  */
-Function* Runtime::getFunc(const std::string &name)
+Function* Runtime::getFunc(const std::string &name, bool is_extern)
 {
-    if(auto f = funcs.find(name);f != funcs.end())
-        return f->second;
+    if(is_extern){
+        if(auto f = extern_funcs.find(name);f != funcs.end())
+            return f->second;
+    }else{
+        if(auto f = funcs.find(name);f != funcs.end())
+            return f->second;
+    }
     return nullptr;
 }
 
