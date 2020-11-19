@@ -1,16 +1,19 @@
-import iostream
+package main
+
+import fmt
+import time
 
 func test_while(){
     a = 3
     b = 0
     while(a){
-        println("a=%d\n",a)
-        #sleep(1)
+        fmt.println("a=%d\n",a)
+        sleep(1)
         a = 0
         b = 1
     }
     if(b){
-        println("!\n")
+        fmt.println("!\n")
     }
 }
 

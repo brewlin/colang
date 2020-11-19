@@ -106,6 +106,34 @@ Expression* Parser::parsePrimaryExpr()
         //去掉标识符
         currentToken = next();
         switch (getCurrentToken()){
+            //fmt.println 说明是一种包名的函数调用
+            case TK_DOT:{
+                auto* val = new FunCallExpr(line,column);
+                val->is_pkgcall = true;
+                val->package    = ident;
+
+                //去掉.
+                currentToken = next();
+                assert(getCurrentToken() == TK_IDENT);
+                val->funcname = getCurrentLexeme();
+                //读取 (
+                currentToken = next();
+                assert(getCurrentToken() == TK_LPAREN);
+                //去掉（
+                currentToken = next();
+                //读取下一个
+                //循环解析实参 func(1,2,3); while( c != ')');
+                while(getCurrentToken() != TK_RPAREN){
+                    val->args.push_back(parseExpression());
+                    //ignore ','
+                    if(getCurrentToken() == TK_COMMA)
+                        currentToken = next();
+                }
+                //去掉 )
+                assert(getCurrentToken() == TK_RPAREN);
+                currentToken = next();
+                return val;
+            }
             //说明可能是函数调用 func()  ident = func
             case TK_LPAREN:{
                 currentToken = next();

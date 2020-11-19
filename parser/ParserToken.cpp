@@ -32,28 +32,13 @@ std::tuple<Token,std::string> Parser::parseNumber(char first)
 std::tuple<Token,std::string> Parser::parseKeyword(char c)
 {
     std::string lexeme{c};
-    char cn,cn1,cn2;
+    char cn;
 
     cn = peekNextChar();
     while((cn >= 'a' && cn <= 'z') || (cn >= 'A' && cn <= 'Z') || cn == '_' || (cn >= '0' && cn <= '9')){
         c = getNextChar();
         lexeme += c;
         cn = peekNextChar();
-    }
-    cn1 = peekNextChar();
-    cn2 = peekNextChar();
-    //解析结构体的成员访问和赋值
-    if(cn == '.' && cn1 != '.'){
-        c = getNextChar();
-        return std::make_tuple(TK_DOT,lexeme);
-    }
-    //... eat 2 dot
-    if(cn == '.' && cn1 == '.'){
-        if(cn2 != '.')
-            parse_err("SynxaxError: tri-dot error\n");
-        //eat 2 dot ,now left 1 dot
-        c = getNextChar();
-        c = getNextChar();
     }
     //返回标识符
     auto result = keywords.find(lexeme);
@@ -109,8 +94,12 @@ std::tuple<Token,std::string> Parser::next() {
     //解析关键字
     if( (c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') || c == '_'){
         return parseKeyword(c);
-    };
-
+    }
+    if(c == '.'){
+        std::string lexeme;
+        lexeme += c;
+        return std::make_tuple(TK_DOT,lexeme);
+    }
     //字符解析 只支持单个字符:'c'
     if (c == '\'') {
         std::string lexeme;
@@ -314,20 +303,42 @@ std::vector<std::string> Parser::parseParameterList()
     //解析所有括号内的参数 (..,..,..)
     while(getCurrentToken() != TK_RPAREN){
         //所有的参数都必须是 ident 或者 逗号,
-        if(getCurrentToken() == TK_IDENT){
-            char cn = peekNextChar();
+        if(getCurrentToken() == TK_IDENT)
+        {
             //将参数单独保存一份 需要计算 栈偏移量
             if(currentFunc){
                 IdentExpr* var = new IdentExpr(getCurrentLexeme(),line,column);
-                if(cn == '.'){
-                    //当前函数有可变参数函数
-                    currentFunc->is_multi = true;
-                    var->is_multi         = true;
-                    //eat . dot
-                    getNextChar();
-                }
                 currentFunc->params_var[getCurrentLexeme()] = var;
                 currentFunc->params_order_var.push_back(var);
+
+                currentToken = next();
+                //不是动态参数
+                if(getCurrentToken() == TK_COMMA) continue;
+                if(getCurrentToken() == TK_RPAREN) continue;
+
+                //既不是, 又不是 . （arg...）| (arg,arg2) 那就是有问题
+                if(getCurrentToken() != TK_DOT){
+                    parse_err("SynatxError: should be , or . but got :%s  line:%d column:%d\n",
+                              getCurrentLexeme().c_str(),
+                              line,column);
+                }
+                //去掉第二个点
+                currentToken = next();
+                if(getCurrentToken() != TK_DOT){
+                    parse_err("SynatxError: must be . but got :%s  line:%d column:%d\n",
+                              getCurrentLexeme().c_str(),
+                              line,column);
+                }
+                //去掉第三个点
+                currentToken = next();
+                if(getCurrentToken() != TK_DOT){
+                    parse_err("SynatxError: should be , or . but got :%s  line:%d column:%d\n",
+                              getCurrentLexeme().c_str(),
+                              line,column);
+                }
+                //走到这里说明一定是 tri-dot
+                currentFunc->is_multi = true;
+                var->is_multi = true;
             }
             node.push_back(getCurrentLexeme());
         }

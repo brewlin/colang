@@ -1,4 +1,6 @@
-import iostream
+package main
+
+import fmt
 
 func main(){
     a = 1
@@ -7,7 +9,7 @@ func main(){
     }else{
         a = 5
     }
-    println("OK\n")
+    fmt.println("OK\n")
 
 }
 

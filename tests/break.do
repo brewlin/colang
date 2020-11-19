@@ -1,9 +1,11 @@
-import iostream
+package main
+
+import fmt
 
 func test_while_break(){
     a = 10
     while(a){
-        println("break\n")
+        fmt.println("break\n")
         break
     }
 }
@@ -11,9 +13,9 @@ func break_double(){
     b = 1
     while(b){
         c = 1
-        println("outside\n")
+        fmt.println("outside\n")
         while(c){
-            println("inside\n")
+            fmt.println("inside\n")
             break
         }
         break

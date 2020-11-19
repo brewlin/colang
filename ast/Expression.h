@@ -119,10 +119,13 @@ struct BinaryExpr : public Expression {
 };
 
 struct FunCallExpr : public Expression {
-    explicit FunCallExpr(int line, int column) : Expression(line, column) {}
+    explicit FunCallExpr(int line, int column)
+    : Expression(line, column),is_pkgcall(false) {}
     std::string funcname;
+    std::string package;
     std::vector<Expression*> args;
 
+    bool         is_pkgcall;
     void         asmgen(Runtime* rt, std::deque<Context*> ctx) override;
     std::string  toString() override;
 };

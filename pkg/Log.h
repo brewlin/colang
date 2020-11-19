@@ -22,6 +22,8 @@ extern char debug[DEBUG_MSG_SIZE];
 extern char trace[TRACE_MSG_SIZE];
 extern char warn[WARN_MSG_SIZE];
 extern char error[ERROR_MSG_SIZE];
+
+//#define LANG_DEBUG
 #ifdef LANG_DEBUG
     #define Debug(str, ...)                                                         \
         snprintf(debug, DEBUG_MSG_SIZE, "%s: " str " in %s on line %d.", __func__, ##__VA_ARGS__, __FILE__, __LINE__); \

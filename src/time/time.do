@@ -1,7 +1,9 @@
+package time
+
 extern void sleep(int)
 
 
 #func time.sleep
-func sleep(str,str1){
-    sleep(int)
+func sleep(params...){
+    sleep(params)
 }

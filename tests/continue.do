@@ -1,11 +1,13 @@
-import iostream
+package main
+
+import fmt
 
 func test_continue(){
     a = 3
     while(a){
         a = 0
         continue
-        println("continue a=%d\n",a)
+        fmt.println("continue a=%d\n",a)
     }
 }
 

@@ -185,7 +185,7 @@ void  FunCallExpr::asmgen(Runtime* rt,std::deque<Context*> ctx){
 
         //TODO: 函数默认传参
         if(func->params.size() != this->args.size())
-            Debug("ArgumentError: expects %d arguments but got %d\n",func->params.size(),this->args.size());
+            Debug("ArgumentError: expects %d arguments but got %d\n",(int)func->params.size(),(int)this->args.size());
 
         int stack_args = AsmGen::Push_arg(rt,ctx,args,func->is_multi);
 
@@ -199,9 +199,17 @@ void  FunCallExpr::asmgen(Runtime* rt,std::deque<Context*> ctx){
         }
 
         //需要判断是不是外部链接函数，否则需要加上包名
-        if(func->isExtern || cfunc->parser->getpkgname() != func->parser->getpkgname()){
+        if(func->isExtern){
             AsmGen::writeln("  mov %s@GOTPCREL(%%rip), %%rax", funcname.c_str());
-        } else{
+        }else if(cfunc->parser->getpkgname() != func->parser->getpkgname()){
+            //如果不属于同一个包，且不属于外部函数，则必须要加上包名
+            if(!is_pkgcall)
+                parse_err(
+                    "RuntimeError: can not find function definition of %s \n",
+                    funcname.c_str());
+            std::string called = package+"."+funcname;
+            AsmGen::writeln("  mov %s@GOTPCREL(%%rip), %%rax", called.c_str());
+        }else{
             std::string called = func->parser->getpkgname() + "." + funcname;
             AsmGen::writeln("  mov %s@GOTPCREL(%%rip), %%rax", called.c_str());
         }
@@ -231,10 +239,8 @@ void  FunCallExpr::asmgen(Runtime* rt,std::deque<Context*> ctx){
 
     }
     parse_err(
-            "RuntimeError: can not find function definition of %s in both "
-            "built-in "
-            "functions and user defined functions\n",
-            this->funcname.c_str());
+            "RuntimeError: can not find function definition of %s \n",
+            funcname.c_str());
 }
 /**
  * 二元运算符求值
@@ -277,6 +283,6 @@ void  MemberExpr::asmgen(Runtime* rt,std::deque<Context*> ctx)
  */
 void  MemberCallExpr::asmgen(Runtime* rt,std::deque<Context*> ctx)
 {
-
+    Debug("membercall : ")
 }
 
