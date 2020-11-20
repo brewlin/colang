@@ -85,7 +85,8 @@ struct IdentExpr : public Expression {
             : Expression(line, column),
             identname(std::move(identname)),
             is_local(true),
-            is_variadic(false){}
+            is_variadic(false),
+            is_delref(false){}
     std::string  identname;
     //在 asm generate 时 作为 bp 偏移量
     int          offset;
@@ -93,6 +94,7 @@ struct IdentExpr : public Expression {
     std::string  name;
     bool         is_local;
     bool         is_variadic;
+    bool         is_delref;
 
     void         asmgen(Runtime* rt, std::deque<Context*> ctx) override;
     std::string  toString() override;
@@ -166,7 +168,7 @@ struct MemberCallExpr : public Expression {
 
     void         asmgen(Runtime* rt, std::deque<Context*> ctx) override;
     std::string  toString() override;
-};;
+};
 
 
 #endif //LANG_EXPRESSION_H

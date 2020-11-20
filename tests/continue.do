@@ -7,7 +7,7 @@ func test_continue(){
     while(a){
         a = 0
         continue
-        fmt.println("continue a=%d\n",a)
+        fmt.sprintln("continue a=%d\n",a)
     }
 }
 

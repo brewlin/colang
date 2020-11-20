@@ -179,7 +179,7 @@ void Parser::parseImportDef()
         abpath  = srcpath+"/"+getCurrentLexeme();
         Debug("Parser: package import:%s",abpath.c_str());
         if (!filesys::is_directory(abpath, ec))
-            parse_err("ParserError: package:%s not exist in local or global "
+            parse_err("SyntaxError: package:%s not exist in local or global "
                       " line:%d column:%d\n",
                 getCurrentLexeme().c_str(),line,column);
     }
@@ -197,7 +197,7 @@ void Parser::parseImportDef()
             ipt->parse();
         }
         if (ec)
-            parse_err("RuntimeError: package import failed :%s\n",ec.message().c_str());
+            parse_err("SyntaxError: package import failed :%s\n",ec.message().c_str());
     }
 
     //get next

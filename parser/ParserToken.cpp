@@ -46,6 +46,23 @@ std::tuple<Token,std::string> Parser::parseKeyword(char c)
            ? std::make_tuple(result->second,lexeme)
            : std::make_tuple(TK_IDENT,      lexeme);
 }
+//解析 * 运算符号 或者是解引用
+//解引用非常危险 需要注意只能在和c函数调用中而存在
+std::tuple<Token,std::string> Parser::parseMulOrDelref(char c)
+{
+    char cn = peekNextChar();
+    // a *= b
+    if (cn == '=') {
+        c = getNextChar();
+        return std::make_tuple(TK_MUL_AGN, "*=");
+    }
+    //说明是个解引用操作
+    // call(*a,*b)
+    if((cn >= 'a' && cn <= 'z') || (cn >= 'A' && cn <= 'Z')){
+        return std::make_tuple(TK_DELREF, "*");
+    }
+    return std::make_tuple(TK_MUL, "*");
+}
 //逐字解析 直到找到合法的token
 std::tuple<Token,std::string> Parser::next() {
     char c = getNextChar();
@@ -151,14 +168,9 @@ std::tuple<Token,std::string> Parser::next() {
         }
         return std::make_tuple(TK_MINUS,"-");
     }
-    if(c == '*') {
-        char cn = peekNextChar();
-        if (cn == '=') {
-            c = getNextChar();
-            return std::make_tuple(TK_MUL_AGN, "*=");
-        }
-        return std::make_tuple(TK_MUL, "*");
-    }
+    if(c == '*')
+        return parseMulOrDelref(c);
+
     if(c == '/') {
         char cn = peekNextChar();
         if (cn == '=') {

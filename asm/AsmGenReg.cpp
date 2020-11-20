@@ -13,15 +13,25 @@
 * 加载变量 计算变量
 * @param expr
 */
-void AsmGen::GenAddr(IdentExpr *var)
+void AsmGen::GenAddr(IdentExpr *var,bool is_delref)
 {
     // 局部变量 的栈偏移量之前就已经计算出来了 这里只需要
     if (var->is_local) {
+        //如果需要解引用
+        if(is_delref){
+            writeln("  mov %d(%%rbp),%%rax",var->offset);
+            Internal::get_object_value();
+            return;
+        }
+
         writeln("  lea %d(%%rbp), %%rax", var->offset);
         return;
     }
-    // 全局变量 直接根据标号来引用即可
-    writeln("  lea %s(%%rip), %%rax", var->name.c_str());
+
+    parse_err("RuntimeError:not support global variable read :%s at line %d co %d\n",
+              var->identname.c_str(),var->line,var->column);
+//     全局变量 直接根据标号来引用即可
+//    writeln("  lea %s(%%rip), %%rax", var->name.c_str());
 
 }
 /**

@@ -9,7 +9,7 @@ func main(){
     }else{
         a = 5
     }
-    fmt.println("OK\n")
+    fmt.sprintln("OK\n")
 
 }
 

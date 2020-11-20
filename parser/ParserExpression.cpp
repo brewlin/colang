@@ -89,7 +89,7 @@ Expression* Parser::parseUnaryExpr()
         return val;
         //如果是字面值，标识符，等，就调用公共表达式解析
     }else if(anyone(getCurrentToken(),LIT_DOUBLE,LIT_INT,LIT_CHAR,LIT_STR,TK_IDENT,TK_LPAREN,TK_LBRACKET,
-                    KW_TRUE,KW_FALSE,KW_NULL,KW_NEW,TK_DOT)){
+                    KW_TRUE,KW_FALSE,KW_NULL,KW_NEW,TK_DOT,TK_DELREF)){
         return parsePrimaryExpr();
     }
     Debug("parseUnaryExpr: not found token:%d-%s",getCurrentToken(),getCurrentLexeme().c_str());
@@ -101,11 +101,28 @@ Expression* Parser::parseUnaryExpr()
  */
 Expression* Parser::parsePrimaryExpr()
 {
-    if(getCurrentToken() == TK_IDENT){
+    //说明是一个解引用操作，注意此操作非常危险 需要注意和c函数的交互
+    if(getCurrentToken() == TK_DELREF){
+        Debug("find token delref");
+        //eat *
+
+        currentToken = next();
+        //接下来肯定是一个变量 否则就报错
+        Expression *p = parsePrimaryExpr();
+        if (typeid(*p) != typeid(IdentExpr))
+            parse_err("SyntaxError: for del reference should be ident not to be %s"
+                      " line:%d column:%d\n", typeid(*p).name(),line,column);
+        IdentExpr* var = dynamic_cast<IdentExpr*>(p);
+        var->is_delref = true;
+        return var;
+
+    }else if(getCurrentToken() == TK_IDENT)
+    {
         auto ident = getCurrentLexeme();
         //去掉标识符
         currentToken = next();
         switch (getCurrentToken()){
+
             //fmt.println 说明是一种包名的函数调用
             case TK_DOT:{
                 auto* val = new FunCallExpr(line,column);

@@ -104,12 +104,14 @@ void  IdentExpr::asmgen(Runtime* rt,std::deque<Context*> ctx){
         {
 
             Function* f = AsmGen::currentFunc;
-            //地址生成
-            if(f->locals[identname] == nullptr)
-                AsmGen::GenAddr(f->params_var[identname]);
-            else
-                AsmGen::GenAddr(f->locals[identname]);
-            AsmGen::Load();
+            //查看变量是属于哪种变量
+            if(f->locals.count(identname)){
+                AsmGen::GenAddr(f->locals[identname],is_delref);
+            }else{
+                AsmGen::GenAddr(f->params_var[identname],is_delref);
+            }
+            if(!is_delref)
+                AsmGen::Load();
             return;
         }
     }
