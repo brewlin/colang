@@ -163,17 +163,26 @@ void Parser::parseImportDef()
     currentToken =  next();
     //must tk_ident
     assert(getCurrentToken() == TK_IDENT);
-    //parser
-    std::string srcpath = std::getenv("DO_SRC");
-    Debug("Parser: ENV PATH  DO_SRC:%s",srcpath.c_str());
-    if(srcpath.empty())
-        srcpath = "./";
-    std::string abpath  = srcpath+"/"+getCurrentLexeme();
-    Debug("Parser: package import:%s",abpath.c_str());
 
+    //parser 当前目录
+    std::string abpath = filesys::current_path();
+    abpath += "/" + getCurrentLexeme();
     std::error_code ec;
-    if (!filesys::is_directory(abpath, ec))
-        parse_err("RuntimeError: package not exist :%s\n",abpath.c_str());
+
+    //先找当前，再去找全局
+    if (!filesys::is_directory(abpath, ec)){
+        //去全局目录库找
+        std::string srcpath = std::getenv("DO_SRC");
+        Debug("Parser: ENV PATH  DO_SRC:%s",srcpath.c_str());
+        if(srcpath.empty())
+            srcpath = "./";
+        abpath  = srcpath+"/"+getCurrentLexeme();
+        Debug("Parser: package import:%s",abpath.c_str());
+        if (!filesys::is_directory(abpath, ec))
+            parse_err("ParserError: package:%s not exist in local or global "
+                      " line:%d column:%d\n",
+                getCurrentLexeme().c_str(),line,column);
+    }
 
     //包名一般是一个目录，当前会遍历目录下所有的文件进行解析
     for(auto& p: filesys::directory_iterator(abpath)){
