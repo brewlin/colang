@@ -3,6 +3,7 @@
  * @date   2020/9/6
  */
 #include "Runtime.h"
+#include "Parser.h"
 std::vector<Statement*> Runtime::getStatements()
 {
     return stmts;
@@ -22,10 +23,12 @@ void Runtime::addFunc(const std::string &name, Function *f)
 {
     order_funcs.push_back(f);
 
+    //函数名是 包名 + 函数名
+    std::string realfuncname = f->parser->getpkgname() + "." + name;
     if(f->isExtern)
-        extern_funcs.insert(std::make_pair(name,f));
+        extern_funcs.insert(std::make_pair(realfuncname,f));
     else
-        funcs.insert(std::make_pair(name,f));
+        funcs.insert(std::make_pair(realfuncname,f));
 }
 /**
  * 检查是否存在该函数

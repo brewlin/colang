@@ -45,8 +45,6 @@ public:
     void execute();
     //为局部变量 计算栈偏移量
     void assign_offsets();
-    //计算同一个包内的函数调用，自动加上包名前缀
-    void update_pkgcall();
 
 public:
     static void writeln(const char *fmt, ...);

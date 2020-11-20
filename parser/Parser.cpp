@@ -66,7 +66,7 @@ void Parser::parse()
             rt->addFunc(f->name,f);
 		//解析import
         } else if(getCurrentToken() == KW_IMPORT){
-			parseImport();
+			parseImportDef();
 		//解析结构体类定义
 		} else if(getCurrentToken() == KW_STRUCT){
             parseStructDef();

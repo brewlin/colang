@@ -8,7 +8,7 @@ func test_while(){
     b = 0
     while(a){
         fmt.println("a=%d\n",a)
-        sleep(1)
+        time.sleep(1)
         a = 0
         b = 1
     }

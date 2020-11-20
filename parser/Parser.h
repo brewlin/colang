@@ -64,7 +64,7 @@ private:
     Expression*     parsePrimaryExpr();
 
     //parse keywords
-    void 			parseImport();
+    void 			parseImportDef();
     Function*       parseFuncDef(Runtime* rt);
     Function*       parseExternDef(Runtime* rt);
     void            parseStructDef();

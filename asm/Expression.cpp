@@ -165,10 +165,14 @@ void  AssignExpr::asmgen(Runtime* rt,std::deque<Context*> ctx){
  * @param ctx
  * @return
  */
-void  FunCallExpr::asmgen(Runtime* rt,std::deque<Context*> ctx){
+void  FunCallExpr::asmgen(Runtime* rt,std::deque<Context*> ctx)
+{
+    //gp 通用寄存器个数统计
+    //fp 浮点数寄存器个数统计
     int gp = 0, fp = 0;
 
-    bool have_depointer = false;
+    //判断是否有可变参数
+    bool have_variadic = false;
     Function* cfunc = AsmGen::currentFunc;
     for(auto arg : args){
         if (typeid(*arg) == typeid(IdentExpr) && cfunc){
@@ -176,12 +180,25 @@ void  FunCallExpr::asmgen(Runtime* rt,std::deque<Context*> ctx){
             if(auto res = cfunc->params_var.find(var->identname) ; res != cfunc->params_var.end()){
                 IdentExpr* var2  = res->second;
                 if(var2->is_variadic)
-                    have_depointer = true;
+                    have_variadic = true;
             }
         }
     }
-    //用户定义函数: 通过函数名查找该函数 : 如果不是包名方式调用函数  则需要走extern
-    if(auto* func = rt->getFunc(this->funcname,!is_pkgcall); func != nullptr){
+    //如果没有加包名 就默认加上当前包名进行调用
+    std::string realfuncname = this->package + "." + funcname;
+    if(!is_pkgcall)
+        realfuncname = cfunc->parser->getpkgname() + "." + this->funcname;
+
+    //判断是否是进行外部函数调用
+    bool is_extern = false;
+    if(this->package == "_"){
+        realfuncname = cfunc->parser->getpkgname() + "." + this->funcname;
+        is_extern = true;
+    }
+
+    //函数查找
+    if(auto* func = rt->getFunc(realfuncname,is_extern); func != nullptr)
+    {
 
         //只会进行提示，现在默认已实现不足6个参数会默认置0
         if(func->params.size() != this->args.size())
@@ -189,37 +206,25 @@ void  FunCallExpr::asmgen(Runtime* rt,std::deque<Context*> ctx){
 
         int stack_args = AsmGen::Push_arg(rt,ctx,args,func->is_variadic);
 
-        //把参数寄存器给填满了
-        if(cfunc && cfunc->is_variadic && have_depointer)
-        {
-           //do nothing
-        }else{
+        //如果没有可变参数传参  默认执行 通用寄存器赋值即可
+        if(!cfunc || !cfunc->is_variadic || !have_variadic)
+            //这里是对 rdi  rsi rdx rcx r8 r9 寄存器传参赋值
             for (int i = 0; i < GP_MAX; ++i)
                 AsmGen::Pop(AsmGen::argreg64[gp++]);
-        }
 
         //需要判断是不是外部链接函数，否则需要加上包名
-        if(func->isExtern){
+        if(func->isExtern)
             AsmGen::writeln("  mov %s@GOTPCREL(%%rip), %%rax", funcname.c_str());
-        }else if(cfunc->parser->getpkgname() != func->parser->getpkgname()){
-            //如果不属于同一个包，且不属于外部函数，则必须要加上包名
-            if(!is_pkgcall)
-                parse_err(
-                    "RuntimeError: can not find function definition of %s \n",
-                    funcname.c_str());
-            std::string called = package+"."+funcname;
-            AsmGen::writeln("  mov %s@GOTPCREL(%%rip), %%rax", called.c_str());
-        }else{
-            std::string called = func->parser->getpkgname() + "." + funcname;
-            AsmGen::writeln("  mov %s@GOTPCREL(%%rip), %%rax", called.c_str());
-        }
+        else
+            AsmGen::writeln("  mov %s@GOTPCREL(%%rip), %%rax", realfuncname.c_str());
+
         AsmGen::writeln("  mov %%rax, %%r10");
         AsmGen::writeln("  mov $%d, %%rax", fp);
         AsmGen::writeln("  call *%%r10");
 
 
         //如果当前函数调用存在解引用可变参数则需要动态计算函数栈上移的大小
-        if(AsmGen::currentFunc && AsmGen::currentFunc->is_variadic && have_depointer)
+        if(AsmGen::currentFunc && AsmGen::currentFunc->is_variadic && have_variadic)
         {
             int c = AsmGen::count++;
             AsmGen::writeln("  mov -8(%%rbp),%%rdi");

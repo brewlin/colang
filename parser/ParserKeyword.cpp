@@ -128,24 +128,25 @@ Function* Parser::parseExternDef(Runtime* rt)
     Debug("found extern .start parser..");
     //当前是否已经解析到 func 关键字
     assert(getCurrentToken() == KW_EXTERN);
-    auto* node = new Function;
+    auto* node     = new Function;
     node->isExtern = true;
+    node->parser   = this;
 
     //extern 一般是调用系统库 所以 需要固定返回类型
-    currentToken = next();
-    node->rettype = getCurrentLexeme();
+    currentToken   = next();
+    node->rettype  = getCurrentLexeme();
 
     //获取函数名
-    currentToken = next();
-    node->name = getCurrentLexeme();
+    currentToken   = next();
+    node->name     = getCurrentLexeme();
 
     //指向 func name'(') 括号
-    currentToken = next();
+    currentToken   = next();
     assert(getCurrentToken() == TK_LPAREN);
     //解析函数参数
-    node->params = parseParameterList();
+    node->params   = parseParameterList();
     //解析block 函数主体表达式
-    node->block = nullptr;
+    node->block    = nullptr;
     return node;
 }
 
@@ -154,7 +155,7 @@ Function* Parser::parseExternDef(Runtime* rt)
  * 1. 解析 import {name}
  * 2. new Parser(name)
  */
-void Parser::parseImport()
+void Parser::parseImportDef()
 {
     Debug("found import.start parser..");
     assert(getCurrentToken() == KW_IMPORT);
