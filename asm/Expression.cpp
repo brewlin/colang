@@ -110,12 +110,13 @@ void  IdentExpr::asmgen(Runtime* rt,std::deque<Context*> ctx){
             }else{
                 AsmGen::GenAddr(f->params_var[identname],is_delref);
             }
+            //如果是解引用就不需要在 读取变量了，这个变量是直接传递给下游
             if(!is_delref)
                 AsmGen::Load();
             return;
         }
     }
-    parse_err("RuntimeError:use of undefined variable %s at line %d co %d\n",
+    parse_err("AsmError:use of undefined variable %s at line %d co %d\n",
           identname.c_str(),this->line,this->column);
 }
 /**
@@ -126,7 +127,7 @@ void  IdentExpr::asmgen(Runtime* rt,std::deque<Context*> ctx){
  */
 void  IndexExpr::asmgen(Runtime* rt,std::deque<Context*> ctx) {
     //没找到 数组变量 抛出异常 exit退出
-    parse_err("RuntimeError:use of undefined variable %s aat line %d col %d\n",identname.c_str(),line,column);
+    parse_err("AsmError:use of undefined variable %s aat line %d col %d\n",identname.c_str(),line,column);
 }
 
 /**
@@ -246,7 +247,7 @@ void  FunCallExpr::asmgen(Runtime* rt,std::deque<Context*> ctx)
 
     }
     parse_err(
-            "RuntimeError: can not find function definition of %s "
+            "AsmError: can not find function definition of %s "
             "line:%d column:%d \n\n"
             "expression:\n%s\n",
             funcname.c_str(),this->line,this->column,this->toString().c_str());

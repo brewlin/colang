@@ -28,7 +28,7 @@ void AsmGen::GenAddr(IdentExpr *var,bool is_delref)
         return;
     }
 
-    parse_err("RuntimeError:not support global variable read :%s at line %d co %d\n",
+    parse_err("AsmError:not support global variable read :%s at line %d co %d\n",
               var->identname.c_str(),var->line,var->column);
 //     全局变量 直接根据标号来引用即可
 //    writeln("  lea %s(%%rip), %%rax", var->name.c_str());
