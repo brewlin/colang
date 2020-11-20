@@ -17,9 +17,9 @@
 void AsmGen::registerFuncs()
 {
     Debug("register functions")
-    for(Function* &f:rt->order_funcs){
-        currentFunc = f;
-        CreateFunction(f,rt,ctx);
+    for(auto p :rt->funcs){
+        currentFunc = p.second;
+        CreateFunction(p.second,rt,ctx);
         currentFunc = nullptr;
     }
 

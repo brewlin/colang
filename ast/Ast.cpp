@@ -23,7 +23,7 @@ std::string CharExpr::toString() {
 std::string NullExpr::toString() { return "NullExpr()"; }
 
 std::string IntExpr::toString() {
-    return "IntExpr(" + std::to_string(literal) + ")";
+    return std::to_string(literal);
 }
 
 std::string DoubleExpr::toString() {
@@ -129,14 +129,14 @@ std::string BinaryExpr::toString() {
 }
 
 std::string FunCallExpr::toString() {
-    std::string str = "FunCallExpr(func=";
-    str += funcname;
-    str += ",args=[";
+    std::string str = "FunCallExpr[func = ";
+    str += package + "." + funcname;
+    str += ",args = (";
     for (auto& arg : args) {
         str += arg->toString();
         str += ",";
     }
-    str += "])";
+    str += ")]";
     return str;
 }
 

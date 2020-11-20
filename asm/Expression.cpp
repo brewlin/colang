@@ -244,8 +244,10 @@ void  FunCallExpr::asmgen(Runtime* rt,std::deque<Context*> ctx)
 
     }
     parse_err(
-            "RuntimeError: can not find function definition of %s \n",
-            funcname.c_str());
+            "RuntimeError: can not find function definition of %s "
+            "line:%d column:%d \n\n"
+            "expression:\n%s\n",
+            funcname.c_str(),this->line,this->column,this->toString().c_str());
 }
 /**
  * 二元运算符求值
