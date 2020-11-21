@@ -62,6 +62,10 @@ typedef struct core_value
     long data;
 }CoreValue;
 
+//extern gc_malloc
+#define gc_malloc malloc
+
 CoreValue* value_plus(CoreValue* lhs,CoreValue* rhs);
+CoreValue* value_equal(CoreValue* lhs,CoreValue* rhs);
 
 #endif //LANG_TYPE_H

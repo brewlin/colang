@@ -7,3 +7,15 @@ bin
 *.out
 *.o
 cmake-build-debug
+tests/asm
+tests/ast
+tests/internal
+tests/parser
+tests/CMakeFiles
+tests/pkg
+tests/runtime
+tests/a.out
+tests/*.cmake
+tests/Makefile
+tests/tmp.s
+tests/do

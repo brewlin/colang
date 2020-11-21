@@ -260,8 +260,15 @@ void  FunCallExpr::asmgen(Runtime* rt,std::deque<Context*> ctx)
  */
 void  BinaryExpr::asmgen(Runtime* rt,std::deque<Context*> ctx)
 {
-//    void  lhs = this->lhs ? this->lhs->asmgen(rt,ctx) : void (Null);
-//    void  rhs = this->rhs ? this->rhs->asmgen(rt,ctx) : void (Null);
+    this->lhs->asmgen(rt,ctx);
+    //保存rax寄存器的值 因为下面右值计算的时候会用到rax寄存器
+    AsmGen::Push();
+    //对运算符右值求值
+    this->rhs->asmgen(rt,ctx);
+    //运算需要调用统一的方法
+    Internal::CallOperator(this->opt);
+    //执行结果存储
+    AsmGen::Store();
 }
 /**
  * TODO: 只实现了 llvm编译的new

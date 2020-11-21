@@ -5,7 +5,7 @@ import os
 
 func main(){
     a = 1
-    if(a){
+    if(a == 1){
         a = 10
         fmt.sprintln("OK\n")
     }else{

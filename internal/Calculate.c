@@ -37,6 +37,7 @@ CoreValue* binaryOper(int opt, CoreValue *lhs, CoreValue* rhs)
         case TK_GT:
 //            return *lhs > rhs;
         case TK_EQ:
+            return value_equal(lhs,rhs);
 //            return *lhs == rhs;
         case TK_NE:
 //            return *lhs != rhs;
