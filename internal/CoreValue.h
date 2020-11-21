@@ -7,7 +7,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#define Null   0x0
+#define Null   0
 #define Int    1
 #define Double 2
 #define String 3

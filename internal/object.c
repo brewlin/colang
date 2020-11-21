@@ -15,9 +15,19 @@ CoreValue* newobject(int type,long data)
         case String:
             ret->type = String;
             ret->data = (long)data;
+            break;
         case Bool:
+            ret->type = Bool;
+            ret->data = (int)data;
+            break;
         case Char:
+            ret->type = Char;
+            ret->data = (int)data;
+            break;
         case Null:
+            ret->type = Null;
+            ret->data = 0;
+            break;
         case Array:
             return ret;
         default:
