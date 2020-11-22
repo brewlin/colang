@@ -54,7 +54,7 @@ char* value_string_plus(Value* lhs,Value* rhs)
         case Int:
         case Bool:
         case Double:
-            tmstr = stringcatfmt(tmstr,"%d",(long)dstv->data);
+            tmstr = stringcatfmt(tmstr,"%I",(long)dstv->data);
             return tmstr;
         case String:
             tmstr = stringcat(tmstr,dstv->data);

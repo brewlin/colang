@@ -6,6 +6,8 @@ bin
 .vscode
 *.out
 *.o
+*.swp
+tmp.s
 cmake-build-debug
 tests/asm
 tests/ast

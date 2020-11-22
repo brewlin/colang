@@ -23,15 +23,45 @@ func test_string2_add(){
     b = "variable-b "
     c = a + b 
     if(c == "variable-a variable-b "){
-        fmt.sprintln("test string- add ok\n")
+        fmt.sprintln("test string-string add ok\n")
     }else{
-        fmt.sprintln("test string- add failed\n")
+        fmt.sprintln("test string-string add failed\n")
+        os.exit(1)
+    }
+    c = a + 10
+    if(c == "variable-a 10"){
+        fmt.sprintln("test string-int add ok\n")
+    }else{
+        fmt.sprintln("test string-int add failed %s\n",c)
         os.exit(1)
     }
 
 }
+func test_addintcall(a){
+    if(a == 3){
+        fmt.sprintln("test addintcall  ok 1+2=%d\n",a)
+    }else{
+        fmt.sprintln("test addintcall  failed\n")
+        os.exit(1)
+    }
+
+}
+
+func test_addstringcall(a){
+    if(a == "test"){
+        fmt.sprintln("test addstringcall  ok tes+t=%s\n",a)
+    }else{
+        fmt.sprintln("test addstringcall  failed\n")
+        os.exit(1)
+    }
+
+}
+
+
 func main(){
     test_int2_add()
     test_string2_add()
+    test_addintcall(1+2)
+    test_addstringcall("tes" + "t")
 }
 

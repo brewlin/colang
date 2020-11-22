@@ -150,6 +150,7 @@ void  AssignExpr::asmgen(Runtime* rt,std::deque<Context*> ctx){
         this->rhs->asmgen(rt,ctx);
         //运算需要调用统一的方法
         Internal::CallOperator(this->opt);
+
         //执行结果存储
         AsmGen::Store();
 
@@ -267,8 +268,8 @@ void  BinaryExpr::asmgen(Runtime* rt,std::deque<Context*> ctx)
     this->rhs->asmgen(rt,ctx);
     //运算需要调用统一的方法
     Internal::CallOperator(this->opt);
-    //执行结果存储
-    AsmGen::Store();
+    //这里只负责计算 lhs op rhs 上面push(lhs)后再不使用的时候要手动pop掉
+	AsmGen::Pop("%rdi");
 }
 /**
  * TODO: 只实现了 llvm编译的new
