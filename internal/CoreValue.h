@@ -59,7 +59,8 @@ enum Token {
 typedef struct core_value
 {
     long type;
-    long data;
+    void* data;
+//     long data;
 }CoreValue;
 
 //extern gc_malloc

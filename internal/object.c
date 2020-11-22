@@ -1,4 +1,5 @@
 #include "CoreValue.h"
+#include "string.h"
 
 
 
@@ -14,7 +15,7 @@ CoreValue* newobject(int type,long data)
         case Double:
         case String:
             ret->type = String;
-            ret->data = (long)data;
+            ret->data = stringnew((char*)data);
             break;
         case Bool:
             ret->type = Bool;

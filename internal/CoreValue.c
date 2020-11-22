@@ -3,20 +3,34 @@
  * @date   2020/9/6
  */
 #include "CoreValue.h"
+#include "string.h"
 CoreValue* value_plus(CoreValue* lhs,CoreValue* rhs) {
     CoreValue* result = (CoreValue*)gc_malloc(sizeof(CoreValue));
     if (lhs->type == Int)
     {
+        result->type = Int;
         switch (rhs->type){
             case Int:
             case Bool:
             case Double:
                 result->type = Int;
-                result->data = lhs->data + rhs->data;
+                result->data = (int)lhs->data + (int)rhs->data;
                 return result;
         }
-        result->type = Int;
-        result->data = lhs->data + rhs->data;
+        exit(1);
+    }
+    if(lhs->type == String){
+        result->type = String;
+        result->data = stringdup(rhs->data);
+        switch(rhs->type){
+            case Int:
+            case Bool:
+            case Double:
+                exit(1);
+            case String:
+            result->data = stringcat(result->data,rhs->data);
+            return result;
+        }
     }
     exit(1);
 }
