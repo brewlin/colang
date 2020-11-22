@@ -1,12 +1,12 @@
-#include "CoreValue.h"
-#include "string.h"
+#include "Value.h"
+#include "String.h"
 
 
 
 //enum ValueType { Int,Double,String,Bool,Char,Null,Array};
-CoreValue* newobject(int type,long data)
+Value* newobject(int type,long data)
 {
-    CoreValue* ret = malloc(sizeof(CoreValue));
+    Value* ret = malloc(sizeof(Value));
     switch (type){
         case Int:
             ret->type = Int;
@@ -36,7 +36,7 @@ CoreValue* newobject(int type,long data)
     }
     return ret;
 }
-long get_object_value(CoreValue* obj){
+long get_object_value(Value* obj){
     if(!obj) return NULL;
 
     switch (obj->type){

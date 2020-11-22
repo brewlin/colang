@@ -7,6 +7,9 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+//extern gc_malloc
+#define gc_malloc malloc
+
 #define Null   0
 #define Int    1
 #define Double 2
@@ -16,6 +19,7 @@
 #define Array  6
 #define Map    7
 #define Object 8
+
 //TYPE TOKEN
 enum Token {
     //invalid identifier eof
@@ -60,13 +64,17 @@ typedef struct core_value
 {
     long type;
     void* data;
-//     long data;
-}CoreValue;
+}Value;
 
-//extern gc_malloc
-#define gc_malloc malloc
 
-CoreValue* value_plus(CoreValue* lhs,CoreValue* rhs);
-CoreValue* value_equal(CoreValue* lhs,CoreValue* rhs);
+Value* value_plus(Value* lhs,Value* rhs);
+char*  value_string_plus(Value* lhs,Value* rhs);
+long   value_int_plus(Value* lhs,Value* rhs);
+
+Value* value_equal(Value* lhs,Value* rhs);
+int    value_string_equal(Value* lhs,Value* rhs);
+int    value_int_equal(Value* lhs,Value* rhs);
+
+Value* binaryOper(int opt, Value *lhs, Value* rhs);
 
 #endif //LANG_TYPE_H

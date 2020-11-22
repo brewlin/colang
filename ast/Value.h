@@ -34,5 +34,10 @@ struct Struct {
     std::vector<Function*> funcs;
 };
 
+struct Value{
+    long     type;
+    void*    data;
+};
+
 
 #endif //LANG_TYPE_H

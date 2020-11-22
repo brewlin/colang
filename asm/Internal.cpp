@@ -21,7 +21,7 @@ void Internal::CallOperator(Token opt) {
 }
 void Internal::gc_malloc()
 {
-    AsmGen::writeln("  mov $%ld, %%rdi", sizeof(CoreValue));
+    AsmGen::writeln("  mov $%ld, %%rdi", sizeof(Value));
     call("malloc");
 }
 /**

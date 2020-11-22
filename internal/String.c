@@ -5,7 +5,8 @@
 #include <ctype.h>
 #include <assert.h>
 #include <limits.h>
-#include "string.h"
+#include "String.h"
+#include "Value.h"
 
 const char *LSTRING_NOINIT = "LSTRING_NOINIT";
 
@@ -39,6 +40,38 @@ static inline char stringReqType(size_t string_size) {
 #else
     return LSTRING_TYPE_32;
 #endif
+}
+
+char* value_string_plus(Value* lhs,Value* rhs)
+{
+    //先判断哪个需要被连接
+    Value* dstv = lhs->type == String ? rhs : lhs;
+    Value* srcv = lhs->type == String ? lhs : rhs;
+
+    // 在字符串运算中都是从新生成一份内存来进行存储结果
+    string tmstr = stringdup(srcv->data);
+    switch(dstv->type){
+        case Int:
+        case Bool:
+        case Double:
+            tmstr = stringcatfmt(tmstr,"%d",(long)dstv->data);
+            return tmstr;
+        case String:
+            tmstr = stringcat(tmstr,dstv->data);
+            return tmstr;
+    }
+    return tmstr;
+}
+int value_string_equal(Value* lhs,Value* rhs){
+    //必须为两个string 才能比较
+    if(lhs->type != String || rhs->type != String){
+        return 0;
+    }
+    if(stringcmp(lhs->data,rhs->data) == 0){
+        return 1;
+    }
+    return 0;
+
 }
 
 /* 
