@@ -1,3 +1,3 @@
 aux_source_directory(. srcs)
 
-add_library(pkg ${srcs})
+add_library(lib ${srcs})
