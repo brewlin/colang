@@ -142,8 +142,15 @@ void  AssignExpr::asmgen(Runtime* rt,std::deque<Context*> ctx){
         IdentExpr* varExpr = dynamic_cast<IdentExpr*>(lhs);
         //进行赋值 和 变量定义
         Function* f = AsmGen::currentFunc;
+
+        //1. 这个变量可能是函数参数变量，非本地变量
+        if(f->params_var.count(varExpr->identname))
+            varExpr = f->params_var[varExpr->identname];
+        else
+            varExpr = f->locals[varExpr->identname];
+
         //f->locals 保存了本地变量的 唯一偏移量，所以需要通过name 来找到对应的 变量
-        AsmGen::GenAddr(f->locals[varExpr->identname]);
+        AsmGen::GenAddr(varExpr);
         //保存rax寄存器的值 因为下面右值计算的时候会用到rax寄存器
         AsmGen::Push();
         //对运算符右值求值

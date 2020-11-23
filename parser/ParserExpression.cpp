@@ -26,7 +26,10 @@ Expression* Parser::parseExpression(short oldPrecedence)
         }
         if (typeid(*p) == typeid(IdentExpr) && currentFunc){
             IdentExpr* var = dynamic_cast<IdentExpr*>(p);
-            currentFunc->locals[var->identname] = var;
+            //先判断一下这个变量是否是属于参数变量，否则不需要在本地存储一份 不然在栈偏移量计算的时候会出错
+            if(!currentFunc->params_var.count(var->identname)){
+                currentFunc->locals[var->identname] = var;
+            }
         }
 
         // 创建赋值表达式
