@@ -67,6 +67,7 @@ typedef struct core_value
 }Value;
 
 
+/*********************+ - * \**************************/
 Value* value_plus(Value* lhs,Value* rhs);
 char*  value_string_plus(Value* lhs,Value* rhs);
 long   value_int_plus(Value* lhs,Value* rhs);
@@ -84,6 +85,12 @@ Value* value_div(Value* lhs,Value* rhs);
 char*  value_string_div(Value* lhs,Value* rhs);
 long   value_int_div(Value* lhs,Value* rhs);
 
+/*********************位操作**************************/
+Value* value_bitand(Value* lhs,Value* rhs);
+char*  value_string_bitand(Value* lhs,Value* rhs);
+long   value_int_bitand(Value* lhs,Value* rhs);
+
+/*********************逻辑操作**************************/
 Value* value_equal(Value* lhs,Value* rhs);
 int    value_string_equal(Value* lhs,Value* rhs);
 int    value_int_equal(Value* lhs,Value* rhs);

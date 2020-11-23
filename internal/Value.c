@@ -4,6 +4,12 @@
  */
 #include "Value.h"
 #include "String.h"
+/**
+ * + operator
+ * @param lhs
+ * @param rhs
+ * @return
+ */
 Value* value_plus(Value* lhs,Value* rhs) {
     Value* result = (Value*)gc_malloc(sizeof(Value));
     //有字符串就最终类型是字符串
@@ -20,6 +26,12 @@ Value* value_plus(Value* lhs,Value* rhs) {
     }
     exit(1);
 }
+/**
+ * - operator
+ * @param lhs
+ * @param rhs
+ * @return
+ */
 Value* value_minus(Value* lhs,Value* rhs) {
     Value* result = (Value*)gc_malloc(sizeof(Value));
     //有字符串就最终类型是字符串
@@ -36,6 +48,12 @@ Value* value_minus(Value* lhs,Value* rhs) {
     }
     exit(1);
 }
+/**
+ * * operator
+ * @param lhs
+ * @param rhs
+ * @return
+ */
 Value* value_mul(Value* lhs,Value* rhs) {
     Value* result = (Value*)gc_malloc(sizeof(Value));
     //有字符串就最终类型是字符串
@@ -52,6 +70,12 @@ Value* value_mul(Value* lhs,Value* rhs) {
     }
     exit(1);
 }
+/**
+ * / operator
+ * @param lhs
+ * @param rhs
+ * @return
+ */
 Value* value_div(Value* lhs,Value* rhs) {
     Value* result = (Value*)gc_malloc(sizeof(Value));
     //字符串的触发运算全部返回0
@@ -68,6 +92,30 @@ Value* value_div(Value* lhs,Value* rhs) {
     }
     exit(1);
 }
+/**
+ * & operator
+ * @param lhs
+ * @param rhs
+ * @return
+ */
+Value* value_bitand(Value* lhs,Value* rhs) {
+    Value* result = (Value*)gc_malloc(sizeof(Value));
+    //字符串的触发运算全部返回0
+    if(lhs->type == String || rhs->type == String){
+        result->type = Int;
+        result->data = value_string_bitand(lhs,rhs);
+        return result;
+    }
+    //有int类型就进行int类型相加
+    if (lhs->type == Int || rhs->type == Int){
+        result->type = Int;
+        result->data = value_int_bitand(lhs,rhs);
+        return result;
+    }
+    exit(1);
+}
+
+
 Value* value_equal(Value* lhs,Value* rhs) {
     Value* result = (Value*)gc_malloc(sizeof(Value));
     result->type = Bool;
@@ -143,7 +191,7 @@ Value* binaryOper(int opt, Value *lhs, Value* rhs)
         case TK_DIV:
             return value_div(lhs,rhs);
         case TK_BITAND:
-//            return *lhs & rhs;
+            return value_bitand(lhs,rhs);
         case TK_BITOR:
 //            return *lhs | rhs;
 
@@ -157,9 +205,7 @@ Value* binaryOper(int opt, Value *lhs, Value* rhs)
 //            return *lhs > rhs;
         case TK_EQ:
             return value_equal(lhs,rhs);
-//            return *lhs == rhs;
         case TK_NE:
-//            return *lhs != rhs;
             return value_notequal(lhs,rhs);
         default:
             return NULL;
