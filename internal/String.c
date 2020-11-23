@@ -91,7 +91,10 @@ char* value_string_mul(Value* lhs,Value* rhs)
     }
     return tmstr;
 }
-
+char* value_string_div(Value* lhs,Value* rhs)
+{
+    return NULL;
+}
 int value_string_equal(Value* lhs,Value* rhs){
     //必须为两个string 才能比较
     if(lhs->type != String || rhs->type != String){

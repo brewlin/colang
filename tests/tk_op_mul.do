@@ -24,7 +24,8 @@ func test_int(){
     }
     fmt.sprintf("test int mul %d  success\n",e)
 }
-# 对字符串做运算不做任何操作
+# 1. string * string == string + string
+# 2. string * int    == (string + string)*int
 func test_string(){
     a = "abc"
     a = a * 1
