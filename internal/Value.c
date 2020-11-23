@@ -136,7 +136,12 @@ Value* value_bitor(Value* lhs,Value* rhs) {
     }
     exit(1);
 }
-
+/**
+ * == operator
+ * @param lhs
+ * @param rhs
+ * @return Value*
+ */
 Value* value_equal(Value* lhs,Value* rhs) {
     Value* result = (Value*)gc_malloc(sizeof(Value));
     result->type = Bool;
@@ -152,6 +157,12 @@ Value* value_equal(Value* lhs,Value* rhs) {
     }
     return result;
 }
+/**
+ * != operator
+ * @param lhs
+ * @param rhs
+ * @return Value*
+ */
 Value* value_notequal(Value* lhs,Value* rhs)
 {
     Value* result = (Value*)gc_malloc(sizeof(Value));
@@ -166,6 +177,29 @@ Value* value_notequal(Value* lhs,Value* rhs)
     //有int类型就进行int类型相加
     if (lhs->type == Int || rhs->type == Int){
         result->data = value_int_notequal(lhs,rhs);
+    }
+    return result;
+}
+/**
+ * < operator
+ * @param lhs
+ * @param rhs
+ * @return Value*
+ */
+Value* value_lowerthan(Value* lhs,Value* rhs)
+{
+    Value* result = (Value*)gc_malloc(sizeof(Value));
+    result->type = Bool;
+    //默认为true  不等于
+    result->data = 1;
+    // 如果有string则直接进行string比较
+    if(lhs->type == String || rhs->type == String){
+        result->data = value_string_lowerthan(lhs,rhs);
+        return result;
+    }
+    //有int类型就进行int类型相加
+    if (lhs->type == Int || rhs->type == Int){
+        result->data = value_int_lowerthan(lhs,rhs);
     }
     return result;
 }
@@ -217,7 +251,7 @@ Value* binaryOper(int opt, Value *lhs, Value* rhs)
             return value_bitor(lhs,rhs);
 
         case TK_LT:
-//            return *lhs < rhs;
+            return value_lowerthan(lhs,rhs);
         case TK_LE:
 //            return *lhs <= rhs;
         case TK_GE:

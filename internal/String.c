@@ -126,6 +126,19 @@ int value_string_notequal(Value* lhs,Value* rhs){
     return 1;
 
 }
+//<
+int value_string_lowerthan(Value* lhs,Value* rhs){
+    //必须为两个string 才能比较
+    if(lhs->type != String || rhs->type != String){
+        return 0;
+    }
+    //相等就是false  不等就是true
+    if(stringcmp(lhs->data,rhs->data) < 0){
+        return 1;
+    }
+    return 0;
+
+}
 
 /* 
  * mystring = stringnewlen("abc",3);
