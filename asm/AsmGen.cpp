@@ -44,7 +44,6 @@ void AsmGen::execute()
 //    std::cout << buf <<std::endl;
     fwrite(buf, buflen, 1, out);
     fclose(out);
-    system("gcc -g tmp.s -L./internal -linternal");
 }
 void AsmGen::registerMain()
 {

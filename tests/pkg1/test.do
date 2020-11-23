@@ -4,6 +4,6 @@ import fmt
 
 
 func test(){
-    fmt.sprintln("this is pkg1\n")
+    fmt.sprintf("this is pkg1\n")
     test2()
 }

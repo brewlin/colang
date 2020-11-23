@@ -62,6 +62,14 @@ char* value_string_plus(Value* lhs,Value* rhs)
     }
     return tmstr;
 }
+
+char* value_string_minus(Value* lhs,Value* rhs)
+{
+    //字符串的所有相加减直接返回原字符串
+    return lhs->type == String ? lhs->data : rhs->data;
+}
+
+
 int value_string_equal(Value* lhs,Value* rhs){
     //必须为两个string 才能比较
     if(lhs->type != String || rhs->type != String){

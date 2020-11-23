@@ -4,5 +4,5 @@ import fmt
 
 func main(){
    a = 1
-   fmt.sprintln("sdfsdfsd\n")
+   fmt.sprintf("sdfsdfsd\n")
 }

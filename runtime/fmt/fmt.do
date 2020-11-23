@@ -2,7 +2,7 @@ package fmt
 
 extern int printf(string)
 
-func sprintln(args...){
+func sprintf(args...){
    _.printf(args)
 }
 #func println(size,args...){

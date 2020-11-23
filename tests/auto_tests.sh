@@ -12,18 +12,17 @@ assert(){
     expected="$1"
     input="$2"
     log "[compile] ./do -s $input ..."
-    ./do -s $input
-    if [  "$?" = 0 ]; then
-        actual=`./a.out`
-        if [  "$?" != 0 ]; then
-            rm ./a.out
-            failed "exec failed"
-        fi
-        echo "$actual"
+    ./do run $input
+    if [  "$?" != 0 ]; then
+#        actual=`./a.out`
+#        if [  "$?" != 0 ]; then
         rm ./a.out
-        return
+        failed "exec failed"
+#        fi
+#        rm ./a.out
     fi
-    failed "[compile] $input failed"
+    return
+#    failed "[compile] $input failed"
 }
 read_dir(){
     for file in `ls *.do`

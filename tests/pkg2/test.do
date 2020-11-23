@@ -4,5 +4,5 @@ import fmt
 
 
 func test(){
-    fmt.sprintln("this is pkg2\n")
+    fmt.sprintf("this is pkg2\n")
 }

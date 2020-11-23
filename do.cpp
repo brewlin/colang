@@ -9,6 +9,7 @@
 int print_help () {
     fprintf(stderr,
             "usage: ./do [options] file.  可用的选项:\n"
+            "  run     编译后直接运行\n"
             "  -s       直接将ast转为asm汇编\n"
             "  -llvm    通过llvm将ast转为ams汇编\n"
             "  -print   打印ast节点\n"
@@ -31,11 +32,15 @@ int llvmgen(char* argv[])
 /**
  * @param argv
  */
-int asmgen(char* argv[])
+int asmgen(char* argv[],bool run = false)
 {
     Debug("asm generate");
     AsmGen gen(argv[2]);
     gen.execute();
+    if(run){
+        system("gcc -g tmp.s -L./internal -linternal");
+        system("./a.out");
+    }
     return 0;
 }
 int print_ast(char* argv[]){
@@ -47,8 +52,11 @@ int main(int argc,char* argv[])
 {
     if (argc < 3) return print_help();
 
+    if (!strcmp(argv[1], "run"))
+        return asmgen(argv,true);
+
     if (!strcmp(argv[1], "-s"))
-        return asmgen(argv);
+        return asmgen(argv,false);
 
     if (!strcmp(argv[1], "-llvm"))
         return llvmgen(argv);

@@ -4,14 +4,14 @@ import fmt
 
 func test(b){
     if(b){
-        fmt.sprintln("OK",b)
+        fmt.sprintf("OK",b)
     }else{
-        fmt.sprintln("Error",b)
+        fmt.sprintf("Error",b)
     }
     return 2
 }
 func main(){
     a = 1
     b = test(a)
-    fmt.sprintln("test=%d\n",a)
+    fmt.sprintf("test=%d\n",a)
 }

@@ -7,13 +7,13 @@ func test_while(){
     a = 3
     b = 0
     while(a){
-        fmt.sprintln("a=%d\n",a)
+        fmt.sprintf("a=%d\n",a)
         time.sleep(1)
         a = 0
         b = 1
     }
     if(b){
-        fmt.sprintln("!\n")
+        fmt.sprintf("!\n")
     }
 }
 
