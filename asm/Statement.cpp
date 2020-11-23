@@ -143,8 +143,11 @@ void BreakStmt::asmgen(Runtime *rt, std::deque<Context *> ctx)
 void ContinueStmt::asmgen(Runtime *rt, std::deque<Context *> ctx)
 {
     //判断当前是否处在循环中
-    Context* c = ctx.back();
-    if(c->point && !c->start_str.empty()){
-        AsmGen::writeln("  jmp %s.%d",c->start_str.c_str(),c->point);
+    for(auto p = ctx.crbegin(); p != ctx.crend(); ++p) {
+        Context *c = *p;
+//    Context* c = ctx.back();
+        if (c->point && !c->start_str.empty()) {
+            AsmGen::writeln("  jmp %s.%d", c->start_str.c_str(), c->point);
+        }
     }
 }
