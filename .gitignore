@@ -11,6 +11,7 @@ tmp.s
 cmake-build-debug
 tests/asm
 tests/ast
+tests/lib
 tests/internal
 tests/parser
 tests/CMakeFiles

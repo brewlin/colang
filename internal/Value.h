@@ -90,6 +90,10 @@ Value* value_bitand(Value* lhs,Value* rhs);
 char*  value_string_bitand(Value* lhs,Value* rhs);
 long   value_int_bitand(Value* lhs,Value* rhs);
 
+Value* value_bitor(Value* lhs,Value* rhs);
+char*  value_string_bitor(Value* lhs,Value* rhs);
+long   value_int_bitor(Value* lhs,Value* rhs);
+
 /*********************逻辑操作**************************/
 Value* value_equal(Value* lhs,Value* rhs);
 int    value_string_equal(Value* lhs,Value* rhs);
