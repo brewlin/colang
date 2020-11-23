@@ -76,6 +76,10 @@ Value* value_minus(Value* lhs,Value* rhs);
 char*  value_string_minus(Value* lhs,Value* rhs);
 long   value_int_minus(Value* lhs,Value* rhs);
 
+Value* value_mul(Value* lhs,Value* rhs);
+char*  value_string_mul(Value* lhs,Value* rhs);
+long   value_int_mul(Value* lhs,Value* rhs);
+
 Value* value_equal(Value* lhs,Value* rhs);
 int    value_string_equal(Value* lhs,Value* rhs);
 int    value_int_equal(Value* lhs,Value* rhs);

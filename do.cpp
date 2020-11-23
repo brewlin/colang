@@ -9,9 +9,9 @@
 int print_help () {
     fprintf(stderr,
             "usage: ./do [options] file.  可用的选项:\n"
-            "  run     编译后直接运行\n"
-            "  -s       直接将ast转为asm汇编\n"
-            "  -llvm    通过llvm将ast转为ams汇编\n"
+            "  run      编译成汇编后进行链接生成二进制可执行文件直接运行\n"
+            "  -s       编译为X64汇编文件\n"
+            "  -llvm    通过llvm编译为汇编文件\n"
             "  -print   打印ast节点\n"
     );
     return 0;

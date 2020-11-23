@@ -36,6 +36,22 @@ Value* value_minus(Value* lhs,Value* rhs) {
     }
     exit(1);
 }
+Value* value_mul(Value* lhs,Value* rhs) {
+    Value* result = (Value*)gc_malloc(sizeof(Value));
+    //有字符串就最终类型是字符串
+    if(lhs->type == String || rhs->type == String){
+        result->type = String;
+        result->data = value_string_mul(lhs,rhs);
+        return result;
+    }
+    //有int类型就进行int类型相加
+    if (lhs->type == Int || rhs->type == Int){
+        result->type = Int;
+        result->data = value_int_mul(lhs,rhs);
+        return result;
+    }
+    exit(1);
+}
 Value* value_equal(Value* lhs,Value* rhs) {
     Value* result = (Value*)gc_malloc(sizeof(Value));
     result->type = Bool;
@@ -106,8 +122,8 @@ Value* binaryOper(int opt, Value *lhs, Value* rhs)
             return value_plus(lhs,rhs);
         case TK_MINUS:
             return value_minus(lhs,rhs);
-//            return *lhs - rhs;
         case TK_MUL:
+            return value_mul(lhs,rhs);
 //            return *lhs * rhs;
         case TK_DIV:
 //            return *lhs / rhs;

@@ -69,6 +69,28 @@ char* value_string_minus(Value* lhs,Value* rhs)
     return lhs->type == String ? lhs->data : rhs->data;
 }
 
+char* value_string_mul(Value* lhs,Value* rhs)
+{
+    //如果两个都是字母则返回相加的那部分
+    if(lhs->type == String && rhs->type == String){
+        string tmstr = stringdup(lhs->data);
+        tmstr = stringcat(tmstr,rhs->data);
+        return tmstr;
+    }
+
+    //说明其中有一个数字 那就多次相加
+    long count = lhs->type == Int ? (long)lhs->data : (long)rhs->data;
+    Value* srcv = lhs->type == String ? lhs : rhs;
+
+    // 在字符串运算中都是从新生成一份内存来进行存储结果
+    string tmstr = stringdup(srcv->data);
+    //例如: a = "abc" * 1  需要去除乘以1
+    count -= 1;
+    for (int i = 0; i < count; ++i) {
+        tmstr = stringcat(tmstr,srcv->data);
+    }
+    return tmstr;
+}
 
 int value_string_equal(Value* lhs,Value* rhs){
     //必须为两个string 才能比较
