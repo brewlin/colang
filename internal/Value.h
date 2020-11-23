@@ -103,9 +103,9 @@ Value* value_notequal(Value* lhs,Value* rhs);
 int    value_string_notequal(Value* lhs,Value* rhs);
 int    value_int_notequal(Value* lhs,Value* rhs);
 
-Value* value_lowerthan(Value* lhs,Value* rhs);
-int    value_string_lowerthan(Value* lhs,Value* rhs);
-int    value_int_lowerthan(Value* lhs,Value* rhs);
+Value* value_lowerthan(Value* lhs,Value* rhs,int equal);
+int    value_string_lowerthan(Value* lhs,Value* rhs,int equal);
+int    value_int_lowerthan(Value* lhs,Value* rhs,int equal);
 
 /*********************运算操作**************************/
 Value* binaryOper(int opt, Value *lhs, Value* rhs);

@@ -186,7 +186,7 @@ Value* value_notequal(Value* lhs,Value* rhs)
  * @param rhs
  * @return Value*
  */
-Value* value_lowerthan(Value* lhs,Value* rhs)
+Value* value_lowerthan(Value* lhs,Value* rhs,int equal)
 {
     Value* result = (Value*)gc_malloc(sizeof(Value));
     result->type = Bool;
@@ -194,12 +194,12 @@ Value* value_lowerthan(Value* lhs,Value* rhs)
     result->data = 1;
     // 如果有string则直接进行string比较
     if(lhs->type == String || rhs->type == String){
-        result->data = value_string_lowerthan(lhs,rhs);
+        result->data = value_string_lowerthan(lhs,rhs,equal);
         return result;
     }
     //有int类型就进行int类型相加
     if (lhs->type == Int || rhs->type == Int){
-        result->data = value_int_lowerthan(lhs,rhs);
+        result->data = value_int_lowerthan(lhs,rhs,equal);
     }
     return result;
 }
@@ -251,9 +251,9 @@ Value* binaryOper(int opt, Value *lhs, Value* rhs)
             return value_bitor(lhs,rhs);
 
         case TK_LT:
-            return value_lowerthan(lhs,rhs);
+            return value_lowerthan(lhs,rhs,0);
         case TK_LE:
-//            return *lhs <= rhs;
+            return value_lowerthan(lhs,rhs,1);
         case TK_GE:
 //            return *lhs >= rhs;
         case TK_GT:
