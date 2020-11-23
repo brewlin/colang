@@ -35,6 +35,23 @@ Value* value_equal(Value* lhs,Value* rhs) {
     }
     return result;
 }
+Value* value_notequal(Value* lhs,Value* rhs)
+{
+    Value* result = (Value*)gc_malloc(sizeof(Value));
+    result->type = Bool;
+    //默认为true  不等于
+    result->data = 1;
+    // 如果有string则直接进行string比较
+    if(lhs->type == String || rhs->type == String){
+        result->data = value_string_notequal(lhs,rhs);
+        return result;
+    }
+    //有int类型就进行int类型相加
+    if (lhs->type == Int || rhs->type == Int){
+        result->data = value_int_notequal(lhs,rhs);
+    }
+    return result;
+}
 
 int isTrue(Value* cond){
     switch (cond->type){
@@ -95,6 +112,7 @@ Value* binaryOper(int opt, Value *lhs, Value* rhs)
 //            return *lhs == rhs;
         case TK_NE:
 //            return *lhs != rhs;
+            return value_notequal(lhs,rhs);
         default:
             return NULL;
     }
