@@ -20,6 +20,10 @@
 #define Map    7
 #define Object 8
 
+
+#define TRUE   1
+#define FALSE  0
+
 //TYPE TOKEN
 enum Token {
     //invalid identifier eof
@@ -107,6 +111,9 @@ Value* value_lowerthan(Value* lhs,Value* rhs,int equal);
 int    value_string_lowerthan(Value* lhs,Value* rhs,int equal);
 int    value_int_lowerthan(Value* lhs,Value* rhs,int equal);
 
+Value* value_greaterthan(Value* lhs,Value* rhs,int equal);
+int    value_string_greaterthan(Value* lhs,Value* rhs,int equal);
+int    value_int_greaterthan(Value* lhs,Value* rhs,int equal);
 /*********************运算操作**************************/
 Value* binaryOper(int opt, Value *lhs, Value* rhs);
 

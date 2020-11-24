@@ -39,3 +39,10 @@ int    value_int_lowerthan(Value* lhs,Value* rhs,int equal){
     else
         return (long)lhs->data < (long)rhs->data;
 }
+// >
+int    value_int_greaterthan(Value* lhs,Value* rhs,int equal){
+    if(equal)
+        return (long)lhs->data >= (long)rhs->data;
+    else
+        return (long)lhs->data > (long)rhs->data;
+}

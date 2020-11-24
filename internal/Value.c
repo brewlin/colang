@@ -190,7 +190,7 @@ Value* value_lowerthan(Value* lhs,Value* rhs,int equal)
 {
     Value* result = (Value*)gc_malloc(sizeof(Value));
     result->type = Bool;
-    //默认为true  不等于
+    //默认为true  小于
     result->data = 1;
     // 如果有string则直接进行string比较
     if(lhs->type == String || rhs->type == String){
@@ -203,7 +203,34 @@ Value* value_lowerthan(Value* lhs,Value* rhs,int equal)
     }
     return result;
 }
-
+/**
+ * > operator
+ * @param lhs
+ * @param rhs
+ * @return Value*
+ */
+Value* value_greaterthan(Value* lhs,Value* rhs,int equal)
+{
+    Value* result = (Value*)gc_malloc(sizeof(Value));
+    result->type = Bool;
+    //默认为true  大于
+    result->data = 1;
+    // 如果有string则直接进行string比较
+    if(lhs->type == String || rhs->type == String){
+        result->data = value_string_greaterthan(lhs,rhs,equal);
+        return result;
+    }
+    //有int类型就进行int类型相加
+    if (lhs->type == Int || rhs->type == Int){
+        result->data = value_int_greaterthan(lhs,rhs,equal);
+    }
+    return result;
+}
+/**
+ * tell if itstrue
+ * @param cond
+ * @return bool
+ */
 int isTrue(Value* cond){
     switch (cond->type){
         case Int:
@@ -235,32 +262,32 @@ Value* binaryOper(int opt, Value *lhs, Value* rhs)
         return NULL;
     }
     switch (opt){
-        case TK_ASSIGN:
+        case TK_ASSIGN:// =
             return rhs;
-        case TK_PLUS:
+        case TK_PLUS:// +
             return value_plus(lhs,rhs);
-        case TK_MINUS:
+        case TK_MINUS:// -
             return value_minus(lhs,rhs);
-        case TK_MUL:
+        case TK_MUL:// *
             return value_mul(lhs,rhs);
-        case TK_DIV:
+        case TK_DIV:// /
             return value_div(lhs,rhs);
-        case TK_BITAND:
+        case TK_BITAND:// &
             return value_bitand(lhs,rhs);
-        case TK_BITOR:
+        case TK_BITOR:// |
             return value_bitor(lhs,rhs);
 
-        case TK_LT:
-            return value_lowerthan(lhs,rhs,0);
-        case TK_LE:
-            return value_lowerthan(lhs,rhs,1);
-        case TK_GE:
-//            return *lhs >= rhs;
-        case TK_GT:
-//            return *lhs > rhs;
-        case TK_EQ:
+        case TK_LT:// <
+            return value_lowerthan(lhs,rhs,FALSE);
+        case TK_LE:// <=
+            return value_lowerthan(lhs,rhs,TRUE);
+        case TK_GE:// >=
+            return value_greaterthan(lhs,rhs,TRUE);
+        case TK_GT:// >
+            return value_greaterthan(lhs,rhs,FALSE);
+        case TK_EQ:// ==
             return value_equal(lhs,rhs);
-        case TK_NE:
+        case TK_NE:// !=
             return value_notequal(lhs,rhs);
         default:
             return NULL;

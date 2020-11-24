@@ -138,6 +138,18 @@ int value_string_lowerthan(Value* lhs,Value* rhs,int equal){
     }
     return eq < 0;
 }
+//> >=
+int value_string_greaterthan(Value* lhs,Value* rhs,int equal){
+    //必须为两个string 才能比较
+    if(lhs->type != String || rhs->type != String){
+        return 0;
+    }
+    int eq = stringcmp(lhs->data,rhs->data) ;
+    if(equal){
+        return eq >= 0;
+    }
+    return eq > 0;
+}
 
 /* 
  * mystring = stringnewlen("abc",3);
