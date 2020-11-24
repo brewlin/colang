@@ -91,16 +91,19 @@ char* value_string_mul(Value* lhs,Value* rhs)
     }
     return tmstr;
 }
-char* value_string_div(Value* lhs,Value* rhs)
-{
+char* value_string_div(Value* lhs,Value* rhs){
     return NULL;
 }
-char* value_string_bitand(Value* lhs,Value* rhs)
-{
+char* value_string_bitand(Value* lhs,Value* rhs){
     return NULL;
 }
-char* value_string_bitor(Value* lhs,Value* rhs)
-{
+char* value_string_bitor(Value* lhs,Value* rhs){
+    return NULL;
+}
+char* value_string_shift_left(Value* lhs,Value* rhs){
+    return NULL;
+}
+char* value_string_shift_right(Value* lhs,Value* rhs){
     return NULL;
 }
 int value_string_equal(Value* lhs,Value* rhs,int equal){

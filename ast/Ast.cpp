@@ -187,11 +187,13 @@ std::string BinaryExpr::toString() {
     }
     if (lhs) {
         str += ",lhs=";
-        str += lhs->toString();
+        if(lhs)
+            str += lhs->toString();
     }
     if (rhs) {
         str += ",rhs=";
-        str += rhs->toString();
+        if(rhs)
+            str += rhs->toString();
     }
     str += ")";
     return str;
@@ -211,9 +213,11 @@ std::string FunCallExpr::toString() {
 
 std::string AssignExpr::toString() {
     std::string str = "AssignExpr(lhs=";
-    str += lhs->toString();
+    if(lhs)
+        str += lhs->toString();
     str += ",rhs=";
-    str += rhs->toString();
+    if(rhs)
+        str += rhs->toString();
     str += ")";
     return str;
 }

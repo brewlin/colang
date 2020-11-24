@@ -131,47 +131,6 @@ void  IndexExpr::asmgen(Runtime* rt,std::deque<Context*> ctx) {
 }
 
 /**
- * 赋值运算符 求值
- * @param rt
- * @param ctx
- * @return
- */
-void  AssignExpr::asmgen(Runtime* rt,std::deque<Context*> ctx){
-    Debug("AssignExpr: parsing... lhs:%s opt:%s rhs:%s",
-        lhs->toString().c_str(),
-        getTokenString(opt).c_str(),
-        rhs->toString().c_str());
-    //如果左值是一个标识符 表达式: a = 13;
-    if(typeid(*lhs) == typeid(IdentExpr)){
-        IdentExpr* varExpr = dynamic_cast<IdentExpr*>(lhs);
-        //进行赋值 和 变量定义
-        Function* f = AsmGen::currentFunc;
-
-        //1. 这个变量可能是函数参数变量，非本地变量
-        if(f->params_var.count(varExpr->identname))
-            varExpr = f->params_var[varExpr->identname];
-        else
-            varExpr = f->locals[varExpr->identname];
-        //这个变量一开始可能没有被注册过 需要手动注册到context中
-        (ctx.back())->createVar(varExpr->identname,varExpr);
-
-        //f->locals 保存了本地变量的 唯一偏移量，所以需要通过name 来找到对应的 变量
-        AsmGen::GenAddr(varExpr);
-        //注意这里传入的是变量栈地址非 lhs的值
-        AsmGen::Push();
-
-        //对运算符右值求值
-        this->rhs->asmgen(rt,ctx);
-        AsmGen::Push();
-        //运算需要调用统一的方法
-        Internal::call_operator(this->opt,"unary_operator");
-
-        return;
-    }
-    parse_err("SyntaxError: can not assign to %s at line %d, %col\n", typeid(lhs).name(),line,column);
-}
-
-/**
  * 函数调用求值
  * @param rt
  * @param ctx
@@ -263,6 +222,56 @@ void  FunCallExpr::asmgen(Runtime* rt,std::deque<Context*> ctx)
             funcname.c_str(),this->line,this->column,this->toString().c_str());
 }
 /**
+ * 赋值运算符 求值
+ * @param rt
+ * @param ctx
+ * @return
+ */
+void  AssignExpr::asmgen(Runtime* rt,std::deque<Context*> ctx){
+
+    Debug("AssignExpr: parsing... lhs:%s opt:%s rhs:%s",
+          lhs->toString().c_str(),
+          getTokenString(opt).c_str(),
+          rhs->toString().c_str());
+    if(!this->rhs)
+        parse_err(
+            "AsmError: right expression is wrong "
+            "line:%d column:%d \n\n"
+            "expression:\n%s\n",
+            this->line,this->column,this->toString().c_str());
+
+
+    //如果左值是一个标识符 表达式: a = 13;
+    if(typeid(*lhs) == typeid(IdentExpr)){
+        IdentExpr* varExpr = dynamic_cast<IdentExpr*>(lhs);
+        //进行赋值 和 变量定义
+        Function* f = AsmGen::currentFunc;
+
+        //1. 这个变量可能是函数参数变量，非本地变量
+        if(f->params_var.count(varExpr->identname))
+            varExpr = f->params_var[varExpr->identname];
+        else
+            varExpr = f->locals[varExpr->identname];
+        //这个变量一开始可能没有被注册过 需要手动注册到context中
+        (ctx.back())->createVar(varExpr->identname,varExpr);
+
+        //f->locals 保存了本地变量的 唯一偏移量，所以需要通过name 来找到对应的 变量
+        AsmGen::GenAddr(varExpr);
+        //注意这里传入的是变量栈地址非 lhs的值
+        AsmGen::Push();
+
+        //对运算符右值求值
+        this->rhs->asmgen(rt,ctx);
+        AsmGen::Push();
+        //运算需要调用统一的方法
+        Internal::call_operator(this->opt,"unary_operator");
+
+        return;
+    }
+    parse_err("SyntaxError: can not assign to %s at line %d, %col\n", typeid(lhs).name(),line,column);
+}
+
+/**
  * 二元运算符求值
  * @param rt
  * @param ctx
@@ -270,6 +279,16 @@ void  FunCallExpr::asmgen(Runtime* rt,std::deque<Context*> ctx)
  */
 void  BinaryExpr::asmgen(Runtime* rt,std::deque<Context*> ctx)
 {
+    Debug("BinaryExpr: parsing... lhs:%s opt:%s rhs:%s",
+          lhs->toString().c_str(),
+          getTokenString(opt).c_str(),
+          rhs->toString().c_str());
+    if(!this->rhs)
+        parse_err(
+            "AsmError: right expression is wrong "
+            "line:%d column:%d \n\n"
+            "expression:\n%s\n",
+            this->line,this->column,this->toString().c_str());
     //保存rax寄存器的值 因为下面右值计算的时候会用到rax寄存器
     this->lhs->asmgen(rt,ctx);
     AsmGen::Push();

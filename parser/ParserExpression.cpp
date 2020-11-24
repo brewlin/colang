@@ -46,7 +46,7 @@ Expression* Parser::parseExpression(short oldPrecedence)
     }
 
     //解析二元表达式
-    while (anyone(getCurrentToken(), TK_BITOR, TK_BITAND, TK_BITNOT, TK_LOGOR,
+    while (anyone(getCurrentToken(),TK_SHIFTL,TK_SHIFTR,TK_BITOR, TK_BITAND, TK_BITNOT, TK_LOGOR,
                   TK_LOGAND, TK_LOGNOT, TK_EQ, TK_NE, TK_GT, TK_GE, TK_LT,
                   TK_LE, TK_PLUS, TK_MINUS, TK_MOD, TK_MUL, TK_DIV)){
         // 获取当前运算符优先级，和前一个比较

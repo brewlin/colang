@@ -99,6 +99,14 @@ Value* value_bitor(Value* lhs,Value* rhs);
 char*  value_string_bitor(Value* lhs,Value* rhs);
 long   value_int_bitor(Value* lhs,Value* rhs);
 
+Value* value_shift_left(Value* lhs,Value* rhs);
+char*  value_string_shift_left(Value* lhs,Value* rhs);
+long   value_int_shift_left(Value* lhs,Value* rhs);
+
+Value* value_shift_right(Value* lhs,Value* rhs);
+char*  value_string_shift_right(Value* lhs,Value* rhs);
+long   value_int_shift_right(Value* lhs,Value* rhs);
+
 /*********************逻辑操作**************************/
 Value* value_equal(Value* lhs,Value* rhs,int equal);
 int    value_string_equal(Value* lhs,Value* rhs,int equal);

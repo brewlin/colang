@@ -230,12 +230,21 @@ std::tuple<Token,std::string> Parser::next() {
             c = getNextChar();
             return std::make_tuple(TK_GE, ">=");
         }
+        if (peekNextChar() == '>') {
+            c = getNextChar();
+            return std::make_tuple(TK_SHIFTR, ">>");
+        }
+
         return std::make_tuple(TK_GT, ">");
     }
     if (c == '<') {
         if (peekNextChar() == '=') {
             c = getNextChar();
             return std::make_tuple(TK_LE, "<=");
+        }
+        if (peekNextChar() == '<') {
+            c = getNextChar();
+            return std::make_tuple(TK_SHIFTL, "<<");
         }
         return std::make_tuple(TK_LT, "<");
     }
@@ -270,6 +279,8 @@ short Parser::precedence(Token op)
         case TK_MOD:
         case TK_DIV:
         case TK_BITAND:
+        case TK_SHIFTL:
+        case TK_SHIFTR:
             return 5;
         default:
             // Lowest precedence

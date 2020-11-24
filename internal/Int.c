@@ -24,6 +24,14 @@ long   value_int_bitand(Value* lhs,Value* rhs){
 long   value_int_bitor(Value* lhs,Value* rhs){
     return (long)lhs->data | (long)rhs->data;
 }
+// <<
+long   value_int_shift_left(Value* lhs,Value* rhs){
+    return (long)lhs->data << (long)rhs->data;
+}
+// >>
+long   value_int_shift_right(Value* lhs,Value* rhs){
+    return (long)lhs->data >> (long)rhs->data;
+}
 // ==
 int    value_int_equal(Value* lhs,Value* rhs,int equal){
     if(equal)

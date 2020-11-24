@@ -161,6 +161,58 @@ Value* value_bitor(Value* lhs,Value* rhs) {
     exit(1);
 }
 /**
+ * << operator
+ * @param lhs
+ * @param rhs
+ * @return
+ */
+Value* value_shift_left(Value* lhs,Value* rhs) {
+    Value* result = (Value*)gc_malloc(sizeof(Value));
+    if(!lhs){
+        memcpy(result,rhs, sizeof(Value));
+        return result;
+    }
+    //字符串的触发运算全部返回0
+    if(lhs->type == String || rhs->type == String){
+        result->type = Int;
+        result->data = value_string_shift_left(lhs,rhs);
+        return result;
+    }
+    //有int类型就进行int类型相加
+    if (lhs->type == Int || rhs->type == Int){
+        result->type = Int;
+        result->data = value_int_shift_left(lhs,rhs);
+        return result;
+    }
+    exit(1);
+}
+/**
+ * >> operator
+ * @param lhs
+ * @param rhs
+ * @return
+ */
+Value* value_shift_right(Value* lhs,Value* rhs) {
+    Value* result = (Value*)gc_malloc(sizeof(Value));
+    if(!lhs){
+        memcpy(result,rhs, sizeof(Value));
+        return result;
+    }
+    //字符串的触发运算全部返回0
+    if(lhs->type == String || rhs->type == String){
+        result->type = Int;
+        result->data = value_string_shift_right(lhs,rhs);
+        return result;
+    }
+    //有int类型就进行int类型相加
+    if (lhs->type == Int || rhs->type == Int){
+        result->type = Int;
+        result->data = value_int_shift_right(lhs,rhs);
+        return result;
+    }
+    exit(1);
+}
+/**
  * == operator
  * @param lhs
  * @param rhs
@@ -313,8 +365,10 @@ Value* binary_operator(int opt, Value *lhs, Value* rhs)
         case TK_BITOR:// |
             return value_bitor(lhs,rhs);
         case TK_SHIFTL:
-        // >> or >>=
+            return value_shift_left(lhs,rhs);
         case TK_SHIFTR:
+            return value_shift_right(lhs,rhs);
+
         case TK_LT:// <
             return value_lowerthan(lhs,rhs,FALSE);
         case TK_LE:// <=
