@@ -103,27 +103,19 @@ char* value_string_bitor(Value* lhs,Value* rhs)
 {
     return NULL;
 }
-int value_string_equal(Value* lhs,Value* rhs){
+int value_string_equal(Value* lhs,Value* rhs,int equal){
     //必须为两个string 才能比较
     if(lhs->type != String || rhs->type != String){
-        return 0;
+        // == 就返回false
+        // != 就返回true
+        return equal ? FALSE : TRUE;
     }
     if(stringcmp(lhs->data,rhs->data) == 0){
-        return 1;
+        // == 返回true
+        // != 返回false
+        return equal ? TRUE : FALSE;
     }
-    return 0;
-
-}
-int value_string_notequal(Value* lhs,Value* rhs){
-    //必须为两个string 才能比较
-    if(lhs->type != String || rhs->type != String){
-        return 1;
-    }
-    //相等就是false  不等就是true
-    if(stringcmp(lhs->data,rhs->data) == 0){
-        return 0;
-    }
-    return 1;
+    return equal ? FALSE : TRUE;
 
 }
 //< <=

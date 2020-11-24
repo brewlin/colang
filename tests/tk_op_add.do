@@ -4,6 +4,7 @@ import fmt
 import os
 
 # 测试 int + 
+# 测试 int +=
 func test_int2_add()
 {
     fmt.sprintf("test int- add\n")
@@ -11,11 +12,18 @@ func test_int2_add()
     b = 20
     c = a + b
     if(c == 30){
-        fmt.sprintf("test int-int add ok\n")
+        fmt.sprintf("test %d + %d add ok\n",a,b)
     }else{
-        fmt.sprintf("test int-int add failed\n")
+        fmt.sprintf("test %d + %d failed\n",a,b)
         os.exit(1)
     }
+    fmt.sprintf("test %d + %d add ok\n",a,b)
+    c += b
+    if(c != 50){
+        fmt.sprintf("test %d += %d add failed\n",c,b)
+        os.exit(1)
+    }
+    fmt.sprintf("test %d += %d add success\n",c,b)
 }
 func test_string2_add(){
     fmt.sprintf("test string- add\n")
@@ -57,7 +65,8 @@ func test_addstringcall(a){
 
 }
 
-
+# 测试 +
+# 测试 +=
 func main(){
     test_int2_add()
     test_string2_add()

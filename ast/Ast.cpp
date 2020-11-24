@@ -7,6 +7,75 @@
 #include "Statement.h"
 #include "Block.h"
 
+std::string getTokenString(Token tk){
+    //invalid identifier eof
+    switch (tk) {
+        case INVALID:    return "invalid";
+        case TK_IDENT:   return "ident";
+        case TK_EOF:     return "eof";
+        case LIT_INT:    return "int";
+        case LIT_STR:    return "string";
+        case LIT_DOUBLE: return "double";
+        case LIT_CHAR:  return "char";
+        case TK_BITAND:	return "&";
+        case TK_BITOR:	return "|";
+        case TK_BITXOR:	return "^";
+        case TK_BITNOT:	return "~";
+        case TK_SHIFTL:	return "<<";
+        case TK_SHIFTR:	return ">>";
+
+        case TK_LOGAND:	return "&&";
+        case TK_LOGOR:	return "||";
+        case TK_LOGNOT:	return "!";
+        case TK_EQ:	return "==";
+        case TK_NE:	return "!=";
+        case TK_GT:	return ">";
+        case TK_GE:	return ">=";
+        case TK_LT:	return "<";
+        case TK_LE:	return "<=";
+
+            //+ - * / %
+        case TK_PLUS:	return "+";
+        case TK_MINUS:	return "-";
+        case TK_MUL:	return "*";
+        case TK_DIV:	return "/";
+        case TK_MOD:	return "%";
+
+        case TK_ASSIGN:	return "=";
+        case TK_PLUS_AGN:	return "+=";
+        case TK_MINUS_AGN:	return "-=";
+        case TK_MUL_AGN:	return "*=";
+        case TK_DIV_AGN:	return "/=";
+        case TK_MOD_AGN:	return "%=";
+        case TK_COMMA:	return ",";
+        case TK_LPAREN:	return "(";
+        case TK_RPAREN:	return ")";
+        case TK_LBRACE:	return "{";
+        case TK_RBRACE:	return "}";
+        case TK_LBRACKET:	return "[";
+        case TK_RBRACKET:	return "]";
+        case TK_DOT:	return ".";
+        case KW_IF:	return "if";
+        case KW_ELSE:	return "else";
+        case KW_TRUE:	return "true";
+        case KW_FALSE:	return "false";
+        case KW_WHILE:	return "while";
+        case KW_FOR:	return "for";
+        case KW_NULL:	return "null";
+        case KW_FUNC:	return "func";
+        case KW_RETURN:	return "return";
+        case KW_BREAK:	return "break";
+        case KW_CONTINUE:	return "continue";
+        case KW_NEW:	return "new";
+        case KW_EXTERN:	return "extern";
+        case KW_IMPORT:	return "import";
+        case KW_GO:	return "go";
+        case KW_STRUCT:	return "struct";
+        case KW_PACKAGE:	return "package";
+        case TK_DELREF:	return "(*)var";
+        default:	return "undefine";
+    }
+}
 
 std::string Expression::toString() { return "Expr()"; }
 

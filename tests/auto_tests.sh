@@ -1,18 +1,20 @@
 #!/bin/bash
 log(){
     str="$1"
-    echo -e "\033[32m $str \033[0m "
+    echo -e "\033[32m$str \033[0m "
 }
 failed(){
     str="$1"
-    echo -e "\033[31m $str \033[0m"
+    echo -e "\033[31m$str \033[0m"
     exit 1
 }
 assert(){
     expected="$1"
     input="$2"
     log "[compile] ./do -s $input ..."
-    ./do run $input
+    ./do -s $input
+    gcc -g tmp.s -L./internal -linternal
+    ./a.out
     if [  "$?" != 0 ]; then
 #        actual=`./a.out`
 #        if [  "$?" != 0 ]; then

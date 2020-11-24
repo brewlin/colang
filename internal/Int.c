@@ -25,8 +25,11 @@ long   value_int_bitor(Value* lhs,Value* rhs){
     return (long)lhs->data | (long)rhs->data;
 }
 // ==
-int    value_int_equal(Value* lhs,Value* rhs){
-    return (long)lhs->data == (long)rhs->data;
+int    value_int_equal(Value* lhs,Value* rhs,int equal){
+    if(equal)
+        return (long)lhs->data == (long)rhs->data;
+    else
+        return (long)lhs->data != (long)rhs->data;
 }
 // !=
 int    value_int_notequal(Value* lhs,Value* rhs){

@@ -110,7 +110,7 @@ void  IdentExpr::asmgen(Runtime* rt,std::deque<Context*> ctx){
             }else{
                 AsmGen::GenAddr(f->params_var[identname],is_delref);
             }
-            //如果是解引用就不需要在 读取变量了，这个变量是直接传递给下游
+            //如果是解引用就需要在 读取变量了，否则这个变量是直接传递给下游
             if(!is_delref)
                 AsmGen::Load();
             return;
@@ -137,6 +137,10 @@ void  IndexExpr::asmgen(Runtime* rt,std::deque<Context*> ctx) {
  * @return
  */
 void  AssignExpr::asmgen(Runtime* rt,std::deque<Context*> ctx){
+    Debug("AssignExpr: parsing... lhs:%s opt:%s rhs:%s",
+        lhs->toString().c_str(),
+        getTokenString(opt).c_str(),
+        rhs->toString().c_str());
     //如果左值是一个标识符 表达式: a = 13;
     if(typeid(*lhs) == typeid(IdentExpr)){
         IdentExpr* varExpr = dynamic_cast<IdentExpr*>(lhs);
@@ -148,24 +152,21 @@ void  AssignExpr::asmgen(Runtime* rt,std::deque<Context*> ctx){
             varExpr = f->params_var[varExpr->identname];
         else
             varExpr = f->locals[varExpr->identname];
+        //这个变量一开始可能没有被注册过 需要手动注册到context中
+        (ctx.back())->createVar(varExpr->identname,varExpr);
 
         //f->locals 保存了本地变量的 唯一偏移量，所以需要通过name 来找到对应的 变量
         AsmGen::GenAddr(varExpr);
-        //保存rax寄存器的值 因为下面右值计算的时候会用到rax寄存器
+        //注意这里传入的是变量栈地址非 lhs的值
         AsmGen::Push();
+
         //对运算符右值求值
         this->rhs->asmgen(rt,ctx);
+        AsmGen::Push();
         //运算需要调用统一的方法
         Internal::CallOperator(this->opt);
 
-        //执行结果存储
-        AsmGen::Store();
-
-        std::string identname = varExpr->identname;
-        //说明不存在该变量 则需要重新定义
-        (ctx.back())->createVar(identname,varExpr);
         return;
-        //可能是索引运算如: a[1] = 123
     }
     parse_err("SyntaxError: can not assign to %s at line %d, %col\n", typeid(lhs).name(),line,column);
 }
@@ -178,6 +179,7 @@ void  AssignExpr::asmgen(Runtime* rt,std::deque<Context*> ctx){
  */
 void  FunCallExpr::asmgen(Runtime* rt,std::deque<Context*> ctx)
 {
+    Debug("FunCallExpr: parsing... package:%s func:%s",package.c_str(),funcname.c_str());
     //gp 通用寄存器个数统计
     //fp 浮点数寄存器个数统计
     int gp = 0, fp = 0;
@@ -268,15 +270,16 @@ void  FunCallExpr::asmgen(Runtime* rt,std::deque<Context*> ctx)
  */
 void  BinaryExpr::asmgen(Runtime* rt,std::deque<Context*> ctx)
 {
-    this->lhs->asmgen(rt,ctx);
     //保存rax寄存器的值 因为下面右值计算的时候会用到rax寄存器
+    this->lhs->asmgen(rt,ctx);
     AsmGen::Push();
+
     //对运算符右值求值
     this->rhs->asmgen(rt,ctx);
+    AsmGen::Push();
+
     //运算需要调用统一的方法
     Internal::CallOperator(this->opt);
-    //这里只负责计算 lhs op rhs 上面push(lhs)后再不使用的时候要手动pop掉
-	AsmGen::Pop("%rdi");
 }
 /**
  * TODO: 只实现了 llvm编译的new

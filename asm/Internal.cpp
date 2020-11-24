@@ -7,16 +7,17 @@
  * "%rdi", "%rsi", "%rdx", "%rcx", "%r8", "%r10"
  * @param opt
  */
-void Internal::CallOperator(Token opt) {
-    //这里需要调用calculate来及计算赋值
-    // assign(this->opt,f->locals[varExpr->identname],rhs);
-//        call_binary_oper(this->opt);
-    //第一个参数 opt
+void Internal::CallOperator(Token opt)
+{
+    //注意参数顺序
+
+    //第一个参数
     AsmGen::writeln("  mov $%ld, %%rdi", opt);
+    //第三个参数 rhs 在栈顶的
+    AsmGen::Pop("%rdx");
     //第二个参数 lhs 在栈顶的
-    AsmGen::writeln("  mov (%%rsp),%rsi");
-    //第三个参数 rhs 在rax寄存器的
-    AsmGen::writeln("  mov %%rax, %%rdx");
+    AsmGen::Pop("%rsi");
+
     call("binaryOper");
 }
 void Internal::gc_malloc()

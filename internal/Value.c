@@ -142,41 +142,18 @@ Value* value_bitor(Value* lhs,Value* rhs) {
  * @param rhs
  * @return Value*
  */
-Value* value_equal(Value* lhs,Value* rhs) {
+Value* value_equal(Value* lhs,Value* rhs,int equal) {
     Value* result = (Value*)gc_malloc(sizeof(Value));
     result->type = Bool;
     result->data = 0;
     // 如果有string则直接进行string比较
     if(lhs->type == String || rhs->type == String){
-        result->data = value_string_equal(lhs,rhs);
+        result->data = value_string_equal(lhs,rhs,equal);
         return result;
     }
     //有int类型就进行int类型相加
     if (lhs->type == Int || rhs->type == Int){
-        result->data = value_int_equal(lhs,rhs);
-    }
-    return result;
-}
-/**
- * != operator
- * @param lhs
- * @param rhs
- * @return Value*
- */
-Value* value_notequal(Value* lhs,Value* rhs)
-{
-    Value* result = (Value*)gc_malloc(sizeof(Value));
-    result->type = Bool;
-    //默认为true  不等于
-    result->data = 1;
-    // 如果有string则直接进行string比较
-    if(lhs->type == String || rhs->type == String){
-        result->data = value_string_notequal(lhs,rhs);
-        return result;
-    }
-    //有int类型就进行int类型相加
-    if (lhs->type == Int || rhs->type == Int){
-        result->data = value_int_notequal(lhs,rhs);
+        result->data = value_int_equal(lhs,rhs,equal);
     }
     return result;
 }
@@ -259,13 +236,20 @@ int isTrue(Value* cond){
 Value* binaryOper(int opt, Value *lhs, Value* rhs)
 {
     if( !lhs || !rhs ){
+        printf(" probably wrong at there! lhs:%p rhs:%p\n",lhs,rhs);
         return NULL;
     }
     switch (opt){
-        case TK_ASSIGN:// =
+        // =
+        case TK_ASSIGN:
+            *(Value** )lhs = rhs;
             return rhs;
-        case TK_PLUS:// +
+        // += or +
+        case TK_PLUS_AGN:
+            *(Value**)lhs = value_plus(*(Value**)lhs,rhs);
+        case TK_PLUS:
             return value_plus(lhs,rhs);
+
         case TK_MINUS:// -
             return value_minus(lhs,rhs);
         case TK_MUL:// *
@@ -286,9 +270,9 @@ Value* binaryOper(int opt, Value *lhs, Value* rhs)
         case TK_GT:// >
             return value_greaterthan(lhs,rhs,FALSE);
         case TK_EQ:// ==
-            return value_equal(lhs,rhs);
+            return value_equal(lhs,rhs,TRUE);
         case TK_NE:// !=
-            return value_notequal(lhs,rhs);
+            return value_equal(lhs,rhs,FALSE);
         default:
             return NULL;
     }

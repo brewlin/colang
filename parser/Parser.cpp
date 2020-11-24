@@ -91,12 +91,12 @@ std::string Parser::getpkgname()
  * 测试token解析
  * @param filename
  */
-void Parser::printLex(const std::string &filename)
+void Parser::printToken(const std::string &filename)
 {
     Parser p(filename, nullptr,"main");
     auto  tk = p.next();
     while(std::get<0>(tk) != TK_EOF){
-        std::cout << "[" << std::get<0>(tk) << "," << std::get<1>(tk) << "]\n";
+        std::cout << "" << getTokenString(std::get<0>(tk)) << " => " << std::get<1>(tk) << "\n";
         tk = p.next();
     }
 

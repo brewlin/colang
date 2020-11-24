@@ -45,11 +45,11 @@ enum Token {
     //&& || !
     TK_LOGAND, TK_LOGOR,  TK_LOGNOT,
 
-    //+ - * / %
-    TK_PLUS,   TK_MINUS,  TK_MUL, TK_DIV, TK_MOD,
-
     // ==  != > >= < <=
     TK_EQ,TK_NE,TK_GT,TK_GE,TK_LT,TK_LE,
+
+    //+ - * / %
+    TK_PLUS,   TK_MINUS,  TK_MUL, TK_DIV, TK_MOD,
 
     //= += -= *= /= %=
     TK_ASSIGN,TK_PLUS_AGN,TK_MINUS_AGN,TK_MUL_AGN,TK_DIV_AGN,TK_MOD_AGN,
@@ -66,6 +66,6 @@ enum Token {
 };
 
 
-
+std::string getTokenString(Token tk);
 
 #endif //LANG_AST_H

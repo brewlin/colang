@@ -32,7 +32,7 @@ public:
      * @param package   当前文件对应的包名
      */
     explicit Parser(const std::string& filename,Runtime* rt,std::string package);
-    static void printLex(const std::string& filename);
+    static void printToken(const std::string& filename);
     ~Parser();
 
     //获取包名

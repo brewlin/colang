@@ -24,7 +24,6 @@ func test_int_greater_equal_than()
     }
     if( 10 >= 10){
         fmt.sprintf("test 10 >= 10 success...\n")
-        os.exit(1)
     }else{
         fmt.sprintf("test 10 >= 10 failed...\n")
         os.exit(1)

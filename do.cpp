@@ -44,7 +44,7 @@ int asmgen(char* argv[],bool run = false)
     return 0;
 }
 int print_ast(char* argv[]){
-    Parser::printLex(argv[2]);
+    Parser::printToken(argv[2]);
     return 0;
 }
 
