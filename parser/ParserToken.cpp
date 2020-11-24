@@ -226,12 +226,19 @@ std::tuple<Token,std::string> Parser::next() {
         return std::make_tuple(TK_BITAND, "&");
     }
     if (c == '>') {
+        //>=
         if (peekNextChar() == '=') {
             c = getNextChar();
             return std::make_tuple(TK_GE, ">=");
         }
+        //>>
         if (peekNextChar() == '>') {
             c = getNextChar();
+            //>>=
+            if (peekNextChar() == '=') {
+                c = getNextChar();
+                return std::make_tuple(TK_SHIFTR_AGN, ">>=");
+            }
             return std::make_tuple(TK_SHIFTR, ">>");
         }
 
@@ -244,6 +251,11 @@ std::tuple<Token,std::string> Parser::next() {
         }
         if (peekNextChar() == '<') {
             c = getNextChar();
+            //<<=
+            if (peekNextChar() == '=') {
+                c = getNextChar();
+                return std::make_tuple(TK_SHIFTL_AGN, "<<=");
+            }
             return std::make_tuple(TK_SHIFTL, "<<");
         }
         return std::make_tuple(TK_LT, "<");

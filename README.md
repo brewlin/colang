@@ -23,3 +23,61 @@ llvm-6.0
 
 
 ```
+
+# 语法
+## 数据类型
+- [x] int
+- [ ] double
+- [x] string
+- [ ] map
+- [ ] array
+```
+package main
+import fmt
+
+func main(){
+    a = "this is a string"
+    fmt.sprintf("str:%s\n",a)
+    b = 1000
+    fmt.sprintf("str:%s\n",a)
+    c = 77323.088
+}
+```
+## 关键字
+- [x] func,return
+- [x] package,import
+- [x] if 
+- [x] while
+- [x] continue,break
+
+```
+package main
+func main(){
+    a = "str"
+    if(a == "str"){
+    }
+    b = 10
+    while(b){
+        if(b == 5){
+            continue
+        }
+        if(b == 2){
+            break
+        }
+        b -= 1
+    }
+}
+```
+
+## 操作符
+- [x] +,+= 
+- [x] -,-=
+- [x] *,*=
+- [x] \,\=
+- [x] <<,<<=
+- [x] >>,>>=
+- [x] &,&=
+- [x] |,|=
+- [x] >,>=
+- [x] <,<=
+- [x] ==,!=

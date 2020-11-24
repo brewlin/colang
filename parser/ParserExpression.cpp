@@ -17,7 +17,7 @@ Expression* Parser::parseExpression(short oldPrecedence)
 
     //解析赋值 = 号
     if (anyone(getCurrentToken(), TK_ASSIGN, TK_PLUS_AGN, TK_MINUS_AGN,
-               TK_MUL_AGN, TK_DIV_AGN, TK_MOD_AGN,TK_BITAND_AGN,TK_BITOR_AGN)) {
+               TK_MUL_AGN, TK_DIV_AGN, TK_MOD_AGN,TK_BITAND_AGN,TK_BITOR_AGN,TK_SHIFTL_AGN,TK_SHIFTR_AGN)) {
         // 确保赋值左边是一个变量或者数组索引（arr[x]=5这种)
         if (typeid(*p) != typeid(IdentExpr) &&
             typeid(*p) != typeid(IndexExpr) &&

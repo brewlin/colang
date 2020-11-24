@@ -37,8 +37,8 @@ enum Token {
     // &= |=
     TK_BITAND_AGN, TK_BITOR_AGN ,
 
-    // << >>
-    TK_SHIFTL, TK_SHIFTR,
+    // << >>   <<=  >>=
+    TK_SHIFTL, TK_SHIFTR,TK_SHIFTL_AGN,TK_SHIFTR_AGN,
 
     //&& || !
     TK_LOGAND, TK_LOGOR,  TK_LOGNOT,

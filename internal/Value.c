@@ -331,6 +331,10 @@ void unary_operator(int opt,Value *lhs,Value* rhs)
             ret = value_bitand(*(Value**)lhs,rhs);break;
         case TK_BITOR_AGN:
             ret = value_bitor(*(Value**)lhs,rhs);break;
+        case TK_SHIFTL_AGN:
+            ret = value_shift_left(*(Value**)lhs,rhs);break;
+        case TK_SHIFTR_AGN:
+            ret = value_shift_right(*(Value**)lhs,rhs);break;
         default:
             printf(" [unary-op] unkown op:%d\n",opt);
             ret = rhs;

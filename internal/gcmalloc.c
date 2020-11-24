@@ -13,6 +13,9 @@ Value* newobject(int type,long data)
             ret->data = (int)data;
             break;
         case Double:
+            ret->type = Double;
+            ret->data = (long)data;
+            break;
         case String:
             ret->type = String;
             ret->data = stringnew((char*)data);
