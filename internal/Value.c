@@ -116,6 +116,10 @@ Value* value_div(Value* lhs,Value* rhs) {
  */
 Value* value_bitand(Value* lhs,Value* rhs) {
     Value* result = (Value*)gc_malloc(sizeof(Value));
+    if(!lhs){
+        memcpy(result,rhs, sizeof(Value));
+        return result;
+    }
     //字符串的触发运算全部返回0
     if(lhs->type == String || rhs->type == String){
         result->type = Int;
@@ -138,6 +142,10 @@ Value* value_bitand(Value* lhs,Value* rhs) {
  */
 Value* value_bitor(Value* lhs,Value* rhs) {
     Value* result = (Value*)gc_malloc(sizeof(Value));
+    if(!lhs){
+        memcpy(result,rhs, sizeof(Value));
+        return result;
+    }
     //字符串的触发运算全部返回0
     if(lhs->type == String || rhs->type == String){
         result->type = Int;
@@ -287,9 +295,17 @@ Value* binaryOper(int opt, Value *lhs, Value* rhs)
         case TK_DIV:
             return value_div(lhs,rhs);
 
-        case TK_BITAND:// &
+        // & or &=
+        case TK_BITAND_AGN:
+            *(Value**)lhs = value_bitand(*(Value**)lhs,rhs);
+            return NULL;
+        case TK_BITAND:
             return value_bitand(lhs,rhs);
-        case TK_BITOR:// |
+        // | or |=
+        case TK_BITOR_AGN:
+            *(Value**)lhs = value_bitor(*(Value**)lhs,rhs);
+            return NULL;
+        case TK_BITOR:
             return value_bitor(lhs,rhs);
 
         case TK_LT:// <

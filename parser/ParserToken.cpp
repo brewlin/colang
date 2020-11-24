@@ -208,12 +208,20 @@ std::tuple<Token,std::string> Parser::next() {
             c = getNextChar();
             return std::make_tuple(TK_LOGOR, "||");
         }
+        if (peekNextChar() == '=') {
+            c = getNextChar();
+            return std::make_tuple(TK_BITOR_AGN, "|=");
+        }
         return std::make_tuple(TK_BITOR, "|");
     }
     if (c == '&') {
         if (peekNextChar() == '&') {
             c = getNextChar();
             return std::make_tuple(TK_LOGAND, "&&");
+        }
+        if (peekNextChar() == '=') {
+            c = getNextChar();
+            return std::make_tuple(TK_BITAND_AGN, "&=");
         }
         return std::make_tuple(TK_BITAND, "&");
     }

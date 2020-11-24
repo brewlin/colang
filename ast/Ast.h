@@ -38,6 +38,8 @@ enum Token {
 
     // & | ^ ~
     TK_BITAND, TK_BITOR,TK_BITXOR,TK_BITNOT ,
+    // &= |=
+    TK_BITAND_AGN, TK_BITOR_AGN ,
 
     // << >>
     TK_SHIFTL, TK_SHIFTR,

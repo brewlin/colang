@@ -32,9 +32,9 @@ func test_string(){
         fmt.sprintf("test string div %d != 0 failed\n",a)
         os.exit(1)
     }
-    a /= "abc"
-    if(a != 0){
-        fmt.sprintf("test string div %d != 0 failed\n",a)
+    e /= "abc"
+    if(e != "abc"){
+        fmt.sprintf("test string div %s != abc failed\n",e)
         os.exit(1)
     }
     fmt.sprintf("test string div %d  success\n",a)
