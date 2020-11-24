@@ -250,64 +250,71 @@ int isTrue(Value* cond){
             return 0;
     }
 }
-
+/**
+ *
+ * @param opt
+ * @param lhs
+ * @param rhs
+ * @return
+ */
+void unary_operator(int opt,Value *lhs,Value* rhs)
+{
+    if( !lhs || !rhs ){
+        printf(" [unary-op] probably wrong at there! lhs:%p rhs:%p\n",lhs,rhs);
+        return NULL;
+    }
+    Value* ret;
+    switch (opt){
+        case TK_ASSIGN:
+            ret = rhs;break;
+        case TK_PLUS_AGN:
+            ret = value_plus(*(Value**)lhs,rhs);break;
+        case TK_MINUS_AGN:
+            ret = value_minus(*(Value**)lhs,rhs);break;
+        case TK_MUL_AGN:
+            ret = value_mul(*(Value**)lhs,rhs);break;
+        case TK_DIV_AGN:
+            ret = value_div(*(Value**)lhs,rhs);break;
+        case TK_BITAND_AGN:
+            ret = value_bitand(*(Value**)lhs,rhs);break;
+        case TK_BITOR_AGN:
+            ret = value_bitor(*(Value**)lhs,rhs);break;
+        default:
+            printf(" [unary-op] unkown op:%d\n",opt);
+            ret = rhs;
+    }
+    // assign =
+    *(Value**)lhs = ret;
+}
 /**
  * lhs  rhs 都是堆变量
  * @param opt
  * @param lhs
  * @param rhs
  */
-Value* binaryOper(int opt, Value *lhs, Value* rhs)
+Value* binary_operator(int opt, Value *lhs, Value* rhs)
 {
     if( !lhs || !rhs ){
-        printf(" probably wrong at there! lhs:%p rhs:%p\n",lhs,rhs);
+        printf(" [binary-op] probably wrong at there! lhs:%p rhs:%p\n",lhs,rhs);
         return NULL;
     }
     switch (opt){
-        // =
-        case TK_ASSIGN:
-            *(Value** )lhs = rhs;
-            return rhs;
-        // += or +
-        case TK_PLUS_AGN:
-            *(Value**)lhs = value_plus(*(Value**)lhs,rhs);
-            return NULL;
-        case TK_PLUS:
+        case TK_PLUS:// +
             return value_plus(lhs,rhs);
-
-        // -= or -
-        case TK_MINUS_AGN:
-            *(Value**)lhs = value_minus(*(Value**)lhs,rhs);
-            return NULL;
-        case TK_MINUS:
+        case TK_MINUS:// -
             return value_minus(lhs,rhs);
-
-        // * or *=
-        case TK_MUL_AGN:
-            *(Value**)lhs = value_mul(*(Value**)lhs,rhs);
-            return NULL;
-        case TK_MUL:
+        case TK_MUL:// *
             return value_mul(lhs,rhs);
-        // / or /=
-        case TK_DIV_AGN:
-            *(Value**)lhs = value_div(*(Value**)lhs,rhs);
-            return NULL;
-        case TK_DIV:
+        case TK_DIV:// \ .
             return value_div(lhs,rhs);
 
-        // & or &=
-        case TK_BITAND_AGN:
-            *(Value**)lhs = value_bitand(*(Value**)lhs,rhs);
-            return NULL;
-        case TK_BITAND:
+        case TK_BITAND:// &
             return value_bitand(lhs,rhs);
-        // | or |=
-        case TK_BITOR_AGN:
-            *(Value**)lhs = value_bitor(*(Value**)lhs,rhs);
-            return NULL;
-        case TK_BITOR:
+        case TK_BITOR:// |
             return value_bitor(lhs,rhs);
-
+        case TK_SHIFTL:
+        // >> or >>=
+        case TK_SHIFTR:
         case TK_LT:// <
             return value_lowerthan(lhs,rhs,FALSE);
         case TK_LE:// <=
@@ -321,6 +328,7 @@ Value* binaryOper(int opt, Value *lhs, Value* rhs)
         case TK_NE:// !=
             return value_equal(lhs,rhs,FALSE);
         default:
+            printf(" [binary-op] unknow op:%d \n",opt);
             return NULL;
     }
 }

@@ -7,7 +7,7 @@
  * "%rdi", "%rsi", "%rdx", "%rcx", "%r8", "%r10"
  * @param opt
  */
-void Internal::CallOperator(Token opt)
+void Internal::call_operator(Token opt,std::string name)
 {
     //注意参数顺序
 
@@ -17,8 +17,7 @@ void Internal::CallOperator(Token opt)
     AsmGen::Pop("%rdx");
     //第二个参数 lhs 在栈顶的
     AsmGen::Pop("%rsi");
-
-    call("binaryOper");
+    call(name);
 }
 void Internal::gc_malloc()
 {

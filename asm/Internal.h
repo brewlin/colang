@@ -11,7 +11,7 @@
 class Internal
 {
 public:
-    static void CallOperator(Token opt);
+    static void call_operator(Token opt,std::string name);
     static void newobject(int type,long data);
     static void gc_malloc();
     static void isTrue();

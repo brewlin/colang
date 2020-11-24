@@ -164,7 +164,7 @@ void  AssignExpr::asmgen(Runtime* rt,std::deque<Context*> ctx){
         this->rhs->asmgen(rt,ctx);
         AsmGen::Push();
         //运算需要调用统一的方法
-        Internal::CallOperator(this->opt);
+        Internal::call_operator(this->opt,"unary_operator");
 
         return;
     }
@@ -279,7 +279,7 @@ void  BinaryExpr::asmgen(Runtime* rt,std::deque<Context*> ctx)
     AsmGen::Push();
 
     //运算需要调用统一的方法
-    Internal::CallOperator(this->opt);
+    Internal::call_operator(this->opt,"binary_operator");
 }
 /**
  * TODO: 只实现了 llvm编译的new
