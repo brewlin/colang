@@ -12,6 +12,10 @@
  */
 Value* value_plus(Value* lhs,Value* rhs) {
     Value* result = (Value*)gc_malloc(sizeof(Value));
+    if(!lhs){
+        memcpy(result,rhs, sizeof(Value));
+        return result;
+    }
     //有字符串就最终类型是字符串
     if(lhs->type == String || rhs->type == String){
         result->type = String;
@@ -34,6 +38,10 @@ Value* value_plus(Value* lhs,Value* rhs) {
  */
 Value* value_minus(Value* lhs,Value* rhs) {
     Value* result = (Value*)gc_malloc(sizeof(Value));
+    if(!lhs){
+        memcpy(result,rhs, sizeof(Value));
+        return result;
+    }
     //有字符串就最终类型是字符串
     if(lhs->type == String || rhs->type == String){
         result->type = String;
@@ -56,6 +64,10 @@ Value* value_minus(Value* lhs,Value* rhs) {
  */
 Value* value_mul(Value* lhs,Value* rhs) {
     Value* result = (Value*)gc_malloc(sizeof(Value));
+    if(!lhs){
+        memcpy(result,rhs, sizeof(Value));
+        return result;
+    }
     //有字符串就最终类型是字符串
     if(lhs->type == String || rhs->type == String){
         result->type = String;
@@ -78,6 +90,10 @@ Value* value_mul(Value* lhs,Value* rhs) {
  */
 Value* value_div(Value* lhs,Value* rhs) {
     Value* result = (Value*)gc_malloc(sizeof(Value));
+    if(!lhs){
+        memcpy(result,rhs, sizeof(Value));
+        return result;
+    }
     //字符串的触发运算全部返回0
     if(lhs->type == String || rhs->type == String){
         result->type = Int;
@@ -247,15 +263,30 @@ Value* binaryOper(int opt, Value *lhs, Value* rhs)
         // += or +
         case TK_PLUS_AGN:
             *(Value**)lhs = value_plus(*(Value**)lhs,rhs);
+            return NULL;
         case TK_PLUS:
             return value_plus(lhs,rhs);
 
-        case TK_MINUS:// -
+        // -= or -
+        case TK_MINUS_AGN:
+            *(Value**)lhs = value_minus(*(Value**)lhs,rhs);
+            return NULL;
+        case TK_MINUS:
             return value_minus(lhs,rhs);
-        case TK_MUL:// *
+
+        // * or *=
+        case TK_MUL_AGN:
+            *(Value**)lhs = value_mul(*(Value**)lhs,rhs);
+            return NULL;
+        case TK_MUL:
             return value_mul(lhs,rhs);
-        case TK_DIV:// /
+        // / or /=
+        case TK_DIV_AGN:
+            *(Value**)lhs = value_div(*(Value**)lhs,rhs);
+            return NULL;
+        case TK_DIV:
             return value_div(lhs,rhs);
+
         case TK_BITAND:// &
             return value_bitand(lhs,rhs);
         case TK_BITOR:// |
