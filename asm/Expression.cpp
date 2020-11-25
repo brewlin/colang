@@ -275,12 +275,12 @@ void  AssignExpr::asmgen(Runtime* rt,std::deque<Context*> ctx){
             "expression:\n%s\n",
             this->line,this->column,this->toString().c_str());
 
+    //进行赋值 和 变量定义
+    Function* f = AsmGen::currentFunc;
 
     //如果左值是一个标识符 表达式: a = 13;
     if(typeid(*lhs) == typeid(IdentExpr)){
         IdentExpr* varExpr = dynamic_cast<IdentExpr*>(lhs);
-        //进行赋值 和 变量定义
-        Function* f = AsmGen::currentFunc;
 
         //1. 这个变量可能是函数参数变量，非本地变量
         if(f->params_var.count(varExpr->identname))
@@ -301,6 +301,37 @@ void  AssignExpr::asmgen(Runtime* rt,std::deque<Context*> ctx){
         //运算需要调用统一的方法
         Internal::call_operator(this->opt,"unary_operator");
 
+        return;
+    //索引赋值  a[0] = 1
+    // arr_updateone(arr,index,var)
+    }else if(typeid(*lhs) == typeid(IndexExpr))
+    {
+        std::string identname = dynamic_cast<IndexExpr*>(lhs)->identname;
+        IdentExpr* varExpr;
+        //1. 这个变量可能是函数参数变量，非本地变量
+        if(f->params_var.count(identname))
+            varExpr = f->params_var[identname];
+        else
+            varExpr = f->locals[identname];
+        if(!varExpr)
+            parse_err("SyntaxError: not find variable %s at line %d, %col\n", identname.c_str(),line,column);
+        //这个变量一开始可能没有被注册过 需要手动注册到context中
+        (ctx.back())->createVar(varExpr->identname,varExpr);
+
+        //push arr 获取数组偏移量
+        AsmGen::GenAddr(varExpr);
+        AsmGen::Load();
+        AsmGen::Push();
+
+        //push index 计算索引
+        dynamic_cast<IndexExpr*>(lhs)->index->asmgen(rt,ctx);
+        AsmGen::Push();
+
+        rhs->asmgen(rt,ctx);
+        AsmGen::Push();
+
+        //call arr_updateone(arr,index,var)
+        Internal::arr_update();
         return;
     }
     parse_err("SyntaxError: can not assign to %s at line %d, %col\n", typeid(lhs).name(),line,column);

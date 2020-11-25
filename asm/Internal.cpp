@@ -62,8 +62,15 @@ void Internal::arr_pushone() {
     call("arr_pushone");
 }
 void Internal::arr_update() {
-
+    //rdx var
+    AsmGen::Pop("%rdx");
+    //rsi index
+    AsmGen::Pop("%rsi");
+    //rdi arr
+    AsmGen::Pop("%rdi");
+    call("arr_updateone");
 }
+
 void Internal::arr_get() {
     //rsi index
     AsmGen::Pop("%rsi");

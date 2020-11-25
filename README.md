@@ -29,18 +29,20 @@ llvm-6.0
 - [x] int
 - [ ] double
 - [x] string
+- [x] bool
 - [ ] map
-- [ ] array
+- [x] array
 ```
 package main
 import fmt
 
 func main(){
     a = "this is a string"
-    fmt.sprintf("str:%s\n",a)
-    b = 1000
-    fmt.sprintf("str:%s\n",a)
-    c = 77323.088
+    fmt.println(a)
+    a = 1000
+    fmt.println(a)
+    a = ["1",2,"33",4,"some string word"]
+    fmt.print(a[0],a[1],a[2],a[3],a[4])
 }
 ```
 ## 关键字

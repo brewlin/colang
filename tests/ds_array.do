@@ -25,7 +25,27 @@ func test_array_index()
     fmt.println(a[0],a[1],a[2],a[3])
 
 }
+func test_array_update()
+{
+    a = [1,2,3,5,6]
+    if(a[0] != 1){
+        fmt.println("a[0] != 1 failed")
+        os.exit(1)
+    }
+    a[0] = "sdfds"
+    if(a[0] != "sdfds"){
+        fmt.println("a[0] != sdfds failed")
+        os.exit(1)
+    }
+    a[1] = 1000
+    if(a[1] != 1000){
+        fmt.println("a[1] != 1000 failed")
+        os.exit(1)
+    }
+    fmt.print("array_update success",a[0],a[1],a[2],a[3],a[4])
+}
 
 func main(){
     test_array_index()
+    test_array_update()
 }
