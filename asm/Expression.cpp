@@ -324,7 +324,17 @@ void  AssignExpr::asmgen(Runtime* rt,std::deque<Context*> ctx){
         AsmGen::Push();
 
         //push index 计算索引
-        dynamic_cast<IndexExpr*>(lhs)->index->asmgen(rt,ctx);
+        IndexExpr* index= dynamic_cast<IndexExpr*>(lhs);
+        if(!index->index) {
+            rhs->asmgen(rt,ctx);
+            AsmGen::Push();
+
+            Internal::arr_pushone();
+            AsmGen::Pop("%rdi");
+           return;
+        }
+
+        index->index->asmgen(rt,ctx);
         AsmGen::Push();
 
         rhs->asmgen(rt,ctx);

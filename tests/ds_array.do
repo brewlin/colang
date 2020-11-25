@@ -22,7 +22,7 @@ func test_array_index()
         fmt.println("a[3] == this is 4 failed")
         os.exit(1)
     }
-    fmt.println(a[0],a[1],a[2],a[3])
+    fmt.println("array_get success",a[0],a[1],a[2],a[3])
 
 }
 func test_array_update()
@@ -45,7 +45,28 @@ func test_array_update()
     fmt.print("array_update success",a[0],a[1],a[2],a[3],a[4])
 }
 
+func test_array_add(){
+    a   = []
+    a[] = 1
+    if(a[0] != 1){
+        fmt.println("a[0] != 0 failed")
+        os.exit(1)
+    }
+    a[] = "sdfs"
+    if(a[1] != "sdfs"){
+        fmt.println("a[1] != sdfs failed")
+        os.exit(1)
+    }
+    a[] = "---"
+    if(a[2] != "---"){
+        fmt.println("a[2] != --- failed")
+        os.exit(1)
+    }
+    fmt.print("array_add success",a[0],a[1],a[2])
+}
+
 func main(){
     test_array_index()
     test_array_update()
+    test_array_add()
 }

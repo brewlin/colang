@@ -178,9 +178,8 @@ Expression* Parser::parsePrimaryExpr()
                 currentToken = next();
                 auto* val = new IndexExpr(line,column);
                 val->identname = ident;
-                //解析索引
+                //解析索引 没有索引则走新增操作
                 val->index = parseExpression();
-                assert(val->index != nullptr);
                 assert(getCurrentToken() == TK_RBRACKET);
                 //去掉]
                 currentToken = next();
