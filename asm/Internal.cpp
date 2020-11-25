@@ -68,7 +68,7 @@ void Internal::arr_get() {
     //rsi index
     AsmGen::Pop("%rsi");
     //rdi arr
-    AsmGen::writeln("  mov (%rsp),%rdi");
+    AsmGen::Pop("%rdi");
     call("arr_get");
 }
 

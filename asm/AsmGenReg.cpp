@@ -147,7 +147,9 @@ AsmGen::Push_arg(
 //        if(need_delref->is_delref)
         Internal::get_object_value();
 
-        writeln("  sub $6,%%rax");
+        //减去寄存器的参数
+        writeln("  sub $5,%%rax");
+
         writeln("  mov %%rax,%d(%%rbp)",currentFunc->size);
 
         writeln("  mov $%d,%%rax",stack_offset);

@@ -9,10 +9,3 @@ func sprintf(args...){
 func println(size,args...){
    _.println(args)
 }
-#func println(size,args...){
-#    str
-#    for(i = 0; i < size; i ++){
-#        str += arg[0]
-#    }
-#    _.printf(str)
-#}

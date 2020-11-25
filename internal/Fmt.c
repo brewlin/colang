@@ -19,16 +19,16 @@ int println(Value *count,...){
             case Int:
             case Double:
             case Bool:
-                printf("%ld\t",(long)var->data);
+                printf("%ld",(long)var->data);
                 break;
             case String:
-                printf("%s\t",var->data);
+                printf("%s",var->data);
                 break;
             default:
-                printf("undefine\t");
+                printf("undefine");
         }
+        printf("\n");
     }
-    printf("\n");
 
     va_end (ap);
     return total;
