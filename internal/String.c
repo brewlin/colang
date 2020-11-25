@@ -44,21 +44,20 @@ static inline char stringReqType(size_t string_size) {
 
 char* value_string_plus(Value* lhs,Value* rhs)
 {
-    //先判断哪个需要被连接
-    Value* dstv = lhs->type == String ? rhs : lhs;
-    Value* srcv = lhs->type == String ? lhs : rhs;
-
-    // 在字符串运算中都是从新生成一份内存来进行存储结果
-    string tmstr = stringdup(srcv->data);
-    switch(dstv->type){
+    string tmstr;
+    switch(lhs->type){
         case Int:
         case Bool:
         case Double:
-            tmstr = stringcatfmt(tmstr,"%I",(long)dstv->data);
+            tmstr = stringempty();
+            tmstr = stringcatfmt(tmstr,"%I%S",(long)lhs->data,rhs->data);
             return tmstr;
         case String:
-            tmstr = stringcat(tmstr,dstv->data);
-            return tmstr;
+            tmstr = stringdup(lhs->data);
+            if(rhs->type == Int)
+                return stringcatfmt(tmstr,"%I",(long)rhs->data);
+
+            return stringcat(tmstr,rhs->data);
     }
     return tmstr;
 }
