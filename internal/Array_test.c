@@ -10,7 +10,7 @@ void test_array()
 {
     //create check
     array_t* arr = array_create(8, sizeof(Value*));
-    assert_s("array_create() 8 size",arr != NULL && arr->elts != NULL && arr->nalloc == 8)
+    assert_s("array_create() 8 size",arr != NULL && arr->addr != NULL && arr->total == 8)
 
     Value** v1;
     Value** tmp;
@@ -20,24 +20,24 @@ void test_array()
         v1 = newobject(Int,j);
         tmp = array_push(arr);
         assert_s("array_push(int)",tmp != NULL);
-        assert_s("array_push(int) size -= 1",arr->nelts == j+1);
+        assert_s("array_push(int) size -= 1",arr->used == j+1);
         *tmp = v1;
     }
     // value check
-    Value** var = arr->elts;
+    Value** var = arr->addr;
     for (int k = 0; k < 8; ++k) {
         assert_s("array check ", (long)var[k]->data == k)
     }
 
     tmp = array_push(arr);
-    assert_s("array_push() auto expand",arr->nalloc == 16);
+    assert_s("array_push() auto expand",arr->total == 16);
 
     arr = array_create(2, sizeof(Value*));
-    assert_s("array_create() 2 size",arr->nalloc == 2);
+    assert_s("array_create() 2 size",arr->total == 2);
     v1 = newobject(String,"test");
     tmp = array_push(arr);
     *tmp = v1;
-    var = arr->elts;
+    var = arr->addr;
     assert_s("array_push() string == test",memcmp(var[0]->data,"test",4) == 0)
 
 }

@@ -53,6 +53,26 @@ void Internal::get_object_value()
     call("get_object_value");
     AsmGen::writeln("  pop %%rdi");
 }
+
+void Internal::arr_pushone() {
+    //rsi var
+    AsmGen::Pop("%rsi");
+    //rdi arr
+    AsmGen::writeln("  mov (%rsp),%rdi");
+    call("arr_pushone");
+}
+void Internal::arr_update() {
+
+}
+void Internal::arr_get() {
+    //rsi index
+    AsmGen::Pop("%rsi");
+    //rdi arr
+    AsmGen::writeln("  mov (%rsp),%rdi");
+    call("arr_get");
+}
+
+
 void Internal::call(std::string funcname)
 {
     AsmGen::writeln("  mov %s@GOTPCREL(%%rip), %%rax", funcname.c_str());

@@ -17,5 +17,11 @@ public:
     static void isTrue();
     static void get_object_value();
     static void call(std::string funcname);
+
+    //array
+    static void arr_pushone();
+    static void arr_update();
+    static void arr_get();
+
 };
 #endif //LANG_INTERNAL_H

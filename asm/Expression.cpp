@@ -79,11 +79,19 @@ void  StringExpr::asmgen(Runtime* rt,
  * @return
  */
 void  ArrayExpr::asmgen(Runtime* rt,std::deque<Context*> ctx){
-//    std::vector<Value> elements;
-//    //数组内的元素可能类型不同 如 [1,"2","3"] 所以需要遍历生成Value 存入vector中
-//    for(auto& e: this->literal)
-//        //遍历调用 asmgen 生成 Value
-//        elements.push_back(e->asmgen(rt,ctx));
+    //new array & push array
+    Internal::newobject(Array, NULL);
+    AsmGen::Push();
+
+    for(auto& element: this->literal){
+        //new element & push element
+        element->asmgen(rt,ctx);
+        AsmGen::Push();
+        Internal::arr_pushone();
+    }
+
+    //pop array
+    AsmGen::Pop("%rax");
 
 }
 /**
@@ -105,11 +113,12 @@ void  IdentExpr::asmgen(Runtime* rt,std::deque<Context*> ctx){
 
             Function* f = AsmGen::currentFunc;
             //查看变量是属于哪种变量
-            if(f->locals.count(identname)){
-                AsmGen::GenAddr(f->locals[identname],is_delref);
-            }else{
-                AsmGen::GenAddr(f->params_var[identname],is_delref);
-            }
+            if(f->locals.count(identname))
+                var = f->locals[identname];
+            else
+                var = f->params_var[identname];
+
+            AsmGen::GenAddr(var,is_delref);
             //如果是解引用就需要在 读取变量了，否则这个变量是直接传递给下游
             if(!is_delref)
                 AsmGen::Load();
@@ -126,8 +135,34 @@ void  IdentExpr::asmgen(Runtime* rt,std::deque<Context*> ctx){
  * @return
  */
 void  IndexExpr::asmgen(Runtime* rt,std::deque<Context*> ctx) {
+    //变量遍历表 看是否存在
+    for (auto p = ctx.crbegin(); p != ctx.crend(); ++p) {
+        auto *context = *p;
+
+        if (auto *var = context->getVar(this->identname);var != nullptr) {
+            Function* f = AsmGen::currentFunc;
+            //查看变量是属于哪种变量
+            if(f->locals.count(identname))
+                var = f->locals[identname];
+            else
+                var = f->params_var[identname];
+
+            //push arr 获取数组偏移量
+            AsmGen::GenAddr(var);
+            AsmGen::Load();
+            AsmGen::Push();
+
+            //push index 计算索引
+            this->index->asmgen(rt,ctx);
+            AsmGen::Push();
+
+            //call arr_get(arr,index)
+            Internal::arr_get();
+            return;
+        }
+    }
     //没找到 数组变量 抛出异常 exit退出
-    parse_err("AsmError:use of undefined variable %s aat line %d col %d\n",identname.c_str(),line,column);
+    parse_err("AsmError: index-expr use of undefined variable %s at line %d col %d\n",identname.c_str(),line,column);
 }
 
 /**

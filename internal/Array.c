@@ -1,18 +1,74 @@
 #include "Array.h"
+#include "Value.h"
+#include "String.h"
+#include "gcmalloc.h"
+
+Value* arr_get(Value* varr,Value* index){
+    if(!varr || !varr->data || !index){
+        printf("[arr_get] arr or index is null ,probably something wrong\n");
+        return;
+    }
+    array_t *arr = (array_t*)varr->data;
+    //计算索引
+    int i = 0;
+    switch(index->type){
+        case Int:
+        case Double:
+            i = (int)index->data;
+            break;
+        case String:
+            i = stringlen(index->data);
+    }
+    if(i >= arr->used){
+        printf("[arr_get] index is over the max size,return null now!\n");
+        return newobject(Null,NULL);
+    }
+
+    Value** var = arr->addr;
+    return var[i];
+}
+void arr_pushone(Value* varr,Value* var){
+    if(!varr || !varr->data ||  !var){
+        printf("[arr_pushone] arr or var is null ,probably something wrong\n");
+        return;
+    }
+    array_t* arr = (array_t*)varr->data;
+    Value** insert = array_push(arr);
+    *insert = var;
+}
+void arr_updateone(Value* varr,Value* index,Value* var){
+    if(!varr || !varr->data || !index || !var){
+        printf("[arr_updateone] arr or var or index is null ,probably something wrong\n");
+        return;
+    }
+    array_t *arr = (array_t*)varr->data;
+    //计算索引
+    int i = 0;
+    switch(index->type){
+        case Int:
+        case Double:
+            i = (int)index->data;
+            break;
+        case String:
+            i = stringlen(index->data);
+    }
+    //TODO:如果索引超出了 当前array的范围则需要扩充
+    if(i >= arr->used){
+        printf("[arr_updateone] index is over the max size\n");
+        return;
+    }
+    Value** array = arr->addr;
+    array[i]      = var;
+}
 
 int_t array_init(array_t *array, uint_t n, size_t size)
 {
-    /*
-     * set "array->nelts" before "array->elts", otherwise MSVC thinks
-     * that "array->nelts" may be used without having been initialized
-     */
-
-    array->nelts = 0;
+    array->used = 0;
     array->size = size;
-    array->nalloc = n;
+    array->total = n;
 
-    array->elts = gc_malloc(n * size);
-    if (array->elts == NULL) {
+    array->addr = gc_malloc(n * size);
+    if (array->addr == NULL) {
         return ERROR;
     }
 
@@ -49,10 +105,10 @@ void *array_push(array_t *a)
     void        *elt, *new;
     size_t       size;
 
-    if (a->nelts == a->nalloc) {
+    if (a->used == a->total) {
 
         // 数组满了
-        size = a->size * a->nalloc;
+        size = a->size * a->total;
         //直接扩充2倍大小
         new = gc_malloc(2 * size);
         if (new == NULL) {
@@ -60,15 +116,15 @@ void *array_push(array_t *a)
             return NULL;
         }
 
-        memcpy(new, a->elts, size);
+        memcpy(new, a->addr, size);
         //手动释放之前决定不会用到的数组 降低gc压力
-        gc_free(a->elts);
-        a->elts = new;
-        a->nalloc *= 2;
+        gc_free(a->addr);
+        a->addr = new;
+        a->total *= 2;
     }
 
-    elt = (u_char *) a->elts + a->size * a->nelts;
-    a->nelts++;
+    elt = (u_char *) a->addr + a->size * a->used;
+    a->used++;
     return elt;
 }
 
@@ -78,28 +134,28 @@ array_push_n(array_t *a, uint_t n)
 {
     void        *elt, *new;
     size_t       size;
-    uint_t   nalloc;
+    uint_t   total;
 
     size = n * a->size;
 
-    if (a->nelts + n > a->nalloc) {
+    if (a->used + n > a->total) {
         //数组满了
 
-        nalloc = 2 * ((n >= a->nalloc) ? n : a->nalloc);
+        total = 2 * ((n >= a->total) ? n : a->total);
 
-        new = gc_malloc(nalloc * a->size);
+        new = gc_malloc(total * a->size);
         if (new == NULL) {
             printf("[arr_pushn] failed to expand memeory");
             return NULL;
         }
-        memcpy(new, a->elts, a->nelts * a->size);
+        memcpy(new, a->addr, a->used * a->size);
         //手动释放拷贝前的数组降低gc压力
-        gc_free(a->elts);
-        a->elts = new;
-        a->nalloc = nalloc;
+        gc_free(a->addr);
+        a->addr = new;
+        a->total = total;
     }
-    elt = (u_char *) a->elts + a->size * a->nelts;
-    a->nelts += n;
+    elt = (u_char *) a->addr + a->size * a->used;
+    a->used += n;
 
     return elt;
 }

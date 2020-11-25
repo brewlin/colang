@@ -104,7 +104,7 @@ struct IndexExpr : public Expression {
     explicit IndexExpr(int line, int column) : Expression(line, column) {}
 
     std::string identname;
-    Expression* index;
+    Expression* index{};
 
     void         asmgen(Runtime* rt, std::deque<Context*> ctx) override;
     std::string  toString() override;

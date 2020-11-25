@@ -1,6 +1,6 @@
 #include "Value.h"
 #include "String.h"
-
+#include "Array.h"
 
 
 //enum ValueType { Int,Double,String,Bool,Char,Null,Array};
@@ -33,12 +33,18 @@ Value* newobject(int type,long data)
             ret->data = 0;
             break;
         case Array:
+            ret->type = Array;
+            ret->data = array_create(ARRAY_SIZE, sizeof(Value*));
             return ret;
         default:
             ret->type = Null;
     }
     return ret;
 }
+/**
+ * @param obj
+ * @return
+ */
 long get_object_value(Value* obj){
     if(!obj) return NULL;
 
@@ -48,6 +54,7 @@ long get_object_value(Value* obj){
         case Bool:
         case Char:
         case String:
+        case Array:
             return obj->data;
     }
     return NULL;
