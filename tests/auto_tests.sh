@@ -8,21 +8,28 @@ failed(){
     echo -e "\033[31m$str \033[0m"
     exit 1
 }
+check(){
+    if [  "$?" != 0 ]; then
+#        actual=`./a.out`
+#        if [  "$?" != 0 ]; then
+        failed "exec failed"
+#        fi
+#        rm ./a.out
+    fi
+
+}
 assert(){
     expected="$1"
     input="$2"
     log "[compile] ./do -s $input ..."
     ./do -s $input
+    check
     gcc -g tmp.s -L./internal -linternal
+    check
     ./a.out
-    if [  "$?" != 0 ]; then
-#        actual=`./a.out`
-#        if [  "$?" != 0 ]; then
-        rm ./a.out
-        failed "exec failed"
-#        fi
-#        rm ./a.out
-    fi
+    check
+    rm ./a.out
+
     return
 #    failed "[compile] $input failed"
 }

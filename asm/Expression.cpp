@@ -211,7 +211,7 @@ void  FunCallExpr::asmgen(Runtime* rt,std::deque<Context*> ctx)
         if(func->params.size() != this->args.size())
             Debug("ArgumentError: expects %d arguments but got %d\n",(int)func->params.size(),(int)this->args.size());
 
-        int stack_args = AsmGen::Push_arg(rt,ctx,args,func->is_variadic);
+        int stack_args = AsmGen::Push_arg(rt,ctx,args,func->is_variadic,funcname);
 
         //如果没有可变参数传参  默认执行 通用寄存器赋值即可
         if(!cfunc || !cfunc->is_variadic || !have_variadic)

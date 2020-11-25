@@ -58,7 +58,7 @@ public:
     static void Push();
     static void PushS(const char* arg);
     static void Pop(const char* arg);
-    static int  Push_arg(Runtime *rt,std::deque<Context *> prevCtxChain,std::vector<Expression *> &args,bool is_variadic = false);
+    static int  Push_arg(Runtime *rt,std::deque<Context *> prevCtxChain,std::vector<Expression *> &args,bool is_variadic = false,std::string funcname = "");
     static void Pop_arg(std::vector<Expression *> &args);
 
     //current function
