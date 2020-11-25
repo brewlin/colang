@@ -6,9 +6,11 @@
 #define LANG_TYPE_H
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 
 //extern gc_malloc
 #define gc_malloc malloc
+#define gc_free   free
 
 #define Null   0
 #define Int    1
@@ -23,6 +25,8 @@
 
 #define TRUE   1
 #define FALSE  0
+#define OK     0
+#define ERROR  -1
 
 //TYPE TOKEN
 enum Token {
