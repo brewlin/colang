@@ -38,9 +38,9 @@ struct rbtree_s {
 
 #define   hash(key, c)   ((u_int) key * 31 + c)
 u_int     hash_key(u_char *data, size_t len);
-rbtree_t* map_create();
-void      map_insert(rbtree_t *tree, Value* value);
-Value*    map_find(rbtree_t *rbtree, Value* key);
+Value*    map_create();
+void      map_insert(Value* map, Value* value);
+Value*    map_find(Value* map, Value* key);
 
 
 void rbtree_insert(rbtree_t *tree, rbtree_node_t *node);

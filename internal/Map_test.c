@@ -9,7 +9,7 @@
 
 void test_map()
 {
-    rbtree_t      *tree     = map_create();
+    Value *tree     = map_create();
     assert_s("map_init() test",tree != NULL);
 
     Value* vars[10];

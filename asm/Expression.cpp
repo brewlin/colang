@@ -101,6 +101,19 @@ void  ArrayExpr::asmgen(Runtime* rt,std::deque<Context*> ctx){
  */
 void  MapExpr::asmgen(Runtime* rt,std::deque<Context*> ctx){
     Debug("MapExpr: parsing... package:%s func:%s",package.c_str(),funcname.c_str());
+
+    //new array & push array
+    Internal::newobject(Map, 0);
+    AsmGen::Push();
+
+    for(auto& element: this->literal){
+        //new element & push element
+        element->asmgen(rt,ctx);
+        Internal::arr_pushone();
+    }
+
+    //pop array
+    AsmGen::Pop("%rax");
 }
 /**
  * asm gen key value
@@ -109,6 +122,13 @@ void  MapExpr::asmgen(Runtime* rt,std::deque<Context*> ctx){
  */
 void  KVExpr::asmgen(Runtime* rt,std::deque<Context*> ctx){
     Debug("KVExpr: parsing... package:%s func:%s",package.c_str(),funcname.c_str());
+
+    //push key
+    this->key->asmgen(rt,ctx);
+    AsmGen::Push();
+    //push value
+    this->value->asmgen(rt,ctx);
+    AsmGen::Push();
 }
 
 /**

@@ -15,14 +15,19 @@ u_int hash_key(u_char *data, size_t len){
     return key;
 }
 
-rbtree_t* map_create(){
+Value* map_create(){
     rbtree_t      *tree     = gc_malloc(sizeof(rbtree_t));
     rbtree_node_t *sentinel = gc_malloc(sizeof(rbtree_node_t));
     rbtree_init(tree,sentinel,rbtree_insert_value);
-    return tree;
+    Value         *map      = gc_malloc(sizeof(Value));
+    map->type               = Map;
+    map->data               = tree;
+    return map;
 }
-void map_insert(rbtree_t *tree, Value* value)
+void map_insert(Value *map, Value* value)
 {
+
+    rbtree_t* tree = (rbtree_t*)map->data;
     rbtree_node_t* node = gc_malloc(sizeof(rbtree_node_t));
     rbtree_key_int_t hk = 0;
     switch(value->type){
@@ -37,7 +42,8 @@ void map_insert(rbtree_t *tree, Value* value)
     node->value      = value;
     rbtree_insert(tree,node);
 }
-Value* map_find(rbtree_t *rbtree, Value* key){
+Value* map_find(Value* map, Value* key){
+    rbtree_t *rbtree = (rbtree_t*)map->data;
     rbtree_node_t  *node, *sentinel;
 
     u_int hk = 0;

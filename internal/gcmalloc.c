@@ -1,7 +1,7 @@
 #include "Value.h"
 #include "String.h"
 #include "Array.h"
-
+#include "Map.h"
 
 //enum ValueType { Int,Double,String,Bool,Char,Null,Array};
 Value* newobject(int type,void* data)
@@ -36,6 +36,9 @@ Value* newobject(int type,void* data)
             ret->type = Array;
             ret->data = array_create(ARRAY_SIZE, sizeof(Value*));
             return ret;
+        case Map:
+            ret->type = Map;
+            ret->data = map_create();
         default:
             ret->type = Null;
     }

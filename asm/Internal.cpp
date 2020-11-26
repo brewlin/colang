@@ -61,6 +61,15 @@ void Internal::arr_pushone() {
     AsmGen::writeln("  mov (%rsp),%rdi");
     call("arr_pushone");
 }
+void Internal::map_pushone() {
+    //rdx value
+    AsmGen::Pop("%rdx");
+    //rsi key
+    AsmGen::Pop("%rsi");
+    //rdi map
+    AsmGen::writeln("  mov (%rsp),%rdi");
+    call("map_pushone");
+}
 void Internal::arr_update() {
     //rdx var
     AsmGen::Pop("%rdx");

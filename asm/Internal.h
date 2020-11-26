@@ -23,5 +23,8 @@ public:
     static void arr_update();
     static void arr_get();
 
+    //map
+    static void map_pushone();
+
 };
 #endif //LANG_INTERNAL_H
