@@ -80,7 +80,7 @@ void  StringExpr::asmgen(Runtime* rt,
  */
 void  ArrayExpr::asmgen(Runtime* rt,std::deque<Context*> ctx){
     //new array & push array
-    Internal::newobject(Array, NULL);
+    Internal::newobject(Array, 0);
     AsmGen::Push();
 
     for(auto& element: this->literal){

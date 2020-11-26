@@ -111,6 +111,24 @@ std::string ArrayExpr::toString() {
     str += "])";
     return str;
 }
+std::string MapExpr::toString() {
+    std::string str = "MapExpr(elements={";
+    if (literal.size() != 0) {
+        for (auto& e : literal) {
+            str += e->toString();
+        }
+    }
+    str += "})";
+    return str;
+}
+std::string KVExpr::toString() {
+    std::string str = "{";
+    if (key)   str += key->toString();
+    str += ":";
+    if (value) str += value->toString();
+    str += "}";
+    return str;
+}
 
 std::string IdentExpr::toString() { return "IdentExpr(" + identname + ")"; }
 

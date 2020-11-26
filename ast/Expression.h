@@ -78,6 +78,22 @@ struct ArrayExpr : public Expression {
     void         asmgen(Runtime* rt, std::deque<Context*> ctx) override;
     std::string  toString() override;
 };
+struct MapExpr : public Expression {
+    explicit     MapExpr(int line, int column) : Expression(line, column) {}
+    std::vector<Expression*> literal;
+
+    void         asmgen(Runtime* rt, std::deque<Context*> ctx) override;
+    std::string  toString() override;
+};
+struct KVExpr : public Expression {
+    explicit KVExpr(int line, int column) : Expression(line, column) {}
+
+    Expression*  key{};
+    Expression*  value{};
+
+    void         asmgen(Runtime* rt, std::deque<Context*> ctx) override;
+    std::string  toString() override;
+};
 
 struct IdentExpr : public Expression {
     explicit IdentExpr(std::string identname, int line, int column)
