@@ -9,13 +9,12 @@
 class Context;
 class Runtime;
 
-struct  Expression : public AstNode {
-    //继承AstNode 构造函数
-    using AstNode::AstNode;
+struct  Expression : public Ast {
+    using Ast::Ast;
     virtual              ~Expression() = default;
 
-    virtual void         asmgen(Runtime* rt,std::deque<Context*> ctx) = 0;
-    virtual string       toString() = 0;
+    virtual void                asmgen(Runtime* rt,std::deque<Context*> ctx) = 0;
+    virtual std::string       toString() = 0;
 };
 
 struct BoolExpr : public Expression{

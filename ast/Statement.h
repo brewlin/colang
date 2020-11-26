@@ -10,8 +10,8 @@
 class Context;
 class Runtime;
 
-struct Statement : public AstNode {
-    using AstNode::AstNode;
+struct Statement : public Ast {
+    using Ast::Ast;
 
     virtual ~Statement() = default;
 

@@ -9,19 +9,14 @@
 #include <string>
 
 
-using std::string;
-struct Expression;
-struct Statement;
-
-struct AstNode{
-
-    explicit AstNode(int line,int column)
-    :line(line),column(column){}
-    virtual ~AstNode() = default;
+struct Ast{
+    explicit Ast(int line,int column):line(line),column(column){}
+    virtual ~Ast() = default;
     virtual std::string toString()
     {
         return "AstNode()";
     }
+
     int line   = -1;
     int column = -1;
 };

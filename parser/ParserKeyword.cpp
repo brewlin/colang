@@ -188,8 +188,8 @@ void Parser::parseImportDef()
     for(auto& p: filesys::directory_iterator(abpath)){
         std::error_code ec;
         if (filesys::is_regular_file(p.path(), ec)){
-            string filepath = p.path();
-            string ext = filepath.substr(filepath.size()-3,filepath.size() - 1);
+            std::string filepath = p.path();
+            std::string ext = filepath.substr(filepath.size()-3,filepath.size() - 1);
             if(ext != ".do") continue;
 
             //不需要释放，在汇编生成的时候需要用到
