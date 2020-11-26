@@ -23,7 +23,7 @@ void Parser::parsePackageDef()
                   line,column);
 
     //解析包名
-    currentToken = next();
+    currentToken = scan();
     assert(getCurrentToken() == TK_IDENT);
     std::string pkgname = getCurrentLexeme();
     if(pkgname != this->package){
@@ -32,8 +32,8 @@ void Parser::parsePackageDef()
                   getCurrentLexeme().c_str(),
                   line,column);
     }
-    //eat next
-    currentToken = next();
+    //eat scan
+    currentToken = scan();
 }
 
 /**
@@ -44,24 +44,24 @@ void Parser::parseStructDef()
     Debug("found struct.start parser..");
     assert(getCurrentToken() == KW_STRUCT);
     //解析结构体名
-    currentToken = next();
+    currentToken = scan();
     //must TK_IDENT
     assert(getCurrentToken() == TK_IDENT);
     Struct *s = new Struct();
     s->name  = getCurrentLexeme();
-    currentToken = next();
+    currentToken = scan();
 
     //must {
     assert(getCurrentToken() == TK_LBRACE);
 
-    currentToken = next();
+    currentToken = scan();
     //end for }
     while(getCurrentToken() != TK_RBRACE){
         //定义成员变量
         if(getCurrentToken() == TK_IDENT){
 //            s->members.push_back(new IdentDeclaration(getCurrentLexeme(),line,column));
             s->members.push_back(getCurrentLexeme());
-            currentToken = next();
+            currentToken = scan();
 
         // 定义成员函数函数
         }else if(getCurrentToken() == KW_FUNC){
@@ -81,7 +81,7 @@ void Parser::parseStructDef()
     }
     rt->addStruct(s->name,s);
     //eat }
-    currentToken = next();
+    currentToken = scan();
 }
 /**
  * 解析函数表达式
@@ -94,7 +94,7 @@ Function* Parser::parseFuncDef(Runtime* rt)
     //当前是否已经解析到 func 关键字
     assert(getCurrentToken() == KW_FUNC);
     //获取函数名
-    currentToken = next();
+    currentToken = scan();
     //检查是否重复定义
     if(rt->hasFunc(getCurrentLexeme()))
         parse_err("SyntaxError: already define function :%s\n",getCurrentLexeme().c_str());
@@ -107,7 +107,7 @@ Function* Parser::parseFuncDef(Runtime* rt)
 
     node->name = getCurrentLexeme();
     //指向 func name'(') 括号
-    currentToken = next();
+    currentToken = scan();
     assert(getCurrentToken() == TK_LPAREN);
     //解析函数参数
     node->params = parseParameterList();
@@ -133,15 +133,15 @@ Function* Parser::parseExternDef(Runtime* rt)
     node->parser   = this;
 
     //extern 一般是调用系统库 所以 需要固定返回类型
-    currentToken   = next();
+    currentToken   = scan();
     node->rettype  = getCurrentLexeme();
 
     //获取函数名
-    currentToken   = next();
+    currentToken   = scan();
     node->name     = getCurrentLexeme();
 
     //指向 func name'(') 括号
-    currentToken   = next();
+    currentToken   = scan();
     assert(getCurrentToken() == TK_LPAREN);
     //解析函数参数
     node->params   = parseParameterList();
@@ -159,8 +159,8 @@ void Parser::parseImportDef()
 {
     Debug("found import.start parser..");
     assert(getCurrentToken() == KW_IMPORT);
-    //next one
-    currentToken =  next();
+    //scan one
+    currentToken =  scan();
     //must tk_ident
     assert(getCurrentToken() == TK_IDENT);
 
@@ -200,7 +200,7 @@ void Parser::parseImportDef()
             parse_err("SyntaxError: package import failed :%s\n",ec.message().c_str());
     }
 
-    //get next
-    currentToken = next();
+    //get scan
+    currentToken = scan();
 
 }

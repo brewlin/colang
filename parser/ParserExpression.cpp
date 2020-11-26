@@ -39,7 +39,7 @@ Expression* Parser::parseExpression(short oldPrecedence)
         // 左值
         assignExpr->lhs = p;
         // 去掉赋值符号
-        currentToken = next();
+        currentToken = scan();
         // 解析右值
         assignExpr->rhs = parseExpression();
         return assignExpr;
@@ -60,7 +60,7 @@ Expression* Parser::parseExpression(short oldPrecedence)
         tmp->lhs = p;
         // 去掉运算符
         tmp->opt = getCurrentToken();
-        currentToken = next();
+        currentToken = scan();
         // 右侧是一个也是一个表达式，所以parseExpression
         tmp->rhs = parseExpression(currentPrecedence + 1);
         // 关键来了，这里把刚刚创建的tmp赋值给之前的p，从意义上说相当于把当前这整个表达式作为一元表达式
@@ -83,7 +83,7 @@ Expression* Parser::parseUnaryExpr()
         auto val = new BinaryExpr(line,column);
         val->opt = getCurrentToken();
         //解析下一个token
-        currentToken = next();
+        currentToken = scan();
         //继续递归解析token
         val->lhs = parseUnaryExpr();
         //右子树默认为空
@@ -109,7 +109,7 @@ Expression* Parser::parsePrimaryExpr()
         Debug("find token delref");
         //eat *
 
-        currentToken = next();
+        currentToken = scan();
         //接下来肯定是一个变量 否则就报错
         Expression *p = parsePrimaryExpr();
         if (typeid(*p) != typeid(IdentExpr))
@@ -123,7 +123,7 @@ Expression* Parser::parsePrimaryExpr()
     {
         auto ident = getCurrentLexeme();
         //去掉标识符
-        currentToken = next();
+        currentToken = scan();
         switch (getCurrentToken()){
 
             //fmt.println 说明是一种包名的函数调用
@@ -133,30 +133,30 @@ Expression* Parser::parsePrimaryExpr()
                 val->package    = ident;
 
                 //去掉.
-                currentToken = next();
+                currentToken = scan();
                 assert(getCurrentToken() == TK_IDENT);
                 val->funcname = getCurrentLexeme();
                 //读取 (
-                currentToken = next();
+                currentToken = scan();
                 assert(getCurrentToken() == TK_LPAREN);
                 //去掉（
-                currentToken = next();
+                currentToken = scan();
                 //读取下一个
                 //循环解析实参 func(1,2,3); while( c != ')');
                 while(getCurrentToken() != TK_RPAREN){
                     val->args.push_back(parseExpression());
                     //ignore ','
                     if(getCurrentToken() == TK_COMMA)
-                        currentToken = next();
+                        currentToken = scan();
                 }
                 //去掉 )
                 assert(getCurrentToken() == TK_RPAREN);
-                currentToken = next();
+                currentToken = scan();
                 return val;
             }
             //说明可能是函数调用 func()  ident = func
             case TK_LPAREN:{
-                currentToken = next();
+                currentToken = scan();
                 auto* val = new FunCallExpr(line,column);
                 val->funcname = ident;
 
@@ -165,24 +165,24 @@ Expression* Parser::parsePrimaryExpr()
                     val->args.push_back(parseExpression());
                     //ignore ','
                     if(getCurrentToken() == TK_COMMA)
-                        currentToken = next();
+                        currentToken = scan();
                 }
                 //去掉 )
                 assert(getCurrentToken() == TK_RPAREN);
-                currentToken = next();
+                currentToken = scan();
                 return val;
             }
                 //解析 var[i] 索引表达式
             case TK_LBRACKET:{
                 //去掉[
-                currentToken = next();
+                currentToken = scan();
                 auto* val = new IndexExpr(line,column);
                 val->identname = ident;
                 //解析索引 没有索引则走新增操作
                 val->index = parseExpression();
                 assert(getCurrentToken() == TK_RBRACKET);
                 //去掉]
-                currentToken = next();
+                currentToken = scan();
                 return val;
             }
             default:
@@ -193,13 +193,13 @@ Expression* Parser::parsePrimaryExpr()
         Debug("got token dot ");
         auto* val = new MemberExpr(line,column);
         val->varname = getCurrentLexeme();
-        //next
-        currentToken = next();
+        //scan
+        currentToken = scan();
         //must ident
         assert(getCurrentToken() == TK_IDENT);
         val->membername = getCurrentLexeme();
         //check ()
-        currentToken = next();
+        currentToken = scan();
 
         //可能是成员函数调用
         if(getCurrentToken() == TK_LPAREN){
@@ -207,18 +207,18 @@ Expression* Parser::parsePrimaryExpr()
             auto* mce = new MemberCallExpr(line,column);
             mce->varname    = val->varname;
             mce->membername = val->membername;
-            currentToken = next();
+            currentToken = scan();
 
             //循环解析实参 func(1,2,3); while( c != ')');
             while(getCurrentToken() != TK_RPAREN){
                 mce->args.push_back(parseExpression());
                 //ignore ','
                 if(getCurrentToken() == TK_COMMA)
-                    currentToken = next();
+                    currentToken = scan();
             }
             //去掉 )
             assert(getCurrentToken() == TK_RPAREN);
-            currentToken = next();
+            currentToken = scan();
             return mce;
         }
         return val;
@@ -227,7 +227,7 @@ Expression* Parser::parsePrimaryExpr()
     {
         //将 int 转换为 int
         auto val = atoi(getCurrentLexeme().c_str());
-        currentToken = next();
+        currentToken = scan();
         auto* ret = new IntExpr(line,column);
         ret->literal = val;
         return ret;
@@ -235,14 +235,14 @@ Expression* Parser::parsePrimaryExpr()
     {
         //将字面值 转换为double
         auto val     = atof(getCurrentLexeme().c_str());
-        currentToken = next();
+        currentToken = scan();
         auto* ret    = new DoubleExpr(line,column);
         ret->literal = val;
         return ret;
     }else if(getCurrentToken() == LIT_STR){
         //将字符串 ... 保存
         auto val     = getCurrentLexeme();
-        currentToken = next();
+        currentToken = scan();
         auto* ret    = new StringExpr(line,column);
         //将静态字符作为全局定义
         rt->strs.push_back(ret);
@@ -252,33 +252,33 @@ Expression* Parser::parsePrimaryExpr()
     {
         //保存char
         auto val     = getCurrentLexeme();
-        currentToken = next();
+        currentToken = scan();
         auto* ret    = new CharExpr(line,column);
         ret->literal = val[0];
         return ret;
     }else if(getCurrentToken() == KW_TRUE || getCurrentToken() == KW_FALSE)
     {
         auto val     = (KW_TRUE == getCurrentToken());
-        currentToken = next();
+        currentToken = scan();
         auto* ret    = new BoolExpr(line,column);
         ret->literal = val;
         return ret;
     }else if(getCurrentToken() == KW_NULL)
     {
-        currentToken = next();
+        currentToken = scan();
         return new NullExpr(line,column);
     }else if(getCurrentToken() == TK_LPAREN)
     {
-        currentToken = next();
+        currentToken = scan();
         //解析 {} block 块内的表达式
         auto val     = parseExpression();
         assert(getCurrentToken() == TK_RPAREN);
-        currentToken = next();
+        currentToken = scan();
         return val;
     }else if(getCurrentToken() == TK_LBRACKET)
     {
         //解析数组 array
-        currentToken = next();
+        currentToken = scan();
         auto* ret = new ArrayExpr(line,column);
         if(getCurrentToken() != TK_RBRACKET){
             while(getCurrentToken() != TK_RBRACKET) {
@@ -286,30 +286,31 @@ Expression* Parser::parsePrimaryExpr()
                 ret->literal.push_back(parseExpression());
                 //解析[1,2,3] 中的 ,
                 if(getCurrentToken() == TK_COMMA)
-                    currentToken = next();
+                    currentToken = scan();
             }
             assert(getCurrentToken() == TK_RBRACKET);
-            currentToken = next();
+            currentToken = scan();
             return ret;
         }
         //表示是一个空数组
-        currentToken = next();
+        currentToken = scan();
         return ret;
+    // 解析map = {}
     }else if(getCurrentToken() == KW_NEW)
     {
         //去掉 new
-        currentToken = next();
+        currentToken = scan();
         Debug("got new keywords:%s",getCurrentLexeme().c_str());
         //must ident
         assert(getCurrentToken() == TK_IDENT);
         auto* ret = new NewExpr(line,column);
         ret->type = getCurrentLexeme();
         //must TK_LPAREN TK_RPAREN
-        currentToken = next();
+        currentToken = scan();
         assert(getCurrentToken() == TK_LPAREN);
-        currentToken = next();
+        currentToken = scan();
         assert(getCurrentToken() == TK_RPAREN);
-        currentToken = next();
+        currentToken = scan();
         return ret;
     }
     return nullptr;

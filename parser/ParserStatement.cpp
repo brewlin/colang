@@ -14,23 +14,23 @@ Statement* Parser::parseStatement()
     Statement* node;
     switch (getCurrentToken()){
         case KW_IF:
-            currentToken = next();
+            currentToken = scan();
             node = parseIfStmt();
             break;
         case KW_WHILE:
-            currentToken = next();
+            currentToken = scan();
             node = parseWhileStmt();
             break;
         case KW_RETURN:
-            currentToken = next();
+            currentToken = scan();
             node = parseReturnStmt();
             break;
         case KW_BREAK:
-            currentToken = next();
+            currentToken = scan();
             node = new BreakStmt(line,column);
             break;
         case KW_CONTINUE:
-            currentToken = next();
+            currentToken = scan();
             node = new ContinueStmt(line,column);
             break;
         default:
@@ -48,18 +48,18 @@ IfStmt*   Parser::parseIfStmt()
 {
     auto* node = new IfStmt(line,column);
     //去掉左括号
-    currentToken = next();
+    currentToken = scan();
     //解析条件表达式
     node->cond = parseExpression();
     //去掉右括号
     assert(getCurrentToken() == TK_RPAREN);
-    currentToken = next();
+    currentToken = scan();
     //解析语句块
     node->block = parseBlock();
     //如果当前关键字是else， 则继续解析else语句块
     if(getCurrentToken() == KW_ELSE){
         //去掉else关键字
-        currentToken = next();
+        currentToken = scan();
         //解析else语句块
         node->elseBlock = parseBlock();
     }
@@ -73,12 +73,12 @@ IfStmt*   Parser::parseIfStmt()
 WhileStmt* Parser::parseWhileStmt() {
     auto* node = new WhileStmt(line, column);
     // 去掉左括号
-    currentToken = next();
+    currentToken = scan();
     // 解析条件表达式
     node->cond = parseExpression();
     // 去掉右括号
     assert(getCurrentToken() == TK_RPAREN);
-    currentToken = next();
+    currentToken = scan();
     // 解析语句块
     node->block = parseBlock();
     return node;

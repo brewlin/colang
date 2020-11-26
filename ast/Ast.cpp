@@ -55,6 +55,7 @@ std::string getTokenString(Token tk){
         case TK_LBRACKET:	return "[";
         case TK_RBRACKET:	return "]";
         case TK_DOT:	return ".";
+        case TK_COLON:	return ":";
         case KW_IF:	return "if";
         case KW_ELSE:	return "else";
         case KW_TRUE:	return "true";

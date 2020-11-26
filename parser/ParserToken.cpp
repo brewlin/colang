@@ -15,15 +15,15 @@ std::tuple<Token,std::string> Parser::parseNumber(char first)
 {
     std::string lexeme{first};
     bool isDouble = false;
-    char cn = peekNextChar();
+    char cn = peek();
     char c  = first;
     //每一次遍历先判断下一个数是不是数字，如果不是则中断当前解析，不然会浪费下一个字符
     //peek 则不会出现这种问题
     while((cn >= '0' && cn <= '9') || (!isDouble && cn == '.')){
         if(c == '.')
             isDouble = true;
-        c = getNextChar();
-        cn = peekNextChar();
+        c = next();
+        cn = peek();
         lexeme += c;
     }
     return !isDouble ? make_tuple(LIT_INT,lexeme)
@@ -34,11 +34,11 @@ std::tuple<Token,std::string> Parser::parseKeyword(char c)
     std::string lexeme{c};
     char cn;
 
-    cn = peekNextChar();
+    cn = peek();
     while((cn >= 'a' && cn <= 'z') || (cn >= 'A' && cn <= 'Z') || cn == '_' || (cn >= '0' && cn <= '9')){
-        c = getNextChar();
+        c = next();
         lexeme += c;
-        cn = peekNextChar();
+        cn = peek();
     }
     //返回标识符
     auto result = keywords.find(lexeme);
@@ -50,10 +50,10 @@ std::tuple<Token,std::string> Parser::parseKeyword(char c)
 //解引用非常危险 需要注意只能在和c函数调用中而存在
 std::tuple<Token,std::string> Parser::parseMulOrDelref(char c)
 {
-    char cn = peekNextChar();
+    char cn = peek();
     // a *= b
     if (cn == '=') {
-        c = getNextChar();
+        c = next();
         return std::make_tuple(TK_MUL_AGN, "*=");
     }
     //说明是个解引用操作
@@ -64,8 +64,8 @@ std::tuple<Token,std::string> Parser::parseMulOrDelref(char c)
     return std::make_tuple(TK_MUL, "*");
 }
 //逐字解析 直到找到合法的token
-std::tuple<Token,std::string> Parser::next() {
-    char c = getNextChar();
+std::tuple<Token,std::string> Parser::scan() {
+    char c = next();
     //make_*开头一般是创建一个 智能指针
     if(c == EOF)
         return std::make_tuple(TK_EOF,"");
@@ -78,7 +78,7 @@ std::tuple<Token,std::string> Parser::next() {
                 line++;
                 column = 0;
             }
-            c = getNextChar();
+            c = next();
         }
         //读取到了文件结尾了
         if(c == EOF)
@@ -89,12 +89,12 @@ std::tuple<Token,std::string> Parser::next() {
     if(c == '#'){
         comment:
         while(c != '\n' && c != EOF)
-            c = getNextChar();
+            c = next();
         //如果代码有空行则跳过行
         while(c == '\n'){
             line++;
             column = 0;
-            c = getNextChar();
+            c = next();
         }
         if(c == '#')
             goto comment;
@@ -112,31 +112,37 @@ std::tuple<Token,std::string> Parser::next() {
     if( (c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') || c == '_'){
         return parseKeyword(c);
     }
+    //解析 .
     if(c == '.'){
         std::string lexeme;
         lexeme += c;
         return std::make_tuple(TK_DOT,lexeme);
     }
+    if(c == ':'){
+        std::string lexeme;
+        lexeme += c;
+        return std::make_tuple(TK_COLON,lexeme);
+    }
     //字符解析 只支持单个字符:'c'
     if (c == '\'') {
         std::string lexeme;
-        lexeme += getNextChar();
-        if (peekNextChar() != '\'') {
+        lexeme += next();
+        if (peek() != '\'') {
             parse_err("SynxaxError: a character literal should surround with single-quote\n");
         }
-        c = getNextChar();
+        c = next();
         return std::make_tuple(LIT_CHAR, lexeme);
     }
     //字符串解析 str = " .... "
     if(c == '\"'){
         std::string lexeme;
-        char cn = peekNextChar();
+        char cn = peek();
         while(cn != '"'){
-            c = getNextChar();
+            c = next();
             lexeme += c;
-            cn = peekNextChar();
+            cn = peek();
         }
-        c = getNextChar();
+        c = next();
         return std::make_tuple(LIT_STR,lexeme);
     }
     //parser [] {} () ,
@@ -150,17 +156,17 @@ std::tuple<Token,std::string> Parser::next() {
 
     //parser + += - -= * *= / /+
     if(c == '+'){
-        char cn = peekNextChar();
+        char cn = peek();
         if(cn == '='){
-            c = getNextChar();
+            c = next();
             return std::make_tuple(TK_PLUS_AGN,"+=");
         }
         return std::make_tuple(TK_PLUS        ,"+");
     }
     if(c == '-'){
-        char cn = peekNextChar();
+        char cn = peek();
         if(cn == '='){
-            c = getNextChar();
+            c = next();
             return std::make_tuple(TK_MINUS_AGN,"-=");
         }else if(cn >= '0' && cn <= '9'){
             //负数
@@ -172,17 +178,17 @@ std::tuple<Token,std::string> Parser::next() {
         return parseMulOrDelref(c);
 
     if(c == '/') {
-        char cn = peekNextChar();
+        char cn = peek();
         if (cn == '=') {
-            c = getNextChar();
+            c = next();
             return std::make_tuple(TK_DIV_AGN, "/=");
         }
         return std::make_tuple(TK_DIV, "/");
     }
     if(c == '%') {
-        char cn = peekNextChar();
+        char cn = peek();
         if (cn == '=') {
-            c = getNextChar();
+            c = next();
             return std::make_tuple(TK_MOD_AGN, "%=");
         }
         return std::make_tuple(TK_MOD, "%");
@@ -190,53 +196,53 @@ std::tuple<Token,std::string> Parser::next() {
     //parse ~ = == ! | &  > <
     if (c == '~') return std::make_tuple(TK_BITNOT,"~");
     if (c == '=') {
-        if (peekNextChar() == '=') {
-            c = getNextChar();
+        if (peek() == '=') {
+            c = next();
             return std::make_tuple(TK_EQ, "==");
         }
         return std::make_tuple(TK_ASSIGN, "=");
     }
     if (c == '!') {
-        if (peekNextChar() == '=') {
-            c = getNextChar();
+        if (peek() == '=') {
+            c = next();
             return std::make_tuple(TK_NE, "!=");
         }
         return std::make_tuple(TK_LOGNOT, "!");
     }
     if (c == '|') {
-        if (peekNextChar() == '|') {
-            c = getNextChar();
+        if (peek() == '|') {
+            c = next();
             return std::make_tuple(TK_LOGOR, "||");
         }
-        if (peekNextChar() == '=') {
-            c = getNextChar();
+        if (peek() == '=') {
+            c = next();
             return std::make_tuple(TK_BITOR_AGN, "|=");
         }
         return std::make_tuple(TK_BITOR, "|");
     }
     if (c == '&') {
-        if (peekNextChar() == '&') {
-            c = getNextChar();
+        if (peek() == '&') {
+            c = next();
             return std::make_tuple(TK_LOGAND, "&&");
         }
-        if (peekNextChar() == '=') {
-            c = getNextChar();
+        if (peek() == '=') {
+            c = next();
             return std::make_tuple(TK_BITAND_AGN, "&=");
         }
         return std::make_tuple(TK_BITAND, "&");
     }
     if (c == '>') {
         //>=
-        if (peekNextChar() == '=') {
-            c = getNextChar();
+        if (peek() == '=') {
+            c = next();
             return std::make_tuple(TK_GE, ">=");
         }
         //>>
-        if (peekNextChar() == '>') {
-            c = getNextChar();
+        if (peek() == '>') {
+            c = next();
             //>>=
-            if (peekNextChar() == '=') {
-                c = getNextChar();
+            if (peek() == '=') {
+                c = next();
                 return std::make_tuple(TK_SHIFTR_AGN, ">>=");
             }
             return std::make_tuple(TK_SHIFTR, ">>");
@@ -245,15 +251,15 @@ std::tuple<Token,std::string> Parser::next() {
         return std::make_tuple(TK_GT, ">");
     }
     if (c == '<') {
-        if (peekNextChar() == '=') {
-            c = getNextChar();
+        if (peek() == '=') {
+            c = next();
             return std::make_tuple(TK_LE, "<=");
         }
-        if (peekNextChar() == '<') {
-            c = getNextChar();
+        if (peek() == '<') {
+            c = next();
             //<<=
-            if (peekNextChar() == '=') {
-                c = getNextChar();
+            if (peek() == '=') {
+                c = next();
                 return std::make_tuple(TK_SHIFTL_AGN, "<<=");
             }
             return std::make_tuple(TK_SHIFTL, "<<");
@@ -322,11 +328,11 @@ std::vector<Statement*> Parser::parseStatementList()
 Block* Parser::parseBlock()
 {
     Block* node{new Block};
-    currentToken = next();
+    currentToken = scan();
     node->stmts = parseStatementList();
     //判断是否 {} 闭合
     assert(getCurrentToken() == TK_RBRACE);
-    currentToken = next();
+    currentToken = scan();
     return node;
 }
 /**
@@ -336,10 +342,10 @@ Block* Parser::parseBlock()
 std::vector<std::string> Parser::parseParameterList()
 {
     std::vector<std::string> node;
-    currentToken = next();
+    currentToken = scan();
     //是否解析到 ')'
     if(getCurrentToken() == TK_RPAREN){
-        currentToken = next();
+        currentToken = scan();
         return std::move(node);
     }
 
@@ -354,7 +360,7 @@ std::vector<std::string> Parser::parseParameterList()
                 currentFunc->params_var[getCurrentLexeme()] = var;
                 currentFunc->params_order_var.push_back(var);
 
-                currentToken = next();
+                currentToken = scan();
                 //不是动态参数
                 if(getCurrentToken() == TK_COMMA) continue;
                 if(getCurrentToken() == TK_RPAREN) continue;
@@ -366,14 +372,14 @@ std::vector<std::string> Parser::parseParameterList()
                               line,column);
                 }
                 //去掉第二个点
-                currentToken = next();
+                currentToken = scan();
                 if(getCurrentToken() != TK_DOT){
                     parse_err("SynatxError: must be . but got :%s  line:%d column:%d\n",
                               getCurrentLexeme().c_str(),
                               line,column);
                 }
                 //去掉第三个点
-                currentToken = next();
+                currentToken = scan();
                 if(getCurrentToken() != TK_DOT){
                     parse_err("SynatxError: should be , or . but got :%s  line:%d column:%d\n",
                               getCurrentLexeme().c_str(),
@@ -389,10 +395,10 @@ std::vector<std::string> Parser::parseParameterList()
             assert(getCurrentToken() == TK_COMMA);
         }
         //继续下一个token读取
-        currentToken = next();
+        currentToken = scan();
     }
     //是否闭合
     assert(getCurrentToken() == TK_RPAREN);
-    currentToken = next();
+    currentToken = scan();
     return move(node);
 }

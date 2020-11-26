@@ -43,13 +43,14 @@ Parser::~Parser()
 {
     fs.close();
 }
+
 /**
  * @param rt
  */
 void Parser::parse()
 {
     //第一行必须得是包名
-    currentToken = next();
+    currentToken = scan();
     parsePackageDef();
 
     if(getCurrentToken() == TK_EOF) return;
@@ -80,6 +81,19 @@ void Parser::parse()
 
 
 }
+char Parser::next() {
+    column++;
+    return static_cast<char>(fs.get());
+}
+char Parser::peek() {
+    return static_cast<char>(fs.peek());
+}
+Token Parser::getCurrentToken()const {
+    return std::get<Token >(currentToken);
+}
+std::string Parser::getCurrentLexeme()const {
+    return std::get<std::string>(currentToken);
+}
 /**
  * @return string package name
  */
@@ -91,13 +105,12 @@ std::string Parser::getpkgname()
  * 测试token解析
  * @param filename
  */
-void Parser::printToken(const std::string &filename)
+std::string Parser::printToken()
 {
-    Parser p(filename, nullptr,"main");
-    auto  tk = p.next();
+    auto  tk = scan();
     while(std::get<0>(tk) != TK_EOF){
         std::cout << "" << getTokenString(std::get<0>(tk)) << " => " << std::get<1>(tk) << "\n";
-        tk = p.next();
+        tk = scan();
     }
 
 }

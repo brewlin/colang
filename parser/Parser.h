@@ -32,24 +32,26 @@ public:
      * @param package   当前文件对应的包名
      */
     explicit Parser(const std::string& filename,Runtime* rt,std::string package);
-    static void printToken(const std::string& filename);
     ~Parser();
-
     //获取包名
     std::string getpkgname();
     //执行文件解析生成ast树
+    std::string printToken();
     void parse();
 
 private:
-    //读取下一个字符
-    inline char getNextChar(){
-        column++;
-        return static_cast<char>(fs.get());
-    }
-    //读取下一个字符 且指针不改变位置
-    inline char peekNextChar(){ return static_cast<char>(fs.peek());}
-    inline Token getCurrentToken()const{ return std::get<Token >(currentToken);}
-    inline std::string getCurrentLexeme()const{ return std::get<std::string>(currentToken);}
+    //get|peek next char
+    char            next();
+    char            peek();
+    Token           getCurrentToken()const;
+    std::string     getCurrentLexeme()const;
+
+    //parse keywords
+    void 			parseImportDef();
+    Function*       parseFuncDef(Runtime* rt);
+    Function*       parseExternDef(Runtime* rt);
+    void            parseStructDef();
+    void            parsePackageDef();
 
     //parse statement
     Statement*      parseStatement();
@@ -63,23 +65,16 @@ private:
     Expression*     parseUnaryExpr();
     Expression*     parsePrimaryExpr();
 
-    //parse keywords
-    void 			parseImportDef();
-    Function*       parseFuncDef(Runtime* rt);
-    Function*       parseExternDef(Runtime* rt);
-    void            parseStructDef();
-    void            parsePackageDef();
-
     short           precedence(Token op);
     Block*          parseBlock();
 
+    std::tuple <Token ,std::string> scan();
     std::tuple <Token ,std::string> parseNumber(char first);
     std::tuple <Token ,std::string> parseKeyword(char c);
     std::tuple <Token ,std::string> parseMulOrDelref(char c);
 
-    std::tuple <Token ,std::string> next();
     std::vector<std::string> parseParameterList();
-    std::vector<Statement*> parseStatementList();
+    std::vector<Statement*>  parseStatementList();
 private:
     //记录当前词法分析行|列
     int line = 1;
