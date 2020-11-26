@@ -95,6 +95,23 @@ void  ArrayExpr::asmgen(Runtime* rt,std::deque<Context*> ctx){
 
 }
 /**
+ * asm gen map
+ * @param rt
+ * @param ctx
+ */
+void  MapExpr::asmgen(Runtime* rt,std::deque<Context*> ctx){
+    Debug("MapExpr: parsing... package:%s func:%s",package.c_str(),funcname.c_str());
+}
+/**
+ * asm gen key value
+ * @param rt
+ * @param ctx
+ */
+void  KVExpr::asmgen(Runtime* rt,std::deque<Context*> ctx){
+    Debug("KVExpr: parsing... package:%s func:%s",package.c_str(),funcname.c_str());
+}
+
+/**
  * load 变量
  * 1 计算偏移量
  * 2 加载变量

@@ -92,7 +92,7 @@ Expression* Parser::parseUnaryExpr()
         return val;
         //如果是字面值，标识符，等，就调用公共表达式解析
     }else if(anyone(getCurrentToken(),LIT_DOUBLE,LIT_INT,LIT_CHAR,LIT_STR,TK_IDENT,TK_LPAREN,TK_LBRACKET,
-                    KW_TRUE,KW_FALSE,KW_NULL,KW_NEW,TK_DOT,TK_DELREF)){
+                    TK_LBRACE,TK_RBRACE,KW_TRUE,KW_FALSE,KW_NULL,KW_NEW,TK_DOT,TK_DELREF)){
         return parsePrimaryExpr();
     }
     Debug("parseUnaryExpr: not found token:%d-%s",getCurrentToken(),getCurrentLexeme().c_str());
@@ -295,7 +295,37 @@ Expression* Parser::parsePrimaryExpr()
         //表示是一个空数组
         currentToken = scan();
         return ret;
+
     // 解析map = {}
+    }else if(getCurrentToken() == TK_LBRACE)
+    {
+        currentToken = scan();
+        auto* ret = new MapExpr(line,column);
+        if(getCurrentToken() != TK_RBRACE){
+            while(getCurrentToken() != TK_RBRACE) {
+                KVExpr* kv = new KVExpr(line,column);
+                //解析key
+                kv->key    = parseExpression();
+                //接下来必须是 : TK_COLON
+                if(getCurrentToken() != TK_COLON)
+                    parse_err("ParserError: should be ':' token at line:%d column:%d\n",line,column);
+                currentToken = scan();
+                //解析value
+                kv->value  = parseExpression();
+                //将参数 push 到 node中
+                ret->literal.push_back(kv);
+                //解析[1,2,3] 中的 ,
+                if(getCurrentToken() == TK_COMMA)
+                    currentToken = scan();
+            }
+            assert(getCurrentToken() == TK_RBRACE);
+            currentToken = scan();
+            return ret;
+        }
+        //表示是一个空数组
+        currentToken = scan();
+        return ret;
+        // 解析map = {}
     }else if(getCurrentToken() == KW_NEW)
     {
         //去掉 new
