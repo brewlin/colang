@@ -5,7 +5,9 @@ cmake_minimum_required(VERSION 3.10)
 
 project(do)
 
-add_definitions("-g -Wall -std=c++17 ")
+set (CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -g -w")
+
+set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++17 -g")
 
 include_directories(. asm ast parser lib internal)
 

@@ -6,7 +6,7 @@
 Value* arr_get(Value* varr,Value* index){
     if(!varr || !varr->data || !index){
         printf("[arr_get] arr or index is null ,probably something wrong\n");
-        return;
+        return NULL;
     }
     array_t *arr = (array_t*)varr->data;
     //计算索引
@@ -14,14 +14,14 @@ Value* arr_get(Value* varr,Value* index){
     switch(index->type){
         case Int:
         case Double:
-            i = (int)index->data;
+            i = (long)index->data;
             break;
         case String:
             i = stringlen(index->data);
     }
     if(i >= arr->used){
         printf("[arr_get] index is over the max size,return null now!\n");
-        return newobject(Null,NULL);
+        return newobject(Null,0);
     }
 
     Value** var = arr->addr;
@@ -47,7 +47,7 @@ void arr_updateone(Value* varr,Value* index,Value* var){
     switch(index->type){
         case Int:
         case Double:
-            i = (int)index->data;
+            i = (long)index->data;
             break;
         case String:
             i = stringlen(index->data);

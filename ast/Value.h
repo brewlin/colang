@@ -9,16 +9,6 @@
 #include <vector>
 #include "Function.h"
 
-#define Null   0
-#define Int    1
-#define Double 2
-#define String 3
-#define Bool   4
-#define Char   5
-#define Array  6
-#define Map    7
-#define Object 8
-
 /**
  * 函数
  */

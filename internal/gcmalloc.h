@@ -10,7 +10,7 @@
 
 #include "Value.h"
 
-Value* newobject(int type,long data);
+Value* newobject(int type,void* data);
 long   get_object_value(Value* obj);
 
 #endif //LANG_GCMALLOC_H

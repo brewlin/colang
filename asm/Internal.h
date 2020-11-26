@@ -7,7 +7,7 @@
 
 #include "Ast.h"
 #include <string>
-
+#include "Token.h"
 class Internal
 {
 public:

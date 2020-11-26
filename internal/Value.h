@@ -7,7 +7,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include "Ast.h"
+#include "../ast/Token.h"
 
 //extern gc_malloc
 #define gc_malloc malloc

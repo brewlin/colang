@@ -4,17 +4,17 @@
 
 
 //enum ValueType { Int,Double,String,Bool,Char,Null,Array};
-Value* newobject(int type,long data)
+Value* newobject(int type,void* data)
 {
     Value* ret = malloc(sizeof(Value));
     switch (type){
         case Int:
             ret->type = Int;
-            ret->data = (int)data;
+            ret->data = data;
             break;
         case Double:
             ret->type = Double;
-            ret->data = (long)data;
+            ret->data = data;
             break;
         case String:
             ret->type = String;
@@ -22,11 +22,11 @@ Value* newobject(int type,long data)
             break;
         case Bool:
             ret->type = Bool;
-            ret->data = (int)data;
+            ret->data = data;
             break;
         case Char:
             ret->type = Char;
-            ret->data = (int)data;
+            ret->data = data;
             break;
         case Null:
             ret->type = Null;
@@ -46,7 +46,7 @@ Value* newobject(int type,long data)
  * @return
  */
 long get_object_value(Value* obj){
-    if(!obj) return NULL;
+    if(!obj) return 0;
 
     switch (obj->type){
         case Int:
@@ -55,7 +55,7 @@ long get_object_value(Value* obj){
         case Char:
         case String:
         case Array:
-            return obj->data;
+            return (long)obj->data;
     }
     return NULL;
 }
