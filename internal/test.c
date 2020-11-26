@@ -10,5 +10,6 @@ void main(){
 
    test_string();
    test_array();
+   test_map();
    test_report();
 }
