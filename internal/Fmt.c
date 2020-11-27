@@ -15,6 +15,10 @@ int println(Value *count,...){
 
     for (i = 0; i < total; i++){
         var = va_arg (ap, Value*);
+        if(!var){
+            printf("null\n");
+            continue;
+        }
         switch (var->type){
             case Int:
             case Double:
@@ -45,6 +49,10 @@ int print(Value *count,...){
 
     for (i = 0; i < total; i++){
         var = va_arg (ap, Value*);
+        if(!var){
+            printf("null");
+            continue;
+        }
         switch (var->type){
             case Int:
             case Double:
