@@ -72,7 +72,12 @@ Value* value_greaterthan(Value* lhs,Value* rhs,int equal);
 int    value_string_greaterthan(Value* lhs,Value* rhs,int equal);
 int    value_int_greaterthan(Value* lhs,Value* rhs,int equal);
 
+
+Value* value_logand(Value* lhs,Value* rhs);
+Value* value_logor(Value* lhs,Value* rhs);
+
 /*********************运算操作**************************/
+int isTrue(Value* cond);
 Value* binary_operator(int opt, Value *lhs, Value* rhs);
 void   unary_operator(int opt, Value *lhs, Value* rhs);
 

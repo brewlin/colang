@@ -9,8 +9,9 @@
 ```
 # env
 ```asciidoc
-ubuntu os 16
-llvm-6.0
+Linux ubuntu 4.4.0-157-generic #185-Ubuntu SMP Tue Jul 23 09:17:01 UTC 2019 x86_64 x86_64 x86_64 GNU/Linux
+
+gcc version 7.5.0 (Ubuntu 7.5.0-3ubuntu1~18.04) 
 
 ```
 # install
@@ -26,11 +27,11 @@ llvm-6.0
 
 # 语法
 ## 数据类型
-- [x] int
+- [x] long int
 - [ ] double
 - [x] string
 - [x] bool
-- [ ] map
+- [x] map
 - [x] array
 ```
 package main
@@ -43,6 +44,7 @@ func main(){
     fmt.println(a)
     a = ["1",2,"33",4,"some string word"]
     fmt.print(a[0],a[1],a[2],a[3],a[4])
+    //or fmt.print(a)
 }
 ```
 ## 关键字
@@ -72,14 +74,14 @@ func main(){
 ```
 
 ## 操作符
-- [x] +,+= 
-- [x] -,-=
-- [x] *,*=
-- [x] \,\=
-- [x] <<,<<=
-- [x] >>,>>=
-- [x] &,&=
-- [x] |,|=
-- [x] >,>=
-- [x] <,<=
-- [x] ==,!=
+- [x] `+  and +=` 
+- [x] `-  and -=`
+- [x] `*  and *=`
+- [x] `\  and \=`
+- [x] `<< and <<=`
+- [x] `>> and >>=`
+- [x] `&  and &=`
+- [x] `|  and |=`
+- [x] `>  and >=`
+- [x] `<  and <=`
+- [x] `== and !=`

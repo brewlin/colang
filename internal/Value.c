@@ -281,6 +281,32 @@ Value* value_greaterthan(Value* lhs,Value* rhs,int equal)
     }
     return result;
 }
+
+/**
+ * && operator
+ * @param lhs
+ * @param rhs
+ * @return Value*
+ */
+Value* value_logand(Value* lhs,Value* rhs) {
+    Value* result = (Value*)gc_malloc(sizeof(Value));
+    result->type = Bool;
+    result->data = isTrue(lhs) && isTrue(rhs);
+    return result;
+}
+Value* value_logor(Value* lhs,Value* rhs) {
+    Value* result = (Value*)gc_malloc(sizeof(Value));
+    result->type = Bool;
+    result->data = isTrue(lhs) || isTrue(rhs);
+    return result;
+}
+
+/**
+ *
+ * @param root
+ * @param index
+ * @param var
+ */
 void   kv_update(Value* root,Value* index,Value* var)
 {
     if(root->type == Array){
@@ -291,6 +317,12 @@ void   kv_update(Value* root,Value* index,Value* var)
     }
     printf("[kv_update] arr or map is invalid ,probably something wrong\n");
 }
+/**
+ *
+ * @param root
+ * @param index
+ * @return
+ */
 Value* kv_get(Value* root,Value* index){
     if(root->type == Array){
         return arr_get(root,index);
@@ -312,7 +344,7 @@ int isTrue(Value* cond){
         case Double:
             return cond->data > 0;
         case String:
-            return cond->data != NULL;
+            return stringlen(cond->data);
         case Bool:
             return cond->data;
         case Char:
@@ -406,6 +438,10 @@ Value* binary_operator(int opt, Value *lhs, Value* rhs)
             return value_equal(lhs,rhs,TRUE);
         case TK_NE:// !=
             return value_equal(lhs,rhs,FALSE);
+        case TK_LOGAND:// &&
+            return value_logand(lhs,rhs);
+        case TK_LOGOR:// ||
+            return value_logor(lhs,rhs);
         default:
             printf(" [binary-op] unknow op:%d \n",opt);
             return NULL;
