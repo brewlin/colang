@@ -9,10 +9,12 @@
 void test_array()
 {
     //create check
-    array_t* arr = array_create(8, sizeof(Value*));
+    Value*  arrv = newobject(Array,0);
+    array_t* arr = arrv->data;
+
     assert_s("array_create() 8 size",arr != NULL && arr->addr != NULL && arr->total == 8)
 
-    Value** v1;
+    Value* v1;
     Value** tmp;
 
     //push check
@@ -26,6 +28,7 @@ void test_array()
     // value check
     Value** var = arr->addr;
     for (int k = 0; k < 8; ++k) {
+        Value* v = kv_get(arrv,newobject(Int,k));
         assert_s("array check ", (long)var[k]->data == k)
     }
 

@@ -9,7 +9,7 @@
 
 void test_map()
 {
-    Value *tree     = map_create();
+    Value *tree     = newobject(Map,0);
     assert_s("map_init() test",tree != NULL);
 
     Value* vars[10];
@@ -18,7 +18,7 @@ void test_map()
         if (i < 5)
         {
             vars[i] = newobject(Int, i);
-            map_insert(tree,vars[i]);
+            map_insert(tree,vars[i],vars[i]);
             v = map_find(tree,vars[i]);
             assert_s("map_insert() int",v->data == vars[i]->data);
         } else {
@@ -26,7 +26,7 @@ void test_map()
             string s = stringnew(str);
             s = stringcatfmt(s, "%I", i);
             vars[i] = newobject(String, s);
-            map_insert(tree,vars[i]);
+            map_insert(tree,vars[i],vars[i]);
             v = map_find(tree,vars[i]);
             assert_s("map_insert() string",stringcmp(v->data,vars[i]->data) == 0);
         }

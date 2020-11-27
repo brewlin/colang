@@ -6,6 +6,33 @@
 static inline void rbtree_left_rotate(rbtree_node_t **root,rbtree_node_t *sentinel, rbtree_node_t *node);
 static inline void rbtree_right_rotate(rbtree_node_t **root,rbtree_node_t *sentinel, rbtree_node_t *node);
 
+void map_insert_or_update(rbtree_node_t *temp, rbtree_node_t *node,rbtree_node_t *sentinel)
+{
+    rbtree_node_t  **p;
+
+    for ( ;; ) {
+
+        if(node->key == temp->key){
+            if(temp->v->type == node->v->type){
+                temp->v = node->v;
+                return;
+            }
+        }
+        p = (node->key < temp->key) ? &temp->left : &temp->right;
+
+        if (*p == sentinel) {
+            break;
+        }
+
+        temp = *p;
+    }
+
+    *p = node;
+    node->parent = temp;
+    node->left = sentinel;
+    node->right = sentinel;
+    rbt_red(node);
+}
 u_int hash_key(u_char *data, size_t len){
     u_int  i, key;
     key = 0;
@@ -15,31 +42,29 @@ u_int hash_key(u_char *data, size_t len){
     return key;
 }
 
-Value* map_create(){
+rbtree_t* map_create(){
     rbtree_t      *tree     = gc_malloc(sizeof(rbtree_t));
     rbtree_node_t *sentinel = gc_malloc(sizeof(rbtree_node_t));
-    rbtree_init(tree,sentinel,rbtree_insert_value);
-    Value         *map      = gc_malloc(sizeof(Value));
-    map->type               = Map;
-    map->data               = tree;
-    return map;
+    rbtree_init(tree,sentinel,map_insert_or_update);
+    return tree;
 }
-void map_insert(Value *map, Value* value)
+void map_insert(Value *map, Value* key,Value* value)
 {
 
     rbtree_t* tree = (rbtree_t*)map->data;
     rbtree_node_t* node = gc_malloc(sizeof(rbtree_node_t));
     rbtree_key_int_t hk = 0;
-    switch(value->type){
+    switch(key->type){
         case Bool:
         case Int:
         case Double:
-            hk = (rbtree_key_int_t)value->data;break;
+            hk = (rbtree_key_int_t)key->data;break;
         case String:
-            hk = hash_key(value->data,stringlen(value->data));
+            hk = hash_key(key->data,stringlen(key->data));
     }
-    node->key        = hk;
-    node->value      = value;
+    node->key   = hk;
+    node->k     = key;
+    node->v     = value;
     rbtree_insert(tree,node);
 }
 Value* map_find(Value* map, Value* key){
@@ -65,7 +90,9 @@ Value* map_find(Value* map, Value* key){
             node = (hk < node->key) ? node->left : node->right;
             continue;
         }
-        return node->value;
+        if(node->k->type == key->type){
+            return node->v;
+        }
     }
     return NULL;
 }

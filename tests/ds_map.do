@@ -1,5 +1,5 @@
 package main
 
 func main(){
-    #a = {"sdfs":"sdf","sdf":1}
+    a = {"sdfs":"sdf","sdf":1}
 }

@@ -2,9 +2,9 @@ CC = gcc
 
 LD = gcc
 
-CFLAGS = -g -w -std=gnu99 -I ../
+CFLAGS = -g -std=gnu99 -I ../
 
-LDFLAGS = -g
+LDFLAGS = -g 
 
 RM = rm -f
 

@@ -20,8 +20,8 @@ public:
 
     //array
     static void arr_pushone();
-    static void arr_update();
-    static void arr_get();
+    static void kv_update();
+    static void kv_get();
 
     //map
     static void map_pushone();

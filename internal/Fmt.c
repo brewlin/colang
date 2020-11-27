@@ -22,7 +22,7 @@ int println(Value *count,...){
                 printf("%ld",(long)var->data);
                 break;
             case String:
-                printf("%s",var->data);
+                printf("%s",(char*)var->data);
                 break;
             default:
                 printf("undefine");
@@ -52,7 +52,7 @@ int print(Value *count,...){
                 printf("%ld",(long)var->data);
                 break;
             case String:
-                printf("%s",var->data);
+                printf("%s",(char*)var->data);
                 break;
             default:
                 printf("undefine");

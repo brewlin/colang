@@ -109,7 +109,7 @@ void  MapExpr::asmgen(Runtime* rt,std::deque<Context*> ctx){
     for(auto& element: this->literal){
         //new element & push element
         element->asmgen(rt,ctx);
-        Internal::arr_pushone();
+        Internal::kv_update();
     }
 
     //pop array
@@ -194,7 +194,7 @@ void  IndexExpr::asmgen(Runtime* rt,std::deque<Context*> ctx) {
             AsmGen::Push();
 
             //call arr_get(arr,index)
-            Internal::arr_get();
+            Internal::kv_get();
             return;
         }
     }
@@ -378,7 +378,9 @@ void  AssignExpr::asmgen(Runtime* rt,std::deque<Context*> ctx){
         AsmGen::Push();
 
         //call arr_updateone(arr,index,var)
-        Internal::arr_update();
+        Internal::kv_update();
+        //rm unuse 
+        AsmGen::Pop("%rdi");
         return;
     }
     parse_err("SyntaxError: can not assign to %s at line %d, %col\n", typeid(lhs).name(),line,column);

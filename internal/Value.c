@@ -4,6 +4,8 @@
  */
 #include "Value.h"
 #include "String.h"
+#include "Array.h"
+#include "Map.h"
 /**
  * + operator
  * @param lhs
@@ -279,6 +281,25 @@ Value* value_greaterthan(Value* lhs,Value* rhs,int equal)
     }
     return result;
 }
+void   kv_update(Value* root,Value* index,Value* var)
+{
+    if(root->type == Array){
+        return arr_updateone(root,index,var);
+    }
+    if(root->type == Map){
+        return map_insert(root,index,var);
+    }
+    printf("[kv_update] arr or map is invalid ,probably something wrong\n");
+}
+Value* kv_get(Value* root,Value* index){
+    if(root->type == Array){
+        return arr_get(root,index);
+    }
+    if(root->type == Map){
+        return map_find(root,index);
+    }
+    printf("[kv_get] arr or map is invalid ,probably something wrong\n");
+}
 /**
  * tell if itstrue
  * @param cond
@@ -313,7 +334,7 @@ void unary_operator(int opt,Value *lhs,Value* rhs)
 {
     if( !lhs || !rhs ){
         printf(" [unary-op] probably wrong at there! lhs:%p rhs:%p\n",lhs,rhs);
-        return NULL;
+        return;
     }
     Value* ret;
     switch (opt){

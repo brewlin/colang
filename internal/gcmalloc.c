@@ -39,6 +39,7 @@ Value* newobject(int type,void* data)
         case Map:
             ret->type = Map;
             ret->data = map_create();
+            return ret;
         default:
             ret->type = Null;
     }

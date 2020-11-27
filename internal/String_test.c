@@ -2,6 +2,7 @@
 #include <stdio.h>
 #include "help.h"
 #include "limits.h"
+#include <string.h>
 
 #define UNUSED(x) (void)(x)
 

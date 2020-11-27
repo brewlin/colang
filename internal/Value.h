@@ -12,7 +12,8 @@
 //extern gc_malloc
 #define gc_malloc malloc
 #define gc_free   free
-
+#pragma GCC diagnostic ignored "-Wpointer-to-int-cast"
+#pragma GCC diagnostic ignored "-Wint-conversion"
 /**
  * 动态变量类型定义
  */
@@ -74,5 +75,9 @@ int    value_int_greaterthan(Value* lhs,Value* rhs,int equal);
 /*********************运算操作**************************/
 Value* binary_operator(int opt, Value *lhs, Value* rhs);
 void   unary_operator(int opt, Value *lhs, Value* rhs);
+
+/*********************arr|map**************************/
+void   kv_update(Value* root,Value* index,Value* var);
+Value* kv_get(Value* root,Value* index);
 
 #endif //LANG_TYPE_H

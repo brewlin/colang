@@ -6,6 +6,10 @@
 int __failed_tests = 0;
 int __test_num = 0;
 
+void test_string();
+void test_array();
+void test_map();
+
 void main(){
 
    test_string();

@@ -13,7 +13,8 @@ struct rbtree_node_s {
     rbtree_node_t     *left;
     rbtree_node_t     *right;
     rbtree_node_t     *parent;
-    Value             *value;
+    Value             *k;
+    Value             *v;
     u_char             color;
 };
 
@@ -36,11 +37,12 @@ struct rbtree_s {
     (tree)->insert = i
 
 
-#define   hash(key, c)   ((u_int) key * 31 + c)
-u_int     hash_key(u_char *data, size_t len);
-Value*    map_create();
-void      map_insert(Value* map, Value* value);
-Value*    map_find(Value* map, Value* key);
+#define    hash(key, c)   ((u_int) key * 31 + c)
+void       map_insert_or_update(rbtree_node_t *temp, rbtree_node_t *node,rbtree_node_t *sentinel);
+u_int      hash_key(u_char *data, size_t len);
+rbtree_t*  map_create();
+void       map_insert(Value* map, Value* key,Value* value);
+Value*     map_find(Value* map, Value* key);
 
 
 void rbtree_insert(rbtree_t *tree, rbtree_node_t *node);

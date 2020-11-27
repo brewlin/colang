@@ -61,34 +61,24 @@ void Internal::arr_pushone() {
     AsmGen::writeln("  mov (%rsp),%rdi");
     call("arr_pushone");
 }
-void Internal::map_pushone() {
-    //rdx value
-    AsmGen::Pop("%rdx");
-    //rsi key
-    AsmGen::Pop("%rsi");
-    //rdi map
-    AsmGen::writeln("  mov (%rsp),%rdi");
-    call("map_pushone");
-}
-void Internal::arr_update() {
+
+void Internal::kv_update() {
     //rdx var
     AsmGen::Pop("%rdx");
     //rsi index
     AsmGen::Pop("%rsi");
     //rdi arr
-    AsmGen::Pop("%rdi");
-    call("arr_updateone");
+    AsmGen::writeln("  mov (%rsp),%rdi");
+    call("kv_update");
 }
 
-void Internal::arr_get() {
+void Internal::kv_get() {
     //rsi index
     AsmGen::Pop("%rsi");
     //rdi arr
     AsmGen::Pop("%rdi");
-    call("arr_get");
+    call("kv_get");
 }
-
-
 void Internal::call(std::string funcname)
 {
     AsmGen::writeln("  mov %s@GOTPCREL(%%rip), %%rax", funcname.c_str());
