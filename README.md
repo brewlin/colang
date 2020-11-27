@@ -1,8 +1,8 @@
 # lang
-一款动态语法的静态编译器  手写汇编生成器、llvm接入示例、解析器动态执行
+Do是一种编程语言，旨在创造一种动态语法的静态编译语言
 ```asciidoc
 ./do [options] file
-    -i    file  ast -> run       动态解析运行
+    run   file  ast -> asm       编译为汇编-链接生成可执行程序自动执行
     -s    file  ast -> asm       编译为汇编
     -llvm file  ast -> ir -> asm 基于llvm生成汇编
 
@@ -45,6 +45,9 @@ func main(){
     a = ["1",2,"33",4,"some string word"]
     fmt.print(a[0],a[1],a[2],a[3],a[4])
     //or fmt.print(a)
+    b = {"sdfds":"sdfsd",1:2,"sdfds":3,"a":a}
+    fmt.print(b["a"],b["sdfds"])
+    
 }
 ```
 ## 关键字
@@ -82,6 +85,7 @@ func main(){
 - [x] `>> and >>=`
 - [x] `&  and &=`
 - [x] `|  and |=`
+- [x] `|| and &&`
 - [x] `>  and >=`
 - [x] `<  and <=`
 - [x] `== and !=`
