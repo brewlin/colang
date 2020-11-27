@@ -22,7 +22,7 @@ func test_array_index()
         fmt.println("a[3] == this is 4 failed")
         os.exit(1)
     }
-    fmt.println("array_get success",a[0],a[1],a[2],a[3])
+    fmt.print("array_get success",":",a)
 
 }
 func test_array_update()
@@ -42,7 +42,7 @@ func test_array_update()
         fmt.println("a[1] != 1000 failed")
         os.exit(1)
     }
-    fmt.print("array_update success",a[0],a[1],a[2],a[3],a[4])
+    fmt.print("array_update success",":",a)
 }
 
 func test_array_add(){
@@ -62,7 +62,7 @@ func test_array_add(){
         fmt.println("a[2] != --- failed")
         os.exit(1)
     }
-    fmt.print("array_add success",a[0],a[1],a[2])
+    fmt.print("array_add success",":",a)
 }
 
 func main(){

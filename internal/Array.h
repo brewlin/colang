@@ -10,6 +10,7 @@
 
 #include "Value.h"
 #include <string.h>
+#include "String.h"
 
 typedef int  int_t;
 #define ushort_t  u_short
@@ -27,6 +28,7 @@ typedef struct {
 void   arr_pushone(Value* varr,Value* var);
 void   arr_updateone(Value* varr,Value* index,Value* var);
 Value* arr_get(Value* varr,Value* index);
+string arr_tostring(Value* varr);
 
 
 array_t *array_create(uint_t n, size_t size);

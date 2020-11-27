@@ -7,6 +7,7 @@
 #include <limits.h>
 #include "String.h"
 #include "Value.h"
+#include "Array.h"
 
 const char *LSTRING_NOINIT = "LSTRING_NOINIT";
 
@@ -56,6 +57,8 @@ char* value_string_plus(Value* lhs,Value* rhs)
             tmstr = stringdup(lhs->data);
             if(rhs->type == Int)
                 return stringcatfmt(tmstr,"%I",(long)rhs->data);
+            if(rhs->type == Array)
+                return stringcat(tmstr,arr_tostring(rhs));
 
             return stringcat(tmstr,rhs->data);
     }

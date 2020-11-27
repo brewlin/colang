@@ -3,6 +3,7 @@
 #include "Value.h"
 #include <stdarg.h>
 #include <stdio.h>
+#include "Array.h"
 
 int println(Value *count,...){
 
@@ -27,6 +28,9 @@ int println(Value *count,...){
                 break;
             case String:
                 printf("%s",(char*)var->data);
+                break;
+            case Array:
+                printf("%s",arr_tostring(var));
                 break;
             default:
                 printf("undefine");
@@ -61,6 +65,9 @@ int print(Value *count,...){
                 break;
             case String:
                 printf("%s",(char*)var->data);
+                break;
+            case Array:
+                printf("%s",arr_tostring(var));
                 break;
             default:
                 printf("undefine");

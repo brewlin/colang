@@ -20,7 +20,7 @@ Value* arr_get(Value* varr,Value* index){
             i = stringlen(index->data);
     }
     if(i >= arr->used){
-        printf("[arr_get] index is over the max size,return null now!\n");
+        //printf("[arr_get] index is over the max size,return null now!\n");
         return newobject(Null,0);
     }
 
@@ -59,6 +59,31 @@ void arr_updateone(Value* varr,Value* index,Value* var){
     }
     Value** array = arr->addr;
     array[i]      = var;
+}
+
+string arr_tostring(Value* varr)
+{
+    string  ret  = stringempty();
+    array_t* arr = (array_t*)varr->data;
+    Value**  orr = arr->addr;
+    ret = stringcat(ret,"[");
+    for (int i = 0; i < arr->used; ++i) {
+        Value* v = orr[i];
+        switch (v->type){
+            case Int:
+            case Double:
+            case Bool:
+            case Char:
+                ret = stringcatfmt(ret,"%I,",v->data);break;
+            case String:
+                ret = stringcat(ret,v->data);
+                ret = stringcat(ret,",");
+                break;
+        }
+    }
+    ret = stringcat(ret,"]");
+    return ret;
+
 }
 
 int_t array_init(array_t *array, uint_t n, size_t size)
