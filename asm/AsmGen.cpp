@@ -6,6 +6,7 @@
  **/
 #include "AsmGen.h"
 #include <cstdarg>
+#include "Internal.h"
 
 int AsmGen::count = 0;
 Function* AsmGen::currentFunc = nullptr;
@@ -54,6 +55,7 @@ void AsmGen::registerMain()
     writeln("  push %%rbp");
     writeln("  mov %%rsp, %%rbp");
     writeln("  sub $%d, %%rsp", 0);
+    Internal::call("gc_init");
     writeln("  mov %s@GOTPCREL(%%rip), %%rax", "main.main");
     writeln("  mov %%rax, %%r10");
     writeln("  mov $%d, %%rax", 0);

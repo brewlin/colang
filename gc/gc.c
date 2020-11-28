@@ -1,5 +1,6 @@
 #include "gc.h"
 #include <time.h>
+#include "root.h"
 
 //回收链表，挂着空闲链表
 Header* free_list = NULL;
@@ -10,7 +11,11 @@ size_t  root_used = 0;
 int     auto_gc = 1;
 int     auto_grow = 1;
 
-
+void *sp_start;
+void gc_init()
+{
+    sp_start = get_sp();
+}
 /**
  * 将分配的变量 添加到root 引用,只要是root上的对象都能够进行标记
  * @param start
@@ -166,6 +171,25 @@ alloc:
     }
     return NULL;
 
+}
+void*    gc_realloc(void *p,size_t size)
+{
+    if(!p){
+        if(size < 0){
+            printf("realloc failed\n");
+            exit(1);
+        }
+        return gc_malloc(size);
+    }
+    if(size < 0){
+        gc_free(p);
+        return NULL;
+    }
+    void* new = gc_malloc(size);
+    size_t len = CURRENT_HEADER(p)->size;
+    memcpy(new,p,len);
+    gc_free(p);
+    return new;
 }
 /**
  * 传入的是一个内存地址 是不带header头的

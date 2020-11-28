@@ -71,6 +71,7 @@ void     gc(void);                     //执行gc 垃圾回收
 void     gc_init();    
 void     gc_free(void *ptr);           //回收内存
 void*    gc_malloc(size_t req_size);   //内存分配
+void*    gc_realloc(void*p,size_t size);
 GC_Heap* is_pointer_to_heap(void *ptr);//获取指针对应的堆首地址
 GC_Heap* is_pointer_to_space(void *ptr,size_t i);
 //安全的获取header头，可以通过内存段来定位该header

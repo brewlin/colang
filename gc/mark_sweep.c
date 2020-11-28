@@ -1,9 +1,6 @@
 #include "gc.h"
 #include "root.h"
 
-void *sp_start;
-
-
 /**
  * 对该对象进行标记
  * 并进行子对象标记

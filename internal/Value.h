@@ -8,6 +8,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include "../ast/Token.h"
+#include "gc.h"
 
 #pragma GCC diagnostic ignored "-Wpointer-to-int-cast"
 #pragma GCC diagnostic ignored "-Wint-conversion"
