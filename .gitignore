@@ -12,6 +12,7 @@ cmake-build-debug
 tests/asm
 tests/ast
 tests/lib
+tests/gc
 tests/internal
 tests/parser
 tests/CMakeFiles
