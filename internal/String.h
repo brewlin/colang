@@ -2,9 +2,6 @@
 #define __LSTRING_H
 
 #define LSTRING_MAX_PREALLOC (1024*1024)
-#define s_realloc realloc
-#define s_malloc  malloc
-#define s_free    free
 extern const char *LSTRING_NOINIT;
 
 #include <sys/types.h>

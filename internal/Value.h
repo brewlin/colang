@@ -9,11 +9,13 @@
 #include <string.h>
 #include "../ast/Token.h"
 
-//extern gc_malloc
-#define gc_malloc malloc
-#define gc_free   free
 #pragma GCC diagnostic ignored "-Wpointer-to-int-cast"
 #pragma GCC diagnostic ignored "-Wint-conversion"
+
+//extern gc_malloc
+#define gc_malloc  malloc
+#define gc_realloc realloc
+#define gc_free    free
 /**
  * 动态变量类型定义
  */

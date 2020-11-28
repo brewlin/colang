@@ -162,7 +162,7 @@ string stringnewlen(const void *init, size_t initlen) {
     int hdrlen = stringHdrSize(type);
     unsigned char *fp; /* flags pointer. */
 
-    sh = s_malloc(hdrlen+initlen+1);
+    sh = gc_malloc(hdrlen+initlen+1);
     if (sh == NULL) return NULL;
     if (init == LSTRING_NOINIT)
         init = NULL;
@@ -229,7 +229,7 @@ string stringdup(const string s) {
 //释放 string，
 void stringfree(string s) {
     if (s == NULL) return;
-    s_free((char*)s-stringHdrSize(s[-1]));
+    gc_free((char*)s-stringHdrSize(s[-1]));
 }
 
 /* Set the string string length to the length as obtained with strlen(), so
@@ -293,16 +293,16 @@ string stringMakeRoomFor(string s, size_t addlen) {
 
     hdrlen = stringHdrSize(type);
     if (oldtype==type) {
-        newsh = s_realloc(sh, hdrlen+newlen+1);
+        newsh = gc_realloc(sh, hdrlen+newlen+1);
         if (newsh == NULL) return NULL;
         s = (char*)newsh+hdrlen;
     } else {
         /* Since the header size changes, need to move the string forward,
          * and can't use realloc */
-        newsh = s_malloc(hdrlen+newlen+1);
+        newsh = gc_malloc(hdrlen+newlen+1);
         if (newsh == NULL) return NULL;
         memcpy((char*)newsh+hdrlen, s, len+1);
-        s_free(sh);
+        gc_free(sh);
         s = (char*)newsh+hdrlen;
         s[-1] = type;
         stringsetlen(s, len);
@@ -338,14 +338,14 @@ string stringRemoveFreeSpace(string s) {
      * only if really needed. Otherwise if the change is huge, we manually
      * reallocate the string to use the different header type. */
     if (oldtype==type || type > LSTRING_TYPE_8) {
-        newsh = s_realloc(sh, oldhdrlen+len+1);
+        newsh = gc_realloc(sh, oldhdrlen+len+1);
         if (newsh == NULL) return NULL;
         s = (char*)newsh+oldhdrlen;
     } else {
-        newsh = s_malloc(hdrlen+len+1);
+        newsh = gc_malloc(hdrlen+len+1);
         if (newsh == NULL) return NULL;
         memcpy((char*)newsh+hdrlen, s, len+1);
-        s_free(sh);
+        gc_free(sh);
         s = (char*)newsh+hdrlen;
         s[-1] = type;
         stringsetlen(s, len);
@@ -592,7 +592,7 @@ string stringcatvprintf(string s, const char *fmt, va_list ap) {
     /* We try to start using a static buffer for speed.
      * If not possible we revert to heap allocation. */
     if (buflen > sizeof(staticbuf)) {
-        buf = s_malloc(buflen);
+        buf = gc_malloc(buflen);
         if (buf == NULL) return NULL;
     } else {
         buflen = sizeof(staticbuf);
@@ -606,9 +606,9 @@ string stringcatvprintf(string s, const char *fmt, va_list ap) {
         vsnprintf(buf, buflen, fmt, cpy);
         va_end(cpy);
         if (buf[buflen-2] != '\0') {
-            if (buf != staticbuf) s_free(buf);
+            if (buf != staticbuf) gc_free(buf);
             buflen *= 2;
-            buf = s_malloc(buflen);
+            buf = gc_malloc(buflen);
             if (buf == NULL) return NULL;
             continue;
         }
@@ -617,7 +617,7 @@ string stringcatvprintf(string s, const char *fmt, va_list ap) {
 
     /* Finally concat the obtained string to the LSTRING string and return it. */
     t = stringcat(s, buf);
-    if (buf != staticbuf) s_free(buf);
+    if (buf != staticbuf) gc_free(buf);
     return t;
 }
 
@@ -889,7 +889,7 @@ string *stringsplitlen(const char *s, ssize_t len, const char *sep, int seplen, 
 
     if (seplen < 1 || len < 0) return NULL;
 
-    tokens = s_malloc(sizeof(string)*slots);
+    tokens = gc_malloc(sizeof(string)*slots);
     if (tokens == NULL) return NULL;
 
     if (len == 0) {
@@ -902,7 +902,7 @@ string *stringsplitlen(const char *s, ssize_t len, const char *sep, int seplen, 
             string *newtokens;
 
             slots *= 2;
-            newtokens = s_realloc(tokens,sizeof(string)*slots);
+            newtokens = gc_realloc(tokens,sizeof(string)*slots);
             if (newtokens == NULL) goto cleanup;
             tokens = newtokens;
         }
@@ -926,7 +926,7 @@ cleanup:
     {
         int i;
         for (i = 0; i < elements; i++) stringfree(tokens[i]);
-        s_free(tokens);
+        gc_free(tokens);
         *count = 0;
         return NULL;
     }
@@ -937,7 +937,7 @@ void stringfreesplitres(string *tokens, int count) {
     if (!tokens) return;
     while(count--)
         stringfree(tokens[count]);
-    s_free(tokens);
+    gc_free(tokens);
 }
 
 /* Append to the string string "s" an escaped string representation where
@@ -1111,13 +1111,13 @@ string *stringsplitargs(const char *line, int *argc) {
                 if (*p) p++;
             }
             /* add the token to the vector */
-            vector = s_realloc(vector,((*argc)+1)*sizeof(char*));
+            vector = gc_realloc(vector,((*argc)+1)*sizeof(char*));
             vector[*argc] = current;
             (*argc)++;
             current = NULL;
         } else {
             /* Even on empty input string return something not NULL. */
-            if (vector == NULL) vector = s_malloc(sizeof(void*));
+            if (vector == NULL) vector = gc_malloc(sizeof(void*));
             return vector;
         }
     }
@@ -1125,7 +1125,7 @@ string *stringsplitargs(const char *line, int *argc) {
 err:
     while((*argc)--)
         stringfree(vector[*argc]);
-    s_free(vector);
+    gc_free(vector);
     if (current) stringfree(current);
     *argc = 0;
     return NULL;
@@ -1184,7 +1184,7 @@ string stringjoinstring(string *argv, int argc, const char *sep, size_t seplen) 
  * the overhead of function calls. Here we define these wrappers only for
  * the programs LSTRING is linked to, if they want to touch the LSTRING internals
  * even if they use a different allocator. */
-void *string_malloc(size_t size) { return s_malloc(size); }
-void *string_realloc(void *ptr, size_t size) { return s_realloc(ptr,size); }
-void string_free(void *ptr) { s_free(ptr); }
+void *string_malloc(size_t size) { return gc_malloc(size); }
+void *string_realloc(void *ptr, size_t size) { return gc_realloc(ptr,size); }
+void string_free(void *ptr) { gc_free(ptr); }
 
