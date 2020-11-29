@@ -310,7 +310,6 @@ Expression* Parser::parseVarExpr()
                 VarExpr* gvar    = new VarExpr(pfuncname,line,column);
                 gvar->package    = var;
                 gvar->is_local   = false;
-                gvar->is_pkgcall = true;
                 return gvar;
             }
         }
@@ -337,7 +336,6 @@ Expression* Parser::parseVarExpr()
             if(!currentFunc){
                 rt->gvars[package + "." + var] = varexpr;
                 varexpr->is_local = false;
-                varexpr->is_pkgcall = true;
                 varexpr->package  = this->package;
             }
             return varexpr;

@@ -136,19 +136,23 @@ void  KVExpr::asmgen(std::deque<Context*> ctx){
  * @return
  */
 void  VarExpr::asmgen(std::deque<Context*> ctx){
-    //检查全局变量
     VarExpr* var;
-    if(is_pkgcall){
+    //检查全局变量,1s_local有两层含义
+    //1. 在asm阶段表示是否为全局变量
+    //2. 在语法阶段表示当前变量是否是一个包变量访问如: pkg1.global_name
+    if(!is_local){
         std::string gname = package + "." + varname;
         var  = AsmGen::rt->gvars[gname];
         //显式进行全局变量调用则需要强制检查
         if(!var) parse_err("AsmError:use of undefined global variable %s at line %d co %d\n",
             gname.c_str(),this->line,this->column);
-    }else{
-        //其实情况 默认检查变量是否是全局变量，不是就从本地检查
-        std::string gname = AsmGen::currentFunc->parser->getpkgname() + "." + varname;
-        var  = AsmGen::rt->gvars[gname];
+        AsmGen::GenAddr(var,is_delref);
+        if(!is_delref) AsmGen::Load();
+        return;
     }
+    //普通变量如果是一个管局变量则默认进行全局变量操作
+    std::string gname = AsmGen::currentFunc->parser->getpkgname() + "." + varname;
+    var  = AsmGen::rt->gvars[gname];
     if(var){
         AsmGen::GenAddr(var,is_delref);
         if(!is_delref) AsmGen::Load();
@@ -330,14 +334,14 @@ void  AssignExpr::asmgen(std::deque<Context*> ctx){
     if(typeid(*lhs) == typeid(VarExpr)){
         VarExpr* varExpr = dynamic_cast<VarExpr*>(lhs);
         std::string gname = AsmGen::currentFunc->parser->getpkgname() + "." + varExpr->varname;
-
-        //检查一下全局变量有没有
-        if(varExpr->is_pkgcall){
+        //是否是包变量访问
+        if(!varExpr->is_local){
             gname = varExpr->package + "." + varExpr->varname;
             varExpr = AsmGen::rt->gvars[gname];
             //显式进行全局变量调用则需要强制检查
             if(!varExpr) parse_err("AsmError:use of undefined global variable %s at line %d co %d\n",
                 gname.c_str(),this->line,this->column);
+        //是否是全句变量
         }else if(AsmGen::rt->gvars[gname]){
             varExpr = AsmGen::rt->gvars[gname];
         }else if(f->params_var.count(varExpr->varname)){

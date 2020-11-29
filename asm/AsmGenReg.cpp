@@ -26,19 +26,10 @@ void AsmGen::GenAddr(VarExpr *var,bool is_delref)
 
         writeln("  lea %d(%%rbp), %%rax", var->offset);
         return;
-    }
-    if(var->is_pkgcall){
+    }else{
         std::string name = var->package + "." + var->varname;
         writeln("  lea %s(%%rip), %%rax", name.c_str());
         return;
-
-    }else{
-        std::string name = currentFunc->parser->getpkgname() + "." + var->varname;
-        var = rt->gvars[name];
-        if(var){
-            writeln("  lea %s(%%rip), %%rax", name.c_str());
-            return;
-        }
 
     }
     parse_err("AsmError:not support global variable read :%s at line %d co %d\n",
