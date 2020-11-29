@@ -108,7 +108,7 @@ void AsmGen::assign_offsets()
         //TODO: 在parser ast function时 将本地局部变量加入 fn->locals 方便计算偏移量
         // Assign offsets to pass-by-register parameters and local variables.
         for(auto local:fn->locals){
-            IdentExpr* var = local.second;
+            VarExpr* var = local.second;
             bottom += 8;
             bottom = ALIGN_UP(bottom, 8);
             var->offset = -bottom;

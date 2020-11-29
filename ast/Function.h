@@ -11,7 +11,7 @@
 #include "Block.h"
 
 struct Expression;
-struct IdentExpr;
+struct VarExpr;
 class Parser;
 /**
  * 函数
@@ -32,10 +32,10 @@ struct Function{
     Parser* parser;
 
     //保存函数块内的本地变量 for asm gen offset
-    std::unordered_map<std::string,IdentExpr*> locals;
+    std::unordered_map<std::string,VarExpr*> locals;
     //这里保存两份加快查找 因为函数参数在计算栈偏移量的时候和顺序有关
-    std::unordered_map<std::string,IdentExpr*> params_var;
-    std::vector<IdentExpr*>                    params_order_var;
+    std::unordered_map<std::string,VarExpr*> params_var;
+    std::vector<VarExpr*>                    params_order_var;
     //这里表示当前函数参数有可变参数，需要进行可变参数传参
     bool                                       is_variadic;
     int                                        size;

@@ -11,7 +11,7 @@ std::string getTokenString(Token tk){
     //invalid identifier eof
     switch (tk) {
         case INVALID:    return "invalid";
-        case TK_IDENT:   return "ident";
+        case TK_VAR:   return "ident";
         case TK_EOF:     return "eof";
         case LIT_INT:    return "int";
         case LIT_STR:    return "string";
@@ -131,7 +131,7 @@ std::string KVExpr::toString() {
     return str;
 }
 
-std::string IdentExpr::toString() { return "IdentExpr(" + identname + ")"; }
+std::string VarExpr::toString() { return "VarExpr(" + varname + ")"; }
 
 std::string IndexExpr::toString() {
     std::string str = "IndexExpr(index=";

@@ -18,13 +18,13 @@ public:
     explicit Context() = default;
 
     //全局变量表 操作
-    bool       hasVar(const std::string& identname);
-    void       createVar(const std::string& identname,IdentExpr* ident);
-    IdentExpr* getVar(const std::string& identname);
+    bool       hasVar(const std::string& varname);
+    void       createVar(const std::string& varname,VarExpr* ident);
+    VarExpr* getVar(const std::string& varname);
 
 public:
     //保存了作用域内的变量
-    std::unordered_map<std::string,IdentExpr*> vars;
+    std::unordered_map<std::string,VarExpr*> vars;
     //标记变量是否是 函数参数
     std::map<std::string, bool> isFuncArg;
 

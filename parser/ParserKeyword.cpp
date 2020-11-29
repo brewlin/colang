@@ -24,7 +24,7 @@ void Parser::parsePackageDef()
 
     //解析包名
     currentToken = scan();
-    assert(getCurrentToken() == TK_IDENT);
+    assert(getCurrentToken() == TK_VAR);
     std::string pkgname = getCurrentLexeme();
     if(pkgname != this->package){
         parse_err("SynatxError: inconsistent package name token:%d string:%s  line:%d column:%d\n",
@@ -45,8 +45,8 @@ void Parser::parseStructDef()
     assert(getCurrentToken() == KW_STRUCT);
     //解析结构体名
     currentToken = scan();
-    //must TK_IDENT
-    assert(getCurrentToken() == TK_IDENT);
+    //must TK_VAR
+    assert(getCurrentToken() == TK_VAR);
     Struct *s = new Struct();
     s->name  = getCurrentLexeme();
     currentToken = scan();
@@ -58,7 +58,7 @@ void Parser::parseStructDef()
     //end for }
     while(getCurrentToken() != TK_RBRACE){
         //定义成员变量
-        if(getCurrentToken() == TK_IDENT){
+        if(getCurrentToken() == TK_VAR){
 //            s->members.push_back(new IdentDeclaration(getCurrentLexeme(),line,column));
             s->members.push_back(getCurrentLexeme());
             currentToken = scan();
@@ -161,8 +161,8 @@ void Parser::parseImportDef()
     assert(getCurrentToken() == KW_IMPORT);
     //scan one
     currentToken =  scan();
-    //must tk_ident
-    assert(getCurrentToken() == TK_IDENT);
+    //must tk_var
+    assert(getCurrentToken() == TK_VAR);
 
     //parser 当前目录
     std::string abpath = filesys::current_path();

@@ -77,7 +77,7 @@ void AsmGen::CreateFunction(Function *fn,std::deque<Context *> ctx)
 
         for(auto arg : fn->params_order_var){
             //将实参值放入新的上下文中 创建变量
-            funcCtx->createVar(arg->identname,arg);
+            funcCtx->createVar(arg->varname,arg);
         }
         //接下来就是注册 block块
         for(auto& stmt : fn->block->stmts){

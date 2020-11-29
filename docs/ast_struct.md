@@ -14,7 +14,7 @@ struct http
 struct  : KW_STRUCT
 http    : structname
 {       : TK_LBRACE
-post    : identname
+post    : varname
 func    : TK_FUNC
 request : funcname
 (       : TK_LPAREN

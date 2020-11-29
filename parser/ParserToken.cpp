@@ -44,7 +44,7 @@ std::tuple<Token,std::string> Parser::parseKeyword(char c)
     auto result = keywords.find(lexeme);
     return result != keywords.end()
            ? std::make_tuple(result->second,lexeme)
-           : std::make_tuple(TK_IDENT,      lexeme);
+           : std::make_tuple(TK_VAR,      lexeme);
 }
 //解析 * 运算符号 或者是解引用
 //解引用非常危险 需要注意只能在和c函数调用中而存在
@@ -352,11 +352,11 @@ std::vector<std::string> Parser::parseParameterList()
     //解析所有括号内的参数 (..,..,..)
     while(getCurrentToken() != TK_RPAREN){
         //所有的参数都必须是 ident 或者 逗号,
-        if(getCurrentToken() == TK_IDENT)
+        if(getCurrentToken() == TK_VAR)
         {
             //将参数单独保存一份 需要计算 栈偏移量
             if(currentFunc){
-                IdentExpr* var = new IdentExpr(getCurrentLexeme(),line,column);
+                VarExpr* var = new VarExpr(getCurrentLexeme(),line,column);
                 currentFunc->params_var[getCurrentLexeme()] = var;
                 currentFunc->params_order_var.push_back(var);
 

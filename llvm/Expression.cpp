@@ -62,19 +62,19 @@ llvm::Value* ArrayExpr::irgen(Runtime* rt, std::deque<Context*> ctx){
  * 这里是获取变量
  * 这里的变量可能没有初始化 可能返回了一个空
  */
-llvm::Value* IdentExpr::irgen(Runtime* rt, std::deque<Context*> ctx){
+llvm::Value* VarExpr::irgen(Runtime* rt, std::deque<Context*> ctx){
     //变量遍历表 看是否存在
 //    for(auto p = ctx.crbegin(); p != ctx.crend(); ++p){
 //        auto* ctx = *p;
-//        if(auto* var = rt->getVar(this->identname);var != nullptr)
+//        if(auto* var = rt->getVar(this->varname);var != nullptr)
             //["a",123] return 123
             //TODO:这里返回的是 variables 非 Value
 //            return var->value;
 //    }
-    llvm::Value* value = Compiler::getVar(ctx,identname);
+    llvm::Value* value = Compiler::getVar(ctx,varname);
     if( !value ){
         parse_err("AsmError:use of undefined variable %s at line %d co %d\n",
-          identname.c_str(),line,column);
+          varname.c_str(),line,column);
         return nullptr;
     }
     if( value->getType()->isPointerTy() ){
@@ -123,9 +123,9 @@ llvm::Value* AssignExpr::irgen(Runtime* rt, std::deque<Context*> ctx)
     llvm::Value* dst;
     llvm::Value* exp;
 
-    if(typeid(*lhs) == typeid(IdentExpr))
+    if(typeid(*lhs) == typeid(VarExpr))
     {
-        lhsname = dynamic_cast<IdentExpr*>(lhs)->identname;
+        lhsname = dynamic_cast<VarExpr*>(lhs)->varname;
         dst = Compiler::getVar(ctx,lhsname);
         //先求值，用于判断类型 这里对右边子树进行递归求值
         exp = rhs->irgen(rt,ctx);

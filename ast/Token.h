@@ -26,7 +26,7 @@
 //TYPE TOKEN
 enum Token {
     //invalid identifier eof
-    INVALID = 0, TK_IDENT, TK_EOF,
+    INVALID = 0, TK_VAR, TK_EOF,
 
     //int string double char
     LIT_INT,   LIT_STR,  LIT_DOUBLE, LIT_CHAR,

@@ -135,10 +135,10 @@ void  KVExpr::asmgen(std::deque<Context*> ctx){
  * @param ctx
  * @return
  */
-void  IdentExpr::asmgen(std::deque<Context*> ctx){
+void  VarExpr::asmgen(std::deque<Context*> ctx){
     //检查一下全局变量有没有
-    std::string name = AsmGen::currentFunc->parser->getpkgname() + "." + identname;
-    IdentExpr * var  = AsmGen::rt->gvars[name];
+    std::string name = AsmGen::currentFunc->parser->getpkgname() + "." + varname;
+    VarExpr * var  = AsmGen::rt->gvars[name];
     if(var){
         AsmGen::GenAddr(var,is_delref);
         AsmGen::Load();
@@ -148,15 +148,15 @@ void  IdentExpr::asmgen(std::deque<Context*> ctx){
     for(auto p = ctx.crbegin(); p != ctx.crend(); ++p){
         auto* ctx = *p;
 
-        if(auto* var = ctx->getVar(this->identname);var != nullptr)
+        if(auto* var = ctx->getVar(this->varname);var != nullptr)
         {
 
             Function* f = AsmGen::currentFunc;
             //查看变量是属于哪种变量
-            if(f->locals.count(identname))
-                var = f->locals[identname];
+            if(f->locals.count(varname))
+                var = f->locals[varname];
             else
-                var = f->params_var[identname];
+                var = f->params_var[varname];
 
             AsmGen::GenAddr(var,is_delref);
             //如果是解引用就需要在 读取变量了，否则这个变量是直接传递给下游
@@ -166,7 +166,7 @@ void  IdentExpr::asmgen(std::deque<Context*> ctx){
         }
     }
     parse_err("AsmError:use of undefined variable %s at line %d co %d\n",
-          identname.c_str(),this->line,this->column);
+          varname.c_str(),this->line,this->column);
 }
 /**
  * 索引 数组
@@ -178,13 +178,13 @@ void  IndexExpr::asmgen(std::deque<Context*> ctx) {
     for (auto p = ctx.crbegin(); p != ctx.crend(); ++p) {
         auto *context = *p;
 
-        if (auto *var = context->getVar(this->identname);var != nullptr) {
+        if (auto *var = context->getVar(this->varname);var != nullptr) {
             Function* f = AsmGen::currentFunc;
             //查看变量是属于哪种变量
-            if(f->locals.count(identname))
-                var = f->locals[identname];
+            if(f->locals.count(varname))
+                var = f->locals[varname];
             else
-                var = f->params_var[identname];
+                var = f->params_var[varname];
 
             //push arr 获取数组偏移量
             AsmGen::GenAddr(var);
@@ -201,7 +201,7 @@ void  IndexExpr::asmgen(std::deque<Context*> ctx) {
         }
     }
     //没找到 数组变量 抛出异常 exit退出
-    parse_err("AsmError: index-expr use of undefined variable %s at line %d col %d\n",identname.c_str(),line,column);
+    parse_err("AsmError: index-expr use of undefined variable %s at line %d col %d\n",varname.c_str(),line,column);
 }
 
 /**
@@ -220,10 +220,10 @@ void  FunCallExpr::asmgen(std::deque<Context*> ctx)
     bool have_variadic = false;
     Function* cfunc = AsmGen::currentFunc;
     for(auto arg : args){
-        if (typeid(*arg) == typeid(IdentExpr) && cfunc){
-            IdentExpr* var = dynamic_cast<IdentExpr*>(arg);
-            if(auto res = cfunc->params_var.find(var->identname) ; res != cfunc->params_var.end()){
-                IdentExpr* var2  = res->second;
+        if (typeid(*arg) == typeid(VarExpr) && cfunc){
+            VarExpr* var = dynamic_cast<VarExpr*>(arg);
+            if(auto res = cfunc->params_var.find(var->varname) ; res != cfunc->params_var.end()){
+                VarExpr* var2  = res->second;
                 if(var2->is_variadic)
                     have_variadic = true;
             }
@@ -316,21 +316,21 @@ void  AssignExpr::asmgen(std::deque<Context*> ctx){
     Function* f = AsmGen::currentFunc;
 
     //如果左值是一个标识符 表达式: a = 13;
-    if(typeid(*lhs) == typeid(IdentExpr)){
-        IdentExpr* varExpr = dynamic_cast<IdentExpr*>(lhs);
+    if(typeid(*lhs) == typeid(VarExpr)){
+        VarExpr* varExpr = dynamic_cast<VarExpr*>(lhs);
         //检查一下全局变量有没有
-        std::string name = AsmGen::currentFunc->parser->getpkgname() + "." + varExpr->identname;
+        std::string name = AsmGen::currentFunc->parser->getpkgname() + "." + varExpr->varname;
         if(AsmGen::rt->gvars[name]){
             varExpr = AsmGen::rt->gvars[name];
-        }else if(f->params_var.count(varExpr->identname)){
+        }else if(f->params_var.count(varExpr->varname)){
             //1. 这个变量可能是函数参数变量，非本地变量
-            varExpr = f->params_var[varExpr->identname];
+            varExpr = f->params_var[varExpr->varname];
             //这个变量一开始可能没有被注册过 需要手动注册到context中
-            (ctx.back())->createVar(varExpr->identname,varExpr);
+            (ctx.back())->createVar(varExpr->varname,varExpr);
         }else{
-            varExpr = f->locals[varExpr->identname];
+            varExpr = f->locals[varExpr->varname];
             //这个变量一开始可能没有被注册过 需要手动注册到context中
-            (ctx.back())->createVar(varExpr->identname,varExpr);
+            (ctx.back())->createVar(varExpr->varname,varExpr);
         }
 
         //f->locals 保存了本地变量的 唯一偏移量，所以需要通过name 来找到对应的 变量
@@ -349,17 +349,17 @@ void  AssignExpr::asmgen(std::deque<Context*> ctx){
     // arr_updateone(arr,index,var)
     }else if(typeid(*lhs) == typeid(IndexExpr))
     {
-        std::string identname = dynamic_cast<IndexExpr*>(lhs)->identname;
-        IdentExpr* varExpr;
+        std::string varname = dynamic_cast<IndexExpr*>(lhs)->varname;
+        VarExpr* varExpr;
         //1. 这个变量可能是函数参数变量，非本地变量
-        if(f->params_var.count(identname))
-            varExpr = f->params_var[identname];
+        if(f->params_var.count(varname))
+            varExpr = f->params_var[varname];
         else
-            varExpr = f->locals[identname];
+            varExpr = f->locals[varname];
         if(!varExpr)
-            parse_err("SyntaxError: not find variable %s at line %d, %col\n", identname.c_str(),line,column);
+            parse_err("SyntaxError: not find variable %s at line %d, %col\n", varname.c_str(),line,column);
         //这个变量一开始可能没有被注册过 需要手动注册到context中
-        (ctx.back())->createVar(varExpr->identname,varExpr);
+        (ctx.back())->createVar(varExpr->varname,varExpr);
 
         //push arr 获取数组偏移量
         AsmGen::GenAddr(varExpr);

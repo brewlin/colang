@@ -7,31 +7,31 @@
 
 /**
  * 是否存在该变量
- * @param identname
+ * @param varname
  * @return
  */
-bool Context::hasVar(const std::string &identname)
+bool Context::hasVar(const std::string &varname)
 {
-    return vars.count(identname) == 1;
+    return vars.count(varname) == 1;
 
 }
 /**
  * 添加变量
- * @param identname
+ * @param varname
  * @param value
  */
-void Context::createVar(const std::string &identname,IdentExpr* ident)
+void Context::createVar(const std::string &varname,VarExpr* ident)
 {
-    vars.emplace(identname,ident);
+    vars.emplace(varname,ident);
 }
 /**
  * 获取变量
- * @param identname
+ * @param varname
  * @return
  */
-IdentExpr* Context::getVar(const std::string &identname)
+VarExpr* Context::getVar(const std::string &varname)
 {
-    if(auto res = vars.find(identname) ; res != vars.end())
+    if(auto res = vars.find(varname) ; res != vars.end())
         return res->second;
     return nullptr;
 }

@@ -95,14 +95,14 @@ struct KVExpr : public Expression {
     std::string  toString() override;
 };
 
-struct IdentExpr : public Expression {
-    explicit IdentExpr(std::string identname, int line, int column)
+struct VarExpr : public Expression {
+    explicit VarExpr(std::string varname, int line, int column)
             : Expression(line, column),
-            identname(std::move(identname)),
+            varname(std::move(varname)),
             is_local(true),
             is_variadic(false),
             is_delref(false){}
-    std::string  identname;
+    std::string  varname;
     //在 asm generate 时 作为 bp 偏移量
     int          offset;
     //在asm  generate 时作为 唯一标号
@@ -118,7 +118,7 @@ struct IdentExpr : public Expression {
 struct IndexExpr : public Expression {
     explicit IndexExpr(int line, int column) : Expression(line, column) {}
 
-    std::string identname;
+    std::string varname;
     Expression* index{};
 
     void         asmgen( std::deque<Context*> ctx) override;

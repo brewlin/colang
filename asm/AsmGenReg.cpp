@@ -13,7 +13,7 @@
 * 加载变量 计算变量
 * @param expr
 */
-void AsmGen::GenAddr(IdentExpr *var,bool is_delref)
+void AsmGen::GenAddr(VarExpr *var,bool is_delref)
 {
     // 局部变量 的栈偏移量之前就已经计算出来了 这里只需要
     if (var->is_local) {
@@ -27,7 +27,7 @@ void AsmGen::GenAddr(IdentExpr *var,bool is_delref)
         writeln("  lea %d(%%rbp), %%rax", var->offset);
         return;
     }
-    std::string name = currentFunc->parser->getpkgname() + "." + var->identname;
+    std::string name = currentFunc->parser->getpkgname() + "." + var->varname;
     var = rt->gvars[name];
     if(var){
         writeln("  lea %s(%%rip), %%rax", name.c_str());
@@ -35,7 +35,7 @@ void AsmGen::GenAddr(IdentExpr *var,bool is_delref)
     }
 
     parse_err("AsmError:not support global variable read :%s at line %d co %d\n",
-              var->identname.c_str(),var->line,var->column);
+              var->varname.c_str(),var->line,var->column);
 //     全局变量 直接根据标号来引用即可
 //    writeln("  lea %s(%%rip), %%rax", var->name.c_str());
 
@@ -87,13 +87,13 @@ AsmGen::Push_arg(
     //查看当前调用函数参数里有没有可变参数
     bool current_call_have_im = false;
     //判断当前可变参数是否需要解引用传递
-    IdentExpr* need_delref;
+    VarExpr* need_delref;
     //查看当前函数里是否有可变参数
     for(auto arg : args){
-        if (typeid(*arg) == typeid(IdentExpr) && currentFunc){
-            IdentExpr* var = dynamic_cast<IdentExpr*>(arg);
-            if(auto res = currentFunc->params_var.find(var->identname) ; res != currentFunc->params_var.end()){
-                IdentExpr* var2  = res->second;
+        if (typeid(*arg) == typeid(VarExpr) && currentFunc){
+            VarExpr* var = dynamic_cast<VarExpr*>(arg);
+            if(auto res = currentFunc->params_var.find(var->varname) ; res != currentFunc->params_var.end()){
+                VarExpr* var2  = res->second;
                 if(var2->is_variadic){
                     need_delref = var;
                     current_call_have_im = true;

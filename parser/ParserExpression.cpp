@@ -19,16 +19,16 @@ Expression* Parser::parseExpression(short oldPrecedence)
     if (anyone(getCurrentToken(), TK_ASSIGN, TK_PLUS_AGN, TK_MINUS_AGN,
                TK_MUL_AGN, TK_DIV_AGN, TK_MOD_AGN,TK_BITAND_AGN,TK_BITOR_AGN,TK_SHIFTL_AGN,TK_SHIFTR_AGN)) {
         // 确保赋值左边是一个变量或者数组索引（arr[x]=5这种)
-        if (typeid(*p) != typeid(IdentExpr) &&
+        if (typeid(*p) != typeid(VarExpr) &&
             typeid(*p) != typeid(IndexExpr) &&
             typeid(*p) != typeid(MemberExpr)) {
             parse_err("SyntaxError: can not assign to %s\n", typeid(*p).name());
         }
-        if (typeid(*p) == typeid(IdentExpr) && currentFunc){
-            IdentExpr* var = dynamic_cast<IdentExpr*>(p);
+        if (typeid(*p) == typeid(VarExpr) && currentFunc){
+            VarExpr* var = dynamic_cast<VarExpr*>(p);
             //先判断一下这个变量是否是属于参数变量，否则不需要在本地存储一份 不然在栈偏移量计算的时候会出错
-            if(!currentFunc->params_var.count(var->identname)){
-                currentFunc->locals[var->identname] = var;
+            if(!currentFunc->params_var.count(var->varname)){
+                currentFunc->locals[var->varname] = var;
             }
         }
 
@@ -91,7 +91,7 @@ Expression* Parser::parseUnaryExpr()
         //返回后可以挂在一颗左子树上
         return val;
         //如果是字面值，标识符，等，就调用公共表达式解析
-    }else if(anyone(getCurrentToken(),LIT_DOUBLE,LIT_INT,LIT_CHAR,LIT_STR,TK_IDENT,TK_LPAREN,TK_LBRACKET,
+    }else if(anyone(getCurrentToken(),LIT_DOUBLE,LIT_INT,LIT_CHAR,LIT_STR,TK_VAR,TK_LPAREN,TK_LBRACKET,
                     TK_LBRACE,TK_RBRACE,KW_TRUE,KW_FALSE,KW_NULL,KW_NEW,TK_DOT,TK_DELREF)){
         return parsePrimaryExpr();
     }
@@ -112,16 +112,16 @@ Expression* Parser::parsePrimaryExpr()
         currentToken = scan();
         //接下来肯定是一个变量 否则就报错
         Expression *p = parsePrimaryExpr();
-        if (typeid(*p) != typeid(IdentExpr))
-            parse_err("SyntaxError: for del reference should be ident not to be %s"
+        if (typeid(*p) != typeid(VarExpr))
+            parse_err("SyntaxError: for del reference should be var not to be %s"
                       " line:%d column:%d\n", typeid(*p).name(),line,column);
-        IdentExpr* var = dynamic_cast<IdentExpr*>(p);
+        VarExpr* var = dynamic_cast<VarExpr*>(p);
         var->is_delref = true;
         return var;
 
-    }else if(getCurrentToken() == TK_IDENT)
+    }else if(getCurrentToken() == TK_VAR)
     {
-        auto ident = getCurrentLexeme();
+        auto var = getCurrentLexeme();
         //去掉标识符
         currentToken = scan();
         switch (getCurrentToken()){
@@ -130,11 +130,11 @@ Expression* Parser::parsePrimaryExpr()
             case TK_DOT:{
                 auto* val = new FunCallExpr(line,column);
                 val->is_pkgcall = true;
-                val->package    = ident;
+                val->package    = var;
 
                 //去掉.
                 currentToken = scan();
-                assert(getCurrentToken() == TK_IDENT);
+                assert(getCurrentToken() == TK_VAR);
                 val->funcname = getCurrentLexeme();
                 //读取 (
                 currentToken = scan();
@@ -154,11 +154,11 @@ Expression* Parser::parsePrimaryExpr()
                 currentToken = scan();
                 return val;
             }
-            //说明可能是函数调用 func()  ident = func
+            //说明可能是函数调用 func()  var = func
             case TK_LPAREN:{
                 currentToken = scan();
                 auto* val = new FunCallExpr(line,column);
-                val->funcname = ident;
+                val->funcname = var;
 
                 //循环解析实参 func(1,2,3); while( c != ')');
                 while(getCurrentToken() != TK_RPAREN){
@@ -177,7 +177,7 @@ Expression* Parser::parsePrimaryExpr()
                 //去掉[
                 currentToken = scan();
                 auto* val = new IndexExpr(line,column);
-                val->identname = ident;
+                val->varname = var;
                 //解析索引 没有索引则走新增操作
                 val->index = parseExpression();
                 assert(getCurrentToken() == TK_RBRACKET);
@@ -187,12 +187,12 @@ Expression* Parser::parsePrimaryExpr()
             }
             default:
                 //全局变量
-                IdentExpr* var = new IdentExpr(ident,line,column);
+                VarExpr* varexpr = new VarExpr(var,line,column);
                 if(!currentFunc){
-                    rt->gvars[package + "." + ident] = var;
-                    var->is_local = false;
+                    rt->gvars[package + "." + var] = varexpr;
+                    varexpr->is_local = false;
                 }
-                return var;
+                return varexpr;
         }
     }else if(getCurrentToken() == TK_DOT)
     {
@@ -201,8 +201,8 @@ Expression* Parser::parsePrimaryExpr()
         val->varname = getCurrentLexeme();
         //scan
         currentToken = scan();
-        //must ident
-        assert(getCurrentToken() == TK_IDENT);
+        //must var
+        assert(getCurrentToken() == TK_VAR);
         val->membername = getCurrentLexeme();
         //check ()
         currentToken = scan();
@@ -337,8 +337,8 @@ Expression* Parser::parsePrimaryExpr()
         //去掉 new
         currentToken = scan();
         Debug("got new keywords:%s",getCurrentLexeme().c_str());
-        //must ident
-        assert(getCurrentToken() == TK_IDENT);
+        //must var
+        assert(getCurrentToken() == TK_VAR);
         auto* ret = new NewExpr(line,column);
         ret->type = getCurrentLexeme();
         //must TK_LPAREN TK_RPAREN
