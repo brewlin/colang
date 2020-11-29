@@ -118,10 +118,14 @@ struct VarExpr : public Expression {
 };
 
 struct IndexExpr : public Expression {
-    explicit IndexExpr(int line, int column) : Expression(line, column) {}
+    explicit IndexExpr(int line, int column) 
+    : Expression(line, column),is_pkgcall(false) {}
 
     std::string varname;
     Expression* index{};
+    //可能进行包变量调用
+    bool        is_pkgcall;
+    std::string package;
 
     void         asmgen( std::deque<Context*> ctx) override;
     std::string  toString() override;

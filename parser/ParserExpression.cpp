@@ -305,6 +305,11 @@ Expression* Parser::parseVarExpr()
                 call->is_pkgcall  = true;
                 call->package     = var;
                 return call;
+            }else if(getCurrentToken() == TK_LBRACKET){
+                IndexExpr* index = dynamic_cast<IndexExpr*>(parseIndexExpr(pfuncname));
+                index->is_pkgcall  = true;
+                index->package     = var;
+                return index;
             }else{
                 //说明是跨包全局变量访问
                 VarExpr* gvar    = new VarExpr(pfuncname,line,column);
@@ -314,22 +319,11 @@ Expression* Parser::parseVarExpr()
             }
         }
         //说明可能是函数调用 func()  var = func
-        case TK_LPAREN:{
+        case TK_LPAREN:
             return parseFuncallExpr(var);
-        }
-            //解析 var[i] 索引表达式
-        case TK_LBRACKET:{
-            //去掉[
-            currentToken = scan();
-            auto* val = new IndexExpr(line,column);
-            val->varname = var;
-            //解析索引 没有索引则走新增操作
-            val->index = parseExpression();
-            assert(getCurrentToken() == TK_RBRACKET);
-            //去掉]
-            currentToken = scan();
-            return val;
-        }
+        //解析 var[i] 索引表达式
+        case TK_LBRACKET:
+            return parseIndexExpr(var);
         default:
             VarExpr* varexpr = new VarExpr(var,line,column);
             //没有在函数作用内之外的都为全局变量，存储在静态代码区
@@ -358,4 +352,16 @@ Expression*     Parser::parseFuncallExpr(std::string callname)
     assert(getCurrentToken() == TK_RPAREN);
     currentToken = scan();
     return val;  
+}
+Expression* Parser::parseIndexExpr(std::string varname){
+    //去掉[
+    currentToken = scan();
+    auto* val = new IndexExpr(line,column);
+    val->varname = varname;
+    //解析索引 没有索引则走新增操作
+    val->index = parseExpression();
+    assert(getCurrentToken() == TK_RBRACKET);
+    //去掉]
+    currentToken = scan();
+    return val;
 }

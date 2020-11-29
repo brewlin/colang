@@ -46,7 +46,6 @@ func other_pkg_test()
         os.exit(1)
     }
     fmt.println(pkg1.global_a)
-
     
 }
 

@@ -66,6 +66,7 @@ private:
     Expression*     parsePrimaryExpr();
     Expression*     parseVarExpr();
     Expression*     parseFuncallExpr(std::string callname);
+    Expression*     parseIndexExpr(std::string varname);
 
     short           precedence(Token op);
     Block*          parseBlock();

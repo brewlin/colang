@@ -189,7 +189,34 @@ void  VarExpr::asmgen(std::deque<Context*> ctx){
  * @return
  */
 void  IndexExpr::asmgen(std::deque<Context*> ctx) {
-    //变量遍历表 看是否存在
+    VarExpr* var;
+    //看看是否是包变量调用
+    if(is_pkgcall){
+        std::string gname = package + "." + varname;
+        var  = AsmGen::rt->gvars[gname];
+        //显式进行全局变量调用则需要强制检查
+        if(!var) parse_err("AsmError:use of undefined global variable %s at line %d co %d\n",
+            gname.c_str(),this->line,this->column);
+    }else{
+        //普通变量如果是一个管局变量则默认进行全局变量操作
+        std::string gname = AsmGen::currentFunc->parser->getpkgname() + "." + varname;
+        var  = AsmGen::rt->gvars[gname];
+    }
+    if(var){
+        //push arr 获取数组偏移量
+        AsmGen::GenAddr(var);
+        AsmGen::Load();
+        AsmGen::Push();
+
+        //push index 计算索引
+        this->index->asmgen(ctx);
+        AsmGen::Push();
+
+        //call arr_get(arr,index)
+        Internal::kv_get();
+        return;
+    }
+    //接下来就是本地变量和 本地函数参数
     for (auto p = ctx.crbegin(); p != ctx.crend(); ++p) {
         auto *context = *p;
 
@@ -371,13 +398,26 @@ void  AssignExpr::asmgen(std::deque<Context*> ctx){
     // arr_updateone(arr,index,var)
     }else if(typeid(*lhs) == typeid(IndexExpr))
     {
-        std::string varname = dynamic_cast<IndexExpr*>(lhs)->varname;
+        IndexExpr* index    = dynamic_cast<IndexExpr*>(lhs);
+        std::string varname = index->varname;
         VarExpr* varExpr;
-        //1. 这个变量可能是函数参数变量，非本地变量
-        if(f->params_var.count(varname))
+        std::string gname = AsmGen::currentFunc->parser->getpkgname() + "." + varname;
+        //是否是包变量访问
+        if(index->is_pkgcall){
+            gname = index->package + "." + varname;
+            varExpr = AsmGen::rt->gvars[gname];
+            //显式进行全局变量调用则需要强制检查
+            if(!varExpr) parse_err("AsmError:use of undefined global variable %s at line %d co %d\n",
+                gname.c_str(),this->line,this->column);
+        //是否是全句变量
+        }else if(AsmGen::rt->gvars[gname]){
+            varExpr = AsmGen::rt->gvars[gname];
+        }else if(f->params_var.count(varname)){
+            //1. 这个变量可能是函数参数变量，非本地变量
             varExpr = f->params_var[varname];
-        else
+        }else{
             varExpr = f->locals[varname];
+        }
         if(!varExpr)
             parse_err("SyntaxError: not find variable %s at line %d, %col\n", varname.c_str(),line,column);
         //这个变量一开始可能没有被注册过 需要手动注册到context中
@@ -389,7 +429,6 @@ void  AssignExpr::asmgen(std::deque<Context*> ctx){
         AsmGen::Push();
 
         //push index 计算索引
-        IndexExpr* index= dynamic_cast<IndexExpr*>(lhs);
         if(!index->index) {
             rhs->asmgen(ctx);
             AsmGen::Push();
