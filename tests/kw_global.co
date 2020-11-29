@@ -1,0 +1,31 @@
+package main
+
+# this is a global a
+global_a = 1
+
+import fmt
+import os
+
+func test(){
+    global_a = "test"
+}
+
+
+func main(){
+    global_a = 1
+    if(global_a != 1){
+        fmt.println("test global int failed")
+        os.exit(1)
+    }
+    fmt.println("test global int successed")
+
+    test()
+    if(global_a != "test"){
+        fmt.println("test global string failed")
+        os.exit(1)
+
+    }
+    fmt.println("test global string success ",global_a)
+
+
+}

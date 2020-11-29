@@ -27,6 +27,12 @@ void AsmGen::GenAddr(IdentExpr *var,bool is_delref)
         writeln("  lea %d(%%rbp), %%rax", var->offset);
         return;
     }
+    std::string name = currentFunc->parser->getpkgname() + "." + var->identname;
+    var = rt->gvars[name];
+    if(var){
+        writeln("  lea %s(%%rip), %%rax", name.c_str());
+        return;
+    }
 
     parse_err("AsmError:not support global variable read :%s at line %d co %d\n",
               var->identname.c_str(),var->line,var->column);

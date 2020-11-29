@@ -22,6 +22,13 @@ void AsmGen::registerStrings()
     }
 
 }
+void AsmGen::registerVars()
+{
+    for(auto &var:rt->gvars){
+        string name = var.first;
+        writeln("  .comm   %s,8,8",name.c_str());
+    }
+}
 /**
  * 创建全局字符串
  * @param expr

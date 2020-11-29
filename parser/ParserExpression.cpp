@@ -186,7 +186,13 @@ Expression* Parser::parsePrimaryExpr()
                 return val;
             }
             default:
-                return new IdentExpr(ident,line,column);
+                //全局变量
+                IdentExpr* var = new IdentExpr(ident,line,column);
+                if(!currentFunc){
+                    rt->gvars[package + "." + ident] = var;
+                    var->is_local = false;
+                }
+                return var;
         }
     }else if(getCurrentToken() == TK_DOT)
     {

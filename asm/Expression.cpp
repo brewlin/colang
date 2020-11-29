@@ -136,7 +136,14 @@ void  KVExpr::asmgen(std::deque<Context*> ctx){
  * @return
  */
 void  IdentExpr::asmgen(std::deque<Context*> ctx){
-
+    //检查一下全局变量有没有
+    std::string name = AsmGen::currentFunc->parser->getpkgname() + "." + identname;
+    IdentExpr * var  = AsmGen::rt->gvars[name];
+    if(var){
+        AsmGen::GenAddr(var,is_delref);
+        AsmGen::Load();
+        return;
+    }
     //变量遍历表 看是否存在
     for(auto p = ctx.crbegin(); p != ctx.crend(); ++p){
         auto* ctx = *p;
@@ -311,14 +318,20 @@ void  AssignExpr::asmgen(std::deque<Context*> ctx){
     //如果左值是一个标识符 表达式: a = 13;
     if(typeid(*lhs) == typeid(IdentExpr)){
         IdentExpr* varExpr = dynamic_cast<IdentExpr*>(lhs);
-
-        //1. 这个变量可能是函数参数变量，非本地变量
-        if(f->params_var.count(varExpr->identname))
+        //检查一下全局变量有没有
+        std::string name = AsmGen::currentFunc->parser->getpkgname() + "." + varExpr->identname;
+        if(AsmGen::rt->gvars[name]){
+            varExpr = AsmGen::rt->gvars[name];
+        }else if(f->params_var.count(varExpr->identname)){
+            //1. 这个变量可能是函数参数变量，非本地变量
             varExpr = f->params_var[varExpr->identname];
-        else
+            //这个变量一开始可能没有被注册过 需要手动注册到context中
+            (ctx.back())->createVar(varExpr->identname,varExpr);
+        }else{
             varExpr = f->locals[varExpr->identname];
-        //这个变量一开始可能没有被注册过 需要手动注册到context中
-        (ctx.back())->createVar(varExpr->identname,varExpr);
+            //这个变量一开始可能没有被注册过 需要手动注册到context中
+            (ctx.back())->createVar(varExpr->identname,varExpr);
+        }
 
         //f->locals 保存了本地变量的 唯一偏移量，所以需要通过name 来找到对应的 变量
         AsmGen::GenAddr(varExpr);

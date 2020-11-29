@@ -28,6 +28,8 @@ public:
 public:
     //存储结构体定义
     std::unordered_map<std::string,Struct*>    structs;
+    //全局变量
+    std::unordered_map<std::string,IdentExpr*> gvars;
 
     //顺序存储函数表 for irgen bin
     std::vector<Function*> order_funcs;

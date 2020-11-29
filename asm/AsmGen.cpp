@@ -37,9 +37,11 @@ void AsmGen::execute()
     registerMain();
     //1 计算变量的栈偏移量
     assign_offsets();
-    //2 注册全局 string
+    //2 注册全局 var
+    registerVars();
+    //3 注册全局 string
     registerStrings();
-    //3 注册 函数信息
+    //4 注册 函数信息
     registerFuncs();
 
     fclose(output_file);

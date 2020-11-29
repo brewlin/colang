@@ -45,6 +45,7 @@ public:
 
     void registerMain();
     void registerStrings();
+    void registerVars();
     //创建全局string
     static void CreateGlobalString(StringExpr* expr);
 
