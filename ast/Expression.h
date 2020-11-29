@@ -101,7 +101,8 @@ struct VarExpr : public Expression {
             varname(std::move(varname)),
             is_local(true),
             is_variadic(false),
-            is_delref(false){}
+            is_delref(false),
+            is_pkgcall(false){}
     std::string  varname;
     //在 asm generate 时 作为 bp 偏移量
     int          offset;
@@ -110,6 +111,9 @@ struct VarExpr : public Expression {
     bool         is_local;
     bool         is_variadic;
     bool         is_delref;
+    //当前变量为全局变量时 所属包名
+    std::string  package;
+    bool         is_pkgcall;
 
     void         asmgen( std::deque<Context*> ctx) override;
     std::string  toString() override;

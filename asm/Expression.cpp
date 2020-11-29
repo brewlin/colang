@@ -129,21 +129,32 @@ void  KVExpr::asmgen(std::deque<Context*> ctx){
 }
 
 /**
- * load 变量
+ * load 变量,这里说明一下: 所有变量的读取如果没有显示指明跨包访问全局变量则默认进行当前全局变量访问
  * 1 计算偏移量
  * 2 加载变量
  * @param ctx
  * @return
  */
 void  VarExpr::asmgen(std::deque<Context*> ctx){
-    //检查一下全局变量有没有
-    std::string name = AsmGen::currentFunc->parser->getpkgname() + "." + varname;
-    VarExpr * var  = AsmGen::rt->gvars[name];
+    //检查全局变量
+    VarExpr* var;
+    if(is_pkgcall){
+        std::string gname = package + "." + varname;
+        var  = AsmGen::rt->gvars[gname];
+        //显式进行全局变量调用则需要强制检查
+        if(!var) parse_err("AsmError:use of undefined global variable %s at line %d co %d\n",
+            gname.c_str(),this->line,this->column);
+    }else{
+        //其实情况 默认检查变量是否是全局变量，不是就从本地检查
+        std::string gname = AsmGen::currentFunc->parser->getpkgname() + "." + varname;
+        var  = AsmGen::rt->gvars[gname];
+    }
     if(var){
         AsmGen::GenAddr(var,is_delref);
-        AsmGen::Load();
+        if(!is_delref) AsmGen::Load();
         return;
     }
+
     //变量遍历表 看是否存在
     for(auto p = ctx.crbegin(); p != ctx.crend(); ++p){
         auto* ctx = *p;
@@ -318,10 +329,17 @@ void  AssignExpr::asmgen(std::deque<Context*> ctx){
     //如果左值是一个标识符 表达式: a = 13;
     if(typeid(*lhs) == typeid(VarExpr)){
         VarExpr* varExpr = dynamic_cast<VarExpr*>(lhs);
+        std::string gname = AsmGen::currentFunc->parser->getpkgname() + "." + varExpr->varname;
+
         //检查一下全局变量有没有
-        std::string name = AsmGen::currentFunc->parser->getpkgname() + "." + varExpr->varname;
-        if(AsmGen::rt->gvars[name]){
-            varExpr = AsmGen::rt->gvars[name];
+        if(varExpr->is_pkgcall){
+            gname = varExpr->package + "." + varExpr->varname;
+            varExpr = AsmGen::rt->gvars[gname];
+            //显式进行全局变量调用则需要强制检查
+            if(!varExpr) parse_err("AsmError:use of undefined global variable %s at line %d co %d\n",
+                gname.c_str(),this->line,this->column);
+        }else if(AsmGen::rt->gvars[gname]){
+            varExpr = AsmGen::rt->gvars[gname];
         }else if(f->params_var.count(varExpr->varname)){
             //1. 这个变量可能是函数参数变量，非本地变量
             varExpr = f->params_var[varExpr->varname];

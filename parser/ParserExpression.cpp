@@ -121,79 +121,10 @@ Expression* Parser::parsePrimaryExpr()
 
     }else if(getCurrentToken() == TK_VAR)
     {
-        auto var = getCurrentLexeme();
-        //去掉标识符
-        currentToken = scan();
-        switch (getCurrentToken()){
-
-            //fmt.println 说明是一种包名的函数调用
-            case TK_DOT:{
-                auto* val = new FunCallExpr(line,column);
-                val->is_pkgcall = true;
-                val->package    = var;
-
-                //去掉.
-                currentToken = scan();
-                assert(getCurrentToken() == TK_VAR);
-                val->funcname = getCurrentLexeme();
-                //读取 (
-                currentToken = scan();
-                assert(getCurrentToken() == TK_LPAREN);
-                //去掉（
-                currentToken = scan();
-                //读取下一个
-                //循环解析实参 func(1,2,3); while( c != ')');
-                while(getCurrentToken() != TK_RPAREN){
-                    val->args.push_back(parseExpression());
-                    //ignore ','
-                    if(getCurrentToken() == TK_COMMA)
-                        currentToken = scan();
-                }
-                //去掉 )
-                assert(getCurrentToken() == TK_RPAREN);
-                currentToken = scan();
-                return val;
-            }
-            //说明可能是函数调用 func()  var = func
-            case TK_LPAREN:{
-                currentToken = scan();
-                auto* val = new FunCallExpr(line,column);
-                val->funcname = var;
-
-                //循环解析实参 func(1,2,3); while( c != ')');
-                while(getCurrentToken() != TK_RPAREN){
-                    val->args.push_back(parseExpression());
-                    //ignore ','
-                    if(getCurrentToken() == TK_COMMA)
-                        currentToken = scan();
-                }
-                //去掉 )
-                assert(getCurrentToken() == TK_RPAREN);
-                currentToken = scan();
-                return val;
-            }
-                //解析 var[i] 索引表达式
-            case TK_LBRACKET:{
-                //去掉[
-                currentToken = scan();
-                auto* val = new IndexExpr(line,column);
-                val->varname = var;
-                //解析索引 没有索引则走新增操作
-                val->index = parseExpression();
-                assert(getCurrentToken() == TK_RBRACKET);
-                //去掉]
-                currentToken = scan();
-                return val;
-            }
-            default:
-                //全局变量
-                VarExpr* varexpr = new VarExpr(var,line,column);
-                if(!currentFunc){
-                    rt->gvars[package + "." + var] = varexpr;
-                    varexpr->is_local = false;
-                }
-                return varexpr;
-        }
+        //1 解析变量定义 : var
+        //2 解析包名调用 : fmt.println()
+        //3 解析全局调用 : fmt.variable
+        return parseVarExpr();
     }else if(getCurrentToken() == TK_DOT)
     {
         Debug("got token dot ");
@@ -350,4 +281,83 @@ Expression* Parser::parsePrimaryExpr()
         return ret;
     }
     return nullptr;
+}
+Expression* Parser::parseVarExpr()
+{
+    auto var = getCurrentLexeme();
+    //去掉标识符
+    currentToken = scan();
+    switch (getCurrentToken()){
+
+        //1. fmt.println 说明是一种包名的函数调用
+        //2. fmt.global_var 说明是一种全局变量调用
+        case TK_DOT:{
+            //去掉.
+            currentToken = scan();
+            assert(getCurrentToken() == TK_VAR);
+            std::string pfuncname = getCurrentLexeme();
+
+            //下一个如果是 `(` 则说明为跨包函数调用
+            currentToken = scan();
+            if( getCurrentToken() == TK_LPAREN)
+            {
+                FunCallExpr* call = dynamic_cast<FunCallExpr*>(parseFuncallExpr(pfuncname));
+                call->is_pkgcall  = true;
+                call->package     = var;
+                return call;
+            }else{
+                //说明是跨包全局变量访问
+                VarExpr* gvar    = new VarExpr(pfuncname,line,column);
+                gvar->package    = var;
+                gvar->is_local   = false;
+                gvar->is_pkgcall = true;
+                return gvar;
+            }
+        }
+        //说明可能是函数调用 func()  var = func
+        case TK_LPAREN:{
+            return parseFuncallExpr(var);
+        }
+            //解析 var[i] 索引表达式
+        case TK_LBRACKET:{
+            //去掉[
+            currentToken = scan();
+            auto* val = new IndexExpr(line,column);
+            val->varname = var;
+            //解析索引 没有索引则走新增操作
+            val->index = parseExpression();
+            assert(getCurrentToken() == TK_RBRACKET);
+            //去掉]
+            currentToken = scan();
+            return val;
+        }
+        default:
+            VarExpr* varexpr = new VarExpr(var,line,column);
+            //没有在函数作用内之外的都为全局变量，存储在静态代码区
+            if(!currentFunc){
+                rt->gvars[package + "." + var] = varexpr;
+                varexpr->is_local = false;
+                varexpr->is_pkgcall = true;
+                varexpr->package  = this->package;
+            }
+            return varexpr;
+    } 
+}
+Expression*     Parser::parseFuncallExpr(std::string callname)
+{
+    currentToken = scan();
+    auto* val = new FunCallExpr(line,column);
+    val->funcname = callname;
+
+    //循环解析实参 func(1,2,3); while( c != ')');
+    while(getCurrentToken() != TK_RPAREN){
+        val->args.push_back(parseExpression());
+        //ignore ','
+        if(getCurrentToken() == TK_COMMA)
+            currentToken = scan();
+    }
+    //去掉 )
+    assert(getCurrentToken() == TK_RPAREN);
+    currentToken = scan();
+    return val;  
 }

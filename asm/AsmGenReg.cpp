@@ -27,13 +27,20 @@ void AsmGen::GenAddr(VarExpr *var,bool is_delref)
         writeln("  lea %d(%%rbp), %%rax", var->offset);
         return;
     }
-    std::string name = currentFunc->parser->getpkgname() + "." + var->varname;
-    var = rt->gvars[name];
-    if(var){
+    if(var->is_pkgcall){
+        std::string name = var->package + "." + var->varname;
         writeln("  lea %s(%%rip), %%rax", name.c_str());
         return;
-    }
 
+    }else{
+        std::string name = currentFunc->parser->getpkgname() + "." + var->varname;
+        var = rt->gvars[name];
+        if(var){
+            writeln("  lea %s(%%rip), %%rax", name.c_str());
+            return;
+        }
+
+    }
     parse_err("AsmError:not support global variable read :%s at line %d co %d\n",
               var->varname.c_str(),var->line,var->column);
 //     全局变量 直接根据标号来引用即可

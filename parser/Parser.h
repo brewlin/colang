@@ -64,6 +64,8 @@ private:
     Expression*     parseExpression(short oldPrecedence = 1);
     Expression*     parseUnaryExpr();
     Expression*     parsePrimaryExpr();
+    Expression*     parseVarExpr();
+    Expression*     parseFuncallExpr(std::string callname);
 
     short           precedence(Token op);
     Block*          parseBlock();

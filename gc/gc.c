@@ -102,7 +102,7 @@ Header* gc_grow(size_t req_size)
  */
 void*   gc_malloc(size_t req_size)
 {
-    DEBUG(printf("内存申请 :%ld\n",req_size));
+    //DEBUG(printf("内存申请 :%ld\n",req_size));
     Header *p, *prevp;
     size_t do_gc = 0;
 
@@ -144,7 +144,7 @@ alloc:
             p->size = req_size;
             free_list = prevp;
             //给新分配的p 设置为标志位 fl_alloc 为新分配的空间
-            printf("%p\n",p);
+            //printf("%p\n",p);
             p->flags = 0;
             p->ref   = 1;
             FL_SET(p, FL_ALLOC);
