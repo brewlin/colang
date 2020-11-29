@@ -18,10 +18,11 @@
 
 class AsmGen {
     std::deque<Context*> ctx;
-    Runtime* rt;
-    Parser* p;
 
 public:
+    static Runtime* rt;
+    static Parser* p;
+
     static const char* argreg8[] ;
     static const char* argreg16[];
     static const char* argreg32[];
@@ -48,7 +49,7 @@ public:
     static void CreateGlobalString(StringExpr* expr);
 
     void registerFuncs();
-    static void CreateFunction(Function* fn,Runtime* rt,std::deque<Context*> ctx);
+    static void CreateFunction(Function* fn,std::deque<Context*> ctx);
     //寄存器相关
     static void Store_gp(int r, int offset, int sz);
     static void Store();
@@ -58,7 +59,7 @@ public:
     static void Push();
     static void PushS(const char* arg);
     static void Pop(const char* arg);
-    static int  Push_arg(Runtime *rt,std::deque<Context *> prevCtxChain,std::vector<Expression *> &args,bool is_variadic = false,std::string funcname = "");
+    static int  Push_arg(std::deque<Context *> prevCtxChain,std::vector<Expression *> &args,bool is_variadic = false,std::string funcname = "");
     static void Pop_arg(std::vector<Expression *> &args);
 
     //current function

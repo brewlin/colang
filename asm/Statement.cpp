@@ -13,11 +13,11 @@
  * @param ctx
  * @return
  */
-void IfStmt::asmgen(Runtime *rt, std::deque<Context *> ctx)
+void IfStmt::asmgen(std::deque<Context *> ctx)
 {
     int c = AsmGen::count ++;
     //对判断条件的表达式求值
-    this->cond->asmgen(rt,ctx);
+    this->cond->asmgen(ctx);
     //判断是否为true
     Internal::isTrue();
 
@@ -29,7 +29,7 @@ void IfStmt::asmgen(Runtime *rt, std::deque<Context *> ctx)
     //顺序执行所有的 block 语句
     for(auto& stmt : block->stmts){
 //            std::cout << stmt->toString() <<std::endl;
-        stmt->asmgen(rt,ctx);
+        stmt->asmgen(ctx);
     }
     AsmGen::leaveContext(ctx);
     AsmGen::writeln("  jmp .L.end.%d", c);
@@ -40,7 +40,7 @@ void IfStmt::asmgen(Runtime *rt, std::deque<Context *> ctx)
         //执行 else 里的语句块
         for(auto& elseStmt : elseBlock->stmts){
 //                std::cout << elseStmt->toString() <<std::endl;
-            elseStmt->asmgen(rt,ctx);
+            elseStmt->asmgen(ctx);
         }
         //离开上下文
         AsmGen::leaveContext(ctx);
@@ -50,18 +50,17 @@ void IfStmt::asmgen(Runtime *rt, std::deque<Context *> ctx)
 }
 /**
  * 执行while 语句 该函数可能会递归调用因为存在多个嵌套while循环
- * @param rt
  * @param ctx
  * @return
  */
-void WhileStmt::asmgen(Runtime *rt, std::deque<Context *> ctx)
+void WhileStmt::asmgen(std::deque<Context *> ctx)
 {
 
     int c = AsmGen::count ++;
     //表示循环开始的 标签：
     AsmGen::writeln(".L.while.begin.%d:", c);
     //对判断条件的表达式求值
-    this->cond->asmgen(rt,ctx);
+    this->cond->asmgen(ctx);
     Internal::isTrue();
     AsmGen::CreateCmp();
     AsmGen::writeln("  je  .L.while.end.%d", c);
@@ -75,7 +74,7 @@ void WhileStmt::asmgen(Runtime *rt, std::deque<Context *> ctx)
     //外层用于判断 条件是否继续为true
     for(auto& stmt : block->stmts){
 //            std::cout << stmt->toString() <<std::endl;
-        stmt->asmgen(rt,ctx);
+        stmt->asmgen(ctx);
     }
     AsmGen::leaveContext(ctx);
 
@@ -84,28 +83,26 @@ void WhileStmt::asmgen(Runtime *rt, std::deque<Context *> ctx)
 }
 /**
  * 表达式 语句
- * @param rt
  * @param ctx
  * @return
  */
-void ExpressionStmt::asmgen(Runtime *rt, std::deque<Context *> ctx)
+void ExpressionStmt::asmgen(std::deque<Context *> ctx)
 {
 
 //    std::cout << expr->toString() <<std::endl;
     //对表达式求值
-    this->expr->asmgen(rt,ctx);
+    this->expr->asmgen(ctx);
 }
 /**
  * 求值并且返回值 如: return 3+2;
  * value = 3+2
  * return execresult(return,5)
- * @param rt
  * @param ctx
  * @return
  */
-void ReturnStmt::asmgen(Runtime *rt, std::deque<Context *> ctx)
+void ReturnStmt::asmgen(std::deque<Context *> ctx)
 {
-    this->ret->asmgen(rt,ctx);
+    this->ret->asmgen(ctx);
     for(auto p = ctx.crbegin(); p != ctx.crend(); ++p) {
         //如果该变量不是 array 则抛出类型错误，不能对非数组变量进行索引操作
         std::string funcName = (*p)->cur_funcname;
@@ -115,11 +112,10 @@ void ReturnStmt::asmgen(Runtime *rt, std::deque<Context *> ctx)
 }
 /**
  * break语句
- * @param rt
  * @param ctx
  * @return
  */
-void BreakStmt::asmgen(Runtime *rt, std::deque<Context *> ctx)
+void BreakStmt::asmgen(std::deque<Context *> ctx)
 {
     //判断当前是否处在循环中
 //    Context* c = ctx.back();
@@ -136,11 +132,10 @@ void BreakStmt::asmgen(Runtime *rt, std::deque<Context *> ctx)
 }
 /**
  * continue 语句
- * @param rt
  * @param ctx
  * @return
  */
-void ContinueStmt::asmgen(Runtime *rt, std::deque<Context *> ctx)
+void ContinueStmt::asmgen(std::deque<Context *> ctx)
 {
     //判断当前是否处在循环中
     for(auto p = ctx.crbegin(); p != ctx.crend(); ++p) {

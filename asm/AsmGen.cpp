@@ -10,6 +10,8 @@
 
 int AsmGen::count = 0;
 Function* AsmGen::currentFunc = nullptr;
+Runtime*  AsmGen::rt = nullptr;
+Parser*   AsmGen::p = nullptr;
 FILE *output_file;
 
 AsmGen::AsmGen(const std::string &filename) {
@@ -24,7 +26,7 @@ AsmGen::~AsmGen() {
 void AsmGen::execute()
 {
     //词法解析 语法解析
-    this->p->parse();
+    p->parse();
     this->ctx.push_back(new Context);
 
     char *buf;
@@ -42,7 +44,6 @@ void AsmGen::execute()
 
     fclose(output_file);
     FILE *out = fopen("./tmp.s", "w");
-//    std::cout << buf <<std::endl;
     fwrite(buf, buflen, 1, out);
     fclose(out);
 }

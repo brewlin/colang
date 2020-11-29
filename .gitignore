@@ -24,3 +24,4 @@ tests/*.cmake
 tests/Makefile
 tests/tmp.s
 tests/do
+tests/co

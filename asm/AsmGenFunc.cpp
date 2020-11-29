@@ -19,7 +19,7 @@ void AsmGen::registerFuncs()
     Debug("register functions")
     for(auto p :rt->funcs){
         currentFunc = p.second;
-        CreateFunction(p.second,rt,ctx);
+        CreateFunction(p.second,ctx);
         currentFunc = nullptr;
     }
 
@@ -28,7 +28,7 @@ void AsmGen::registerFuncs()
  * 注册fn
  * @param f
  */
-void AsmGen::CreateFunction(Function *fn, Runtime *rt, std::deque<Context *> ctx)
+void AsmGen::CreateFunction(Function *fn,std::deque<Context *> ctx)
 {
     //extern 不需要 翻译
     if(fn->isExtern) return;
@@ -82,7 +82,7 @@ void AsmGen::CreateFunction(Function *fn, Runtime *rt, std::deque<Context *> ctx
         //接下来就是注册 block块
         for(auto& stmt : fn->block->stmts){
             //TODO: 处理返回值
-            stmt->asmgen(rt,funcCtxChain);
+            stmt->asmgen(funcCtxChain);
         }
         leaveContext(funcCtxChain);
     }

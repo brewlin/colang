@@ -13,7 +13,7 @@ struct  Expression : public Ast {
     using Ast::Ast;
     virtual              ~Expression() = default;
 
-    virtual void                asmgen(Runtime* rt,std::deque<Context*> ctx) = 0;
+    virtual void              asmgen(std::deque<Context*> ctx) = 0;
     virtual std::string       toString() = 0;
 };
 
@@ -21,7 +21,7 @@ struct BoolExpr : public Expression{
     explicit BoolExpr(int line,int column):Expression(line,column){}
     bool literal;
 
-    void         asmgen(Runtime* rt,std::deque<Context*> ctx) override;
+    void         asmgen(std::deque<Context*> ctx) override;
     std::string  toString() override;
 };
 
@@ -29,14 +29,14 @@ struct CharExpr : public Expression {
     explicit CharExpr(int line, int column) : Expression(line, column) {}
     char literal;
 
-    void         asmgen(Runtime* rt, std::deque<Context*> ctx) override;
+    void         asmgen( std::deque<Context*> ctx) override;
     std::string  toString() override;
 };
 
 struct NullExpr : public Expression {
     explicit     NullExpr(int line, int column) : Expression(line, column) {}
 
-    void         asmgen(Runtime* rt, std::deque<Context*> ctx) override;
+    void         asmgen( std::deque<Context*> ctx) override;
     std::string  toString() override;
 };
 
@@ -44,7 +44,7 @@ struct IntExpr : public Expression {
     explicit     IntExpr(int line, int column) : Expression(line, column) {}
     int          literal;
 
-    void         asmgen(Runtime* rt, std::deque<Context*> ctx) override;
+    void         asmgen( std::deque<Context*> ctx) override;
     std::string  toString() override;
 };
 
@@ -53,7 +53,7 @@ struct DoubleExpr : public Expression {
 
     double       literal;
 
-    void         asmgen(Runtime* rt, std::deque<Context*> ctx) override;
+    void         asmgen( std::deque<Context*> ctx) override;
     std::string  toString() override;
 };
 /**
@@ -67,7 +67,7 @@ struct StringExpr : public Expression {
     std::string  name;
     int          offset;
 
-    void         asmgen(Runtime* rt, std::deque<Context*> ctx) override;
+    void         asmgen( std::deque<Context*> ctx) override;
     std::string  toString() override;
 };
 
@@ -75,14 +75,14 @@ struct ArrayExpr : public Expression {
     explicit     ArrayExpr(int line, int column) : Expression(line, column) {}
     std::vector<Expression*> literal;
 
-    void         asmgen(Runtime* rt, std::deque<Context*> ctx) override;
+    void         asmgen( std::deque<Context*> ctx) override;
     std::string  toString() override;
 };
 struct MapExpr : public Expression {
     explicit     MapExpr(int line, int column) : Expression(line, column) {}
     std::vector<Expression*> literal;
 
-    void         asmgen(Runtime* rt, std::deque<Context*> ctx) override;
+    void         asmgen( std::deque<Context*> ctx) override;
     std::string  toString() override;
 };
 struct KVExpr : public Expression {
@@ -91,7 +91,7 @@ struct KVExpr : public Expression {
     Expression*  key{};
     Expression*  value{};
 
-    void         asmgen(Runtime* rt, std::deque<Context*> ctx) override;
+    void         asmgen( std::deque<Context*> ctx) override;
     std::string  toString() override;
 };
 
@@ -111,7 +111,7 @@ struct IdentExpr : public Expression {
     bool         is_variadic;
     bool         is_delref;
 
-    void         asmgen(Runtime* rt, std::deque<Context*> ctx) override;
+    void         asmgen( std::deque<Context*> ctx) override;
     std::string  toString() override;
 };
 
@@ -121,7 +121,7 @@ struct IndexExpr : public Expression {
     std::string identname;
     Expression* index{};
 
-    void         asmgen(Runtime* rt, std::deque<Context*> ctx) override;
+    void         asmgen( std::deque<Context*> ctx) override;
     std::string  toString() override;
 };
 
@@ -131,7 +131,7 @@ struct BinaryExpr : public Expression {
     Token        opt{};
     Expression*  rhs{};
 
-    void         asmgen(Runtime* rt, std::deque<Context*> ctx) override;
+    void         asmgen( std::deque<Context*> ctx) override;
     std::string  toString() override;
 };
 
@@ -143,7 +143,7 @@ struct FunCallExpr : public Expression {
     std::vector<Expression*> args;
 
     bool         is_pkgcall;
-    void         asmgen(Runtime* rt, std::deque<Context*> ctx) override;
+    void         asmgen( std::deque<Context*> ctx) override;
     std::string  toString() override;
 };
 
@@ -155,7 +155,7 @@ struct AssignExpr : public Expression {
     Expression*  rhs{};
 
 
-    void         asmgen(Runtime* rt, std::deque<Context*> ctx) override;
+    void         asmgen( std::deque<Context*> ctx) override;
     std::string  toString() override;
 };
 
@@ -163,7 +163,7 @@ struct NewExpr : public Expression {
     explicit NewExpr(int line, int column) : Expression(line, column) {}
     std::string type;
 
-    void         asmgen(Runtime* rt, std::deque<Context*> ctx) override;
+    void         asmgen( std::deque<Context*> ctx) override;
     std::string  toString() override;
 };
 struct MemberExpr : public Expression {
@@ -171,7 +171,7 @@ struct MemberExpr : public Expression {
     std::string  varname;
     std::string  membername;
 
-    void         asmgen(Runtime* rt, std::deque<Context*> ctx) override;
+    void         asmgen( std::deque<Context*> ctx) override;
     std::string  toString() override;
 };
 struct MemberCallExpr : public Expression {
@@ -181,7 +181,7 @@ struct MemberCallExpr : public Expression {
 
     std::vector<Expression*> args;
 
-    void         asmgen(Runtime* rt, std::deque<Context*> ctx) override;
+    void         asmgen( std::deque<Context*> ctx) override;
     std::string  toString() override;
 };
 

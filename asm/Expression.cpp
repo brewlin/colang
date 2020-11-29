@@ -13,21 +13,21 @@
 //===---------------------------------------------------------------------===//
 // 计算所有的表达式 并返回一个 void  结构，
 
-void  NullExpr::asmgen(Runtime* rt,std::deque<Context*> ctx)
+void  NullExpr::asmgen(std::deque<Context*> ctx)
 {
     Internal::newobject(Null,0);
 //    Internal::gc_malloc();
 //    AsmGen::writeln("  mov $%ld, (%%rax)", Null);
 
 }
-void  BoolExpr::asmgen(Runtime* rt,std::deque<Context*> ctx)
+void  BoolExpr::asmgen(std::deque<Context*> ctx)
 {
     Internal::newobject(Bool,this->literal);
 //    Internal::gc_malloc();
 //    AsmGen::writeln("  mov $%ld, (%%rax)", Bool);
 //    AsmGen::writeln("  mov $%ld, %d(%%rax)", this->literal,25);
 }
-void  CharExpr::asmgen(Runtime* rt,
+void  CharExpr::asmgen(
                          std::deque<Context*> ctx) {
 
     Internal::newobject(Char,this->literal);
@@ -37,7 +37,7 @@ void  CharExpr::asmgen(Runtime* rt,
 
 }
 
-void  IntExpr::asmgen(Runtime* rt, std::deque<Context*> ctx) {
+void  IntExpr::asmgen( std::deque<Context*> ctx) {
 
     Internal::newobject(Int,this->literal);
 //    Internal::gc_malloc();
@@ -48,7 +48,7 @@ void  IntExpr::asmgen(Runtime* rt, std::deque<Context*> ctx) {
 
 }
 
-void  DoubleExpr::asmgen(Runtime* rt,
+void  DoubleExpr::asmgen(
                            std::deque<Context*> ctx) {
     Internal::newobject(Double,this->literal);
 //    Internal::gc_malloc();
@@ -58,7 +58,7 @@ void  DoubleExpr::asmgen(Runtime* rt,
 
 }
 
-void  StringExpr::asmgen(Runtime* rt,
+void  StringExpr::asmgen(
                          std::deque<Context*> ctx) {
 
     //string类型 传的是地址 需要调用方构造
@@ -74,18 +74,17 @@ void  StringExpr::asmgen(Runtime* rt,
 }
 /**
  * 数组变量生成
- * @param rt
  * @param ctx
  * @return
  */
-void  ArrayExpr::asmgen(Runtime* rt,std::deque<Context*> ctx){
+void  ArrayExpr::asmgen(std::deque<Context*> ctx){
     //new array & push array
     Internal::newobject(Array, 0);
     AsmGen::Push();
 
     for(auto& element: this->literal){
         //new element & push element
-        element->asmgen(rt,ctx);
+        element->asmgen(ctx);
         AsmGen::Push();
         Internal::arr_pushone();
     }
@@ -96,10 +95,9 @@ void  ArrayExpr::asmgen(Runtime* rt,std::deque<Context*> ctx){
 }
 /**
  * asm gen map
- * @param rt
  * @param ctx
  */
-void  MapExpr::asmgen(Runtime* rt,std::deque<Context*> ctx){
+void  MapExpr::asmgen(std::deque<Context*> ctx){
     Debug("MapExpr: parsing... package:%s func:%s",package.c_str(),funcname.c_str());
 
     //new array & push array
@@ -108,7 +106,7 @@ void  MapExpr::asmgen(Runtime* rt,std::deque<Context*> ctx){
 
     for(auto& element: this->literal){
         //new element & push element
-        element->asmgen(rt,ctx);
+        element->asmgen(ctx);
         Internal::kv_update();
     }
 
@@ -117,17 +115,16 @@ void  MapExpr::asmgen(Runtime* rt,std::deque<Context*> ctx){
 }
 /**
  * asm gen key value
- * @param rt
  * @param ctx
  */
-void  KVExpr::asmgen(Runtime* rt,std::deque<Context*> ctx){
+void  KVExpr::asmgen(std::deque<Context*> ctx){
     Debug("KVExpr: parsing... package:%s func:%s",package.c_str(),funcname.c_str());
 
     //push key
-    this->key->asmgen(rt,ctx);
+    this->key->asmgen(ctx);
     AsmGen::Push();
     //push value
-    this->value->asmgen(rt,ctx);
+    this->value->asmgen(ctx);
     AsmGen::Push();
 }
 
@@ -135,11 +132,10 @@ void  KVExpr::asmgen(Runtime* rt,std::deque<Context*> ctx){
  * load 变量
  * 1 计算偏移量
  * 2 加载变量
- * @param rt
  * @param ctx
  * @return
  */
-void  IdentExpr::asmgen(Runtime* rt,std::deque<Context*> ctx){
+void  IdentExpr::asmgen(std::deque<Context*> ctx){
 
     //变量遍历表 看是否存在
     for(auto p = ctx.crbegin(); p != ctx.crend(); ++p){
@@ -167,11 +163,10 @@ void  IdentExpr::asmgen(Runtime* rt,std::deque<Context*> ctx){
 }
 /**
  * 索引 数组
- * @param rt a[1]
  * @param ctx
  * @return
  */
-void  IndexExpr::asmgen(Runtime* rt,std::deque<Context*> ctx) {
+void  IndexExpr::asmgen(std::deque<Context*> ctx) {
     //变量遍历表 看是否存在
     for (auto p = ctx.crbegin(); p != ctx.crend(); ++p) {
         auto *context = *p;
@@ -190,7 +185,7 @@ void  IndexExpr::asmgen(Runtime* rt,std::deque<Context*> ctx) {
             AsmGen::Push();
 
             //push index 计算索引
-            this->index->asmgen(rt,ctx);
+            this->index->asmgen(ctx);
             AsmGen::Push();
 
             //call arr_get(arr,index)
@@ -204,11 +199,10 @@ void  IndexExpr::asmgen(Runtime* rt,std::deque<Context*> ctx) {
 
 /**
  * 函数调用求值
- * @param rt
  * @param ctx
  * @return
  */
-void  FunCallExpr::asmgen(Runtime* rt,std::deque<Context*> ctx)
+void  FunCallExpr::asmgen(std::deque<Context*> ctx)
 {
     Debug("FunCallExpr: parsing... package:%s func:%s",package.c_str(),funcname.c_str());
     //gp 通用寄存器个数统计
@@ -241,14 +235,14 @@ void  FunCallExpr::asmgen(Runtime* rt,std::deque<Context*> ctx)
     }
 
     //函数查找
-    if(auto* func = rt->getFunc(realfuncname,is_extern); func != nullptr)
+    if(auto* func = AsmGen::rt->getFunc(realfuncname,is_extern); func != nullptr)
     {
 
         //只会进行提示，现在默认已实现不足6个参数会默认置0
         if(func->params.size() != this->args.size())
             Debug("ArgumentError: expects %d arguments but got %d\n",(int)func->params.size(),(int)this->args.size());
 
-        int stack_args = AsmGen::Push_arg(rt,ctx,args,func->is_variadic,funcname);
+        int stack_args = AsmGen::Push_arg(ctx,args,func->is_variadic,funcname);
 
         //如果没有可变参数传参  默认执行 通用寄存器赋值即可
         if(!cfunc || !cfunc->is_variadic || !have_variadic)
@@ -295,11 +289,10 @@ void  FunCallExpr::asmgen(Runtime* rt,std::deque<Context*> ctx)
 }
 /**
  * 赋值运算符 求值
- * @param rt
  * @param ctx
  * @return
  */
-void  AssignExpr::asmgen(Runtime* rt,std::deque<Context*> ctx){
+void  AssignExpr::asmgen(std::deque<Context*> ctx){
 
     Debug("AssignExpr: parsing... lhs:%s opt:%s rhs:%s",
           lhs->toString().c_str(),
@@ -333,7 +326,7 @@ void  AssignExpr::asmgen(Runtime* rt,std::deque<Context*> ctx){
         AsmGen::Push();
 
         //对运算符右值求值
-        this->rhs->asmgen(rt,ctx);
+        this->rhs->asmgen(ctx);
         AsmGen::Push();
         //运算需要调用统一的方法
         Internal::call_operator(this->opt,"unary_operator");
@@ -363,7 +356,7 @@ void  AssignExpr::asmgen(Runtime* rt,std::deque<Context*> ctx){
         //push index 计算索引
         IndexExpr* index= dynamic_cast<IndexExpr*>(lhs);
         if(!index->index) {
-            rhs->asmgen(rt,ctx);
+            rhs->asmgen(ctx);
             AsmGen::Push();
 
             Internal::arr_pushone();
@@ -371,10 +364,10 @@ void  AssignExpr::asmgen(Runtime* rt,std::deque<Context*> ctx){
            return;
         }
 
-        index->index->asmgen(rt,ctx);
+        index->index->asmgen(ctx);
         AsmGen::Push();
 
-        rhs->asmgen(rt,ctx);
+        rhs->asmgen(ctx);
         AsmGen::Push();
 
         //call arr_updateone(arr,index,var)
@@ -388,11 +381,10 @@ void  AssignExpr::asmgen(Runtime* rt,std::deque<Context*> ctx){
 
 /**
  * 二元运算符求值
- * @param rt
  * @param ctx
  * @return
  */
-void  BinaryExpr::asmgen(Runtime* rt,std::deque<Context*> ctx)
+void  BinaryExpr::asmgen(std::deque<Context*> ctx)
 {
     Debug("BinaryExpr: parsing... lhs:%s opt:%s rhs:%s",
           lhs->toString().c_str(),
@@ -405,11 +397,11 @@ void  BinaryExpr::asmgen(Runtime* rt,std::deque<Context*> ctx)
             "expression:\n%s\n",
             this->line,this->column,this->toString().c_str());
     //保存rax寄存器的值 因为下面右值计算的时候会用到rax寄存器
-    this->lhs->asmgen(rt,ctx);
+    this->lhs->asmgen(ctx);
     AsmGen::Push();
 
     //对运算符右值求值
-    this->rhs->asmgen(rt,ctx);
+    this->rhs->asmgen(ctx);
     AsmGen::Push();
 
     //运算需要调用统一的方法
@@ -419,31 +411,28 @@ void  BinaryExpr::asmgen(Runtime* rt,std::deque<Context*> ctx)
  * TODO: 只实现了 llvm编译的new
  * 针对结构体的变量定义
  * b = new Http
- * @param rt
  * @param ctx
  * @return
  */
-void  NewExpr::asmgen(Runtime* rt,std::deque<Context*> ctx)
+void  NewExpr::asmgen(std::deque<Context*> ctx)
 {
 
 }
 /**
  *
  * TODO: asm struct
- * @param rt
  * @param ctx
  * @return
  */
-void  MemberExpr::asmgen(Runtime* rt,std::deque<Context*> ctx)
+void  MemberExpr::asmgen(std::deque<Context*> ctx)
 {
 }
 /**
  * TODO: asm struct call
- * @param rt
  * @param ctx
  * @return
  */
-void  MemberCallExpr::asmgen(Runtime* rt,std::deque<Context*> ctx)
+void  MemberCallExpr::asmgen(std::deque<Context*> ctx)
 {
     Debug("membercall : ")
 }

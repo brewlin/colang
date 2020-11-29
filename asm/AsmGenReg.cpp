@@ -71,7 +71,6 @@ void AsmGen::Pop(const char *arg)
  */
 int
 AsmGen::Push_arg(
-    Runtime *rt,
     std::deque<Context *> prevCtxChain,
     std::vector<Expression *> &args,
     bool is_variadic,
@@ -196,7 +195,7 @@ AsmGen::Push_arg(
                 stack++;
             }
             //读取每个变量到rax寄存器上
-            args[i]->asmgen(rt,prevCtxChain);
+            args[i]->asmgen(prevCtxChain);
             Push();
         }
         //如果是可变参数，第一个参数填充数字个数
