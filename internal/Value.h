@@ -2,8 +2,8 @@
  * @author brewlin
  * @date   2020/9/6
  */
-#ifndef LANG_TYPE_H
-#define LANG_TYPE_H
+#ifndef CO_LANG_TYPE_H
+#define CO_LANG_TYPE_H
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -88,4 +88,4 @@ void   unary_operator(int opt, Value *lhs, Value* rhs);
 void   kv_update(Value* root,Value* index,Value* var);
 Value* kv_get(Value* root,Value* index);
 
-#endif //LANG_TYPE_H
+#endif //CO_LANG_TYPE_H

@@ -22,7 +22,7 @@ assert(){
     expected="$1"
     input="$2"
     log "[compile] ./do -s $input ..."
-    ./do -s $input
+    ./co -s $input
     check
     gcc -g tmp.s -L./internal -linternal -L../gc -lgc
     check
@@ -34,7 +34,7 @@ assert(){
 #    failed "[compile] $input failed"
 }
 read_dir(){
-    for file in `ls *.do`
+    for file in `ls *.co`
     do
      if [ -d $file ] ; then
         read_dir $file

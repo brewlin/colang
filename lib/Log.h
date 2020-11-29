@@ -1,5 +1,5 @@
-#ifndef LANG_LOG_H
-#define LANG_LOG_H
+#ifndef CO_LANG_LOG_H
+#define CO_LANG_LOG_H
 
 #include <errno.h>
 #include <stdio.h>
@@ -23,8 +23,8 @@ extern char trace[TRACE_MSG_SIZE];
 extern char warn[WARN_MSG_SIZE];
 extern char error[ERROR_MSG_SIZE];
 
-// #define LANG_DEBUG
-#ifdef LANG_DEBUG
+// #define CO_LANG_DEBUG
+#ifdef CO_LANG_DEBUG
     #define Debug(str, ...)                                                         \
         snprintf(debug, DEBUG_MSG_SIZE, "%s: " str " in %s on line %d.", __func__, ##__VA_ARGS__, __FILE__, __LINE__); \
         Log::put(LOG_DEBUG_D, debug);

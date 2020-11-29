@@ -2,8 +2,8 @@
  * @author brewlin
  * @date   2020/9/1
  */
-#ifndef LANG_PARSER_H
-#define LANG_PARSER_H
+#ifndef CO_LANG_PARSER_H
+#define CO_LANG_PARSER_H
 #include <string>
 #include <tuple>
 #include <iostream>
@@ -96,4 +96,4 @@ private:
 
 
 
-#endif //LANG_PARSER_H
+#endif //CO_LANG_PARSER_H

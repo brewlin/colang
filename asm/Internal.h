@@ -2,8 +2,8 @@
 // Created by root on 2020/11/15.
 //
 
-#ifndef LANG_INTERNAL_H
-#define LANG_INTERNAL_H
+#ifndef CO_LANG_INTERNAL_H
+#define CO_LANG_INTERNAL_H
 
 #include "Ast.h"
 #include <string>
@@ -27,4 +27,4 @@ public:
     static void map_pushone();
 
 };
-#endif //LANG_INTERNAL_H
+#endif //CO_LANG_INTERNAL_H

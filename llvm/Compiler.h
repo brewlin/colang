@@ -4,8 +4,8 @@
  *@Date 2020/9/10 0010 下午 3:33
  *@Version 1.0
  **/
-#ifndef LANG_COMPILER_H
-#define LANG_COMPILER_H
+#ifndef CO_LANG_COMPILER_H
+#define CO_LANG_COMPILER_H
 
 #include "Llvm.h"
 #include "Runtime.h"
@@ -72,4 +72,4 @@ public:
 extern std::map<llvm::Type*, std::map<llvm::Type*, llvm::CastInst::CastOps>> _castTable;
 
 
-#endif //LANG_COMPILER_H
+#endif //CO_LANG_COMPILER_H

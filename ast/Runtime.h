@@ -2,8 +2,8 @@
  * @author brewlin
  * @date   2020/9/6
  */
-#ifndef LANG_RUNTIME_H
-#define LANG_RUNTIME_H
+#ifndef CO_LANG_RUNTIME_H
+#define CO_LANG_RUNTIME_H
 #include "Context.h"
 #include "Expression.h"
 /**
@@ -42,4 +42,4 @@ public:
 
 };
 
-#endif //LANG_RUNTIME_H
+#endif //CO_LANG_RUNTIME_H

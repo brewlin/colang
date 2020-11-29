@@ -2,8 +2,8 @@
  * @author brewlin
  * @date   2020/9/1
  */
-#ifndef LANG_UTILS_H
-#define LANG_UTILS_H
+#ifndef CO_LANG_UTILS_H
+#define CO_LANG_UTILS_H
 #include <any>
 #include <deque>
 #include <string>
@@ -20,4 +20,4 @@ inline bool anyone(_DesireType k, _ArgumentType... args) {
 }
 
 
-#endif //LANG_UTILS_H
+#endif //CO_LANG_UTILS_H

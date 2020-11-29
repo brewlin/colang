@@ -2,8 +2,8 @@
  * @author brewlin
  * @date   2020/9/6
  */
-#ifndef LANG_TYPE_H
-#define LANG_TYPE_H
+#ifndef CO_LANG_TYPE_H
+#define CO_LANG_TYPE_H
 #include <deque>
 #include <string>
 #include <vector>
@@ -30,4 +30,4 @@ struct Value{
 };
 
 
-#endif //LANG_TYPE_H
+#endif //CO_LANG_TYPE_H

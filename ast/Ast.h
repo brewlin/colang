@@ -2,10 +2,10 @@
  * @author brewlin
  * @date   2020/9/1
  */
-#ifndef LANG_AST_H
-#define LANG_AST_H
+#ifndef CO_LANG_AST_H
+#define CO_LANG_AST_H
 
-#include "do.h"
+#include "colang.h"
 #include <string>
 #include "Token.h"
 
@@ -23,4 +23,4 @@ struct Ast{
 
 std::string getTokenString(Token tk);
 
-#endif //LANG_AST_H
+#endif //CO_LANG_AST_H

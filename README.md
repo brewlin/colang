@@ -1,7 +1,6 @@
-# lang
-Do是一种编程语言，旨在创造一种动态语法的静态编译语言
+Colang是一种编程语言，旨在创造一种动态语法的静态编译语言
 ```asciidoc
-./do [options] file
+./co [options] file
     run   file  ast -> asm       编译为汇编-链接生成可执行程序自动执行
     -s    file  ast -> asm       编译为汇编
     -llvm file  ast -> ir -> asm 基于llvm生成汇编
@@ -16,8 +15,8 @@ gcc version 7.5.0 (Ubuntu 7.5.0-3ubuntu1~18.04)
 ```
 # install
 ```asciidoc
-> git clone https://github.com/brewlin/lang.git
-> cd lang
+> git clone https://github.com/brewlin/colang.git
+> cd colang
 > mkdir bin
 > cd bin
 > cmake .. & make

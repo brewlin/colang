@@ -2,8 +2,8 @@
  * @author brewlin
  * @date   2020/9/6
  */
-#ifndef LANG_STATEMENT_H
-#define LANG_STATEMENT_H
+#ifndef CO_LANG_STATEMENT_H
+#define CO_LANG_STATEMENT_H
 
 #include "Ast.h"
 #include "Value.h"
@@ -73,4 +73,4 @@ struct WhileStmt : public Statement {
     std::string  toString() override;
 };
 
-#endif //LANG_STATEMENT_H
+#endif //CO_LANG_STATEMENT_H

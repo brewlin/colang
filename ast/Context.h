@@ -2,8 +2,8 @@
  * @author brewlin
  * @date   2020/9/6
  */
-#ifndef LANG_CONTEXT_H
-#define LANG_CONTEXT_H
+#ifndef CO_LANG_CONTEXT_H
+#define CO_LANG_CONTEXT_H
 
 #include "Value.h"
 #include <string>
@@ -36,4 +36,4 @@ public:
     int         point;
 
 };
-#endif //LANG_CONTEXT_H
+#endif //CO_LANG_CONTEXT_H

@@ -2,8 +2,8 @@
  * @author brewlin
  * @date   2020/9/6
  */
-#ifndef LANG_EXPRESSION_H
-#define LANG_EXPRESSION_H
+#ifndef CO_LANG_EXPRESSION_H
+#define CO_LANG_EXPRESSION_H
 #include "Ast.h"
 #include "Value.h"
 class Context;
@@ -186,4 +186,4 @@ struct MemberCallExpr : public Expression {
 };
 
 
-#endif //LANG_EXPRESSION_H
+#endif //CO_LANG_EXPRESSION_H

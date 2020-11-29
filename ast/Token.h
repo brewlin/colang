@@ -3,8 +3,8 @@
  *@Date 2020/11/26 0026 上午 10:23
  *@Version 1.0
  **/
-#ifndef LANG_TOKEN_H
-#define LANG_TOKEN_H
+#ifndef CO_LANG_TOKEN_H
+#define CO_LANG_TOKEN_H
 
 
 #define Null   0
@@ -61,4 +61,4 @@ enum Token {
     KW_EXTERN,KW_IMPORT,KW_GO,KW_STRUCT,KW_PACKAGE,TK_DELREF
 
 };
-#endif //LANG_TOKEN_H
+#endif //CO_LANG_TOKEN_H

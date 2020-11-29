@@ -190,7 +190,7 @@ void Parser::parseImportDef()
         if (filesys::is_regular_file(p.path(), ec)){
             std::string filepath = p.path();
             std::string ext = filepath.substr(filepath.size()-3,filepath.size() - 1);
-            if(ext != ".do") continue;
+            if(ext != ".co") continue;
 
             //不需要释放，在汇编生成的时候需要用到
             Parser *ipt = new Parser(filepath,rt,getCurrentLexeme());
