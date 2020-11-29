@@ -70,22 +70,28 @@ void     gc_sweep(void)
         }
     }
 }
+void tell_is_stackarg(void* arg){
+    void *top = get_sp();
+    if(sp_start > arg && arg > top){
+        gc_mark(*(void**)arg);
+    }
+}
 /**
  * 寄存器扫描
  */
 void scan_register()
 {
     void *reg;
-    if(reg = get_sp())  gc_mark(*(void**)reg);
-    if(reg = get_bp())  gc_mark(*(void**)reg);
-    if(reg = get_di())  gc_mark(*(void**)reg);
-    if(reg = get_si())  gc_mark(*(void**)reg);
-    if(reg = get_dx())  gc_mark(*(void**)reg);
-    if(reg = get_cx())  gc_mark(*(void**)reg);
-    if(reg = get_r8())  gc_mark(*(void**)reg);
-    if(reg = get_r9())  gc_mark(*(void**)reg);
-    if(reg = get_ax())  gc_mark(*(void**)reg);
-    if(reg = get_bx())  gc_mark(*(void**)reg);
+    if(reg = get_sp())  tell_is_stackarg(reg);
+    if(reg = get_bp())  tell_is_stackarg(reg);
+    if(reg = get_di())  tell_is_stackarg(reg);
+    if(reg = get_si())  tell_is_stackarg(reg);
+    if(reg = get_dx())  tell_is_stackarg(reg);
+    if(reg = get_cx())  tell_is_stackarg(reg);
+    if(reg = get_r8())  tell_is_stackarg(reg);
+    if(reg = get_r9())  tell_is_stackarg(reg);
+    if(reg = get_ax())  tell_is_stackarg(reg);
+    if(reg = get_bx())  tell_is_stackarg(reg);
 }
 /**
  * 栈扫描

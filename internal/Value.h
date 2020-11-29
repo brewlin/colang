@@ -14,9 +14,9 @@
 #pragma GCC diagnostic ignored "-Wint-conversion"
 
 //extern gc_malloc
-#define gc_malloc  malloc
-#define gc_realloc realloc
-#define gc_free    free
+// #define gc_malloc  malloc
+// #define gc_realloc realloc
+// #define gc_free    free
 /**
  * 动态变量类型定义
  */

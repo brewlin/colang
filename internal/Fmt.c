@@ -73,8 +73,6 @@ int print(Value *count,...){
                 printf("undefine");
         }
     }
-    printf("\n");
-
     va_end (ap);
     return total;
 

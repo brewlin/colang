@@ -186,7 +186,7 @@ void*    gc_realloc(void *p,size_t size)
         return NULL;
     }
     void* new = gc_malloc(size);
-    size_t len = CURRENT_HEADER(p)->size;
+    size_t len = CURRENT_HEADER(p)->size - HEADER_SIZE;
     memcpy(new,p,len);
     gc_free(p);
     return new;
