@@ -119,7 +119,7 @@ void scan_stack(){
  */
 void  gc(void)
 {
-    // printf("[gc] start gc\n");
+    printf("[gc] start gc\n");
     scan_register();
     scan_stack();
 

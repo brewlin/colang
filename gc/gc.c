@@ -1,4 +1,5 @@
 #include "gc.h"
+#include "root.h"
 
 
 void *sp_start;
@@ -123,19 +124,13 @@ void * Malloc(size_t nbytes)
 	poolp pool;
 	poolp next;
 	uint size;
-	size_t need_gc = 0;
-
-
 	 //为了安全漏洞 阻止申请超过 最大申请内存
 	if (nbytes > PY_SSIZE_T_MAX)
 		return NULL;
 
 	//隐式的重定向到了 malloc
 	if ((nbytes - 1) < SMALL_REQUEST_THRESHOLD) {
-	    //加锁
-
 		//将申请的内存进行对齐 然后换算成空闲pools上的索引
-alloc:
 		size = (uint)(nbytes - 1) >> ALIGNMENT_SHIFT;
 		pool = usedpools[size + size];
 		if (pool != pool->nextpool) {
@@ -171,11 +166,7 @@ alloc:
 			// next->prevpool = pool;
 			// pool->nextpool = next;
 			//之前pool用完了需要gc一下
-			// if(!need_gc){
-				// need_gc = 1;
-				gc();
-				// goto alloc;
-			//解锁
+			gc();
 			return (void *)bp;
 		}
 
@@ -610,20 +601,13 @@ void*  gc_malloc(size_t nbytes)
 	return (void*)hdr + 8;
 
 }
+void 	gc_init(){
+	sp_start = get_sp();
+}
 void* gc_realloc(void *p, size_t nbytes){
 
 }
 void  gc_free(void *p){
 	Free(p);
 }
-//void* Malloc(size_t n){
-//	return malloc(n);
-//}
-//void* Realloc(void *p, size_t n){
-//	return realloc(p, n);
-//}
-//void Free(void *p){
-//	free(p);
-//}
-
 

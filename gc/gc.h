@@ -173,6 +173,7 @@ void* Malloc(size_t nbytes);
 void* Realloc(void *p, size_t nbytes);
 void  Free(void *p);
 void  gc();
+void  gc_init();
 void* gc_malloc(size_t nbytes);
 void* gc_realloc(void *p, size_t nbytes);
 void  gc_free(void *p);
