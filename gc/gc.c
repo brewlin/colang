@@ -146,7 +146,7 @@ alloc:
 			assert(bp != NULL);
 			//这里表示 pol->freeblock = bp->next
 			//*(block **)bp 是为了节省next指针 而直接在里面保存了下一个指针
-			if ((pool->freeblock = *(block **)bp) != NULL) {
+			if ((pool->freeblock = *(block **)(bp+8)) != NULL) {
 			    //解锁
 				return (void *)bp;
 			}
@@ -157,24 +157,24 @@ alloc:
 				//nexttoffset 执行下一个未分配地址开头
 				pool->nextoffset += INDEX2SIZE(size);
 				//相当于 pool->freeblock->next = NULL
-				*(block **)(pool->freeblock) = NULL;
+				*(block **)(pool->freeblock +8) = NULL;
 				//解锁
 				return (void *)bp;
 			}
-			//之前pool用完了需要gc一下
-			if(!need_gc){
-				need_gc = 1;
-				gc();
-				goto alloc;
-			}
+			// }
 			//到这里说明两个问题
 			//1 freeblock 没有空闲block可用
 			//2 pool也分配耗尽了
 			//接下来就要将这个pool从全局pool空闲链表上面移除
-			next = pool->nextpool;
-			pool = pool->prevpool;
-			next->prevpool = pool;
-			pool->nextpool = next;
+			// next = pool->nextpool;
+			// pool = pool->prevpool;
+			// next->prevpool = pool;
+			// pool->nextpool = next;
+			//之前pool用完了需要gc一下
+			// if(!need_gc){
+				// need_gc = 1;
+				gc();
+				// goto alloc;
 			//解锁
 			return (void *)bp;
 		}
@@ -247,7 +247,7 @@ alloc:
 				 * and free list are already initialized.
 				 */
 				bp = pool->freeblock;
-				pool->freeblock = *(block **)bp;
+				pool->freeblock = *(block **)(bp +8);
 				//解锁
 				return (void *)bp;
 			}
@@ -263,7 +263,7 @@ alloc:
 			pool->nextoffset = POOL_OVERHEAD + (size << 1);
 			pool->maxnextoffset = POOL_SIZE - size;
 			pool->freeblock = bp + size;
-			*(block **)(pool->freeblock) = NULL;
+			*(block **)(pool->freeblock + 8) = NULL;
 			//解锁
 			return (void *)bp;
 		}
@@ -340,169 +340,171 @@ void Free(void *p)
 		//既然p属于 pool里面，那么pool必然已使用block 肯定大于0
 		assert(pool->ref.count > 0);	/* else it was empty */
 		//将当前p挂到 pool->freeblokc->next 下面
-		*(block **)p = lastfree = pool->freeblock;
+		memset(p,0,INDEX2SIZE(pool->szidx) + 8);
+		*(block **)(p+8) = lastfree = pool->freeblock;
 		//然后pool->freeblock = p
 		pool->freeblock = (block *)p;
-//		if (lastfree) {
-//			struct arena_object* ao;
-//			uint nf;  /* ao->nfreepools */
-//
-//			//freeblock 不为空，说明pool还没满
-//			if (--pool->ref.count != 0) {
-//				/* pool isn't empty:  leave it in usedpools */
-//				//解锁
-//				return;
-//			}
-//			/* Pool is now empty:  unlink from usedpools, and
-//			 * link to the front of freepools.  This ensures that
-//			 * previously freed pools will be allocated later
-//			 * (being not referenced, they are perhaps paged out).
-//			 */
-//			//pool现在为空，需要从空闲链表上拿出去
-//			next = pool->nextpool;
-//			prev = pool->prevpool;
-//			next->prevpool = prev;
-//			prev->nextpool = next;
-//
-//			/* Link the pool to freepools.  This is a singly-linked
-//			 * list, and pool->prevpool isn't used there.
-//			 */
-//			ao = &arenas[pool->arenaindex];
-//			pool->nextpool = ao->freepools;
-//			ao->freepools = pool;
-//			nf = ++ao->nfreepools;
-//
-//			/* All the rest is arena management.  We just freed
-//			 * a pool, and there are 4 cases for arena mgmt:
-//			 * 1. If all the pools are free, return the arena to
-//			 *    the system free().
-//			 * 2. If this is the only free pool in the arena,
-//			 *    add the arena back to the `usable_arenas` list.
-//			 * 3. If the "next" arena has a smaller count of free
-//			 *    pools, we have to "slide this arena right" to
-//			 *    restore that usable_arenas is sorted in order of
-//			 *    nfreepools.
-//			 * 4. Else there's nothing more to do.
-//			 */
-//			if (nf == ao->ntotalpools) {
-//				/* Case 1.  First unlink ao from usable_arenas.
-//				 */
-//				assert(ao->prevarena == NULL ||
-//				       ao->prevarena->address != 0);
-//				assert(ao ->nextarena == NULL ||
-//				       ao->nextarena->address != 0);
-//
-//				/* Fix the pointer in the prevarena, or the
-//				 * usable_arenas pointer.
-//				 */
-//				if (ao->prevarena == NULL) {
-//					usable_arenas = ao->nextarena;
-//					assert(usable_arenas == NULL ||
-//					       usable_arenas->address != 0);
-//				}
-//				else {
-//					assert(ao->prevarena->nextarena == ao);
-//					ao->prevarena->nextarena =
-//						ao->nextarena;
-//				}
-//				/* Fix the pointer in the nextarena. */
-//				if (ao->nextarena != NULL) {
-//					assert(ao->nextarena->prevarena == ao);
-//					ao->nextarena->prevarena =
-//						ao->prevarena;
-//				}
-//				/* Record that this arena_object slot is
-//				 * available to be reused.
-//				 */
-//				ao->nextarena = unused_arena_objects;
-//				unused_arena_objects = ao;
-//
-//				/* Free the entire arena. */
-//				free((void *)ao->address);
-//				ao->address = 0;	/* mark unassociated */
-//				--narenas_currently_allocated;
-//
-//				//解锁
-//				return;
-//			}
-//			if (nf == 1) {
-//				/* Case 2.  Put ao at the head of
-//				 * usable_arenas.  Note that because
-//				 * ao->nfreepools was 0 before, ao isn't
-//				 * currently on the usable_arenas list.
-//				 */
-//				ao->nextarena = usable_arenas;
-//				ao->prevarena = NULL;
-//				if (usable_arenas)
-//					usable_arenas->prevarena = ao;
-//				usable_arenas = ao;
-//				assert(usable_arenas->address != 0);
-//
-//				//解锁
-//				return;
-//			}
-//			/* If this arena is now out of order, we need to keep
-//			 * the list sorted.  The list is kept sorted so that
-//			 * the "most full" arenas are used first, which allows
-//			 * the nearly empty arenas to be completely freed.  In
-//			 * a few un-scientific tests, it seems like this
-//			 * approach allowed a lot more memory to be freed.
-//			 */
-//			if (ao->nextarena == NULL ||
-//				     nf <= ao->nextarena->nfreepools) {
-//				/* Case 4.  Nothing to do. */
-//				//解锁
-//				return;
-//			}
-//			/* Case 3:  We have to move the arena towards the end
-//			 * of the list, because it has more free pools than
-//			 * the arena to its right.
-//			 * First unlink ao from usable_arenas.
-//			 */
-//			if (ao->prevarena != NULL) {
-//				/* ao isn't at the head of the list */
-//				assert(ao->prevarena->nextarena == ao);
-//				ao->prevarena->nextarena = ao->nextarena;
-//			}
-//			else {
-//				/* ao is at the head of the list */
-//				assert(usable_arenas == ao);
-//				usable_arenas = ao->nextarena;
-//			}
-//			ao->nextarena->prevarena = ao->prevarena;
-//
-//			/* Locate the new insertion point by iterating over
-//			 * the list, using our nextarena pointer.
-//			 */
-//			while (ao->nextarena != NULL &&
-//					nf > ao->nextarena->nfreepools) {
-//				ao->prevarena = ao->nextarena;
-//				ao->nextarena = ao->nextarena->nextarena;
-//			}
-//
-//			/* Insert ao at this point. */
-//			assert(ao->nextarena == NULL ||
-//				ao->prevarena == ao->nextarena->prevarena);
-//			assert(ao->prevarena->nextarena == ao->nextarena);
-//
-//			ao->prevarena->nextarena = ao;
-//			if (ao->nextarena != NULL)
-//				ao->nextarena->prevarena = ao;
-//
-//			/* Verify that the swaps worked. */
-//			assert(ao->nextarena == NULL ||
-//				  nf <= ao->nextarena->nfreepools);
-//			assert(ao->prevarena == NULL ||
-//				  nf > ao->prevarena->nfreepools);
-//			assert(ao->nextarena == NULL ||
-//				ao->nextarena->prevarena == ao);
-//			assert((usable_arenas == ao &&
-//				ao->prevarena == NULL) ||
-//				ao->prevarena->nextarena == ao);
-//
-//			//解锁
-//			return;
-//		}
+		if (lastfree) {
+			struct arena_object* ao;
+			uint nf;  /* ao->nfreepools */
+
+			//freeblock 不为空，说明pool还没满
+			if (--pool->ref.count != 0) {
+				/* pool isn't empty:  leave it in usedpools */
+				//解锁
+				return;
+			}
+			/* Pool is now empty:  unlink from usedpools, and
+			 * link to the front of freepools.  This ensures that
+			 * previously freed pools will be allocated later
+			 * (being not referenced, they are perhaps paged out).
+			 */
+			//pool现在为空，需要从空闲链表上拿出去
+			next = pool->nextpool;
+			prev = pool->prevpool;
+			next->prevpool = prev;
+			prev->nextpool = next;
+
+			/* Link the pool to freepools.  This is a singly-linked
+			 * list, and pool->prevpool isn't used there.
+			 */
+			ao = &arenas[pool->arenaindex];
+			pool->nextpool = ao->freepools;
+			ao->freepools = pool;
+			nf = ++ao->nfreepools;
+
+			/* All the rest is arena management.  We just freed
+			 * a pool, and there are 4 cases for arena mgmt:
+			 * 1. If all the pools are free, return the arena to
+			 *    the system free().
+			 * 2. If this is the only free pool in the arena,
+			 *    add the arena back to the `usable_arenas` list.
+			 * 3. If the "next" arena has a smaller count of free
+			 *    pools, we have to "slide this arena right" to
+			 *    restore that usable_arenas is sorted in order of
+			 *    nfreepools.
+			 * 4. Else there's nothing more to do.
+			 */
+			if (nf == ao->ntotalpools) {
+				return;
+				/* Case 1.  First unlink ao from usable_arenas.
+				 */
+				assert(ao->prevarena == NULL ||
+				       ao->prevarena->address != 0);
+				assert(ao ->nextarena == NULL ||
+				       ao->nextarena->address != 0);
+
+				/* Fix the pointer in the prevarena, or the
+				 * usable_arenas pointer.
+				 */
+				if (ao->prevarena == NULL) {
+					usable_arenas = ao->nextarena;
+					assert(usable_arenas == NULL ||
+					       usable_arenas->address != 0);
+				}
+				else {
+					assert(ao->prevarena->nextarena == ao);
+					ao->prevarena->nextarena =
+						ao->nextarena;
+				}
+				/* Fix the pointer in the nextarena. */
+				if (ao->nextarena != NULL) {
+					assert(ao->nextarena->prevarena == ao);
+					ao->nextarena->prevarena =
+						ao->prevarena;
+				}
+				/* Record that this arena_object slot is
+				 * available to be reused.
+				 */
+				ao->nextarena = unused_arena_objects;
+				unused_arena_objects = ao;
+
+				/* Free the entire arena. */
+				free((void *)ao->address);
+				ao->address = 0;	/* mark unassociated */
+				--narenas_currently_allocated;
+
+				//解锁
+				return;
+			}
+			if (nf == 1) {
+				/* Case 2.  Put ao at the head of
+				 * usable_arenas.  Note that because
+				 * ao->nfreepools was 0 before, ao isn't
+				 * currently on the usable_arenas list.
+				 */
+				ao->nextarena = usable_arenas;
+				ao->prevarena = NULL;
+				if (usable_arenas)
+					usable_arenas->prevarena = ao;
+				usable_arenas = ao;
+				assert(usable_arenas->address != 0);
+
+				//解锁
+				return;
+			}
+			/* If this arena is now out of order, we need to keep
+			 * the list sorted.  The list is kept sorted so that
+			 * the "most full" arenas are used first, which allows
+			 * the nearly empty arenas to be completely freed.  In
+			 * a few un-scientific tests, it seems like this
+			 * approach allowed a lot more memory to be freed.
+			 */
+			if (ao->nextarena == NULL ||
+				     nf <= ao->nextarena->nfreepools) {
+				/* Case 4.  Nothing to do. */
+				//解锁
+				return;
+			}
+			/* Case 3:  We have to move the arena towards the end
+			 * of the list, because it has more free pools than
+			 * the arena to its right.
+			 * First unlink ao from usable_arenas.
+			 */
+			if (ao->prevarena != NULL) {
+				/* ao isn't at the head of the list */
+				assert(ao->prevarena->nextarena == ao);
+				ao->prevarena->nextarena = ao->nextarena;
+			}
+			else {
+				/* ao is at the head of the list */
+				assert(usable_arenas == ao);
+				usable_arenas = ao->nextarena;
+			}
+			ao->nextarena->prevarena = ao->prevarena;
+
+			/* Locate the new insertion point by iterating over
+			 * the list, using our nextarena pointer.
+			 */
+			while (ao->nextarena != NULL &&
+					nf > ao->nextarena->nfreepools) {
+				ao->prevarena = ao->nextarena;
+				ao->nextarena = ao->nextarena->nextarena;
+			}
+
+			/* Insert ao at this point. */
+			assert(ao->nextarena == NULL ||
+				ao->prevarena == ao->nextarena->prevarena);
+			assert(ao->prevarena->nextarena == ao->nextarena);
+
+			ao->prevarena->nextarena = ao;
+			if (ao->nextarena != NULL)
+				ao->nextarena->prevarena = ao;
+
+			/* Verify that the swaps worked. */
+			assert(ao->nextarena == NULL ||
+				  nf <= ao->nextarena->nfreepools);
+			assert(ao->prevarena == NULL ||
+				  nf > ao->prevarena->nfreepools);
+			assert(ao->nextarena == NULL ||
+				ao->nextarena->prevarena == ao);
+			assert((usable_arenas == ao &&
+				ao->prevarena == NULL) ||
+				ao->prevarena->nextarena == ao);
+
+			//解锁
+			return;
+		}
 		/* Pool was full, so doesn't currently live in any list:
 		 * link it to the front of the appropriate usedpools[] list.
 		 * This mimics LRU pool usage for new allocations and

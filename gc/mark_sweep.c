@@ -62,12 +62,13 @@ void     gc_sweep(void)
                 //查看该堆是否被标记过
                 if (FL_TEST(obj->flags, FL_MARK)) {
 //                    DEBUG(printf("解除标记 : %p\n", p));
-                    printf("解除标记 : %p\n", p);
+                    // printf("解除标记 : %p\n", p);
                     FL_UNSET(obj->flags, FL_MARK);
                 }else {
 //                    DEBUG(printf("清除回收 :\n"));
-                    printf("清除回收 %d:",*(int*)(pp +8));
-//                    gc_free(pp);
+                    // printf("清除回收 %d:%d ",*(int*)(pp +8),obj->flags);
+                    FL_UNSET(obj->flags, FL_ALLOC);
+                    gc_free(pp);
                 }
             }
 
@@ -118,7 +119,7 @@ void scan_stack(){
  */
 void  gc(void)
 {
-//    printf("[gc] start gc\n");
+    // printf("[gc] start gc\n");
     scan_register();
     scan_stack();
 
