@@ -8,32 +8,31 @@
  */
 void gc_mark(void * ptr)
 {
-    GC_Heap *gh;
-    Header *hdr;
+    if (ptr == NULL)return;
 
-    /* mark check */
-    if (!(gh = is_pointer_to_heap(ptr))){
-//      printf("not pointer\n");
-      return;
-    } 
-    if (!(hdr = get_header(gh, ptr))) {
-      printf("not find header\n");
+    poolp pool;
+    uint size;
+    pool = POOL_ADDR(ptr);
+    if(pool < arenas[0].address || pool > (arenas[0].address + ARENA_SIZE)) return;
+    if (!Py_ADDRESS_IN_RANGE(ptr, pool)) return;
+
+    size = INDEX2SIZE(pool->szidx);
+
+    Header *hdr = ptr - 8;
+    if (!FL_TEST(hdr->flags, FL_ALLOC)) {
+//      printf("flag not set alloc\n");
       return;
     }
-    if (!FL_TEST(hdr, FL_ALLOC)) {
-      printf("flag not set alloc\n");
-      return;
-    }
-    if (FL_TEST(hdr, FL_MARK)) {
+    if (FL_TEST(hdr->flags, FL_MARK)) {
       //printf("flag not set mark\n");
       return;
     }
 
     /* marking */
-    FL_SET(hdr, FL_MARK);
+    FL_SET(hdr->flags, FL_MARK);
 
     //进行child 节点递归 标记
-    for (void* p = ptr; p < (void*)NEXT_HEADER(hdr); p++) {
+    for (void* p = ptr; p < (ptr + size); p++) {
         //对内存解引用，因为内存里面可能存放了内存的地址 也就是引用，需要进行引用的递归标记
         gc_mark(*(void **)p);
     }
@@ -43,31 +42,38 @@ void gc_mark(void * ptr)
  */
 void     gc_sweep(void)
 {
-    size_t i;
-    Header *p, *pend, *pnext;
+    //遍历areans_object
+    struct arena_object* area = &arenas[0];
+    poolp  pool;
+    uint   size = 0;
 
-    //遍历所有的堆内存
-    //因为所有的内存都从堆里申请，所以需要遍历堆找出待回收的内存
-    for (i = 0; i < gc_heaps_used; i++) {
-        //pend 堆内存结束为止
-        pend = (Header *)(((size_t)gc_heaps[i].slot) + gc_heaps[i].size);
-        //堆的起始为止 因为堆的内存可能被分成了很多份，所以需要遍历该堆的内存
-        for (p = gc_heaps[i].slot; p < pend; p = NEXT_HEADER(p)) {
+    //从 first_pools - pool_adress 之间遍历
+    for (void* p = area->first_address; p < (void*)area->pool_address; p += POOL_SIZE)
+    {
+        pool = (poolp)p;
+        size = INDEX2SIZE(pool->szidx);
+        void* start_addr = p + POOL_OVERHEAD;
+        void* end_addr = p + POOL_SIZE;
+        for (void *pp = start_addr; pp < end_addr; pp += size)
+        {
+            Header *obj = (Header*)pp;
             //查看该堆是否已经被使用
-            if (FL_TEST(p, FL_ALLOC)) {
+            if (FL_TEST(obj->flags, FL_ALLOC)) {
                 //查看该堆是否被标记过
-                if (FL_TEST(p, FL_MARK)) {
-                    DEBUG(printf("解除标记 : %p\n", p));
-                    //取消标记，等待下次来回收，如果在下次回收前
-                    //1. 下次回收前发现该内存又被重新访问了，则不需要清除
-                    //2. 下次回收前发现该内存没有被访问过，所以需要清除
-                    FL_UNSET(p, FL_MARK);
+                if (FL_TEST(obj->flags, FL_MARK)) {
+//                    DEBUG(printf("解除标记 : %p\n", p));
+                    printf("解除标记 : %p\n", p);
+                    FL_UNSET(obj->flags, FL_MARK);
                 }else {
-                    DEBUG(printf("清除回收 :\n"));
-                    gc_free(p+1);
+//                    DEBUG(printf("清除回收 :\n"));
+                    printf("清除回收 %d:",*(int*)(pp +8));
+//                    gc_free(pp);
                 }
             }
+
         }
+
+
     }
 }
 void tell_is_stackarg(void* arg){
@@ -81,6 +87,7 @@ void tell_is_stackarg(void* arg){
  */
 void scan_register()
 {
+//    printf("[gc] start scan register\n");
     void *reg;
     if(reg = get_sp())  tell_is_stackarg(reg);
     if(reg = get_bp())  tell_is_stackarg(reg);
@@ -97,6 +104,7 @@ void scan_register()
  * 栈扫描
  */
 void scan_stack(){
+//    printf("[gc] start scan stack\n");
     //现在开始是真正的扫描系统栈空间
     void * cur_sp = get_sp();
     //高低往低地址增长
@@ -110,6 +118,7 @@ void scan_stack(){
  */
 void  gc(void)
 {
+//    printf("[gc] start gc\n");
     scan_register();
     scan_stack();
 

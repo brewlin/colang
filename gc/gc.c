@@ -1,304 +1,627 @@
 #include "gc.h"
-#include <time.h>
-#include "root.h"
 
-//回收链表，挂着空闲链表
-Header* free_list = NULL;
-GC_Heap gc_heaps[HEAP_LIMIT];
-size_t  gc_heaps_used = 0;
-root    roots[ROOT_RANGES_LIMIT]; //根
-size_t  root_used = 0;
-int     auto_gc = 1;
-int     auto_grow = 1;
 
 void *sp_start;
-void gc_init()
+
+//为了快速查询， 设置了多个空闲链表 multi_free_list 0 对应8字节 1 对16字节。。。
+//共64个大小
+ poolp usedpools[2 * ((NB_SMALL_SIZE_CLASSES + 7) / 8) * 8] = {
+	PT(0), PT(1), PT(2), PT(3), PT(4), PT(5), PT(6), PT(7),
+	PT(8), PT(9), PT(10), PT(11), PT(12), PT(13), PT(14), PT(15),
+	PT(16), PT(17), PT(18), PT(19), PT(20), PT(21), PT(22), PT(23),
+	PT(24), PT(25), PT(26), PT(27), PT(28), PT(29), PT(30), PT(31)
+};
+
+/*==========================================================================
+unused_arena_objects
+	作为一个单链表，链表的所有object都没有关联真正的arena内存，
+
+usable_arenas
+	指向一个双向链表，关联着包含可用pool的arena内存块，这些pool要么没被用过，
+	要么在等待reuse->freeBlock
+*/
+
+//全局arena vector 数组
+ struct arena_object* arenas = NULL;
+//当前在areanas中分配的最大slot索引
+ uint maxarenas = 0;
+
+ struct arena_object* unused_arena_objects = NULL;
+
+ //双向链表，将由可用pool内存块的arena 串起来
+ struct arena_object* usable_arenas = NULL;
+
+//初始化16个arena_object 数组
+#define INITIAL_ARENA_OBJECTS 16
+
+//已经分配了arena内存 但是还没有释放的数量
+size_t narenas_currently_allocated = 0;
+
+// arena -   pool   -  block
+// arena 一般是 256k  最大的一个层级  多个arena由双向链表串联起来
+// pool  一般是 4k 属于一个arena里面，并且多个pool通过链表串联起来
+// block 是pool上的最小分配内存  由用户结构体而定义
+struct arena_object* new_arena(void)
 {
-    sp_start = get_sp();
+	struct arena_object* arenaobj;
+	uint excess;	/* number of bytes above pool alignment */
+
+	//如果一个可用的arena都没有，说明程序还没有初始化 需要走初始化流程
+	if (unused_arena_objects == NULL) {
+		uint i;
+		uint numarenas;
+		size_t nbytes;
+
+		//1 第一次初始化的时候 numarenas = 0 所以默认初始化16个大小的数组
+		//2 第二次来说明空间不够了 numareans *= 2 因为无符号为2字节大小，所以numarenas 可能会溢出
+		numarenas = maxarenas ? maxarenas << 1 : INITIAL_ARENA_OBJECTS;
+		//溢出了
+		if (numarenas <= maxarenas)
+			return NULL;	/* overflow */
+		nbytes = numarenas * sizeof(*arenas);
+		//扩充之间的数组 并返回了新的指针执行扩充后的新空间
+		arenaobj = (struct arena_object *)realloc(arenas, nbytes);
+		if (arenaobj == NULL)
+			return NULL;
+		//替换新的全局arean数组
+		arenas = arenaobj;
+
+		//还是要验证下 确保到这里的时候可用的arean都为空
+		assert(usable_arenas == NULL);
+		assert(unused_arena_objects == NULL);
+
+		//arenas 数组还没有初始化 现在进行初始化
+		for (i = maxarenas; i < numarenas; ++i) {
+			arenas[i].address = 0;	//标记还没有初始化256k内存空间
+			arenas[i].nextarena = i < numarenas - 1 ?
+					       &arenas[i+1] : NULL;
+		}
+		//未使用空间指向之前的后一个，第一次的时候这个数值为0
+		unused_arena_objects = &arenas[maxarenas];
+		//更新areans数量
+		maxarenas = numarenas;
+	}
+
+	assert(unused_arena_objects != NULL);
+	arenaobj = unused_arena_objects;
+	unused_arena_objects = arenaobj->nextarena;
+	//确保当前的areanobj 还没有初始化内存
+	assert(arenaobj->address == 0);
+	//分配一个 arena内存池 一般 256k大小
+	arenaobj->address = (uptr)malloc(ARENA_SIZE);
+	if (arenaobj->address == 0) {
+		//分配失败了 需要返回NULL 并且将arenaobj推到链表头 等待下次继续初始化
+		arenaobj->nextarena = unused_arena_objects;
+		unused_arena_objects = arenaobj;
+		return NULL;
+	}
+
+	++narenas_currently_allocated;
+
+	arenaobj->freepools = NULL;
+	arenaobj->pool_address = (block*)arenaobj->address;
+	arenaobj->nfreepools = ARENA_SIZE / POOL_SIZE;
+	assert(POOL_SIZE * arenaobj->nfreepools == ARENA_SIZE);
+	//pool需要内存对齐，所以这个时候就是计算pool对齐后的地址
+	excess = (uint)(arenaobj->address & POOL_SIZE_MASK);
+	if (excess != 0) {
+		--arenaobj->nfreepools;
+		arenaobj->pool_address += POOL_SIZE - excess;
+	}
+	//保存pool起始分配地址，后面不在改动
+	arenaobj->first_address = arenaobj->pool_address;
+
+	arenaobj->ntotalpools = arenaobj->nfreepools;
+
+	return arenaobj;
 }
-/**
- * 将分配的变量 添加到root 引用,只要是root上的对象都能够进行标记
- * @param start
- * @param end
- */
-void add_roots(void* o_ptr)
+//执行内存分配逻辑
+void * Malloc(size_t nbytes)
 {
-    void *ptr = *(void**)o_ptr;
-    roots[root_used].ptr = ptr;
-    roots[root_used].optr = o_ptr;
-    root_used++;
-    if (root_used >= ROOT_RANGES_LIMIT) {
-        fputs("Root OverFlow", stderr);
-        abort();
-    }
-}
-/**
- * 增加堆
- **/
-Header* add_heap(size_t req_size)
-{
-    void *p;
-    Header *align_p;
-    //超过堆大小后 内存耗光 告警退出
-    if (gc_heaps_used >= HEAP_LIMIT) {
-        fputs("OutOfMemory Error", stderr);
-        abort();
-    }
+	block *bp;
+	//pool空闲链表池
+	poolp pool;
+	poolp next;
+	uint size;
+	size_t need_gc = 0;
 
-    //申请的堆大小 不能小于 0x4000
-    if (req_size < TINY_HEAP_SIZE)
-        req_size = TINY_HEAP_SIZE;
 
-    //使用sbrk 向操作系统申请大内存块
-    // size + header大小 最后加一个 8字节是为了内存对齐
-    if((p = sbrk(req_size + PTRSIZE)) == (void *)-1){
-        DEBUG(printf("sbrk 分配内存失败\n"));
-        return NULL;
-    }
+	 //为了安全漏洞 阻止申请超过 最大申请内存
+	if (nbytes > PY_SSIZE_T_MAX)
+		return NULL;
 
-    /* address alignment */
-    //地址对齐
-    align_p = gc_heaps[gc_heaps_used].slot = (Header *)ALIGN((size_t)p, PTRSIZE);
-    req_size = gc_heaps[gc_heaps_used].size = req_size;
-    align_p->size = req_size;
-    //新的堆的下一个节点依然指向本身
-    align_p->next_free = NULL;
-    //新增一个堆
-    gc_heaps_used++;
-    DEBUG(printf("扩堆内存:%ld ptr:%p\n",req_size,align_p));
+	//隐式的重定向到了 malloc
+	if ((nbytes - 1) < SMALL_REQUEST_THRESHOLD) {
+	    //加锁
 
-    return align_p;
-}
-/**
- * 扩充堆大小
- **/
-Header* gc_grow(size_t req_size)
-{
-    Header *cp, *up;
-
-    if (!(cp = add_heap(req_size))){
-        printf("扩充堆 大小失败");
-        return NULL;
-    }
-
-    up = (Header *) cp;
-    printf("%p\n",up);
-    //因为gc_free 是公用的，所以需要 将实际 mem 地址传入
-    //新申请的堆不需要 进行gc 只需要挂载到 free_list 链表上就行
-    if(free_list == NULL){
-        memset(up +  1,0,up->size - HEADER_SIZE);
-        free_list = up;
-        up->flags = 0;
-        return free_list;
-    }else{
-        gc_free((void *)(up+1));
-    }
-    //上面执行gc的时候，其实已经将free_list的表头改变，
-    // 所以free_list->next_free 可能就是 up
-    return free_list;
-}
-/**
- * 分配一块内存
- */
-void*   gc_malloc(size_t req_size)
-{
-    //DEBUG(printf("内存申请 :%ld\n",req_size));
-    Header *p, *prevp;
-    size_t do_gc = 0;
-
-    req_size += HEADER_SIZE;
-    //对齐 字节
-    req_size = ALIGN(req_size, PTRSIZE);
-
-    if (req_size <= 0) {
-        return NULL;
-    }
+		//将申请的内存进行对齐 然后换算成空闲pools上的索引
 alloc:
-    //从空闲链表上去搜寻 空余空间
-    prevp = free_list;
-    //死循环 遍历
-    for (p = prevp; p; prevp = p, p = p->next_free) {
-        //堆的内存足够
-        if (p->size >= req_size) {
-            //刚好满足
-            if (p->size == req_size)
-                /* 刚好满足 */
-                // 从空闲列表上 移除当前的 堆，因为申请的大小刚好把堆消耗完了
-                if(p == prevp)
-                    free_list = prevp = p->next_free;
-                else
-                    prevp->next_free = p->next_free;
+		size = (uint)(nbytes - 1) >> ALIGNMENT_SHIFT;
+		pool = usedpools[size + size];
+		if (pool != pool->nextpool) {
+			//该pool内 分配的block数量 +1 维护已经分配的block总数
+			++pool->ref.count;
+			//从block 空闲链表上查找，就像我们自己实现的那个free_list 一个意思
+			bp = pool->freeblock;
+			assert(bp != NULL);
+			//这里表示 pol->freeblock = bp->next
+			//*(block **)bp 是为了节省next指针 而直接在里面保存了下一个指针
+			if ((pool->freeblock = *(block **)bp) != NULL) {
+			    //解锁
+				return (void *)bp;
+			}
+			//上面说明freeblock 已经没有空闲链表了，现在需要额外分配新的内存
+			if (pool->nextoffset <= pool->maxnextoffset) {
+				/* There is room for another block. */
+				pool->freeblock = (block*)pool + pool->nextoffset;
+				//nexttoffset 执行下一个未分配地址开头
+				pool->nextoffset += INDEX2SIZE(size);
+				//相当于 pool->freeblock->next = NULL
+				*(block **)(pool->freeblock) = NULL;
+				//解锁
+				return (void *)bp;
+			}
+			//之前pool用完了需要gc一下
+			if(!need_gc){
+				need_gc = 1;
+				gc();
+				goto alloc;
+			}
+			//到这里说明两个问题
+			//1 freeblock 没有空闲block可用
+			//2 pool也分配耗尽了
+			//接下来就要将这个pool从全局pool空闲链表上面移除
+			next = pool->nextpool;
+			pool = pool->prevpool;
+			next->prevpool = pool;
+			pool->nextpool = next;
+			//解锁
+			return (void *)bp;
+		}
 
-            //没有刚好相同的空间，所以从大分块中拆分一块出来给用户
-            //这里因为有拆分 所以会导致内存碎片的问题，这也是 标记清除算法的一个缺点
-            //就是导致内存碎片
-            else {
-                /* too big */
-//                p->size -= (req_size + HEADER_SIZE);
-//                这里就是从当前堆的堆首  跳转到末尾申请的那个堆
-//                p = NEXT_HEADER(p);
-                prevp = (void*)prevp + req_size;
-                memcpy(prevp,p,HEADER_SIZE);
-                prevp->size = p->size - req_size;
-            }
-            p->size = req_size;
-            free_list = prevp;
-            //给新分配的p 设置为标志位 fl_alloc 为新分配的空间
-            //printf("%p\n",p);
-            p->flags = 0;
-            p->ref   = 1;
-            FL_SET(p, FL_ALLOC);
-            //设置年龄为0
-            p->age = 0;
-            p->forwarding = NULL;
+		//说明一个pool都没有了 且可用的arenas也没有了
+		if (usable_arenas == NULL) {
+			//现在需要新申请一个 arena
+			usable_arenas = new_arena();
+			if (usable_arenas == NULL) {
+				//解锁
+				//如果依然申请失败 则直接调用redirect直接malloc申请内存
+				goto redirect;
+			}
+			//设置当前arena next 和 prev 都为空
+			usable_arenas->nextarena =
+				usable_arenas->prevarena = NULL;
+		}
+		//这里判断arena内存池是否真正申请成功
+		assert(usable_arenas->address != 0);
 
-            //新的内存 是包括了 header + mem 所以返回给 用户mem部分就可以了
-            return (void *)(p+1);
-        }
+		/* Try to get a cached free pool. */
+		pool = usable_arenas->freepools;
+		if (pool != NULL) {
+			/* Unlink from cached pools. */
+			usable_arenas->freepools = pool->nextpool;
 
-    }
+			/* This arena already had the smallest nfreepools
+			 * value, so decreasing nfreepools doesn't change
+			 * that, and we don't need to rearrange the
+			 * usable_arenas list.  However, if the arena has
+			 * become wholly allocated, we need to remove its
+			 * arena_object from usable_arenas.
+			 */
+			--usable_arenas->nfreepools;
+			if (usable_arenas->nfreepools == 0) {
+				/* Wholly allocated:  remove. */
+				assert(usable_arenas->freepools == NULL);
+				assert(usable_arenas->nextarena == NULL ||
+				       usable_arenas->nextarena->prevarena ==
+					   usable_arenas);
 
-    //这里表示前面多次都没有找到合适的空间，且已经遍历完了空闲链表 free_list
-    //这里表示在 单次内存申请的时候 且 空间不够用的情况下 需要执行一次gc
-    //一般是分块用尽会 才会执行gc 清除带回收的内存
-    if (!do_gc && auto_gc) {
-        gc();
-        do_gc = 1;
-        goto alloc;
-    }else if(auto_grow){ //上面说明 执行了gc之后 内存依然不够用 那么需要扩充堆大小
-        p = gc_grow(req_size);
-        if(p != NULL) goto alloc;
-    }
-    return NULL;
+				usable_arenas = usable_arenas->nextarena;
+				if (usable_arenas != NULL) {
+					usable_arenas->prevarena = NULL;
+					assert(usable_arenas->address != 0);
+				}
+			}
+			else {
+				/* nfreepools > 0:  it must be that freepools
+				 * isn't NULL, or that we haven't yet carved
+				 * off all the arena's pools for the first
+				 * time.
+				 */
+				assert(usable_arenas->freepools != NULL ||
+				       usable_arenas->pool_address <=
+				           (block*)usable_arenas->address +
+				               ARENA_SIZE - POOL_SIZE);
+			}
+		init_pool:
+			//将新的空闲的pool 挂到  全局 pool链表上去
+			next = usedpools[size + size]; /* == prev */
+			pool->nextpool = next;
+			pool->prevpool = next;
+			next->nextpool = pool;
+			next->prevpool = pool;
+			pool->ref.count = 1;
+			if (pool->szidx == size) {
+				/* Luckily, this pool last contained blocks
+				 * of the same size class, so its header
+				 * and free list are already initialized.
+				 */
+				bp = pool->freeblock;
+				pool->freeblock = *(block **)bp;
+				//解锁
+				return (void *)bp;
+			}
+			/*
+			 * Initialize the pool header, set up the free list to
+			 * contain just the second block, and return the first
+			 * block.
+			 */
+			pool->szidx = size;
+			size = INDEX2SIZE(size);
+			//第一次使用全新的pool的时候 默认从 pool_address + pool_header 处分配
+			bp = (block *)pool + POOL_OVERHEAD;
+			pool->nextoffset = POOL_OVERHEAD + (size << 1);
+			pool->maxnextoffset = POOL_SIZE - size;
+			pool->freeblock = bp + size;
+			*(block **)(pool->freeblock) = NULL;
+			//解锁
+			return (void *)bp;
+		}
 
+		//开辟新的内存池
+		assert(usable_arenas->nfreepools > 0);
+		assert(usable_arenas->freepools == NULL);
+		//因为新申请的arenas 是一块256k的大内存，还没切分为小的pool
+		pool = (poolp)usable_arenas->pool_address;
+		assert((block*)pool <= (block*)usable_arenas->address +
+		                       ARENA_SIZE - POOL_SIZE);
+		pool->arenaindex = usable_arenas - arenas;
+		assert(&arenas[pool->arenaindex] == usable_arenas);
+		pool->szidx = DUMMY_SIZE_IDX;
+		//正在使用中的arena pool地址指向下一个pool
+		usable_arenas->pool_address += POOL_SIZE;
+		--usable_arenas->nfreepools;
+
+		if (usable_arenas->nfreepools == 0) {
+			assert(usable_arenas->nextarena == NULL ||
+			       usable_arenas->nextarena->prevarena ==
+			       	   usable_arenas);
+			/* Unlink the arena:  it is completely allocated. */
+			//当前arena 已经完全用完了 需要指向一下一个可用的arena
+			usable_arenas = usable_arenas->nextarena;
+			if (usable_arenas != NULL) {
+				usable_arenas->prevarena = NULL;
+				assert(usable_arenas->address != 0);
+			}
+		}
+
+		goto init_pool;
+	}
+
+        /* The small block allocator ends here. */
+
+redirect:
+	/* Redirect the original request to the underlying (libc) allocator.
+	 * We jump here on bigger requests, on error in the code above (as a
+	 * last chance to serve the request) or when the max memory limit
+	 * has been reached.
+	 */
+	if (nbytes == 0)
+		nbytes = 1;
+	return (void *)malloc(nbytes);
 }
-void*    gc_realloc(void *p,size_t size)
+
+/* free */
+
+#undef Free
+
+void Free(void *p)
 {
-    if(!p){
-        if(size < 0){
-            printf("realloc failed\n");
-            exit(1);
-        }
-        return gc_malloc(size);
-    }
-    if(size < 0){
-        gc_free(p);
-        return NULL;
-    }
-    void* new = gc_malloc(size);
-    size_t len = CURRENT_HEADER(p)->size - HEADER_SIZE;
-    memcpy(new,p,len);
-    gc_free(p);
-    return new;
+	poolp pool;
+	block *lastfree;
+	poolp next, prev;
+	uint size;
+
+	if (p == NULL)	/* free(NULL) has no effect */
+		return;
+	//这里是查找p 所属的pool
+	pool = POOL_ADDR(p);
+	//#define POOL_ADDR(P) ((poolp)((uptr)(P) & ~(uptr)POOL_SIZE_MASK))
+	//#define POOL_ADDR(P) (P & 0xfffff000)
+	if (Py_ADDRESS_IN_RANGE(p, pool)) {
+		/* We allocated this address. */
+		//加锁
+		/* Link p to the start of the pool's freeblock list.  Since
+		 * the pool had at least the p block outstanding, the pool
+		 * wasn't empty (so it's already in a usedpools[] list, or
+		 * was full and is in no list -- it's not in the freeblocks
+		 * list in any case).
+		 */
+		//既然p属于 pool里面，那么pool必然已使用block 肯定大于0
+		assert(pool->ref.count > 0);	/* else it was empty */
+		//将当前p挂到 pool->freeblokc->next 下面
+		*(block **)p = lastfree = pool->freeblock;
+		//然后pool->freeblock = p
+		pool->freeblock = (block *)p;
+//		if (lastfree) {
+//			struct arena_object* ao;
+//			uint nf;  /* ao->nfreepools */
+//
+//			//freeblock 不为空，说明pool还没满
+//			if (--pool->ref.count != 0) {
+//				/* pool isn't empty:  leave it in usedpools */
+//				//解锁
+//				return;
+//			}
+//			/* Pool is now empty:  unlink from usedpools, and
+//			 * link to the front of freepools.  This ensures that
+//			 * previously freed pools will be allocated later
+//			 * (being not referenced, they are perhaps paged out).
+//			 */
+//			//pool现在为空，需要从空闲链表上拿出去
+//			next = pool->nextpool;
+//			prev = pool->prevpool;
+//			next->prevpool = prev;
+//			prev->nextpool = next;
+//
+//			/* Link the pool to freepools.  This is a singly-linked
+//			 * list, and pool->prevpool isn't used there.
+//			 */
+//			ao = &arenas[pool->arenaindex];
+//			pool->nextpool = ao->freepools;
+//			ao->freepools = pool;
+//			nf = ++ao->nfreepools;
+//
+//			/* All the rest is arena management.  We just freed
+//			 * a pool, and there are 4 cases for arena mgmt:
+//			 * 1. If all the pools are free, return the arena to
+//			 *    the system free().
+//			 * 2. If this is the only free pool in the arena,
+//			 *    add the arena back to the `usable_arenas` list.
+//			 * 3. If the "next" arena has a smaller count of free
+//			 *    pools, we have to "slide this arena right" to
+//			 *    restore that usable_arenas is sorted in order of
+//			 *    nfreepools.
+//			 * 4. Else there's nothing more to do.
+//			 */
+//			if (nf == ao->ntotalpools) {
+//				/* Case 1.  First unlink ao from usable_arenas.
+//				 */
+//				assert(ao->prevarena == NULL ||
+//				       ao->prevarena->address != 0);
+//				assert(ao ->nextarena == NULL ||
+//				       ao->nextarena->address != 0);
+//
+//				/* Fix the pointer in the prevarena, or the
+//				 * usable_arenas pointer.
+//				 */
+//				if (ao->prevarena == NULL) {
+//					usable_arenas = ao->nextarena;
+//					assert(usable_arenas == NULL ||
+//					       usable_arenas->address != 0);
+//				}
+//				else {
+//					assert(ao->prevarena->nextarena == ao);
+//					ao->prevarena->nextarena =
+//						ao->nextarena;
+//				}
+//				/* Fix the pointer in the nextarena. */
+//				if (ao->nextarena != NULL) {
+//					assert(ao->nextarena->prevarena == ao);
+//					ao->nextarena->prevarena =
+//						ao->prevarena;
+//				}
+//				/* Record that this arena_object slot is
+//				 * available to be reused.
+//				 */
+//				ao->nextarena = unused_arena_objects;
+//				unused_arena_objects = ao;
+//
+//				/* Free the entire arena. */
+//				free((void *)ao->address);
+//				ao->address = 0;	/* mark unassociated */
+//				--narenas_currently_allocated;
+//
+//				//解锁
+//				return;
+//			}
+//			if (nf == 1) {
+//				/* Case 2.  Put ao at the head of
+//				 * usable_arenas.  Note that because
+//				 * ao->nfreepools was 0 before, ao isn't
+//				 * currently on the usable_arenas list.
+//				 */
+//				ao->nextarena = usable_arenas;
+//				ao->prevarena = NULL;
+//				if (usable_arenas)
+//					usable_arenas->prevarena = ao;
+//				usable_arenas = ao;
+//				assert(usable_arenas->address != 0);
+//
+//				//解锁
+//				return;
+//			}
+//			/* If this arena is now out of order, we need to keep
+//			 * the list sorted.  The list is kept sorted so that
+//			 * the "most full" arenas are used first, which allows
+//			 * the nearly empty arenas to be completely freed.  In
+//			 * a few un-scientific tests, it seems like this
+//			 * approach allowed a lot more memory to be freed.
+//			 */
+//			if (ao->nextarena == NULL ||
+//				     nf <= ao->nextarena->nfreepools) {
+//				/* Case 4.  Nothing to do. */
+//				//解锁
+//				return;
+//			}
+//			/* Case 3:  We have to move the arena towards the end
+//			 * of the list, because it has more free pools than
+//			 * the arena to its right.
+//			 * First unlink ao from usable_arenas.
+//			 */
+//			if (ao->prevarena != NULL) {
+//				/* ao isn't at the head of the list */
+//				assert(ao->prevarena->nextarena == ao);
+//				ao->prevarena->nextarena = ao->nextarena;
+//			}
+//			else {
+//				/* ao is at the head of the list */
+//				assert(usable_arenas == ao);
+//				usable_arenas = ao->nextarena;
+//			}
+//			ao->nextarena->prevarena = ao->prevarena;
+//
+//			/* Locate the new insertion point by iterating over
+//			 * the list, using our nextarena pointer.
+//			 */
+//			while (ao->nextarena != NULL &&
+//					nf > ao->nextarena->nfreepools) {
+//				ao->prevarena = ao->nextarena;
+//				ao->nextarena = ao->nextarena->nextarena;
+//			}
+//
+//			/* Insert ao at this point. */
+//			assert(ao->nextarena == NULL ||
+//				ao->prevarena == ao->nextarena->prevarena);
+//			assert(ao->prevarena->nextarena == ao->nextarena);
+//
+//			ao->prevarena->nextarena = ao;
+//			if (ao->nextarena != NULL)
+//				ao->nextarena->prevarena = ao;
+//
+//			/* Verify that the swaps worked. */
+//			assert(ao->nextarena == NULL ||
+//				  nf <= ao->nextarena->nfreepools);
+//			assert(ao->prevarena == NULL ||
+//				  nf > ao->prevarena->nfreepools);
+//			assert(ao->nextarena == NULL ||
+//				ao->nextarena->prevarena == ao);
+//			assert((usable_arenas == ao &&
+//				ao->prevarena == NULL) ||
+//				ao->prevarena->nextarena == ao);
+//
+//			//解锁
+//			return;
+//		}
+		/* Pool was full, so doesn't currently live in any list:
+		 * link it to the front of the appropriate usedpools[] list.
+		 * This mimics LRU pool usage for new allocations and
+		 * targets optimal filling when several pools contain
+		 * blocks of the same size class.
+		 */
+		--pool->ref.count;
+		assert(pool->ref.count > 0);	/* else the pool is empty */
+		size = pool->szidx;
+		next = usedpools[size + size];
+		prev = next->prevpool;
+		/* insert pool before next:   prev <-> pool <-> next */
+		pool->nextpool = next;
+		pool->prevpool = prev;
+		next->prevpool = pool;
+		prev->nextpool = pool;
+		//解锁
+		return;
+	}
+
+	//说明不是通过asrena上申请的内存，直接free即可
+	free(p);
 }
-/**
- * 传入的是一个内存地址 是不带header头的
- * 所以我们可以通过（Header*)ptr - 1 来定位到header头
- **/
-void    gc_free(void *ptr)
-{
-    DEBUG(printf("释放内存 :%p free_list:%p\n",ptr,free_list));
-    Header *target, *hit,*prevp;
-    //通过内存地址向上偏移量找到  header头
-    target = (Header *)ptr - 1;
-    //回收的数据立马清空
-    memset(ptr,0,target->size-HEADER_SIZE);
-    target->flags = 0;
 
-    //空闲链表为空，直接将当前target挂到上面
-    if(free_list == NULL){
-        free_list = target;
-        target->flags = 0;
-        return;
-    }
-    //特殊情况，如果target->next == free_list 在上面是无法判断的
-    if(NEXT_HEADER(target) == free_list){
-        target->size += (free_list->size);
-        target->next_free = free_list->next_free;
-        free_list = target;
-        return;
-    }
-    //搜索target可能在空闲链表上的区间位置
-    prevp = free_list;
-    for(hit = prevp; hit && hit->next_free ; prevp = hit,hit = hit->next_free)
-    {
-        //刚好 target就在 [hit,hit->next_free] 之间
-        if(target >= hit && target <= hit->next_free){
-            break;
-        }
-        //跨堆的情况 说明target在两个堆之间 (heap1_end,heap2_start)
-        if(hit >= hit->next_free && (target > hit || target < hit->next_free))
-            break;
-    }
-
-    //1. 判断右区间  如果target属于右区间 则合并
-    if (NEXT_HEADER(target) == hit->next_free) {
-        target->size += hit->next_free->size;
-        target->next_free = hit->next_free->next_free;
-    }else {
-        target->next_free = hit->next_free;
-    }
-
-    //2. 判断左区间  如果target属于左区间 则合并
-    if (NEXT_HEADER(hit) == target) {
-        /* merge */
-        hit->size += target->size;
-        hit->next_free = target->next_free;
-    }else {
-        hit->next_free = target;
-    }
-}
-
-
-/**
- * 判断指针是否属于某个堆
- * 辨别指针 | 非指针
- * 保守式gc来说 会有一定误差
- * @param ptr
- * @return
+/* realloc.  If p is NULL, this acts like malloc(nbytes).  Else if nbytes==0,
+ * then as the Python docs promise, we do not treat this like free(p), and
+ * return a non-NULL result.
  */
-GC_Heap* is_pointer_to_heap(void *ptr)
-{
-    size_t i;
 
-    for (i = 0; i < gc_heaps_used;  i++) {
-        if ((((void *)gc_heaps[i].slot) <= ptr) &&
-            ((size_t)ptr < (((size_t)gc_heaps[i].slot) + gc_heaps[i].size))) {
-            return &gc_heaps[i];
-        }
-    }
-    return NULL;
-}
-/**
- *
- * @param ptr
- * @param i
- * @return
- */
-GC_Heap* is_pointer_to_space(void *ptr,size_t i)
+#undef Realloc
+void* Realloc(void *p, size_t nbytes)
 {
-    if ((((void *)gc_heaps[i].slot) <= ptr) &&
-        ((size_t)ptr < (((size_t)gc_heaps[i].slot) + gc_heaps[i].size))) {
-        return &gc_heaps[i];
-    }
-    return NULL;
-}
-/**
- * 获取该指针的header头 并再次检查是否是指针
- * @param gh
- * @param ptr
- * @return
- */
-Header*  get_header(GC_Heap *gh, void *ptr)
-{
-    Header *p, *pend, *pnext;
+	void *bp;
+	poolp pool;
+	size_t size;
 
-    pend = (Header *)((size_t)gh->slot + gh->size);
-    for (p = gh->slot; p < pend; p = pnext) {
-        pnext = NEXT_HEADER(p);
-        if ((void *)(p+1) <= ptr && ptr < (void *)pnext) {
-            return p;
-        }
-    }
-    return NULL;
+	if (p == NULL)
+		return Malloc(nbytes);
+
+	/*
+	 * Limit ourselves to PY_SSIZE_T_MAX bytes to prevent security holes.
+	 * Most python internals blindly use a signed Py_ssize_t to track
+	 * things without checking for overflows or negatives.
+	 * As size_t is unsigned, checking for nbytes < 0 is not required.
+	 */
+	if (nbytes > PY_SSIZE_T_MAX)
+		return NULL;
+
+	pool = POOL_ADDR(p);
+	if (Py_ADDRESS_IN_RANGE(p, pool)) {
+		/* We're in charge of this block */
+		size = INDEX2SIZE(pool->szidx);
+		if (nbytes <= size) {
+			/* The block is staying the same or shrinking.  If
+			 * it's shrinking, there's a tradeoff:  it costs
+			 * cycles to copy the block to a smaller size class,
+			 * but it wastes memory not to copy it.  The
+			 * compromise here is to copy on shrink only if at
+			 * least 25% of size can be shaved off.
+			 */
+			if (4 * nbytes > 3 * size) {
+				/* It's the same,
+				 * or shrinking and new/old > 3/4.
+				 */
+				return p;
+			}
+			size = nbytes;
+		}
+		bp = Malloc(nbytes);
+		if (bp != NULL) {
+			memcpy(bp, p, size);
+			Free(p);
+		}
+		return bp;
+	}
+	/* We're not managing this block.  If nbytes <=
+	 * SMALL_REQUEST_THRESHOLD, it's tempting to try to take over this
+	 * block.  However, if we do, we need to copy the valid data from
+	 * the C-managed block to one of our blocks, and there's no portable
+	 * way to know how much of the memory space starting at p is valid.
+	 * As bug 1185883 pointed out the hard way, it's possible that the
+	 * C-managed block is "at the end" of allocated VM space, so that
+	 * a memory fault can occur if we try to copy nbytes bytes starting
+	 * at p.  Instead we punt:  let C continue to manage this block.
+         */
+	if (nbytes)
+		return realloc(p, nbytes);
+	/* C doesn't define the result of realloc(p, 0) (it may or may not
+	 * return NULL then), but Python's docs promise that nbytes==0 never
+	 * returns NULL.  We don't pass 0 to realloc(), to avoid that endcase
+	 * to begin with.  Even then, we can't be sure that realloc() won't
+	 * return NULL.
+	 */
+	bp = realloc(p, 1);
+   	return bp ? bp : p;
 }
+
+
+void*  gc_malloc(size_t nbytes)
+{
+	Header *hdr = Malloc(nbytes + 8);
+	FL_SET(hdr->flags,FL_ALLOC);
+	return (void*)hdr + 8;
+
+}
+void* gc_realloc(void *p, size_t nbytes){
+
+}
+void  gc_free(void *p){
+	Free(p);
+}
+//void* Malloc(size_t n){
+//	return malloc(n);
+//}
+//void* Realloc(void *p, size_t n){
+//	return realloc(p, n);
+//}
+//void Free(void *p){
+//	free(p);
+//}
+
+
