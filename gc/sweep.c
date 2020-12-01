@@ -77,7 +77,7 @@ void     gc_sweep(void)
 //                    DEBUG(printf("清除回收 :\n"));
                     //printf("清除回收 %d:%d ",*(int*)(pp +8),obj->flags);
                     FL_UNSET(obj->flags, FL_ALLOC);
-                    gc_free(pp);
+                    Free(pp);
                 }
             }
 

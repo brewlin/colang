@@ -24,7 +24,7 @@ assert(){
     log "[compile] ./do -s $input ..."
     ./co -s $input
     check
-    gcc -g tmp.s -L./internal -linternal -L../gc -lgc
+    gcc -g tmp.s -L./internal -linternal -L./gc -lgc
     check
     ./a.out
     check

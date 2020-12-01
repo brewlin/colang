@@ -6,7 +6,7 @@
 //enum ValueType { Int,Double,String,Bool,Char,Null,Array};
 Value* newobject(int type,void* data)
 {
-    Value* ret = malloc(sizeof(Value));
+    Value* ret = gc_malloc(sizeof(Value));
     switch (type){
         case Int:
             ret->type = Int;

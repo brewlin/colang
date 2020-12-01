@@ -411,8 +411,8 @@ void Free(void *p)
 	}
 
 	//说明不是通过asrena上申请的内存，直接free即可
-	del(&Hugmem,p);
-	free((void*) p - 8);
+	del(&Hugmem,p + 8);
+	free((void*) p);
 }
 
 
@@ -448,6 +448,6 @@ void* gc_realloc(void *p, size_t nbytes){
     return new;
 }
 void  gc_free(void *p){
-	Free(p);
+	Free(p -8);
 }
 
