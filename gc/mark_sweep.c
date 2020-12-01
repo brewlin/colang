@@ -1,41 +1,50 @@
 #include "gc.h"
 #include "root.h"
+#include "list.h"
 
 /**
  * 对该对象进行标记
  * 并进行子对象标记
  * @param ptr
  */
-void gc_mark(void * ptr)
+int gc_mark(void * ptr)
 {
     if (ptr == NULL)return;
 
     poolp pool;
     uint size;
     pool = POOL_ADDR(ptr);
-    if(pool < arenas[0].address || pool > (arenas[0].address + ARENA_SIZE)) return;
-    if (!Py_ADDRESS_IN_RANGE(ptr, pool)) return;
+    if(pool < arenas[0].address || pool > (arenas[0].address + ARENA_SIZE)) {
+        // mark(&Hugmem,ptr);
+        return NOT_STACK;
+    }
+    if (!Py_ADDRESS_IN_RANGE(ptr, pool)) {
+        // mark(&Hugmem,ptr);
+        return NOT_STACK;
+        // return;
+    }
 
     size = INDEX2SIZE(pool->szidx);
 
     Header *hdr = ptr - 8;
     if (!FL_TEST(hdr->flags, FL_ALLOC)) {
 //      printf("flag not set alloc\n");
-      return;
+      return TRUE;
     }
     if (FL_TEST(hdr->flags, FL_MARK)) {
       //printf("flag not set mark\n");
-      return;
+      return TRUE;
     }
-
+    //printf("marking %p:%d ",ptr,*(int*)ptr);
     /* marking */
     FL_SET(hdr->flags, FL_MARK);
 
     //进行child 节点递归 标记
-    for (void* p = ptr; p < (ptr + size); p++) {
+    for (void* p = ptr; p < (ptr + size -8); p++) {
         //对内存解引用，因为内存里面可能存放了内存的地址 也就是引用，需要进行引用的递归标记
         gc_mark(*(void **)p);
     }
+    return TRUE;
 }
 /**
  * 清除 未标记内存 进行回收利用
@@ -66,7 +75,7 @@ void     gc_sweep(void)
                     FL_UNSET(obj->flags, FL_MARK);
                 }else {
 //                    DEBUG(printf("清除回收 :\n"));
-                    // printf("清除回收 %d:%d ",*(int*)(pp +8),obj->flags);
+                    //printf("清除回收 %d:%d ",*(int*)(pp +8),obj->flags);
                     FL_UNSET(obj->flags, FL_ALLOC);
                     gc_free(pp);
                 }
@@ -80,7 +89,9 @@ void     gc_sweep(void)
 void tell_is_stackarg(void* arg){
     void *top = get_sp();
     if(sp_start > arg && arg > top){
-        gc_mark(*(void**)arg);
+        if(gc_mark(*(void**)arg) == NOT_STACK){
+            mark(&Hugmem,*(void**)arg);
+        }
     }
 }
 /**
@@ -111,7 +122,12 @@ void scan_stack(){
     //高低往低地址增长
     assert(sp_start >= cur_sp);
     for (; cur_sp < sp_start ; cur_sp += 4){
-        gc_mark(*(void**)cur_sp);
+        if((sp_start - cur_sp) == 88){
+            printf("85");
+        }
+        if(gc_mark(*(void**)cur_sp) == NOT_STACK){
+            mark(&Hugmem,*(void**)cur_sp);
+        }
     }
 }
 /**

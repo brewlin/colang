@@ -18,6 +18,7 @@
 #include <stdarg.h>
 #include <limits.h>
 #include <time.h>
+#include "list.h"
 
 #define PY_SSIZE_T_MAX INT_MAX
 #define PY_SSIZE_T_MIN INT_MIN
@@ -166,6 +167,9 @@ extern  uint maxarenas;
 #define  FL_TEST(x, f) (x & f)
 #define  IS_MARKED(x) (FL_TEST(x, FL_ALLOC) && FL_TEST(x, FL_MARK))
 
+
+#define  NOT_STACK 10
+#define  TRUE 1
 extern   void* sp_start;
 
 //执行内存分配逻辑
@@ -177,8 +181,10 @@ void  gc_init();
 void* gc_malloc(size_t nbytes);
 void* gc_realloc(void *p, size_t nbytes);
 void  gc_free(void *p);
+int   gc_mark(void * ptr);
 struct arena_object* new_arena(void);
 
+extern List Hugmem;
 
 
 

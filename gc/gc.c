@@ -1,8 +1,9 @@
 #include "gc.h"
 #include "root.h"
+#include "list.h"
 
-
-void *sp_start;
+List Hugmem;
+void* sp_start;
 
 //为了快速查询， 设置了多个空闲链表 multi_free_list 0 对应8字节 1 对16字节。。。
 //共64个大小
@@ -138,6 +139,14 @@ void * Malloc(size_t nbytes)
 			++pool->ref.count;
 			//从block 空闲链表上查找，就像我们自己实现的那个free_list 一个意思
 			bp = pool->freeblock;
+			if(bp == NULL){
+				next = pool->nextpool;
+				pool = pool->prevpool;
+				next->prevpool = pool;
+				pool->nextpool = next;
+				goto expend_pool;
+				void *s = *(void**)0x1111;
+			}
 			assert(bp != NULL);
 			//这里表示 pol->freeblock = bp->next
 			//*(block **)bp 是为了节省next指针 而直接在里面保存了下一个指针
@@ -169,7 +178,7 @@ void * Malloc(size_t nbytes)
 			gc();
 			return (void *)bp;
 		}
-
+expend_pool:
 		//说明一个pool都没有了 且可用的arenas也没有了
 		if (usable_arenas == NULL) {
 			//现在需要新申请一个 arena
@@ -299,7 +308,10 @@ redirect:
 	 */
 	if (nbytes == 0)
 		nbytes = 1;
-	return (void *)malloc(nbytes);
+	printf("alloc from malloc:%d\n",nbytes);
+	void* ret = (void*)malloc(nbytes);
+	push(&Hugmem,ret + 8,nbytes);
+	return ret;
 }
 
 /* free */
@@ -328,10 +340,13 @@ void Free(void *p)
 		 * was full and is in no list -- it's not in the freeblocks
 		 * list in any case).
 		 */
+		 if(pool->ref.count <= 0){
+			 return;
+		 }
 		//既然p属于 pool里面，那么pool必然已使用block 肯定大于0
 		assert(pool->ref.count > 0);	/* else it was empty */
 		//将当前p挂到 pool->freeblokc->next 下面
-		memset(p,0,INDEX2SIZE(pool->szidx) + 8);
+		memset(p,0,INDEX2SIZE(pool->szidx));
 		*(block **)(p+8) = lastfree = pool->freeblock;
 		//然后pool->freeblock = p
 		pool->freeblock = (block *)p;
@@ -345,102 +360,16 @@ void Free(void *p)
 				//解锁
 				return;
 			}
-			/* Pool is now empty:  unlink from usedpools, and
-			 * link to the front of freepools.  This ensures that
-			 * previously freed pools will be allocated later
-			 * (being not referenced, they are perhaps paged out).
-			 */
-			//pool现在为空，需要从空闲链表上拿出去
 			next = pool->nextpool;
 			prev = pool->prevpool;
 			next->prevpool = prev;
 			prev->nextpool = next;
 
-			/* Link the pool to freepools.  This is a singly-linked
-			 * list, and pool->prevpool isn't used there.
-			 */
 			ao = &arenas[pool->arenaindex];
 			pool->nextpool = ao->freepools;
 			ao->freepools = pool;
 			nf = ++ao->nfreepools;
 
-			/* All the rest is arena management.  We just freed
-			 * a pool, and there are 4 cases for arena mgmt:
-			 * 1. If all the pools are free, return the arena to
-			 *    the system free().
-			 * 2. If this is the only free pool in the arena,
-			 *    add the arena back to the `usable_arenas` list.
-			 * 3. If the "next" arena has a smaller count of free
-			 *    pools, we have to "slide this arena right" to
-			 *    restore that usable_arenas is sorted in order of
-			 *    nfreepools.
-			 * 4. Else there's nothing more to do.
-			 */
-			if (nf == ao->ntotalpools) {
-				return;
-				/* Case 1.  First unlink ao from usable_arenas.
-				 */
-				assert(ao->prevarena == NULL ||
-				       ao->prevarena->address != 0);
-				assert(ao ->nextarena == NULL ||
-				       ao->nextarena->address != 0);
-
-				/* Fix the pointer in the prevarena, or the
-				 * usable_arenas pointer.
-				 */
-				if (ao->prevarena == NULL) {
-					usable_arenas = ao->nextarena;
-					assert(usable_arenas == NULL ||
-					       usable_arenas->address != 0);
-				}
-				else {
-					assert(ao->prevarena->nextarena == ao);
-					ao->prevarena->nextarena =
-						ao->nextarena;
-				}
-				/* Fix the pointer in the nextarena. */
-				if (ao->nextarena != NULL) {
-					assert(ao->nextarena->prevarena == ao);
-					ao->nextarena->prevarena =
-						ao->prevarena;
-				}
-				/* Record that this arena_object slot is
-				 * available to be reused.
-				 */
-				ao->nextarena = unused_arena_objects;
-				unused_arena_objects = ao;
-
-				/* Free the entire arena. */
-				free((void *)ao->address);
-				ao->address = 0;	/* mark unassociated */
-				--narenas_currently_allocated;
-
-				//解锁
-				return;
-			}
-			if (nf == 1) {
-				/* Case 2.  Put ao at the head of
-				 * usable_arenas.  Note that because
-				 * ao->nfreepools was 0 before, ao isn't
-				 * currently on the usable_arenas list.
-				 */
-				ao->nextarena = usable_arenas;
-				ao->prevarena = NULL;
-				if (usable_arenas)
-					usable_arenas->prevarena = ao;
-				usable_arenas = ao;
-				assert(usable_arenas->address != 0);
-
-				//解锁
-				return;
-			}
-			/* If this arena is now out of order, we need to keep
-			 * the list sorted.  The list is kept sorted so that
-			 * the "most full" arenas are used first, which allows
-			 * the nearly empty arenas to be completely freed.  In
-			 * a few un-scientific tests, it seems like this
-			 * approach allowed a lot more memory to be freed.
-			 */
 			if (ao->nextarena == NULL ||
 				     nf <= ao->nextarena->nfreepools) {
 				/* Case 4.  Nothing to do. */
@@ -496,12 +425,7 @@ void Free(void *p)
 			//解锁
 			return;
 		}
-		/* Pool was full, so doesn't currently live in any list:
-		 * link it to the front of the appropriate usedpools[] list.
-		 * This mimics LRU pool usage for new allocations and
-		 * targets optimal filling when several pools contain
-		 * blocks of the same size class.
-		 */
+
 		--pool->ref.count;
 		assert(pool->ref.count > 0);	/* else the pool is empty */
 		size = pool->szidx;
@@ -517,7 +441,8 @@ void Free(void *p)
 	}
 
 	//说明不是通过asrena上申请的内存，直接free即可
-	free(p);
+	del(&Hugmem,p);
+	free((void*) p - 8);
 }
 
 /* realloc.  If p is NULL, this acts like malloc(nbytes).  Else if nbytes==0,
@@ -596,7 +521,11 @@ void* Realloc(void *p, size_t nbytes)
 
 void*  gc_malloc(size_t nbytes)
 {
+	// if(nbytes + 8 > SMALL_REQUEST_THRESHOLD){
+	// 	return Malloc(nbytes + 8);
+	// }
 	Header *hdr = Malloc(nbytes + 8);
+	memset(hdr,0,nbytes+8);
 	FL_SET(hdr->flags,FL_ALLOC);
 	return (void*)hdr + 8;
 
@@ -605,7 +534,21 @@ void 	gc_init(){
 	sp_start = get_sp();
 }
 void* gc_realloc(void *p, size_t nbytes){
-
+	if(!p){
+        if(nbytes < 0){
+            printf("realloc failed\n");
+            exit(1);
+        }
+        return gc_malloc(nbytes);
+    }
+    if(nbytes < 0){
+        gc_free(p);
+        return NULL;
+    }
+    void* new = gc_malloc(nbytes);
+    memcpy(new,p,nbytes);
+    gc_free(p);
+    return new;
 }
 void  gc_free(void *p){
 	Free(p);
