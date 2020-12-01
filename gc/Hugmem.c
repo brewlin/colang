@@ -1,4 +1,4 @@
-#include "list.h"
+#include "Hugmem.h"
 #include "gc.h"
 
 
@@ -19,18 +19,10 @@ void  mark(List* list,void* v){
     ListNode* cur = list->root;
     while(cur != NULL){
         if(cur->value == v){
-            printf("find one :%p\n",v);
             Header* hdr = (Header*)((void*)v - 8);
             FL_SET(hdr->flags,FL_MARK);
             for (void *p  = v; p < (v + cur->size -8); p += 1){
-                void *t = *(void**)p;
-                if(0x7ffff7fb00b0 == *(void**)(p + 40)){
-                    printf("got it before");
-                }
-                if(t == 0x7ffff7fb00b0){
-                    printf("got it ");
-                }
-                gc_mark(t);
+                gc_mark(*(void**)p);
             }
             
             return;
@@ -38,7 +30,7 @@ void  mark(List* list,void* v){
         cur = cur->next;
     }
 }
-void* del(List* list,void *v)
+void del(List* list,void *v)
 {
     if(!list->root || !v)return;
 

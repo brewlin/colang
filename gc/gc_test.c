@@ -2,6 +2,8 @@
 #include "root.h"
 #include "Array.h"
 #include <stdio.h>
+#include "help.h"
+
 typedef struct obj
 {
     int a;
@@ -9,38 +11,25 @@ typedef struct obj
     struct obj *next;
 }Obj;
 Obj *t;
+int __failed_tests = 0;
+int __test_num = 0;
+
 void array_test()
 {
     array_t* arr = array_create(8,sizeof(Obj*));
-
+    assert_s("[arr_create]",arr != NULL)
     for (int i = 0; i < 1000; ++i) {
         Obj** tmp = array_push(arr);
-        if(i == 168){
-            printf("168");
-        }
-        if(i == 173){
-            printf("yes");
-        }
         *tmp = gc_malloc(sizeof(Obj));
         (*tmp)->a = i;
         (*tmp)->b = i;
-        //printf("p:%p i:%d a:%d b:%d ",*tmp,i,(*tmp)->a,(*tmp)->b);
     }
     Obj** index = arr->addr;
     gc();
     for(int i = 0 ; i < 1000; ++i){
-        // printf("i:%d a:%d b:%d \n",i,index[i]->a,index[i]->b);
-        if(index[i]->a != i){
-            void *st = *(void**)0x111;
-        }
-        if(index[i]->b != i){
-                        void *st = *(void**)0x111;
-        }
         assert(index[i]->a == i);
         assert(index[i]->b == i);
     }
-    index = NULL;
-    arr   = NULL;
     gc();
 
 }
@@ -56,6 +45,7 @@ int test_speed()
     }
     finish = clock();
     duration = (double)(finish - start) / CLOCKS_PER_SEC;
+    assert_s("[speed-test]",duration)
     printf( "%f seconds\n", duration );
     return 0;
 }
@@ -65,21 +55,20 @@ void test_logic(){
     p1->a = 10;
     p1->b = 20;
     gc();
-    assert(p1->a == 10);
-    assert(p1->b == 20);
+    assert_s("[logic] test stack",p1->a == 10);
+    assert_s("[logic] test p->b == 20",p1->b == 20);
     p1->next = gc_malloc(sizeof(Obj));
-    assert(p1->next);
+    assert_s("[logic] test p1->next",p1->next);
     p1->next->a = 22;
     p1->next->b = 33;
     gc();
-    assert(p1->next->a == 22);
-    assert(p1->next->b == 33);
+    assert_s("[logic] p1->next->a",p1->next->a == 22);
+    assert_s("[logic] p1->next->b",p1->next->b == 33);
 }
 void main(){
     sp_start = get_sp();
     array_test();
-    gc();
     test_speed();
     test_logic();
-    gc();
+    test_report();
 }

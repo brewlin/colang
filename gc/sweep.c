@@ -1,6 +1,6 @@
 #include "gc.h"
 #include "root.h"
-#include "list.h"
+#include "Hugmem.h"
 
 /**
  * 对该对象进行标记
@@ -9,12 +9,12 @@
  */
 int gc_mark(void * ptr)
 {
-    if (ptr == NULL)return;
+    if (ptr == NULL)return TRUE;
 
     poolp pool;
     uint size;
     pool = POOL_ADDR(ptr);
-    if(pool < arenas[0].address || pool > (arenas[0].address + ARENA_SIZE)) {
+    if((uptr)pool < arenas[0].address || (uptr)pool > (arenas[0].address + ARENA_SIZE)) {
         // mark(&Hugmem,ptr);
         return NOT_STACK;
     }
@@ -122,9 +122,6 @@ void scan_stack(){
     //高低往低地址增长
     assert(sp_start >= cur_sp);
     for (; cur_sp < sp_start ; cur_sp += 4){
-        if((sp_start - cur_sp) == 88){
-            printf("85");
-        }
         if(gc_mark(*(void**)cur_sp) == NOT_STACK){
             mark(&Hugmem,*(void**)cur_sp);
         }
@@ -135,7 +132,7 @@ void scan_stack(){
  */
 void  gc(void)
 {
-    printf("[gc] start gc\n");
+    // printf("[gc] start gc\n");
     scan_register();
     scan_stack();
 

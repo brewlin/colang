@@ -55,8 +55,6 @@ void *array_push(array_t *a)
             printf("[arr_pushn] failed to expand memeory\n");
             return NULL;
         }
-
-        printf("size:%d\n",size);
         memcpy(new, a->addr, size);
         //手动释放之前决定不会用到的数组 降低gc压力
         gc_free(a->addr);

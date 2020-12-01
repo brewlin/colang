@@ -1,10 +1,3 @@
-/**
- *@ClassName gc
- *@Deacription go
- *@Author brewlin
- *@Date 2020/11/6 0006 上午 9:10
- *@Version 1.0
- **/
 #ifndef PRO_LEARN_GC_H
 #define PRO_LEARN_GC_H
 
@@ -18,17 +11,17 @@
 #include <stdarg.h>
 #include <limits.h>
 #include <time.h>
-#include "list.h"
+#include "Hugmem.h"
 
-#define PY_SSIZE_T_MAX INT_MAX
-#define PY_SSIZE_T_MIN INT_MIN
+#define CO_SSIZE_T_MAX INT_MAX
+#define CO_SSIZE_T_MIN INT_MIN
 typedef unsigned long	Py_uintptr_t;
 typedef long		Py_intptr_t;
 #define PyMem_MALLOC malloc
 #define Py_FatalError(str)  printf(str);exit(-1)
 #define PyMem_FREE   free
 /*
- * python的内存分配器
+ * 内存分配器
  * 分配策略:
  * 1. 小内存就用当前的分配器 分配block
  * 2. 超过256bytes就进行系统malloc调用
@@ -62,7 +55,7 @@ typedef long		Py_intptr_t;
 
 /*
  * 可以通过 getpagesize() 获取系统页大小
- * 为了计算不那么复杂，python默认为4k大小，已经足够适配各个平台了
+ * 为了计算不那么复杂，默认为4k大小，已经足够适配各个平台了
  */
 #define SYSTEM_PAGE_SIZE	(4 * 1024)
 #define SYSTEM_PAGE_SIZE_MASK	(SYSTEM_PAGE_SIZE - 1)

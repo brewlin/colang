@@ -14,4 +14,4 @@ gcpack: $(SRCS)
 gcrun: $(SRCS)
 	$(CC) -g  $(SRCS)
 ar:
-	ar -rc libgc.a gc.o mark_sweep.o root.o
+	ar -rc libgc.a gc.o mark_sweep.o root.o list.o Array.o

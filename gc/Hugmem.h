@@ -16,6 +16,6 @@ typedef struct list{
 }List;
 void  push(List* list,void* v,int size);
 void  mark(List* list,void* v);
-void* del(List* list,void* v);
+void  del(List* list,void* v);
 
 #endif //GC_LIST_H

@@ -1,6 +1,6 @@
 #include "gc.h"
 #include "root.h"
-#include "list.h"
+#include "Hugmem.h"
 
 List Hugmem;
 void* sp_start;
@@ -126,7 +126,7 @@ void * Malloc(size_t nbytes)
 	poolp next;
 	uint size;
 	 //为了安全漏洞 阻止申请超过 最大申请内存
-	if (nbytes > PY_SSIZE_T_MAX)
+	if (nbytes > CO_SSIZE_T_MAX)
 		return NULL;
 
 	//隐式的重定向到了 malloc
@@ -201,13 +201,7 @@ expend_pool:
 			/* Unlink from cached pools. */
 			usable_arenas->freepools = pool->nextpool;
 
-			/* This arena already had the smallest nfreepools
-			 * value, so decreasing nfreepools doesn't change
-			 * that, and we don't need to rearrange the
-			 * usable_arenas list.  However, if the arena has
-			 * become wholly allocated, we need to remove its
-			 * arena_object from usable_arenas.
-			 */
+
 			--usable_arenas->nfreepools;
 			if (usable_arenas->nfreepools == 0) {
 				/* Wholly allocated:  remove. */
@@ -223,11 +217,7 @@ expend_pool:
 				}
 			}
 			else {
-				/* nfreepools > 0:  it must be that freepools
-				 * isn't NULL, or that we haven't yet carved
-				 * off all the arena's pools for the first
-				 * time.
-				 */
+
 				assert(usable_arenas->freepools != NULL ||
 				       usable_arenas->pool_address <=
 				           (block*)usable_arenas->address +
@@ -242,10 +232,7 @@ expend_pool:
 			next->prevpool = pool;
 			pool->ref.count = 1;
 			if (pool->szidx == size) {
-				/* Luckily, this pool last contained blocks
-				 * of the same size class, so its header
-				 * and free list are already initialized.
-				 */
+
 				bp = pool->freeblock;
 				pool->freeblock = *(block **)(bp +8);
 				//解锁
@@ -298,17 +285,11 @@ expend_pool:
 		goto init_pool;
 	}
 
-        /* The small block allocator ends here. */
 
 redirect:
-	/* Redirect the original request to the underlying (libc) allocator.
-	 * We jump here on bigger requests, on error in the code above (as a
-	 * last chance to serve the request) or when the max memory limit
-	 * has been reached.
-	 */
+
 	if (nbytes == 0)
 		nbytes = 1;
-	printf("alloc from malloc:%d\n",nbytes);
 	void* ret = (void*)malloc(nbytes);
 	push(&Hugmem,ret + 8,nbytes);
 	return ret;
@@ -332,14 +313,7 @@ void Free(void *p)
 	//#define POOL_ADDR(P) ((poolp)((uptr)(P) & ~(uptr)POOL_SIZE_MASK))
 	//#define POOL_ADDR(P) (P & 0xfffff000)
 	if (Py_ADDRESS_IN_RANGE(p, pool)) {
-		/* We allocated this address. */
-		//加锁
-		/* Link p to the start of the pool's freeblock list.  Since
-		 * the pool had at least the p block outstanding, the pool
-		 * wasn't empty (so it's already in a usedpools[] list, or
-		 * was full and is in no list -- it's not in the freeblocks
-		 * list in any case).
-		 */
+
 		 if(pool->ref.count <= 0){
 			 return;
 		 }
@@ -376,11 +350,7 @@ void Free(void *p)
 				//解锁
 				return;
 			}
-			/* Case 3:  We have to move the arena towards the end
-			 * of the list, because it has more free pools than
-			 * the arena to its right.
-			 * First unlink ao from usable_arenas.
-			 */
+
 			if (ao->prevarena != NULL) {
 				/* ao isn't at the head of the list */
 				assert(ao->prevarena->nextarena == ao);
@@ -443,79 +413,6 @@ void Free(void *p)
 	//说明不是通过asrena上申请的内存，直接free即可
 	del(&Hugmem,p);
 	free((void*) p - 8);
-}
-
-/* realloc.  If p is NULL, this acts like malloc(nbytes).  Else if nbytes==0,
- * then as the Python docs promise, we do not treat this like free(p), and
- * return a non-NULL result.
- */
-
-#undef Realloc
-void* Realloc(void *p, size_t nbytes)
-{
-	void *bp;
-	poolp pool;
-	size_t size;
-
-	if (p == NULL)
-		return Malloc(nbytes);
-
-	/*
-	 * Limit ourselves to PY_SSIZE_T_MAX bytes to prevent security holes.
-	 * Most python internals blindly use a signed Py_ssize_t to track
-	 * things without checking for overflows or negatives.
-	 * As size_t is unsigned, checking for nbytes < 0 is not required.
-	 */
-	if (nbytes > PY_SSIZE_T_MAX)
-		return NULL;
-
-	pool = POOL_ADDR(p);
-	if (Py_ADDRESS_IN_RANGE(p, pool)) {
-		/* We're in charge of this block */
-		size = INDEX2SIZE(pool->szidx);
-		if (nbytes <= size) {
-			/* The block is staying the same or shrinking.  If
-			 * it's shrinking, there's a tradeoff:  it costs
-			 * cycles to copy the block to a smaller size class,
-			 * but it wastes memory not to copy it.  The
-			 * compromise here is to copy on shrink only if at
-			 * least 25% of size can be shaved off.
-			 */
-			if (4 * nbytes > 3 * size) {
-				/* It's the same,
-				 * or shrinking and new/old > 3/4.
-				 */
-				return p;
-			}
-			size = nbytes;
-		}
-		bp = Malloc(nbytes);
-		if (bp != NULL) {
-			memcpy(bp, p, size);
-			Free(p);
-		}
-		return bp;
-	}
-	/* We're not managing this block.  If nbytes <=
-	 * SMALL_REQUEST_THRESHOLD, it's tempting to try to take over this
-	 * block.  However, if we do, we need to copy the valid data from
-	 * the C-managed block to one of our blocks, and there's no portable
-	 * way to know how much of the memory space starting at p is valid.
-	 * As bug 1185883 pointed out the hard way, it's possible that the
-	 * C-managed block is "at the end" of allocated VM space, so that
-	 * a memory fault can occur if we try to copy nbytes bytes starting
-	 * at p.  Instead we punt:  let C continue to manage this block.
-         */
-	if (nbytes)
-		return realloc(p, nbytes);
-	/* C doesn't define the result of realloc(p, 0) (it may or may not
-	 * return NULL then), but Python's docs promise that nbytes==0 never
-	 * returns NULL.  We don't pass 0 to realloc(), to avoid that endcase
-	 * to begin with.  Even then, we can't be sure that realloc() won't
-	 * return NULL.
-	 */
-	bp = realloc(p, 1);
-   	return bp ? bp : p;
 }
 
 
