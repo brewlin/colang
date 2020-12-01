@@ -428,7 +428,7 @@ void*  gc_malloc(size_t nbytes)
 
 }
 void 	gc_init(){
-	sp_start = get_sp();
+	sp_start = get_bp();
 }
 void* gc_realloc(void *p, size_t nbytes){
 	if(!p){

@@ -1,0 +1,18 @@
+package main
+
+import os
+import fmt
+
+func string_test(){
+    a = "test"
+    fmt.println(a)
+    os.gc()
+    if(a != "test"){
+        fmt.println("failed",a)
+        os.exit(1)
+    }
+
+}
+func main(){
+    string_test()
+}
