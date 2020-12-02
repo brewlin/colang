@@ -8,7 +8,7 @@ func test_while(){
     a = 4
     while(a != 2){
         fmt.sprintf("a=%d\n",a)
-        time.sleep(1)
+        #time.sleep(1)
         a = a - 1
     }
     if(a != 2){

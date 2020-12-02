@@ -1,0 +1,8 @@
+package os
+
+extern void gc()
+
+func gc()
+{
+    _.gc()
+}

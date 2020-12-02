@@ -1,7 +1,7 @@
 #include "gc.h"
 #include "root.h"
 #include "Hugmem.h"
-
+#include "Token.h"
 /**
  * 对该对象进行标记
  * 并进行子对象标记
@@ -27,6 +27,10 @@ int gc_mark(void * ptr)
     size = INDEX2SIZE(pool->szidx);
 
     Header *hdr = ptr - 8;
+    //这里必须全都是带有header头的
+    if(hdr->flags < 1 || hdr->flags > 3){
+        return TRUE;
+    }
     if (!FL_TEST(hdr->flags, FL_ALLOC)) {
 //      printf("flag not set alloc\n");
       return TRUE;
@@ -153,16 +157,21 @@ void scan_stack(){
         if (!Py_ADDRESS_IN_RANGE(ptr, pool)) {
             continue;
         }
+        //属于这个pool上 但是又没有header头的有如下情况
+        //1. c栈有的地方对string的操作 是被string包装过的
         if(hdr->flags < 1 || hdr->flags > 3){
-            ptr += 8;
-            v = (GCValue*)ptr;
+            stringmark(ptr);
+            continue;
         }
         //TODO: 这里发现会传入未分配的内存，且是原始header头，导致后面 header -8 进行flag设置时影响了其他数据
         if(v->type < 1 || v->type > 8){
 //            printf("find a invalid pointer %p\n",ptr);
             continue;
         }
-
+        if(v->type == String){
+            //TODO: 会有 type=string data=1的情况
+            stringmark(v->data);
+        }
 
         if(gc_mark(ptr) == NOT_STACK){
             mark(&Hugmem,ptr);

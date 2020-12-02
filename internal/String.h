@@ -182,7 +182,7 @@ static inline void stringsetalloc(string s, size_t newlen) {
             break;
     }
 }
-
+void   stringmark(string s);
 string stringnewlen(const void *init, size_t initlen);
 string stringnew(const char *init);
 string stringempty(void);

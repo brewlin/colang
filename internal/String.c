@@ -8,6 +8,7 @@
 #include "String.h"
 #include "Value.h"
 #include "Array.h"
+#include "gc.h"
 
 const char *LSTRING_NOINIT = "LSTRING_NOINIT";
 
@@ -42,15 +43,25 @@ static inline char stringReqType(size_t string_size) {
     return LSTRING_TYPE_32;
 #endif
 }
-
+void  stringmark(string s){
+    if(!s)return;
+    poolp pool;
+    pool = POOL_ADDR(s);
+    if((uptr)pool < arenas[0].address || (uptr)pool > (arenas[0].address + ARENA_SIZE)) {
+        return;
+    }
+    int size = stringHdrSize(s[-1]);
+    if(size == 0)return;
+    gc_mark((char*)s - size);
+    
+}
 char* value_string_plus(Value* lhs,Value* rhs)
 {
-    string tmstr;
+    string tmstr = stringempty();
     switch(lhs->type){
         case Int:
         case Bool:
         case Double:
-            tmstr = stringempty();
             tmstr = stringcatfmt(tmstr,"%I%S",(long)lhs->data,rhs->data);
             return tmstr;
         case String:

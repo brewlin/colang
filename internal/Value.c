@@ -407,43 +407,48 @@ Value* binary_operator(int opt, Value *lhs, Value* rhs)
         printf(" [binary-op] probably wrong at there! lhs:%p rhs:%p\n",lhs,rhs);
         return NULL;
     }
+    Value* ret;
     switch (opt){
         case TK_PLUS:// +
-            return value_plus(lhs,rhs);
+            ret =  value_plus(lhs,rhs);break;
         case TK_MINUS:// -
-            return value_minus(lhs,rhs);
+            ret = value_minus(lhs,rhs);break;
         case TK_MUL:// *
-            return value_mul(lhs,rhs);
+            ret =  value_mul(lhs,rhs);break;
         case TK_DIV:// \ .
-            return value_div(lhs,rhs);
+            ret =  value_div(lhs,rhs);break;
 
         case TK_BITAND:// &
-            return value_bitand(lhs,rhs);
+            ret =  value_bitand(lhs,rhs);break;
         case TK_BITOR:// |
-            return value_bitor(lhs,rhs);
+            ret =  value_bitor(lhs,rhs);break;
         case TK_SHIFTL:
-            return value_shift_left(lhs,rhs);
+            ret =  value_shift_left(lhs,rhs);break;
         case TK_SHIFTR:
-            return value_shift_right(lhs,rhs);
+            ret =  value_shift_right(lhs,rhs);break;
 
         case TK_LT:// <
-            return value_lowerthan(lhs,rhs,FALSE);
+            ret =  value_lowerthan(lhs,rhs,FALSE);break;
         case TK_LE:// <=
-            return value_lowerthan(lhs,rhs,TRUE);
+            ret =  value_lowerthan(lhs,rhs,TRUE);break;
         case TK_GE:// >=
-            return value_greaterthan(lhs,rhs,TRUE);
+            ret =  value_greaterthan(lhs,rhs,TRUE);break;
         case TK_GT:// >
-            return value_greaterthan(lhs,rhs,FALSE);
+            ret =  value_greaterthan(lhs,rhs,FALSE);break;
         case TK_EQ:// ==
-            return value_equal(lhs,rhs,TRUE);
+            ret =  value_equal(lhs,rhs,TRUE);break;
         case TK_NE:// !=
-            return value_equal(lhs,rhs,FALSE);
+            ret =  value_equal(lhs,rhs,FALSE);break;
         case TK_LOGAND:// &&
-            return value_logand(lhs,rhs);
+            ret =  value_logand(lhs,rhs);break;
         case TK_LOGOR:// ||
-            return value_logor(lhs,rhs);
+            ret =  value_logor(lhs,rhs);break;
         default:
             printf(" [binary-op] unknow op:%d \n",opt);
             return NULL;
     }
+    if((ret->data == 1 && ret->type == String) || ret == 0x7ffff7fad090){
+        printf("some erro");
+    }
+    return ret;
 }
