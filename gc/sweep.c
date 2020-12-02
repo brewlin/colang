@@ -42,7 +42,10 @@ int gc_mark(void * ptr)
     //进行child 节点递归 标记
     for (void* p = ptr; p < (ptr + size -8); p++) {
         //对内存解引用，因为内存里面可能存放了内存的地址 也就是引用，需要进行引用的递归标记
-        gc_mark(*(void **)p);
+//        gc_mark(*(void **)p);
+        if(gc_mark(*(void**)p) == NOT_STACK){
+            mark(&Hugmem,*(void**)p);
+        }
     }
     return TRUE;
 }
@@ -71,11 +74,12 @@ void     gc_sweep(void)
                 //查看该堆是否被标记过
                 if (FL_TEST(obj->flags, FL_MARK)) {
 //                    DEBUG(printf("解除标记 : %p\n", p));
-                    // printf("解除标记 : %p\n", p);
+                     //printf("unlock : %p\n", p);
                     FL_UNSET(obj->flags, FL_MARK);
                 }else {
-//                    DEBUG(printf("清除回收 :\n"));
-                    //printf("清除回收 %d:%d ",*(int*)(pp +8),obj->flags);
+//                    DEBUG(printf("clear :%p \n",pp + 8));
+                    //printf("clear %p:%p \n",pp,pp + 8);
+//                    printf("清除回收 %p:%d ",pp,obj->flags);
                     FL_UNSET(obj->flags, FL_ALLOC);
                     Free(pp);
                 }
@@ -112,6 +116,12 @@ void scan_register()
     if(reg = get_ax())  tell_is_stackarg(reg);
     if(reg = get_bx())  tell_is_stackarg(reg);
 }
+
+typedef struct gc_value
+{
+    long type;
+    void* data;
+}GCValue;
 /**
  * 栈扫描
  */
@@ -121,9 +131,41 @@ void scan_stack(){
     void * cur_sp = get_sp();
     //高低往低地址增长
     assert(sp_start >= cur_sp);
-    for (; cur_sp < sp_start ; cur_sp += 4){
-        if(gc_mark(*(void**)cur_sp) == NOT_STACK){
-            mark(&Hugmem,*(void**)cur_sp);
+
+    //假定我们栈上的都是带有value的指针
+    for (; cur_sp < sp_start ; cur_sp += 2){
+        void * ptr = *(void**)cur_sp;
+        GCValue* v   = (GCValue*)ptr;
+        Header* hdr  = (Header*)(ptr - 8);
+        poolp pool;
+        uint size;
+        pool = POOL_ADDR(ptr);
+        if((uptr)pool < arenas[0].address || (uptr)pool > (arenas[0].address + ARENA_SIZE)) {
+            continue;
+        }
+        /**
+         * TODO:辨别指针需要做额外的许多操作
+         *  1. 判断是否是堆里的数据
+         *  2. 判断对象头是否准确(这个栈的数据可能来自语言本身| 也有可能来自c栈)
+         *  3. 强制采用类型判断来辨别指针，因为在语言本身的栈只会保留 Value*类型
+         */
+
+        if (!Py_ADDRESS_IN_RANGE(ptr, pool)) {
+            continue;
+        }
+        if(hdr->flags < 1 || hdr->flags > 3){
+            ptr += 8;
+            v = (GCValue*)ptr;
+        }
+        //TODO: 这里发现会传入未分配的内存，且是原始header头，导致后面 header -8 进行flag设置时影响了其他数据
+        if(v->type < 1 || v->type > 8){
+//            printf("find a invalid pointer %p\n",ptr);
+            continue;
+        }
+
+
+        if(gc_mark(ptr) == NOT_STACK){
+            mark(&Hugmem,ptr);
         }
     }
 }
@@ -132,7 +174,7 @@ void scan_stack(){
  */
 void  gc(void)
 {
-    // printf("[gc] start gc\n");
+//     printf("[gc] start gc\n");
     scan_register();
     scan_stack();
 

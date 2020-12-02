@@ -4,6 +4,7 @@ import os
 import fmt
 
 func string_test(){
+    fmt.println("[gc] string_test")
     a = "test"
     fmt.println(a)
     os.gc()
@@ -11,8 +12,33 @@ func string_test(){
         fmt.println("failed",a)
         os.exit(1)
     }
+    fmt.println("[gc] string_test success")
 
 }
+func array_test(top){
+    fmt.println("[gc] array_test")
+    arr = []
+    i   = 0
+    while(i < top){
+        arr[] = i
+        i += 1
+    }
+    os.gc()
+    i  = 0
+    while(i < top){
+
+        os.gc()
+        if(arr[i] != i){
+            fmt.sprintf("[gc] arr[%d] != %d\n",arr[i],i)
+            fmt.print(arr)
+            os.exit(1)
+        }
+        i += 1
+    }
+    fmt.println("[gc] array_test success")
+}
+
 func main(){
     string_test()
+    array_test(100)
 }
