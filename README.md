@@ -1,37 +1,39 @@
 Colang是一种编程语言，旨在创造一种动态语法的静态编译语言
 ```asciidoc
-./co [options] file
+./colang [options] file
     run   file  ast -> asm       编译为汇编-链接生成可执行程序自动执行
     -s    file  ast -> asm       编译为汇编
     -llvm file  ast -> ir -> asm 基于llvm生成汇编
 
 ```
-# env
+
+# env & install
 ```asciidoc
+> uname -a
 Linux ubuntu 4.4.0-157-generic #185-Ubuntu SMP Tue Jul 23 09:17:01 UTC 2019 x86_64 x86_64 x86_64 GNU/Linux
-
+> gcc -v
 gcc version 7.5.0 (Ubuntu 7.5.0-3ubuntu1~18.04) 
-
-```
-# install
-```asciidoc
 > git clone https://github.com/brewlin/colang.git
-> cd colang
-> mkdir bin
-> cd bin
+> cd colang/tests
 > cmake .. & make
+> dos2unix auto_tests.sh & sh auto_tests.sh
 
 
 ```
-
-# 语法
-## 数据类型
+# @Progress
+更多语法测试用例在`/tests`目录下，包含了各种数据结构、运算、gc、demo测试
+## @GC
+- [x] 完成python的内存分配器+标记清除式GC
+- [ ] 优化 `> 256 bytes`的大内存gc
+- [ ] 优化采用 `golang`的多线程内存分配 + 增量式三色标记gc
+## @data struct
 - [x] long int
 - [ ] double
 - [x] string
 - [x] bool
 - [x] map
 - [x] array
+- [ ] object
 ```
 package main
 import fmt
@@ -49,8 +51,9 @@ func main(){
     
 }
 ```
-## 关键字
-- [x] func,return
+## @keywords
+- [x] func
+- [x] return
 - [x] package,import
 - [x] if 
 - [x] while
@@ -75,7 +78,7 @@ func main(){
 }
 ```
 
-## 操作符
+## @operators
 - [x] `+  and +=` 
 - [x] `-  and -=`
 - [x] `*  and *=`
