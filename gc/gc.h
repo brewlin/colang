@@ -15,11 +15,11 @@
 
 #define CO_SSIZE_T_MAX INT_MAX
 #define CO_SSIZE_T_MIN INT_MIN
-typedef unsigned long	Py_uintptr_t;
-typedef long		Py_intptr_t;
-#define PyMem_MALLOC malloc
-#define Py_FatalError(str)  printf(str);exit(-1)
-#define PyMem_FREE   free
+typedef unsigned long	Co_uintptr_t;
+typedef long		Co_intptr_t;
+#define CoMem_MALLOC malloc
+#define Co_FatalError(str)  printf(str);exit(-1)
+#define CoMem_FREE   free
 /*
  * 内存分配器
  * 分配策略:
@@ -77,7 +77,7 @@ typedef long		Py_intptr_t;
 #define ulong	unsigned long	/* assuming >= 32 bits */
 
 #undef uptr
-#define uptr	Py_uintptr_t
+#define uptr	Co_uintptr_t
 
 //block定义为一个uchar
 typedef uchar block;
@@ -146,7 +146,7 @@ extern  uint maxarenas;
 //小技巧: 在pool内分配的内存都可以通过下面立马计算出 pool_header的地址，非常高效
 #define POOL_ADDR(P) ((poolp)((uptr)(P) & ~(uptr)POOL_SIZE_MASK))
 //判断指针是否合法
-#define Py_ADDRESS_IN_RANGE(P, POOL)			\
+#define Co_ADDRESS_IN_RANGE(P, POOL)			\
 	((POOL)->arenaindex < maxarenas &&		\
 	 (uptr)(P) - arenas[(POOL)->arenaindex].address < (uptr)ARENA_SIZE && \
 	 arenas[(POOL)->arenaindex].address != 0)

@@ -18,7 +18,7 @@ int gc_mark(void * ptr)
         // mark(&Hugmem,ptr);
         return NOT_STACK;
     }
-    if (!Py_ADDRESS_IN_RANGE(ptr, pool)) {
+    if (!Co_ADDRESS_IN_RANGE(ptr, pool)) {
         // mark(&Hugmem,ptr);
         return NOT_STACK;
         // return;
@@ -130,8 +130,7 @@ typedef struct gc_value
  * 栈扫描
  */
 void scan_stack(){
-//    printf("[gc] start scan stack\n");
-    //现在开始是真正的扫描系统栈空间
+    //从栈顶开始扫描c栈和co栈
     void * cur_sp = get_sp();
     //高低往低地址增长
     assert(sp_start >= cur_sp);
@@ -148,13 +147,12 @@ void scan_stack(){
             continue;
         }
         /**
-         * TODO:辨别指针需要做额外的许多操作
+         * 辨别指针需要做额外的许多操作
          *  1. 判断是否是堆里的数据
          *  2. 判断对象头是否准确(这个栈的数据可能来自语言本身| 也有可能来自c栈)
          *  3. 强制采用类型判断来辨别指针，因为在语言本身的栈只会保留 Value*类型
          */
-
-        if (!Py_ADDRESS_IN_RANGE(ptr, pool)) {
+        if (!Co_ADDRESS_IN_RANGE(ptr, pool)) {
             continue;
         }
         //属于这个pool上 但是又没有header头的有如下情况
@@ -163,16 +161,13 @@ void scan_stack(){
             stringmark(ptr);
             continue;
         }
-        //TODO: 这里发现会传入未分配的内存，且是原始header头，导致后面 header -8 进行flag设置时影响了其他数据
-        if(v->type < 1 || v->type > 8){
-//            printf("find a invalid pointer %p\n",ptr);
-            continue;
-        }
+        //说明当前内存是一个co栈的 字符串对象 需要单独标记 string->data
         if(v->type == String){
-            //TODO: 会有 type=string data=1的情况
+            //TODO: fix 会有 type=string data=1的情况
             stringmark(v->data);
         }
-
+        //这里说明当前内存可能不是由arena分配的，因为超过256byte的数据直接malloc
+        //这里调用 hugmem来标记大内存块
         if(gc_mark(ptr) == NOT_STACK){
             mark(&Hugmem,ptr);
         }

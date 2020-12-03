@@ -13,35 +13,28 @@
 llvm::Value* NullExpr::irgen(Runtime* rt, std::deque<Context*> ctx)
 {
     return llvm::ConstantInt::get(llvm::Type::getInt32Ty(rt->llvmContext), 0, true);
-//    return Value(Null);
 }
 llvm::Value* BoolExpr::irgen(Runtime* rt, std::deque<Context*> ctx)
 {
     return llvm::ConstantInt::get(llvm::Type::getInt32Ty(rt->llvmContext), this->literal, true);
-//    return Value(Bool,this->literal);
 }
 //字面值
 llvm::Value* CharExpr::irgen(Runtime* rt, std::deque<Context*> ctx){
 
-//    return rt->builder.CreateGlobalString(this->literal, "char");
     return llvm::ConstantInt::get(llvm::Type::getInt8Ty(rt->llvmContext), this->literal, true);
-//    return Value(Char, this->literal);
 }
 //int类型
 llvm::Value* IntExpr::irgen(Runtime* rt, std::deque<Context*> ctx){
     return llvm::ConstantInt::get(llvm::Type::getInt32Ty(rt->llvmContext), this->literal, true);
-//    return Value(Int, this->literal);
 }
 
 llvm::Value* DoubleExpr::irgen(Runtime* rt, std::deque<Context*> ctx){
     return llvm::ConstantFP::get(llvm::Type::getDoubleTy(rt->llvmContext), this->literal);
-//    return Value(Double, this->literal);
 }
 
 llvm::Value* StringExpr::irgen(Runtime* rt, std::deque<Context*> ctx){
 //    return ConstantPointerNull::get(llvm::Type::getInt8PtrTy(rt->llvmContext),this->literal);
     return rt->builder.CreateGlobalString(this->literal, "string");
-//    return Value(String, this->literal);
 }
 /**
  * 数组变量生成
@@ -56,21 +49,13 @@ llvm::Value* ArrayExpr::irgen(Runtime* rt, std::deque<Context*> ctx){
         //遍历调用 interpret 生成 Value
 //        elements.push_back(e->interpret(rt,ctx));
     return nullptr;
-//    return Value(Array,elements);
 }
 /**
  * 这里是获取变量
  * 这里的变量可能没有初始化 可能返回了一个空
  */
 llvm::Value* VarExpr::irgen(Runtime* rt, std::deque<Context*> ctx){
-    //变量遍历表 看是否存在
-//    for(auto p = ctx.crbegin(); p != ctx.crend(); ++p){
-//        auto* ctx = *p;
-//        if(auto* var = rt->getVar(this->varname);var != nullptr)
-            //["a",123] return 123
-            //TODO:这里返回的是 variables 非 Value
-//            return var->value;
-//    }
+
     llvm::Value* value = Compiler::getVar(ctx,varname);
     if( !value ){
         parse_err("AsmError:use of undefined variable %s at line %d co %d\n",

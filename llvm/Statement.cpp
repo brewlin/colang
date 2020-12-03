@@ -137,7 +137,6 @@ llvm::Value* ReturnStmt::irgen(Runtime* rt, std::deque<Context*> ctx)
 llvm::Value* BreakStmt::irgen(Runtime* rt, std::deque<Context*> ctx)
 {
     return nullptr;
-//    return ExecResult(ExecBreak);
 }
 /**
  * TODO:continue 语句
@@ -145,5 +144,4 @@ llvm::Value* BreakStmt::irgen(Runtime* rt, std::deque<Context*> ctx)
 llvm::Value* ContinueStmt::irgen(Runtime* rt, std::deque<Context*> ctx)
 {
     return nullptr;
-//    return ExecResult(ExecContinue);
 }

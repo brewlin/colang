@@ -3,7 +3,7 @@ if(COMMAND cmake_policy)
 endif(COMMAND cmake_policy)
 cmake_minimum_required(VERSION 3.10)
 
-project(do)
+project(co)
 set(CMAKE_CXX_COMPILER "clang++")
 SET (CMAKE_AR      "llvm-ar")
 SET (CMAKE_LINKER  "llvm-ld")
@@ -30,7 +30,7 @@ add_subdirectory(parser)
 add_subdirectory(pkg)
 add_subdirectory(internal)
 
-add_executable(do do.cpp)
+add_executable(co co.cpp)
 
 # that we wish to use
 llvm_map_components_to_libnames(llvm_libs support core irreader)
@@ -38,7 +38,7 @@ llvm_map_components_to_libnames(llvm_libs support core irreader)
 # Link against LLVM libraries
 # 越基础的库就要越放后面，保证链接正常
 target_link_libraries(
-        do
+        co
         parser
         asm
         llvm

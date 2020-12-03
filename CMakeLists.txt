@@ -3,7 +3,7 @@ if(COMMAND cmake_policy)
 endif(COMMAND cmake_policy)
 cmake_minimum_required(VERSION 3.10)
 
-project(co)
+project(colang)
 
 set (CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -g -w")
 
@@ -18,6 +18,6 @@ add_subdirectory(lib)
 add_subdirectory(internal)
 add_subdirectory(gc)
 
-add_executable(co colang.cpp)
+add_executable(colang colang.cpp)
 
-target_link_libraries(co parser asm ast lib -lstdc++fs)
+target_link_libraries(colang parser asm ast lib -lstdc++fs)

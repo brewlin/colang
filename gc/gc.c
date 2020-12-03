@@ -312,7 +312,7 @@ void Free(void *p)
 	pool = POOL_ADDR(p);
 	//#define POOL_ADDR(P) ((poolp)((uptr)(P) & ~(uptr)POOL_SIZE_MASK))
 	//#define POOL_ADDR(P) (P & 0xfffff000)
-	if (Py_ADDRESS_IN_RANGE(p, pool)) {
+	if (Co_ADDRESS_IN_RANGE(p, pool)) {
 
 		 if(pool->ref.count <= 0){
 			 return;
@@ -415,25 +415,34 @@ void Free(void *p)
 	free((void*) p);
 }
 
-
+/**
+ * gc alloc
+ * @param nbytes
+ * @return
+ */
 void*  gc_malloc(size_t nbytes)
 {
-	// if(nbytes + 8 > SMALL_REQUEST_THRESHOLD){
-	// 	return Malloc(nbytes + 8);
-	// }
 	Header *hdr = Malloc(nbytes + 8);
 	memset(hdr,0,nbytes+8);
 	FL_SET(hdr->flags,FL_ALLOC);
 	return (void*)hdr + 8;
 
 }
-void 	gc_init(){
+/**
+ * 初始化栈扫描初始区域
+ */
+void gc_init(){
 	sp_start = get_bp();
 }
+/**
+ * @param p
+ * @param nbytes
+ * @return
+ */
 void* gc_realloc(void *p, size_t nbytes){
 	if(!p){
         if(nbytes < 0){
-            printf("realloc failed\n");
+            printf("[gc] realloc failed\n");
             exit(1);
         }
         return gc_malloc(nbytes);
@@ -447,6 +456,9 @@ void* gc_realloc(void *p, size_t nbytes){
     gc_free(p);
     return new;
 }
+/**
+ * @param p
+ */
 void  gc_free(void *p){
 	Free(p -8);
 }
