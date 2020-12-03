@@ -482,7 +482,7 @@ void  BinaryExpr::asmgen(std::deque<Context*> ctx)
     Internal::call_operator(this->opt,"binary_operator");
 }
 /**
- * TODO: 只实现了 llvm编译的new
+ * TODO: new expr
  * 针对结构体的变量定义
  * b = new Http
  * @param ctx

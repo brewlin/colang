@@ -86,8 +86,7 @@ void AsmGen::assign_offsets()
         int bottom = 0;
 
         int gp = 0;
-        //TODO:假定所有参数类型为 int 8字节
-
+        //每个变量都是一个指针 默认占8字节
         for(auto var : fn->params_order_var){
             //寄存器参数，需要存储在被调用方栈上 offset 为负
             if (gp++ < GP_MAX){
@@ -105,8 +104,7 @@ void AsmGen::assign_offsets()
         if(fn->is_variadic){
             bottom = 48;
         }
-        //TODO: 在parser ast function时 将本地局部变量加入 fn->locals 方便计算偏移量
-        // Assign offsets to pass-by-register parameters and local variables.
+        //计算本地变量的栈偏移量
         for(auto local:fn->locals){
             VarExpr* var = local.second;
             bottom += 8;

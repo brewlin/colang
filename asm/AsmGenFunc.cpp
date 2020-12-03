@@ -81,7 +81,6 @@ void AsmGen::CreateFunction(Function *fn,std::deque<Context *> ctx)
         }
         //接下来就是注册 block块
         for(auto& stmt : fn->block->stmts){
-            //TODO: 处理返回值
             stmt->asmgen(funcCtxChain);
         }
         leaveContext(funcCtxChain);
