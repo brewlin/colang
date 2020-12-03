@@ -1,3 +1,8 @@
+<p>
+<img alt="GitHub" src="https://img.shields.io/github/license/brewlin/colang">
+<img alt="GitHub code size in bytes" src="https://img.shields.io/github/languages/code-size/brewlin/colang">
+</p>
+
 Colang是一种编程语言，旨在创造一种动态语法的静态编译语言
 ```asciidoc
 ./colang [options] file
