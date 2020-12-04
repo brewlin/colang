@@ -52,6 +52,7 @@ private:
     Function*       parseExternDef(Runtime* rt);
     void            parseStructDef();
     void            parsePackageDef();
+    void            parseGlobalDef();
 
     //parse statement
     Statement*      parseStatement();

@@ -71,10 +71,9 @@ void Parser::parse()
 		//解析结构体类定义
 		} else if(getCurrentToken() == KW_STRUCT){
             parseStructDef();
+        //解析全局变量定义
         }else{
-        //判断 StringExpr ，需要保存一份 asm 生成的时候需要提前注册到数据段
-            Statement* stmt = parseStatement();
-            rt->addStatement(stmt);
+            parseGlobalDef();
         }
 
     }while(getCurrentToken() != TK_EOF);

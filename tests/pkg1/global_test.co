@@ -1,6 +1,6 @@
 package pkg1
 
-//pkg1.global_a
+#pkg1.global_a
 global_a
 
 import fmt

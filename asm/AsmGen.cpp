@@ -77,8 +77,8 @@ void AsmGen::registerMain()
 void AsmGen::assign_offsets()
 {
     //顺序遍历所有的 Function
-    for (auto* fn : rt->order_funcs){
-
+    for (auto it : rt->funcs){
+        Function* fn = it.second;
         // 如果该函数参数太多，那么超出部分将存放到栈上
         // 第一个栈参数 通过 rbp+16来定位
         // 超过6个参数后 其他参数放在调用方的栈上，而不是被调用方，那么被调用方则需要通过 offset(%rbp) 来定位

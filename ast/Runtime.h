@@ -31,15 +31,10 @@ public:
     //存储结构体定义
     std::unordered_map<std::string,Struct*>    structs;
     //全局变量
-    std::unordered_map<std::string,VarExpr*> gvars;
-
-    //顺序存储函数表 for irgen bin
-    std::vector<Function*> order_funcs;
+    std::unordered_map<std::string,VarExpr*>   gvars;
     //存储全局函数
     std::unordered_map<std::string,Function*>  funcs;
     std::unordered_map<std::string,Function*>  extern_funcs;
-    //存储全局所有的待执行语句
-    std::vector<Statement*>       stmts;
     //保存全局 静态字符串
     std::vector<StringExpr*>      strs;
     //每个包下面保存所有的函数

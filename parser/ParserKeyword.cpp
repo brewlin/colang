@@ -179,3 +179,24 @@ void Parser::parseImportDef()
     currentToken = scan();
 
 }
+/**
+ * 解析 全局定义
+ * package import func 之外的部分
+ * 
+ */
+void Parser::parseGlobalDef()
+{
+    if(getCurrentToken() != TK_VAR){
+        parse_err("SyntaxError: global var define invalid  "
+                      " line:%d column:%d\n",line,column);
+    }
+    auto var = getCurrentLexeme();
+    //去掉标识符
+    currentToken = scan();
+
+    VarExpr* varexpr = new VarExpr(var,line,column);
+    //没有在函数作用内之外的都为全局变量，存储在静态代码区
+    rt->gvars[package + "." + var] = varexpr;
+    varexpr->is_local = false;
+    varexpr->package  = this->package;
+}

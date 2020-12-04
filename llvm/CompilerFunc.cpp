@@ -7,7 +7,8 @@
 #include "Compiler.h"
 
 void Compiler::registerFunc(){
-    for (auto* f : rt->order_funcs){
+    for (auto* it : rt->funcs){
+        Function* fn = (*it).sencond;
         declarationFunc(rt,ctx,f);
     }
 }

@@ -4,14 +4,6 @@
  */
 #include "Runtime.h"
 #include "Parser.h"
-std::vector<Statement*> Runtime::getStatements()
-{
-    return stmts;
-}
-void Runtime::addStatement(Statement* stmt)
-{
-    stmts.push_back(stmt);
-}
 
 
 /**
@@ -21,8 +13,6 @@ void Runtime::addStatement(Statement* stmt)
  */
 void Runtime::addFunc(const std::string &name, Function *f)
 {
-    order_funcs.push_back(f);
-
     //函数名是 包名 + 函数名
     std::string realfuncname = f->parser->getpkgname() + "." + name;
     if(f->isExtern)

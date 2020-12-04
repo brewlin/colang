@@ -1,7 +1,7 @@
 package main
 
 # this is a global variable
-global_a = 1
+global_a
 
 import fmt
 import os
