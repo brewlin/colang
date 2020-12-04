@@ -6,6 +6,8 @@
 #define CO_LANG_RUNTIME_H
 #include "Context.h"
 #include "Expression.h"
+
+class Package;
 /**
  * 运行时
  */
@@ -41,6 +43,7 @@ public:
     //保存全局 静态字符串
     std::vector<StringExpr*>      strs;
     //每个包下面保存所有的函数
+    std::unordered_map<std::string,Package*>   packages;
 
 };
 

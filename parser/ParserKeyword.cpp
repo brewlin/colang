@@ -10,7 +10,7 @@
 #include <fstream>
 #include <iostream>
 #include <experimental/filesystem>
-namespace filesys = std::experimental::filesystem;
+#include "Package.h"
 /**
  * 解析包名是否正确
  */
@@ -163,44 +163,19 @@ void Parser::parseImportDef()
     currentToken =  scan();
     //must tk_var
     assert(getCurrentToken() == TK_VAR);
-
-    //parser 当前目录
-    std::string abpath = filesys::current_path();
-    abpath += "/" + getCurrentLexeme();
-    std::error_code ec;
-
-    //先找当前，再去找全局
-    if (!filesys::is_directory(abpath, ec)){
-        //去全局目录库找
-        std::string srcpath = std::getenv("DO_SRC");
-        Debug("Parser: ENV PATH  DO_SRC:%s",srcpath.c_str());
-        if(srcpath.empty())
-            srcpath = "./";
-        abpath  = srcpath+"/"+getCurrentLexeme();
-        Debug("Parser: package import:%s",abpath.c_str());
-        if (!filesys::is_directory(abpath, ec))
+    std::string package = getCurrentLexeme();
+    //检查包是否已经解析过了
+    if(!rt->packages[package]){
+        Package *pkg = new Package(rt,package);
+        //扫描包下的源码，进行解析
+        if(!pkg->parse()){
             parse_err("SyntaxError: package:%s not exist in local or global "
                       " line:%d column:%d\n",
-                getCurrentLexeme().c_str(),line,column);
-    }
-
-    //包名一般是一个目录，当前会遍历目录下所有的文件进行解析
-    for(auto& p: filesys::directory_iterator(abpath)){
-        std::error_code ec;
-        if (filesys::is_regular_file(p.path(), ec)){
-            std::string filepath = p.path();
-            std::string ext = filepath.substr(filepath.size()-3,filepath.size() - 1);
-            if(ext != ".co") continue;
-
-            //不需要释放，在汇编生成的时候需要用到
-            Parser *ipt = new Parser(filepath,rt,getCurrentLexeme());
-            ipt->parse();
+                package.c_str(),line,column);
         }
-        if (ec)
-            parse_err("SyntaxError: package import failed :%s\n",ec.message().c_str());
+        rt->packages[package] = pkg;
     }
-
-    //get scan
+    //eat next scan
     currentToken = scan();
 
 }
