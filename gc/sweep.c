@@ -26,7 +26,7 @@ int gc_mark(void * ptr)
 
     size = INDEX2SIZE(pool->szidx);
 
-    Header *hdr = ptr - 8;
+    block *hdr = ptr - 8;
     //这里必须全都是带有header头的
     if(hdr->flags < 1 || hdr->flags > 3){
         return TRUE;
@@ -72,7 +72,7 @@ void     gc_sweep(void)
         void* end_addr = p + POOL_SIZE;
         for (void *pp = start_addr; pp < end_addr; pp += size)
         {
-            Header *obj = (Header*)pp;
+            block *obj = (block*)pp;
             //查看该堆是否已经被使用
             if (FL_TEST(obj->flags, FL_ALLOC)) {
                 //查看该堆是否被标记过
@@ -139,7 +139,7 @@ void scan_stack(){
     for (; cur_sp < sp_start ; cur_sp += 2){
         void * ptr = *(void**)cur_sp;
         GCValue* v   = (GCValue*)ptr;
-        Header* hdr  = (Header*)(ptr - 8);
+        block* hdr  = (block*)(ptr - 8);
         poolp pool;
         uint size;
         pool = POOL_ADDR(ptr);

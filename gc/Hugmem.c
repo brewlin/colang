@@ -19,7 +19,7 @@ void  mark(List* list,void* v){
     ListNode* cur = list->root;
     while(cur != NULL){
         if(cur->value == v){
-            Header* hdr = (Header*)((void*)v - 8);
+            block* hdr = (block*)((void*)v - 8);
             FL_SET(hdr->flags,FL_MARK);
             for (void *p  = v; p < (v + cur->size -8); p += 1){
                 gc_mark(*(void**)p);

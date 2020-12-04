@@ -80,14 +80,18 @@ typedef long		Co_intptr_t;
 #define uptr	Co_uintptr_t
 
 //block定义为一个uchar
-typedef uchar block;
+// typedef uchar block;
+typedef struct{
+    int    flags;
+    void*  addr;
+} block;
 
 struct pool_header {
     union {
-        block *_padding;
+        uchar *_padding;
         uint count;
     } ref;	/* number of allocated blocks    */
-    block *freeblock;		//指向空闲的block链表
+    block  *freeblock;		//指向空闲的block链表
     struct pool_header *nextpool;	/* next pool of this size class  */
     struct pool_header *prevpool;	/* previous pool       ""        */
     uint arenaindex;		/* index into arenas of base adr */
@@ -95,11 +99,6 @@ struct pool_header {
     uint nextoffset;		/* bytes to virgin block	 */
     uint maxnextoffset;		/* largest valid nextoffset	 */
 };
-typedef struct header{
-    size_t flags;
-    void*  data;
-}Header;
-
 typedef struct pool_header *poolp;
 
 //记录保存了arenas1级内存区
@@ -108,10 +107,10 @@ struct arena_object {
     uptr address;
 
     //对address进行4k内存对齐后的首地址 不在变动
-    block* first_address;
+    uchar* first_address;
 
     //对address进行4k内存对齐后的首地址
-    block* pool_address;
+    uchar* pool_address;
     //在arena上 可用的内存池pool的数量，usable_areanas 中会根据这个来进行
     //排序，使得分配的时候速度会更快
     uint nfreepools;
@@ -141,7 +140,7 @@ extern struct arena_object* arenas;
 extern  uint maxarenas;
 
 //多空闲链表，加开内存分配速度 基本上O(1)
-#define PTA(x)	((poolp )((uchar *)&(usedpools[2*(x)]) - 2*sizeof(block *)))
+#define PTA(x)	((poolp )((uchar *)&(usedpools[2*(x)]) - 2*sizeof(uchar *)))
 #define PT(x)	PTA(x), PTA(x)
 //小技巧: 在pool内分配的内存都可以通过下面立马计算出 pool_header的地址，非常高效
 #define POOL_ADDR(P) ((poolp)((uptr)(P) & ~(uptr)POOL_SIZE_MASK))
@@ -167,8 +166,7 @@ extern   void* sp_start;
 
 //执行内存分配逻辑
 void* Malloc(size_t nbytes);
-void* Realloc(void *p, size_t nbytes);
-void  Free(void *p);
+void  Free(block *p);
 void  gc();
 void  gc_init();
 void* gc_malloc(size_t nbytes);

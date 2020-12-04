@@ -145,23 +145,22 @@ void * Malloc(size_t nbytes)
 				next->prevpool = pool;
 				pool->nextpool = next;
 				goto expend_pool;
-				void *s = *(void**)0x1111;
 			}
 			assert(bp != NULL);
 			//这里表示 pol->freeblock = bp->next
 			//*(block **)bp 是为了节省next指针 而直接在里面保存了下一个指针
-			if ((pool->freeblock = *(block **)(bp+8)) != NULL) {
+			if ((pool->freeblock = bp->addr) != NULL) {
 			    //解锁
 				return (void *)bp;
 			}
 			//上面说明freeblock 已经没有空闲链表了，现在需要额外分配新的内存
 			if (pool->nextoffset <= pool->maxnextoffset) {
 				/* There is room for another block. */
-				pool->freeblock = (block*)pool + pool->nextoffset;
+				pool->freeblock = (uchar*)pool + pool->nextoffset;
 				//nexttoffset 执行下一个未分配地址开头
 				pool->nextoffset += INDEX2SIZE(size);
-				//相当于 pool->freeblock->next = NULL
-				*(block **)(pool->freeblock +8) = NULL;
+				//相当于 pool->freeblock->addr =NULL
+				pool->freeblock->addr = NULL;
 				//解锁
 				return (void *)bp;
 			}
@@ -220,7 +219,7 @@ expend_pool:
 
 				assert(usable_arenas->freepools != NULL ||
 				       usable_arenas->pool_address <=
-				           (block*)usable_arenas->address +
+				           (uchar*)usable_arenas->address +
 				               ARENA_SIZE - POOL_SIZE);
 			}
 		init_pool:
@@ -234,7 +233,7 @@ expend_pool:
 			if (pool->szidx == size) {
 
 				bp = pool->freeblock;
-				pool->freeblock = *(block **)(bp +8);
+				pool->freeblock = bp->addr;
 				//解锁
 				return (void *)bp;
 			}
@@ -246,11 +245,11 @@ expend_pool:
 			pool->szidx = size;
 			size = INDEX2SIZE(size);
 			//第一次使用全新的pool的时候 默认从 pool_address + pool_header 处分配
-			bp = (block *)pool + POOL_OVERHEAD;
+			bp = (uchar *)pool + POOL_OVERHEAD;
 			pool->nextoffset = POOL_OVERHEAD + (size << 1);
 			pool->maxnextoffset = POOL_SIZE - size;
-			pool->freeblock = bp + size;
-			*(block **)(pool->freeblock + 8) = NULL;
+			pool->freeblock = (uchar*)bp + size;
+			pool->freeblock->addr = NULL;
 			//解锁
 			return (void *)bp;
 		}
@@ -260,7 +259,7 @@ expend_pool:
 		assert(usable_arenas->freepools == NULL);
 		//因为新申请的arenas 是一块256k的大内存，还没切分为小的pool
 		pool = (poolp)usable_arenas->pool_address;
-		assert((block*)pool <= (block*)usable_arenas->address +
+		assert((uchar*)pool <= (uchar*)usable_arenas->address +
 		                       ARENA_SIZE - POOL_SIZE);
 		pool->arenaindex = usable_arenas - arenas;
 		assert(&arenas[pool->arenaindex] == usable_arenas);
@@ -290,8 +289,8 @@ redirect:
 
 	if (nbytes == 0)
 		nbytes = 1;
-	void* ret = (void*)malloc(nbytes);
-	push(&Hugmem,ret + 8,nbytes);
+	block* ret = (block*)malloc(nbytes);
+	push(&Hugmem,&ret->addr,nbytes);
 	return ret;
 }
 
@@ -299,7 +298,7 @@ redirect:
 
 #undef Free
 
-void Free(void *p)
+void Free(block *p)
 {
 	poolp pool;
 	block *lastfree;
@@ -321,7 +320,7 @@ void Free(void *p)
 		assert(pool->ref.count > 0);	/* else it was empty */
 		//将当前p挂到 pool->freeblokc->next 下面
 		memset(p,0,INDEX2SIZE(pool->szidx));
-		*(block **)(p+8) = lastfree = pool->freeblock;
+		p->addr = lastfree = pool->freeblock;
 		//然后pool->freeblock = p
 		pool->freeblock = (block *)p;
 		if (lastfree) {
@@ -411,7 +410,7 @@ void Free(void *p)
 	}
 
 	//说明不是通过asrena上申请的内存，直接free即可
-	del(&Hugmem,p + 8);
+	del(&Hugmem,&p->addr);
 	free((void*) p);
 }
 
@@ -422,10 +421,10 @@ void Free(void *p)
  */
 void*  gc_malloc(size_t nbytes)
 {
-	Header *hdr = Malloc(nbytes + 8);
+	block *hdr = Malloc(nbytes + 8);
 	memset(hdr,0,nbytes+8);
 	FL_SET(hdr->flags,FL_ALLOC);
-	return (void*)hdr + 8;
+	return &hdr->addr;
 
 }
 /**
