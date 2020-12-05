@@ -24,11 +24,12 @@ assert(){
     log "[compile] ./colang -s $input ..."
     ./colang -s $input
     check
-    gcc -g tmp.s -L./internal -linternal -L./gc -lgc
+    gcc -g *.s -L./internal -linternal -L./gc -lgc
     check
     ./a.out
     check
     rm ./a.out
+    rm *.s
 
     return
 #    failed "[compile] $input failed"
@@ -51,6 +52,7 @@ install_env(){
     if [  "$?" != 0 ]; then
         failed "make failed"
     fi
+    rm *.s
 }
 install_env
 read_dir

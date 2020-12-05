@@ -64,3 +64,12 @@ Function* Package::getFunc(const std::string &name, bool is_extern){
     }
     return nullptr;
 }
+
+VarExpr*  Package::getGlobalVar(const std::string &name){
+    for(auto it : parsers){
+        Parser* parser = it.second;
+        VarExpr* var   = parser->gvars[name];
+        if(var) return var;
+    }
+    return nullptr;
+}

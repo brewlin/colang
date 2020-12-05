@@ -25,6 +25,7 @@ public:
     bool      parse();
     void      asmgen();
     Function* getFunc(const std::string &name, bool is_extern);
+    VarExpr*  getGlobalVar(const std::string &name);
 
 public:
     //map[filepath + name] = parser
