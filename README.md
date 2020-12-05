@@ -23,6 +23,7 @@ Linux ubuntu 4.4.0-157-generic #185-Ubuntu SMP Tue Jul 23 09:17:01 UTC 2019 x86_
 gcc version 7.5.0 (Ubuntu 7.5.0-3ubuntu1~18.04) 
 > git clone https://github.com/brewlin/colang.git
 > cd colang/tests
+> export CO_SRC=/path/to/colang/runtime
 > cmake .. & make
 > dos2unix auto_tests.sh & sh auto_tests.sh
 

@@ -25,8 +25,8 @@ bool Package::parse()
     //先找当前，再去找全局
     if (!filesys::is_directory(abpath, ec)){
         //去全局目录库找
-        std::string srcpath = std::getenv("DO_SRC");
-        Debug("Parser: ENV PATH  DO_SRC:%s",srcpath.c_str());
+        std::string srcpath = std::getenv("CO_SRC");
+        Debug("Parser: ENV PATH  CO_SRC:%s",srcpath.c_str());
         if(srcpath.empty())
             srcpath = "./";
         abpath  = srcpath + "/" + package;
