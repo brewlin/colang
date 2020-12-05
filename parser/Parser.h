@@ -38,8 +38,25 @@ public:
     //执行文件解析生成ast树
     std::string printToken();
     void parse();
-
+    void asmgen();
+    
+    //存储结构体定义
+    std::unordered_map<std::string,Struct*>    structs;
+    //全局变量
+    std::unordered_map<std::string,VarExpr*>   gvars;
+    //存储全局函数
+    std::unordered_map<std::string,Function*>  funcs;
+    std::unordered_map<std::string,Function*>  extern_funcs;
+    //保存全局 静态字符串
+    std::vector<StringExpr*>                   strs;
 private:
+    void      addFunc(const std::string &name, Function *f);
+    bool      hasFunc(const std::string &name, bool is_extern);
+    Function* getFunc(const std::string &name, bool is_extern);
+    void      addStruct(const std::string &name, Struct *f);
+    bool      hasStruct(const std::string &name);
+    Struct*   getStruct(const std::string &name);
+
     //get|peek next char
     char            next();
     char            peek();

@@ -61,7 +61,8 @@ public:
     static void Pop_arg(std::vector<Expression *> &args);
 
     //current function
-    static Function* currentFunc;
+    static Function*      currentFunc;
+    static std::ofstream* out;
 };
 
 

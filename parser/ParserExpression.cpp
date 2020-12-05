@@ -182,7 +182,7 @@ Expression* Parser::parsePrimaryExpr()
         currentToken = scan();
         auto* ret    = new StringExpr(line,column);
         //将静态字符作为全局定义
-        pkg->strs.push_back(ret);
+        strs.push_back(ret);
         ret->literal = val;
         return ret;
     }else if(getCurrentToken() == LIT_CHAR)

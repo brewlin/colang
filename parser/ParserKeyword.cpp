@@ -80,7 +80,7 @@ void Parser::parseStructDef()
         }
 
     }
-    rt->addStruct(s->name,s);
+    this->addStruct(s->name,s);
     //eat }
     currentToken = scan();
 }

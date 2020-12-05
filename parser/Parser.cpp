@@ -62,11 +62,11 @@ void Parser::parse()
         if(getCurrentToken() == KW_FUNC)
         {
             auto* f = parseFuncDef(rt);
-            pkg->addFunc(f->name,f);
+            this->addFunc(f->name,f);
         //解析外部函数申明 extern与interpret没关系，只影响 irgen
         } else if(getCurrentToken() == KW_EXTERN){
             auto* f = parseExternDef(rt);
-            pkg->addFunc(f->name,f);
+            this->addFunc(f->name,f);
 		//解析import
         } else if(getCurrentToken() == KW_IMPORT){
 			parseImportDef();
