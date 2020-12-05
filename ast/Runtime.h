@@ -28,18 +28,9 @@ public:
     bool       hasStruct(const std::string& name);
     Struct*    getStruct(const std::string& name);
 public:
-    //存储结构体定义
-    std::unordered_map<std::string,Struct*>    structs;
-    //全局变量
-    std::unordered_map<std::string,VarExpr*>   gvars;
-    //存储全局函数
-    std::unordered_map<std::string,Function*>  funcs;
-    std::unordered_map<std::string,Function*>  extern_funcs;
-    //保存全局 静态字符串
-    std::vector<StringExpr*>      strs;
     //每个包下面保存所有的函数
     std::unordered_map<std::string,Package*>   packages;
-
 };
 
+extern Runtime* rt;
 #endif //CO_LANG_RUNTIME_H

@@ -7,7 +7,7 @@
 
 namespace filesys = std::experimental::filesystem;
 
-Package::Package(Runtime* rt,std::string name):rt(rt),package(name){
+Package::Package(Runtime* rt,std::string name):package(name){
 
 }
 Package::~Package(){
@@ -44,7 +44,7 @@ bool Package::parse()
             if(ext != ".co") continue;
 
             //不需要释放，在汇编生成的时候需要用到
-            Parser *parser = new Parser(filepath,rt,package);
+            Parser *parser = new Parser(filepath,package);
             parser->parse();
             parsers[filepath] = parser;
         }
@@ -52,4 +52,78 @@ bool Package::parse()
             parse_err("SyntaxError: package import failed :%s\n",ec.message().c_str());
     }
     return true;
+}
+
+/**
+ * 添加一个函数
+ * @param name
+ * @param f
+ */
+void Package::addFunc(const std::string &name, Function *f)
+{
+    //函数名是 包名 + 函数名
+    std::string realfuncname = f->parser->getpkgname() + "." + name;
+    if(f->isExtern)
+        extern_funcs.insert(std::make_pair(realfuncname,f));
+    else
+        funcs.insert(std::make_pair(realfuncname,f));
+}
+/**
+ * 检查是否存在该函数
+ * @param name
+ * @return
+ */
+bool Package::hasFunc(const std::string &name, bool is_extern)
+{
+    if(is_extern)
+        return extern_funcs.count(name) == 1;
+    else
+        return funcs.count(name) == 1;
+}
+/**
+ * 获取一个func
+ * @param name
+ * @return
+ */
+Function* Package::getFunc(const std::string &name, bool is_extern)
+{
+    if(is_extern){
+        if(auto f = extern_funcs.find(name);f != funcs.end())
+            return f->second;
+    }else{
+        if(auto f = funcs.find(name);f != funcs.end())
+            return f->second;
+    }
+    return nullptr;
+}
+
+
+/**
+ * 添加一个结构体
+ * @param name
+ * @param f
+ */
+void Package::addStruct(const std::string &name, Struct *f)
+{
+    structs.insert(std::make_pair(name,f));
+}
+/**
+ * 检查是否存在该结构体
+ * @param name
+ * @return
+ */
+bool Package::hasStruct(const std::string &name)
+{
+    return structs.count(name) == 1;
+}
+/**
+ * 获取一个Struct
+ * @param name
+ * @return
+ */
+Struct* Package::getStruct(const std::string &name)
+{
+    if(auto f = structs.find(name);f != structs.end())
+        return f->second;
+    return nullptr;
 }

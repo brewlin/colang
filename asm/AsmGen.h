@@ -20,9 +20,6 @@ class AsmGen {
     std::deque<Context*> ctx;
 
 public:
-    static Runtime* rt;
-    static Parser* p;
-
     static const char* argreg8[] ;
     static const char* argreg16[];
     static const char* argreg32[];

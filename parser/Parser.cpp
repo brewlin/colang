@@ -10,8 +10,8 @@
  * 解析 脚本文件
  * @param filename
  */
-Parser::Parser(const std::string &filename,Runtime* rt,std::string package):
-rt(rt),
+Parser::Parser(const std::string &filepath,Package* pkg,std::string package):
+pkg(pkg),
 //clear
 currentFunc(nullptr),
 package(package)
@@ -33,11 +33,13 @@ package(package)
     keywords["new"]      = KW_NEW;
     keywords["go"]       = KW_GO;
     keywords["package"]  = KW_PACKAGE;
-    fs.open(filename);
+    fs.open(filepath);
 
     if(!fs.is_open()){
-        parse_err("ParserError: can not open script file :%s\n",filename.c_str());
+        parse_err("ParserError: can not open script file :%s\n",filepath.c_str());
     }
+    std::string fullname = filepath.substr(filepath.find_last_of('/')+1);
+    filename = fullname.substr(0,fullname.size() - 3);
 }
 Parser::~Parser()
 {
@@ -60,11 +62,11 @@ void Parser::parse()
         if(getCurrentToken() == KW_FUNC)
         {
             auto* f = parseFuncDef(rt);
-            rt->addFunc(f->name,f);
+            pkg->addFunc(f->name,f);
         //解析外部函数申明 extern与interpret没关系，只影响 irgen
         } else if(getCurrentToken() == KW_EXTERN){
             auto* f = parseExternDef(rt);
-            rt->addFunc(f->name,f);
+            pkg->addFunc(f->name,f);
 		//解析import
         } else if(getCurrentToken() == KW_IMPORT){
 			parseImportDef();

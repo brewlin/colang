@@ -7,32 +7,33 @@
 #include "AsmGen.h"
 #include <cstdarg>
 #include "Internal.h"
-
+#include "Runtime.h"
+#include "Package.h"
 int AsmGen::count = 0;
 Function* AsmGen::currentFunc = nullptr;
-Runtime*  AsmGen::rt = nullptr;
-Parser*   AsmGen::p = nullptr;
 FILE *output_file;
 
 AsmGen::AsmGen(const std::string &filename) {
     rt = new Runtime();
-    p = new Parser(filename,rt,"main");
+
+    Package* pkg = new Package("main");
+    Parser *main_parser = new Parser(filename,"main");
+    //main 词法解析 语法解析
+    main_parser->parse();
+    pkg->parsers[filepath] = main_parser;
+    rt->packages["main"] = pkg;
+
+    this->ctx.push_back(new Context);
+    // init the write
+    char *buf;
+    size_t buflen;
+    output_file = open_memstream(&buf, &buflen);
 }
 AsmGen::~AsmGen() {
-    delete  p;
-    delete rt;
 }
 
 void AsmGen::execute()
 {
-    //词法解析 语法解析
-    p->parse();
-    this->ctx.push_back(new Context);
-
-    char *buf;
-    size_t buflen;
-    output_file = open_memstream(&buf, &buflen);
-
     //register main
     registerMain();
     //1 计算变量的栈偏移量

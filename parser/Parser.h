@@ -31,7 +31,7 @@ public:
      * @param rt        全局table表 存储了所有的函数、变量等
      * @param package   当前文件对应的包名
      */
-    explicit Parser(const std::string& filename,Runtime* rt,std::string package);
+    explicit Parser(const std::string& filepath,Package* rt,std::string package);
     ~Parser();
     //获取包名
     std::string getpkgname();
@@ -89,12 +89,13 @@ private:
     std::unordered_map<std::string,Token > keywords;
     //当前token
     std::tuple<Token ,std::string> currentToken;
-	//全局ast树运行时
-	Runtime* rt;
+    //当前所属的包
+    Package* pkg;
 	//当前function
 	Function* currentFunc;
 	//当前包名
 	std::string package;
+    std::string filename;
 
 };
 
