@@ -63,6 +63,7 @@ public:
     //current function
     static Function*      currentFunc;
     static std::ofstream* out;
+    static Parser*        parser;
 };
 
 

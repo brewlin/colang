@@ -9,9 +9,12 @@
 #include "Internal.h"
 #include "Runtime.h"
 #include "Package.h"
-int AsmGen::count = 0;
-Function* AsmGen::currentFunc = nullptr;
-FILE *output_file;
+#include "Parser.h"
+
+int            AsmGen::count = 0;
+Function*      AsmGen::currentFunc = nullptr;
+std::ofstream* AsmGen::out = nullptr;
+Parser*        AsmGen::parser = nullptr;
 
 AsmGen::AsmGen(const std::string &filename) {
     rt = new Runtime();
@@ -150,9 +153,10 @@ void AsmGen::leaveContext(std::deque<Context *> ctx)
  * @param ...
  */
 void AsmGen::writeln(const char *fmt, ...) {
+    char buf[200];
     va_list ap;
     va_start(ap, fmt);
-    vfprintf(output_file, fmt, ap);
+    vfprintf(buf, fmt, ap);
     va_end(ap);
-    fprintf(output_file, "\n");
+    *out << output_file << std::endl;
 }
