@@ -11,7 +11,6 @@
 #include <iostream>
 #include <experimental/filesystem>
 #include "Package.h"
-#include "Runtime.h"
 /**
  * 解析包名是否正确
  */
@@ -166,7 +165,7 @@ void Parser::parseImportDef()
     std::string package = getCurrentLexeme();
     //检查包是否已经解析过了
     if(!Package::packages[package]){
-        Package *pkg = new Package(rt,package);
+        Package *pkg = new Package(package);
         //扫描包下的源码，进行解析
         if(!pkg->parse()){
             parse_err("SyntaxError: package:%s not exist in local or global "
@@ -196,7 +195,7 @@ void Parser::parseGlobalDef()
 
     VarExpr* varexpr = new VarExpr(var,line,column);
     //没有在函数作用内之外的都为全局变量，存储在静态代码区
-    pkg->gvars[package + "." + var] = varexpr;
+    gvars[package + "." + var] = varexpr;
     varexpr->is_local = false;
     varexpr->package  = this->package;
 }

@@ -51,7 +51,7 @@ public:
     std::vector<StringExpr*>                   strs;
 public:
     void      addFunc(const std::string &name, Function *f);
-    bool      hasFunc(const std::string &name, bool is_extern);
+    bool      hasFunc(const std::string &name, bool is_extern = false);
     Function* getFunc(const std::string &name, bool is_extern);
     void      addStruct(const std::string &name, Struct *f);
     bool      hasStruct(const std::string &name);

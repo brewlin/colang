@@ -7,6 +7,8 @@
 
 namespace filesys = std::experimental::filesystem;
 
+std::unordered_map<std::string,Package*> Package::packages;
+
 Package::Package(std::string name):package(name){
 
 }
