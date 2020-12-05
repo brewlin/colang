@@ -20,7 +20,7 @@ public:
     //全局变量表 操作
     bool       hasVar(const std::string& varname);
     void       createVar(const std::string& varname,VarExpr* ident);
-    VarExpr* getVar(const std::string& varname);
+    VarExpr*   getVar(const std::string& varname);
 
 public:
     //保存了作用域内的变量

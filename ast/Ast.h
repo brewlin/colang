@@ -14,7 +14,7 @@ struct Ast{
     virtual ~Ast() = default;
     virtual std::string toString()
     {
-        return "AstNode()";
+        return "Ast()";
     }
 
     int line   = -1;

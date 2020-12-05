@@ -6,8 +6,7 @@
 
 void Parser::asmgen()
 {    
-    std::string fullname = filename + ".s";
-    std::ofstream out(fullname);
+    std::ofstream out(asmfile);
     AsmGen::out = &out;
     if(out.fail()){
         parse_err("genrate assembly file failed package:%s file:%s",pkg->package.c_str(),

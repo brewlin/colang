@@ -40,6 +40,9 @@ package(package)
     }
     std::string fullname = filepath.substr(filepath.find_last_of('/')+1);
     filename = fullname.substr(0,fullname.size() - 3);
+    asmfile  = filename + ".s";
+    if(package != "main")
+        asmfile  = package + "_" + asmfile;
 }
 Parser::~Parser()
 {

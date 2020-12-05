@@ -37,10 +37,10 @@ int asmgen(char* argv[],bool run = false)
     Debug("asm generate");
     AsmGen gen(argv[2]);
     gen.execute();
-    // if(run){
-        // system("gcc -g tmp.s -L./internal -linternal -L./gc -lgc");
-        // system("./a.out");
-    // }
+    if(run){
+        system("gcc -g *.s -L./internal -linternal -L./gc -lgc");
+        system("./a.out");
+    }
     return 0;
 }
 int print_ast(char* argv[]){

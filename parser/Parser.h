@@ -50,12 +50,12 @@ public:
     //保存全局 静态字符串
     std::vector<StringExpr*>                   strs;
 public:
-    void      addFunc(const std::string &name, Function *f);
-    bool      hasFunc(const std::string &name, bool is_extern = false);
-    Function* getFunc(const std::string &name, bool is_extern);
-    void      addStruct(const std::string &name, Struct *f);
-    bool      hasStruct(const std::string &name);
-    Struct*   getStruct(const std::string &name);
+    void            addFunc(const std::string &name,   Function *f);
+    bool            hasFunc(const std::string &name,   bool is_extern = false);
+    Function*       getFunc(const std::string &name,   bool is_extern);
+    void            addStruct(const std::string &name, Struct *f);
+    bool            hasStruct(const std::string &name);
+    Struct*         getStruct(const std::string &name);
 
 private:
     //get|peek next char
@@ -114,6 +114,7 @@ private:
 	//当前包名
 	std::string package;
     std::string filename;
+    std::string asmfile;
 
 };
 
