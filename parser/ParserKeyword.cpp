@@ -66,7 +66,7 @@ void Parser::parseStructDef()
 
         // 定义成员函数函数
         }else if(getCurrentToken() == KW_FUNC){
-            Function *f = parseFuncDef(rt);
+            Function *f = parseFuncDef();
             assert(f != nullptr);
             //成员函数
             f->isObj = true;
@@ -86,10 +86,9 @@ void Parser::parseStructDef()
 }
 /**
  * 解析函数表达式
- * @param rt
  * @return
  */
-Function* Parser::parseFuncDef(Runtime* rt)
+Function* Parser::parseFuncDef()
 {
     Debug("found function. start parser..");
     //当前是否已经解析到 func 关键字
@@ -97,7 +96,7 @@ Function* Parser::parseFuncDef(Runtime* rt)
     //获取函数名
     currentToken = scan();
     //检查是否重复定义
-    if(rt->hasFunc(getCurrentLexeme()))
+    if(hasFunc(getCurrentLexeme()))
         parse_err("SyntaxError: already define function :%s\n",getCurrentLexeme().c_str());
     auto* node = new Function;
 
@@ -124,7 +123,7 @@ Function* Parser::parseFuncDef(Runtime* rt)
  * @param rt
  * @return
  */
-Function* Parser::parseExternDef(Runtime* rt)
+Function* Parser::parseExternDef()
 {
     Debug("found extern .start parser..");
     //当前是否已经解析到 func 关键字
@@ -166,7 +165,7 @@ void Parser::parseImportDef()
     assert(getCurrentToken() == TK_VAR);
     std::string package = getCurrentLexeme();
     //检查包是否已经解析过了
-    if(!rt->packages[package]){
+    if(!Package::packages[package]){
         Package *pkg = new Package(rt,package);
         //扫描包下的源码，进行解析
         if(!pkg->parse()){
@@ -174,7 +173,7 @@ void Parser::parseImportDef()
                       " line:%d column:%d\n",
                 package.c_str(),line,column);
         }
-        rt->packages[package] = pkg;
+        Package::packages[package] = pkg;
     }
     //eat next scan
     currentToken = scan();

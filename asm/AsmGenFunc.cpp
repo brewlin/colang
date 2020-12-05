@@ -17,9 +17,9 @@
 void AsmGen::registerFuncs()
 {
     Debug("register functions")
-    for(auto p :rt->funcs){
+    for(auto p :parser->funcs){
         currentFunc = p.second;
-        CreateFunction(p.second,ctx);
+        CreateFunction(p.second);
         currentFunc = nullptr;
     }
 
@@ -28,7 +28,7 @@ void AsmGen::registerFuncs()
  * 注册fn
  * @param f
  */
-void AsmGen::CreateFunction(Function *fn,std::deque<Context *> ctx)
+void AsmGen::CreateFunction(Function *fn)
 {
     //extern 不需要 翻译
     if(fn->isExtern) return;

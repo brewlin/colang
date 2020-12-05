@@ -14,10 +14,10 @@
 #include "Utils.h"
 #include <vector>
 #include <cassert>
-#include "Runtime.h"
 #include "Expression.h"
 #include "Statement.h"
 #include <cstdlib>
+#include "Package.h"
 
 struct Function;
 struct Block;
@@ -39,7 +39,7 @@ public:
     std::string printToken();
     void parse();
     void asmgen();
-    
+
     //存储结构体定义
     std::unordered_map<std::string,Struct*>    structs;
     //全局变量
@@ -49,7 +49,7 @@ public:
     std::unordered_map<std::string,Function*>  extern_funcs;
     //保存全局 静态字符串
     std::vector<StringExpr*>                   strs;
-private:
+public:
     void      addFunc(const std::string &name, Function *f);
     bool      hasFunc(const std::string &name, bool is_extern);
     Function* getFunc(const std::string &name, bool is_extern);
@@ -57,6 +57,7 @@ private:
     bool      hasStruct(const std::string &name);
     Struct*   getStruct(const std::string &name);
 
+private:
     //get|peek next char
     char            next();
     char            peek();
@@ -65,8 +66,8 @@ private:
 
     //parse keywords
     void 			parseImportDef();
-    Function*       parseFuncDef(Runtime* rt);
-    Function*       parseExternDef(Runtime* rt);
+    Function*       parseFuncDef();
+    Function*       parseExternDef();
     void            parseStructDef();
     void            parsePackageDef();
     void            parseGlobalDef();

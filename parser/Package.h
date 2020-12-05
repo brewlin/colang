@@ -10,7 +10,6 @@
 #include "Utils.h"
 #include <vector>
 #include <cassert>
-#include "Runtime.h"
 #include "Expression.h"
 #include "Statement.h"
 #include <cstdlib>
@@ -26,10 +25,13 @@ public:
     bool      parse();
     void      asmgen();
 
-private:
+public:
     //map[filepath + name] = parser
     std::unordered_map<std::string,Parser*> parsers;
 	std::string package;    
+
+public:
+    static std::unordered_map<std::string,Package*> packages;
 };
 
 

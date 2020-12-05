@@ -1,11 +1,10 @@
-#include "Package.cpp"
-#include "Parser.cpp"
+#include "Package.h"
+#include "Parser.h"
 
 void Package::asmgen()
 {
     for(auto it : parsers){
-        Parser *p = it.sencond;
+        Parser *p = it.second;
         p->asmgen();
     }
-)
 }

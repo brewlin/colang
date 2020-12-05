@@ -142,7 +142,7 @@ void  VarExpr::asmgen(std::deque<Context*> ctx){
     //2. 在语法阶段表示当前变量是否是一个包变量访问如: pkg1.global_name
     if(!is_local){
         std::string gname = package + "." + varname;
-        var  = AsmGen::rt->gvars[gname];
+        var  = AsmGen::parser->gvars[gname];
         //显式进行全局变量调用则需要强制检查
         if(!var) parse_err("AsmError:use of undefined global variable %s at line %d co %d\n",
             gname.c_str(),this->line,this->column);
@@ -152,7 +152,7 @@ void  VarExpr::asmgen(std::deque<Context*> ctx){
     }
     //普通变量如果是一个管局变量则默认进行全局变量操作
     std::string gname = AsmGen::currentFunc->parser->getpkgname() + "." + varname;
-    var  = AsmGen::rt->gvars[gname];
+    var  = AsmGen::parser->gvars[gname];
     if(var){
         AsmGen::GenAddr(var,is_delref);
         if(!is_delref) AsmGen::Load();
@@ -193,14 +193,14 @@ void  IndexExpr::asmgen(std::deque<Context*> ctx) {
     //看看是否是包变量调用
     if(is_pkgcall){
         std::string gname = package + "." + varname;
-        var  = AsmGen::rt->gvars[gname];
+        var  = AsmGen::parser->gvars[gname];
         //显式进行全局变量调用则需要强制检查
         if(!var) parse_err("AsmError:use of undefined global variable %s at line %d co %d\n",
             gname.c_str(),this->line,this->column);
     }else{
         //普通变量如果是一个管局变量则默认进行全局变量操作
         std::string gname = AsmGen::currentFunc->parser->getpkgname() + "." + varname;
-        var  = AsmGen::rt->gvars[gname];
+        var  = AsmGen::parser->gvars[gname];
     }
     if(var){
         //push arr 获取数组偏移量
@@ -284,7 +284,7 @@ void  FunCallExpr::asmgen(std::deque<Context*> ctx)
     }
 
     //函数查找
-    if(auto* func = AsmGen::rt->getFunc(realfuncname,is_extern); func != nullptr)
+    if(auto* func = AsmGen::parser->getFunc(realfuncname,is_extern); func != nullptr)
     {
 
         //只会进行提示，现在默认已实现不足6个参数会默认置0
@@ -364,13 +364,13 @@ void  AssignExpr::asmgen(std::deque<Context*> ctx){
         //是否是包变量访问
         if(!varExpr->is_local){
             gname = varExpr->package + "." + varExpr->varname;
-            varExpr = AsmGen::rt->gvars[gname];
+            varExpr = AsmGen::parser->gvars[gname];
             //显式进行全局变量调用则需要强制检查
             if(!varExpr) parse_err("AsmError:use of undefined global variable %s at line %d co %d\n",
                 gname.c_str(),this->line,this->column);
         //是否是全句变量
-        }else if(AsmGen::rt->gvars[gname]){
-            varExpr = AsmGen::rt->gvars[gname];
+        }else if(AsmGen::parser->gvars[gname]){
+            varExpr = AsmGen::parser->gvars[gname];
         }else if(f->params_var.count(varExpr->varname)){
             //1. 这个变量可能是函数参数变量，非本地变量
             varExpr = f->params_var[varExpr->varname];
@@ -405,13 +405,13 @@ void  AssignExpr::asmgen(std::deque<Context*> ctx){
         //是否是包变量访问
         if(index->is_pkgcall){
             gname = index->package + "." + varname;
-            varExpr = AsmGen::rt->gvars[gname];
+            varExpr = AsmGen::parser->gvars[gname];
             //显式进行全局变量调用则需要强制检查
             if(!varExpr) parse_err("AsmError:use of undefined global variable %s at line %d co %d\n",
                 gname.c_str(),this->line,this->column);
         //是否是全句变量
-        }else if(AsmGen::rt->gvars[gname]){
-            varExpr = AsmGen::rt->gvars[gname];
+        }else if(AsmGen::parser->gvars[gname]){
+            varExpr = AsmGen::parser->gvars[gname];
         }else if(f->params_var.count(varname)){
             //1. 这个变量可能是函数参数变量，非本地变量
             varExpr = f->params_var[varname];

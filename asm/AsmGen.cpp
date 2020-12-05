@@ -7,7 +7,6 @@
 #include "AsmGen.h"
 #include <cstdarg>
 #include "Internal.h"
-#include "Runtime.h"
 #include "Package.h"
 #include "Parser.h"
 
@@ -17,41 +16,25 @@ std::ofstream* AsmGen::out = nullptr;
 Parser*        AsmGen::parser = nullptr;
 
 AsmGen::AsmGen(const std::string &filename) {
-    rt = new Runtime();
 
     Package* pkg = new Package("main");
-    Parser *main_parser = new Parser(filename,"main");
+    Parser *main_parser = new Parser(filename,pkg,"main");
     //main 词法解析 语法解析
     main_parser->parse();
-    pkg->parsers[filepath] = main_parser;
-    rt->packages["main"] = pkg;
-
-    this->ctx.push_back(new Context);
-    // init the write
-    char *buf;
-    size_t buflen;
-    output_file = open_memstream(&buf, &buflen);
+    pkg->parsers[filename] = main_parser;
+    Package::packages["main"] = pkg;
 }
 AsmGen::~AsmGen() {
 }
-
 void AsmGen::execute()
 {
     //register main
     registerMain();
-    //1 计算变量的栈偏移量
-    assign_offsets();
-    //2 注册全局 var
-    registerVars();
-    //3 注册全局 string
-    registerStrings();
-    //4 注册 函数信息
-    registerFuncs();
-
-    fclose(output_file);
-    FILE *out = fopen("./tmp.s", "w");
-    fwrite(buf, buflen, 1, out);
-    fclose(out);
+    //register package
+    for(auto it : Package::packages){
+        Package* pkg = it.second;
+        pkg->asmgen();
+    }
 }
 void AsmGen::registerMain()
 {
@@ -81,7 +64,7 @@ void AsmGen::registerMain()
 void AsmGen::assign_offsets()
 {
     //顺序遍历所有的 Function
-    for (auto it : rt->funcs){
+    for (auto it : parser->funcs){
         Function* fn = it.second;
         // 如果该函数参数太多，那么超出部分将存放到栈上
         // 第一个栈参数 通过 rbp+16来定位
@@ -156,7 +139,7 @@ void AsmGen::writeln(const char *fmt, ...) {
     char buf[200];
     va_list ap;
     va_start(ap, fmt);
-    vfprintf(buf, fmt, ap);
+    vsprintf(buf, fmt, ap);
     va_end(ap);
-    *out << output_file << std::endl;
+    *out << buf << std::endl;
 }

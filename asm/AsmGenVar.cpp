@@ -12,7 +12,7 @@ using namespace std;
  */
 void AsmGen::registerStrings()
 {
-    for(auto &var:rt->strs){
+    for(auto &var:parser->strs){
         stringstream ss;
         string r;
         ss << ".L.." << count++;
@@ -24,7 +24,7 @@ void AsmGen::registerStrings()
 }
 void AsmGen::registerVars()
 {
-    for(auto &var:rt->gvars){
+    for(auto &var:parser->gvars){
         string name = var.first;
         writeln("  .comm   %s,8,8",name.c_str());
     }

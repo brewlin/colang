@@ -8,7 +8,6 @@
 #define COMPILER_ASMGEN_H
 
 #include "Expression.h"
-#include "Runtime.h"
 #include "Context.h"
 #include "Value.h"
 #include "Parser.h"
@@ -32,22 +31,22 @@ public:
     explicit AsmGen(const std::string& filename);
     ~AsmGen();
     void execute();
-    //为局部变量 计算栈偏移量
-    void assign_offsets();
 
 public:
+    //为局部变量 计算栈偏移量
     static void writeln(const char *fmt, ...);
     static void enterContext(std::deque<Context *> &ctx);
     static void leaveContext(std::deque<Context *> ctx);
 
-    void registerMain();
-    void registerStrings();
-    void registerVars();
+    static void assign_offsets();
+    static void registerMain();
+    static void registerStrings();
+    static void registerVars();
     //创建全局string
     static void CreateGlobalString(StringExpr* expr);
 
-    void registerFuncs();
-    static void CreateFunction(Function* fn,std::deque<Context*> ctx);
+    static void registerFuncs();
+    static void CreateFunction(Function* fn);
     //寄存器相关
     static void Store_gp(int r, int offset, int sz);
     static void Store();
