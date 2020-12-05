@@ -28,8 +28,6 @@ AsmGen::~AsmGen() {
 }
 void AsmGen::execute()
 {
-    //register main
-    registerMain();
     //register package
     for(auto it : Package::packages){
         Package* pkg = it.second;

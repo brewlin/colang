@@ -55,3 +55,12 @@ bool Package::parse()
     }
     return true;
 }
+
+Function* Package::getFunc(const std::string &name, bool is_extern){
+    for(auto it : parsers){
+        Parser* parser = it.second;
+        Function* ret  = parser->getFunc(name,is_extern);
+        if(ret) return ret;
+    }
+    return nullptr;
+}

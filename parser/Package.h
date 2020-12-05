@@ -24,6 +24,7 @@ public:
     ~Package();
     bool      parse();
     void      asmgen();
+    Function* getFunc(const std::string &name, bool is_extern);
 
 public:
     //map[filepath + name] = parser

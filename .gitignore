@@ -26,3 +26,4 @@ tests/tmp.s
 tests/do
 tests/co
 tests/colang
+tests/*.s

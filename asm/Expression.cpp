@@ -273,18 +273,22 @@ void  FunCallExpr::asmgen(std::deque<Context*> ctx)
     }
     //如果没有加包名 就默认加上当前包名进行调用
     std::string realfuncname = this->package + "." + funcname;
-    if(!is_pkgcall)
+    std::string callpkg      = this->package;
+    if(!is_pkgcall){
         realfuncname = cfunc->parser->getpkgname() + "." + this->funcname;
+        callpkg      = cfunc->parser->getpkgname();
+    }
 
     //判断是否是进行外部函数调用
     bool is_extern = false;
     if(this->package == "_"){
         realfuncname = cfunc->parser->getpkgname() + "." + this->funcname;
+        callpkg      = cfunc->parser->getpkgname();
         is_extern = true;
     }
-
+    Package *pkg  = Package::packages[callpkg];
     //函数查找
-    if(auto* func = AsmGen::parser->getFunc(realfuncname,is_extern); func != nullptr)
+    if(auto* func = pkg->getFunc(realfuncname,is_extern); func != nullptr)
     {
 
         //只会进行提示，现在默认已实现不足6个参数会默认置0

@@ -7,13 +7,17 @@
 void Parser::asmgen()
 {    
     std::string fullname = filename + ".s";
-    std::ofstream out(fullname,std::ios::app);
+    std::ofstream out(fullname);
     AsmGen::out = &out;
     if(out.fail()){
         parse_err("genrate assembly file failed package:%s file:%s",pkg->package.c_str(),
         filename.c_str());
     }
     AsmGen::parser = this;
+    if(package == "main"){
+        //register main
+        AsmGen::registerMain();
+    }
     //1 计算变量的栈偏移量
     AsmGen::assign_offsets();
     //2 注册全局 var
