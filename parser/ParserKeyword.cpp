@@ -195,7 +195,7 @@ void Parser::parseGlobalDef()
 
     VarExpr* varexpr = new VarExpr(var,line,column);
     //没有在函数作用内之外的都为全局变量，存储在静态代码区
-    gvars[package + "." + var] = varexpr;
+    gvars[var] = varexpr;
     varexpr->is_local = false;
     varexpr->package  = this->package;
 }
