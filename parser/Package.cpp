@@ -47,6 +47,8 @@ bool Package::parse()
 
             //不需要释放，在汇编生成的时候需要用到
             Parser *parser = new Parser(filepath,this,package);
+            // parser->fileno = Parser::count ++;
+            parser->fileno = 1;
             parser->parse();
             parsers[filepath] = parser;
         }

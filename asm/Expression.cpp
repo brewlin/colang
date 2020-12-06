@@ -15,6 +15,7 @@
 
 void  NullExpr::asmgen(std::deque<Context*> ctx)
 {
+    AsmGen::writeln("  .loc %d %d %d",AsmGen::parser->fileno,line,column);
     Internal::newobject(Null,0);
 //    Internal::gc_malloc();
 //    AsmGen::writeln("  mov $%ld, (%%rax)", Null);
@@ -22,6 +23,7 @@ void  NullExpr::asmgen(std::deque<Context*> ctx)
 }
 void  BoolExpr::asmgen(std::deque<Context*> ctx)
 {
+    AsmGen::writeln("  .loc %d %d %d",AsmGen::parser->fileno,line,column);
     Internal::newobject(Bool,this->literal);
 //    Internal::gc_malloc();
 //    AsmGen::writeln("  mov $%ld, (%%rax)", Bool);
@@ -29,6 +31,7 @@ void  BoolExpr::asmgen(std::deque<Context*> ctx)
 }
 void  CharExpr::asmgen(
                          std::deque<Context*> ctx) {
+    AsmGen::writeln("  .loc %d %d %d",AsmGen::parser->fileno,line,column);
 
     Internal::newobject(Char,this->literal);
 //    Internal::gc_malloc();
@@ -38,6 +41,7 @@ void  CharExpr::asmgen(
 }
 
 void  IntExpr::asmgen( std::deque<Context*> ctx) {
+    AsmGen::writeln("  .loc %d %d %d",AsmGen::parser->fileno,line,column);
 
     Internal::newobject(Int,this->literal);
 //    Internal::gc_malloc();
@@ -48,8 +52,8 @@ void  IntExpr::asmgen( std::deque<Context*> ctx) {
 
 }
 
-void  DoubleExpr::asmgen(
-                           std::deque<Context*> ctx) {
+void  DoubleExpr::asmgen(std::deque<Context*> ctx) {
+    AsmGen::writeln("  .loc %d %d %d",AsmGen::parser->fileno,line,column);
     Internal::newobject(Double,this->literal);
 //    Internal::gc_malloc();
 //    AsmGen::writeln("  mov $%ld, (%%rax)", Double);
@@ -58,9 +62,9 @@ void  DoubleExpr::asmgen(
 
 }
 
-void  StringExpr::asmgen(
-                         std::deque<Context*> ctx) {
+void  StringExpr::asmgen(std::deque<Context*> ctx) {
 
+    AsmGen::writeln("  .loc %d %d %d",AsmGen::parser->fileno,line,column);
     //string类型 传的是地址 需要调用方构造
     AsmGen::writeln("  lea %s(%%rip), %%rsi", name.c_str());
     Internal::newobject(String,0);
@@ -78,6 +82,7 @@ void  StringExpr::asmgen(
  * @return
  */
 void  ArrayExpr::asmgen(std::deque<Context*> ctx){
+    AsmGen::writeln("  .loc %d %d %d",AsmGen::parser->fileno,line,column);
     //new array & push array
     Internal::newobject(Array, 0);
     AsmGen::Push();
@@ -99,6 +104,7 @@ void  ArrayExpr::asmgen(std::deque<Context*> ctx){
  */
 void  MapExpr::asmgen(std::deque<Context*> ctx){
     Debug("MapExpr: parsing... package:%s func:%s",package.c_str(),funcname.c_str());
+    AsmGen::writeln("  .loc %d %d %d",AsmGen::parser->fileno,line,column);
 
     //new array & push array
     Internal::newobject(Map, 0);
@@ -119,6 +125,7 @@ void  MapExpr::asmgen(std::deque<Context*> ctx){
  */
 void  KVExpr::asmgen(std::deque<Context*> ctx){
     Debug("KVExpr: parsing... package:%s func:%s",package.c_str(),funcname.c_str());
+    AsmGen::writeln("  .loc %d %d %d",AsmGen::parser->fileno,line,column);
 
     //push key
     this->key->asmgen(ctx);
@@ -136,6 +143,7 @@ void  KVExpr::asmgen(std::deque<Context*> ctx){
  * @return
  */
 void  VarExpr::asmgen(std::deque<Context*> ctx){
+    AsmGen::writeln("  .loc %d %d %d",AsmGen::parser->fileno,line,column);
     VarExpr* var;
     //检查全局变量,1s_local有两层含义
     //1. 在asm阶段表示是否为全局变量
@@ -189,6 +197,7 @@ void  VarExpr::asmgen(std::deque<Context*> ctx){
  * @return
  */
 void  IndexExpr::asmgen(std::deque<Context*> ctx) {
+    AsmGen::writeln("  .loc %d %d %d",AsmGen::parser->fileno,line,column);
     VarExpr* var;
     std::string   package = this->package;
     //看看是否是包变量调用
@@ -254,6 +263,7 @@ void  IndexExpr::asmgen(std::deque<Context*> ctx) {
 void  FunCallExpr::asmgen(std::deque<Context*> ctx)
 {
     Debug("FunCallExpr: parsing... package:%s func:%s",package.c_str(),funcname.c_str());
+    AsmGen::writeln("  .loc %d %d %d",AsmGen::parser->fileno,line,column);
     //gp 通用寄存器个数统计
     //fp 浮点数寄存器个数统计
     int gp = 0, fp = 0;
@@ -346,6 +356,7 @@ void  FunCallExpr::asmgen(std::deque<Context*> ctx)
  */
 void  AssignExpr::asmgen(std::deque<Context*> ctx){
 
+    AsmGen::writeln("  .loc %d %d %d",AsmGen::parser->fileno,line,column);
     Debug("AssignExpr: parsing... lhs:%s opt:%s rhs:%s",
           lhs->toString().c_str(),
           getTokenString(opt).c_str(),
@@ -464,6 +475,7 @@ void  AssignExpr::asmgen(std::deque<Context*> ctx){
  */
 void  BinaryExpr::asmgen(std::deque<Context*> ctx)
 {
+    AsmGen::writeln("  .loc %d %d %d",AsmGen::parser->fileno,line,column);
     Debug("BinaryExpr: parsing... lhs:%s opt:%s rhs:%s",
           lhs->toString().c_str(),
           getTokenString(opt).c_str(),

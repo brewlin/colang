@@ -13,6 +13,7 @@ void Parser::asmgen()
         filename.c_str());
     }
     AsmGen::parser = this;
+    AsmGen::writeln("  .file %d \"%s\"",fileno,filepath.c_str());
     if(package == "main"){
         //register main
         AsmGen::registerMain();

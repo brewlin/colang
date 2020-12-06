@@ -97,10 +97,12 @@ private:
 
     std::vector<std::string> parseParameterList();
     std::vector<Statement*>  parseStatementList();
-private:
+public:
+    static int count;
     //记录当前词法分析行|列
     int line = 1;
     int column = 0;
+    int fileno = 1;
     //打开脚本文件
     std::fstream fs;
     //保存关键字
@@ -115,6 +117,7 @@ private:
 	std::string package;
     std::string filename;
     std::string asmfile;
+    std::string filepath;
 
 };
 

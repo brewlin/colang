@@ -6,6 +6,7 @@
 #include "Block.h"
 #include "Log.h"
 
+int Parser::count = 1;
 /**
  * 解析 脚本文件
  * @param filename
@@ -14,7 +15,8 @@ Parser::Parser(const std::string &filepath,Package* pkg,std::string package):
 pkg(pkg),
 //clear
 currentFunc(nullptr),
-package(package)
+package(package),
+filepath(filepath)
 {
     keywords["if"]       = KW_IF;
     keywords["else"]     = KW_ELSE;
