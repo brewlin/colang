@@ -272,23 +272,20 @@ void  FunCallExpr::asmgen(std::deque<Context*> ctx)
         }
     }
     //如果没有加包名 就默认加上当前包名进行调用
-    std::string realfuncname = this->package + "." + funcname;
-    std::string callpkg      = this->package;
+    std::string package = this->package;
     if(!is_pkgcall){
-        realfuncname = cfunc->parser->getpkgname() + "." + this->funcname;
-        callpkg      = cfunc->parser->getpkgname();
+        package      = cfunc->parser->getpkgname();
     }
 
     //判断是否是进行外部函数调用
     bool is_extern = false;
     if(this->package == "_"){
-        realfuncname = cfunc->parser->getpkgname() + "." + this->funcname;
-        callpkg      = cfunc->parser->getpkgname();
+        package      = cfunc->parser->getpkgname();
         is_extern = true;
     }
-    Package *pkg  = Package::packages[callpkg];
+    Package *pkg  = Package::packages[package];
     //函数查找
-    if(auto* func = pkg->getFunc(realfuncname,is_extern); func != nullptr)
+    if(auto* func = pkg->getFunc(funcname,is_extern); func != nullptr)
     {
 
         //只会进行提示，现在默认已实现不足6个参数会默认置0
@@ -304,10 +301,12 @@ void  FunCallExpr::asmgen(std::deque<Context*> ctx)
                 AsmGen::Pop(AsmGen::argreg64[gp++]);
 
         //需要判断是不是外部链接函数，否则需要加上包名
-        if(func->isExtern)
+        if(func->isExtern){
             AsmGen::writeln("  mov %s@GOTPCREL(%%rip), %%rax", funcname.c_str());
-        else
+        }else{
+            std::string realfuncname = package + "." + funcname;
             AsmGen::writeln("  mov %s@GOTPCREL(%%rip), %%rax", realfuncname.c_str());
+        }
 
         AsmGen::writeln("  mov %%rax, %%r10");
         AsmGen::writeln("  mov $%d, %%rax", fp);

@@ -6,12 +6,10 @@
  */
 void Parser::addFunc(const std::string &name, Function *f)
 {
-    //函数名是 包名 + 函数名
-    std::string realfuncname = f->parser->getpkgname() + "." + name;
     if(f->isExtern)
-        extern_funcs.insert(std::make_pair(realfuncname,f));
+        extern_funcs.insert(std::make_pair(name,f));
     else
-        funcs.insert(std::make_pair(realfuncname,f));
+        funcs.insert(std::make_pair(name,f));
 }
 /**
  * 检查是否存在该函数
