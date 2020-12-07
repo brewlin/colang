@@ -31,7 +31,7 @@ filepath(filepath)
     keywords["continue"] = KW_CONTINUE;
     keywords["import"]   = KW_IMPORT;
     keywords["extern"]   = KW_EXTERN;
-    keywords["struct"]   = KW_STRUCT;
+    keywords["class"]   = KW_CLASS;
     keywords["new"]      = KW_NEW;
     keywords["go"]       = KW_GO;
     keywords["package"]  = KW_PACKAGE;
@@ -76,7 +76,7 @@ void Parser::parse()
         } else if(getCurrentToken() == KW_IMPORT){
 			parseImportDef();
 		//解析结构体类定义
-		} else if(getCurrentToken() == KW_STRUCT){
+		} else if(getCurrentToken() == KW_CLASS){
             parseClassDef();
         //解析全局变量定义
         }else{

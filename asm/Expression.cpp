@@ -507,6 +507,18 @@ void  BinaryExpr::asmgen(std::deque<Context*> ctx)
 void  NewExpr::asmgen(std::deque<Context*> ctx)
 {
 
+    AsmGen::writeln("  .loc %d %d %d",AsmGen::parser->fileno,line,column);
+    Debug("new expr got: type:%s",this->type.c_str());
+    //获取struct 类型
+    Class* s = AsmGen::parser->getClass(this->type);
+    if(!s){
+        parse_err(
+            "AsmError: class is not define of %s "
+            "line:%d column:%d \n\n",
+            type.c_str(),this->line,this->column);
+    }
+    Internal::newobject(Object,s->members.size());
+
 }
 /**
  *

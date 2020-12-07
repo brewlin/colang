@@ -1,0 +1,15 @@
+package main
+
+import fmt
+
+class http {
+    request
+    response
+    func handler(){
+
+    }
+}
+
+func main(){
+
+}

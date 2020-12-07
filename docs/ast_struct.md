@@ -11,7 +11,7 @@ struct http
 ```
 
 ```
-struct  : KW_STRUCT
+struct  : KW_CLASS
 http    : structname
 {       : TK_LBRACE
 post    : varname

@@ -42,7 +42,7 @@ void Parser::parsePackageDef()
 void Parser::parseClassDef()
 {
     Debug("found struct.start parser..");
-    assert(getCurrentToken() == KW_STRUCT);
+    assert(getCurrentToken() == KW_CLASS);
     //解析结构体名
     currentToken = scan();
     //must TK_VAR

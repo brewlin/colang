@@ -71,7 +71,7 @@ std::string getTokenString(Token tk){
         case KW_EXTERN:	return "extern";
         case KW_IMPORT:	return "import";
         case KW_GO:	return "go";
-        case KW_STRUCT:	return "struct";
+        case KW_CLASS:	return "class";
         case KW_PACKAGE:	return "package";
         case TK_DELREF:	return "(*)var";
         default:	return "undefine";
