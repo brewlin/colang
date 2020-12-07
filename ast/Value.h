@@ -12,10 +12,10 @@
 /**
  * 函数
  */
-struct Struct {
+struct Class {
     //函数定义 函数声明  外部函数
-    explicit Struct(){};
-    ~Struct(){}
+    explicit Class(){};
+    ~Class(){}
 
     std::string name;
     //成员变量

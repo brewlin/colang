@@ -46,7 +46,7 @@ Function* Parser::getFunc(const std::string &name, bool is_extern)
  * @param name
  * @param f
  */
-void Parser::addStruct(const std::string &name, Struct *f)
+void Parser::addClass(const std::string &name, Class *f)
 {
     structs.insert(std::make_pair(name,f));
 }
@@ -55,16 +55,16 @@ void Parser::addStruct(const std::string &name, Struct *f)
  * @param name
  * @return
  */
-bool Parser::hasStruct(const std::string &name)
+bool Parser::hasClass(const std::string &name)
 {
     return structs.count(name) == 1;
 }
 /**
- * 获取一个Struct
+ * 获取一个Class
  * @param name
  * @return
  */
-Struct* Parser::getStruct(const std::string &name)
+Class* Parser::getClass(const std::string &name)
 {
     if(auto f = structs.find(name);f != structs.end())
         return f->second;

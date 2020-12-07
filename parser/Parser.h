@@ -41,7 +41,7 @@ public:
     void asmgen();
 
     //存储结构体定义
-    std::unordered_map<std::string,Struct*>    structs;
+    std::unordered_map<std::string,Class*>    structs;
     //全局变量
     std::unordered_map<std::string,VarExpr*>   gvars;
     //存储全局函数
@@ -53,9 +53,9 @@ public:
     void            addFunc(const std::string &name,   Function *f);
     bool            hasFunc(const std::string &name,   bool is_extern = false);
     Function*       getFunc(const std::string &name,   bool is_extern);
-    void            addStruct(const std::string &name, Struct *f);
-    bool            hasStruct(const std::string &name);
-    Struct*         getStruct(const std::string &name);
+    void            addClass(const std::string &name, Class *f);
+    bool            hasClass(const std::string &name);
+    Class*          getClass(const std::string &name);
 
 private:
     //get|peek next char
@@ -68,7 +68,7 @@ private:
     void 			parseImportDef();
     Function*       parseFuncDef();
     Function*       parseExternDef();
-    void            parseStructDef();
+    void            parseClassDef();
     void            parsePackageDef();
     void            parseGlobalDef();
 

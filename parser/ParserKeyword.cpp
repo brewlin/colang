@@ -39,7 +39,7 @@ void Parser::parsePackageDef()
 /**
  * 解析结构体定义
  */
-void Parser::parseStructDef()
+void Parser::parseClassDef()
 {
     Debug("found struct.start parser..");
     assert(getCurrentToken() == KW_STRUCT);
@@ -47,7 +47,7 @@ void Parser::parseStructDef()
     currentToken = scan();
     //must TK_VAR
     assert(getCurrentToken() == TK_VAR);
-    Struct *s = new Struct();
+    Class *s = new Class();
     s->name  = getCurrentLexeme();
     currentToken = scan();
 
@@ -79,7 +79,7 @@ void Parser::parseStructDef()
         }
 
     }
-    this->addStruct(s->name,s);
+    this->addClass(s->name,s);
     //eat }
     currentToken = scan();
 }

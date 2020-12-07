@@ -77,7 +77,7 @@ void Parser::parse()
 			parseImportDef();
 		//解析结构体类定义
 		} else if(getCurrentToken() == KW_STRUCT){
-            parseStructDef();
+            parseClassDef();
         //解析全局变量定义
         }else{
             parseGlobalDef();
