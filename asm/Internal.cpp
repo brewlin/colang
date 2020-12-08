@@ -1,5 +1,7 @@
 #include "Internal.h"
 #include "AsmGen.h"
+#include <functional>
+#include <string>
 /**
  * rsp 栈顶是 lhs
  * rax 寄存器是 rhs
@@ -18,6 +20,22 @@ void Internal::call_operator(Token opt,std::string name)
     //第二个参数 lhs 在栈顶的
     AsmGen::Pop("%rsi");
     call(name);
+}
+
+void Internal::call_object_operator(Token opt, std::string name) {
+    //第一个参数
+    AsmGen::writeln("  mov $%ld, %%rdi", opt);
+    //第四个参数是 rhs
+    AsmGen::Pop("%rcx");
+
+    //第三个参数  name
+    std::hash<std::string> hash_key;
+    size_t hk = hash_key(name);
+    AsmGen::writeln("  mov $%ld,%%rdx",hk);
+
+    //第二个参数  obj
+    AsmGen::Pop("%rsi");
+    call("obj_operator");
 }
 void Internal::gc_malloc()
 {

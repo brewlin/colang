@@ -20,6 +20,14 @@ void AsmGen::registerStrings()
         var->name = r;
         CreateGlobalString(var);
     }
+//    将全部结构体成员变量名保留下来
+//    for(auto iter : parser->structs){
+//        Class *s = iter.second;
+//        for(auto m : s->members){
+//            writeln("%s:", m.c_str());
+//            writeln("  .string \"%s\"",m.c_str());
+//        }
+//    }
 
 }
 void AsmGen::registerVars()

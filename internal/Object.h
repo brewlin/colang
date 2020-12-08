@@ -9,7 +9,12 @@
 #define COLANG_OBJECT_H
 
 #include "Array.h"
+#include "Value.h"
+#include "Map.h"
 
-array_t* object_create(int size);
+rbtree_t* object_create(int size);
+Value* object_member_update(Value* object,char* name,Value* v);
+Value* object_member_get(Value* object, char* name);
+void   object_operator(int opt,Value* object,uint_t k,Value* value);
 
 #endif //COLANG_OBJECT_H

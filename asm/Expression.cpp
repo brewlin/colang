@@ -376,9 +376,29 @@ void  AssignExpr::asmgen(std::deque<Context*> ctx){
         VarExpr* varExpr = dynamic_cast<VarExpr*>(lhs);
         std::string package = AsmGen::currentFunc->parser->getpkgname() ;
         std::string varname = varExpr->varname;
-        //是否是包变量访问
+        /*
+         *1. 是否是包变量访问
+         *2. 是否是类成员变量访问
+         */
         if(!varExpr->is_local){
+
             package = varExpr->package;
+            //说明这是一个成员变量访问
+            if (auto *var = (ctx.back())->getVar(package);var != nullptr) {
+                //get var
+                //获取object对象
+                AsmGen::GenAddr(var);
+                AsmGen::Load();
+                AsmGen::Push();
+
+                //获取右边值
+                this->rhs->asmgen(ctx);
+                AsmGen::Push();
+                //运算需要调用统一的方法
+                Internal::call_object_operator(this->opt,varname);
+                return;
+            }
+            //说明这是一个跨包访问
             varExpr = Package::packages[package]->getGlobalVar(varname);
             //显式进行全局变量调用则需要强制检查
             if(!varExpr) parse_err("AsmError:use of undefined global variable %s at line %d co %d\n",

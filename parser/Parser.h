@@ -41,7 +41,7 @@ public:
     void asmgen();
 
     //存储结构体定义
-    std::unordered_map<std::string,Class*>    structs;
+    std::unordered_map<std::string,Class*>     structs;
     //全局变量
     std::unordered_map<std::string,VarExpr*>   gvars;
     //存储全局函数

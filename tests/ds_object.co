@@ -11,5 +11,11 @@ class http {
 }
 
 func main(){
+    b = new http()
+    #b.request = {
+    #    "method":"POST",
+    #    "server":["192.168.1.0","192.111.11.11"]
+    #}
+    #fmt.println(b.request)
 
 }
