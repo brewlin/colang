@@ -28,6 +28,8 @@ public:
     //map
     static void map_pushone();
 
+    //object
+    static void object_member_get(std::string name);
 };
 
 #endif //CO_LANG_INTERNAL_H

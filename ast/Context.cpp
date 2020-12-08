@@ -15,6 +15,18 @@ bool Context::hasVar(const std::string &varname)
     return vars.count(varname) == 1;
 
 }
+VarExpr* Context::getVar(std::deque<Context*> ctx,const std::string& varname)
+{
+    //变量遍历表 看是否存在
+    for(auto p = ctx.crbegin(); p != ctx.crend(); ++p){
+        auto* ctx = *p;
+
+        if(auto* var = ctx->getVar(varname);var != nullptr){
+            return var;
+        }
+    }
+    return nullptr;
+}
 /**
  * 添加变量
  * @param varname

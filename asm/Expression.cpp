@@ -150,6 +150,17 @@ void  VarExpr::asmgen(std::deque<Context*> ctx){
     //2. 在语法阶段表示当前变量是否是一个包变量访问如: pkg1.global_name
     std::string package = this->package;
     if(!is_local){
+        //说明这是一个成员变量访问
+        if (auto *var = Context::getVar(ctx,package);var != nullptr) {
+            //get var
+            //获取object对象
+            AsmGen::GenAddr(var);
+            AsmGen::Load();
+            AsmGen::Push();
+            //运算需要调用统一的方法
+            Internal::object_member_get(varname);
+            return;
+        }
         var  = Package::packages[package]->getGlobalVar(varname);
         //显式进行全局变量调用则需要强制检查
         if(!var) parse_err("AsmError:use of undefined global variable %s at line %d co %d\n",
@@ -384,7 +395,7 @@ void  AssignExpr::asmgen(std::deque<Context*> ctx){
 
             package = varExpr->package;
             //说明这是一个成员变量访问
-            if (auto *var = (ctx.back())->getVar(package);var != nullptr) {
+            if (auto *var = Context::getVar(ctx,package);var != nullptr) {
                 //get var
                 //获取object对象
                 AsmGen::GenAddr(var);

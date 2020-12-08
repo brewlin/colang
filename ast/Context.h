@@ -8,6 +8,7 @@
 #include "Value.h"
 #include <string>
 #include <map>
+#include <deque>
 
 
 /**
@@ -21,6 +22,8 @@ public:
     bool       hasVar(const std::string& varname);
     void       createVar(const std::string& varname,VarExpr* ident);
     VarExpr*   getVar(const std::string& varname);
+
+    static VarExpr* getVar(std::deque<Context*> ctx,const std::string& varname);
 
 public:
     //保存了作用域内的变量

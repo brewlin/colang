@@ -13,8 +13,8 @@
 #include "Map.h"
 
 rbtree_t* object_create(int size);
-Value* object_member_update(Value* object,char* name,Value* v);
-Value* object_member_get(Value* object, char* name);
+Value* object_member_update(Value* object,uint_t k,Value* v);
+Value* object_member_get(Value* object, uint_t k);
 void   object_operator(int opt,Value* object,uint_t k,Value* value);
 
 #endif //COLANG_OBJECT_H

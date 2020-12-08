@@ -11,30 +11,58 @@
 #include "Map.h"
 #include "string.h"
 #include "gcmalloc.h"
+
+void member_insert_or_update(rbtree_node_t *temp, rbtree_node_t *node,rbtree_node_t *sentinel)
+{
+    rbtree_node_t  **p;
+
+    for ( ;; ) {
+
+        if(node->key == temp->key){
+            temp->v = node->v;
+        }
+        p = (node->key < temp->key) ? &temp->left : &temp->right;
+
+        if (*p == sentinel) {
+            break;
+        }
+
+        temp = *p;
+    }
+
+    *p = node;
+    node->parent = temp;
+    node->left = sentinel;
+    node->right = sentinel;
+    rbt_red(node);
+}
 /**
  * @param size
  * @return
  */
 rbtree_t* object_create(int size){
-    rbtree_t *obj = map_create();
-    if (obj == NULL) {
+    rbtree_t      *tree     = gc_malloc(sizeof(rbtree_t));
+    rbtree_node_t *sentinel = gc_malloc(sizeof(rbtree_node_t));
+    rbtree_init(tree,sentinel,member_insert_or_update);
+
+    if (tree == NULL) {
         printf("[object_create] failed to create\n");
         return NULL;
     }
-    return obj;
+    return tree;
 }
-Value* object_member_update(Value* object,char* name,Value* v){
+Value* object_member_update(Value* object,uint_t k,Value* v){
 
-    Value* key = newobject(String,name);
+    Value* key = newobject(Int,k);
 
-    map_insert(object,name,v);
+    map_insert(object,key,v);
 }
-Value* object_member_get(Value* object, char* name){
-    Value* key = newobject(String,name);
+Value* object_member_get(Value* object, uint_t k){
+    Value* key = newobject(Int,k);
 
     Value* value = map_find(object,key);
     if(value == NULL){
-        printf("object_get] not find the memeber:%s value\n",name);
+        printf("object_get] not find the memeber:%d value\n",key);
         return newobject(Null,0);
     }
     return value;
@@ -45,10 +73,9 @@ void object_operator(int opt,Value* object,uint_t k,Value* value){
         return NULL;
     }
     Value* ret;
-    Value* key = newobject(Int,k);
     switch (opt){
         case TK_ASSIGN:
-            map_insert(object,key,value);
+            object_member_update(object,k,value);
             break;
 //        case TK_PLUS_AGN:
 //            ret = value_plus(*(Value**)lhs,rhs);break;

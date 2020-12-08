@@ -35,7 +35,7 @@ void Internal::call_object_operator(Token opt, std::string name) {
 
     //第二个参数  obj
     AsmGen::Pop("%rsi");
-    call("obj_operator");
+    call("object_operator");
 }
 void Internal::gc_malloc()
 {
@@ -103,4 +103,16 @@ void Internal::call(std::string funcname)
     AsmGen::writeln("  mov %%rax, %%r10");
     AsmGen::writeln("  mov $%d, %%rax", 0);
     AsmGen::writeln("  call *%%r10");
+}
+void Internal::object_member_get(std::string name)
+{
+    //第一个参数 object
+    AsmGen::Pop("%rdi");
+
+    //第二个参数  key
+    std::hash<std::string> hash_key;
+    size_t hk = hash_key(name);
+    AsmGen::writeln("  mov $%ld,%%rsi",hk);
+    call("object_member_get");
+
 }
