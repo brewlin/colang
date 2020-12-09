@@ -14,6 +14,7 @@ class http {
 }
 
 func main(){
+    # 测试 成员变量的查询和更新
     test_member_get_or_update()
 }
 
