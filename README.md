@@ -43,6 +43,8 @@ gcc version 7.5.0 (Ubuntu 7.5.0-3ubuntu1~18.04)
 - [x] map
 - [x] array
 - [ ] object
+    - [x] member variable `[update,get,unary-op,binary-op]`
+    - [ ] member function
 ```
 package main
 import fmt
