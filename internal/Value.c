@@ -361,27 +361,52 @@ int isTrue(Value* cond){
  * @param lhs
  * @param rhs
  */
-Value* unary_operator_switch(int opt,Value* lhs,Value* rhs){
+Value* operator_switch(int opt,Value* lhs,Value* rhs){
     Value* ret;
     switch (opt){
         case TK_ASSIGN:
             ret = rhs;break;
+
         case TK_PLUS_AGN:
-            ret = value_plus(lhs,rhs);break;
+        case TK_PLUS:// +
+            ret =  value_plus(lhs,rhs);break;
         case TK_MINUS_AGN:
+        case TK_MINUS:// -
             ret = value_minus(lhs,rhs);break;
         case TK_MUL_AGN:
-            ret = value_mul(lhs,rhs);break;
+        case TK_MUL:// *
+            ret =  value_mul(lhs,rhs);break;
         case TK_DIV_AGN:
-            ret = value_div(lhs,rhs);break;
+        case TK_DIV:// \ .
+            ret =  value_div(lhs,rhs);break;
         case TK_BITAND_AGN:
-            ret = value_bitand(lhs,rhs);break;
+        case TK_BITAND:// &
+            ret =  value_bitand(lhs,rhs);break;
         case TK_BITOR_AGN:
-            ret = value_bitor(lhs,rhs);break;
+        case TK_BITOR:// |
+            ret =  value_bitor(lhs,rhs);break;
         case TK_SHIFTL_AGN:
-            ret = value_shift_left(lhs,rhs);break;
+        case TK_SHIFTL:
+            ret =  value_shift_left(lhs,rhs);break;
         case TK_SHIFTR_AGN:
-            ret = value_shift_right(lhs,rhs);break;
+        case TK_SHIFTR:
+            ret =  value_shift_right(lhs,rhs);break;
+        case TK_LT:// <
+            ret =  value_lowerthan(lhs,rhs,FALSE);break;
+        case TK_LE:// <=
+            ret =  value_lowerthan(lhs,rhs,TRUE);break;
+        case TK_GE:// >=
+            ret =  value_greaterthan(lhs,rhs,TRUE);break;
+        case TK_GT:// >
+            ret =  value_greaterthan(lhs,rhs,FALSE);break;
+        case TK_EQ:// ==
+            ret =  value_equal(lhs,rhs,TRUE);break;
+        case TK_NE:// !=
+            ret =  value_equal(lhs,rhs,FALSE);break;
+        case TK_LOGAND:// &&
+            ret =  value_logand(lhs,rhs);break;
+        case TK_LOGOR:// ||
+            ret =  value_logor(lhs,rhs);break;
         default:
             printf(" [unary-op] unkown op:%d\n",opt);
             ret = rhs;
@@ -401,7 +426,7 @@ void unary_operator(int opt,Value *lhs,Value* rhs)
         printf(" [unary-op] probably wrong at there! lhs:%p rhs:%p\n",lhs,rhs);
         return;
     }
-    Value* ret = unary_operator_switch(opt,*(Value**)lhs,rhs);
+    Value* ret = operator_switch(opt,*(Value**)lhs,rhs);
     // assign =
     *(Value**)lhs = ret;
 }
@@ -417,46 +442,7 @@ Value* binary_operator(int opt, Value *lhs, Value* rhs)
         printf(" [binary-op] probably wrong at there! lhs:%p rhs:%p\n",lhs,rhs);
         return NULL;
     }
-    Value* ret;
-    switch (opt){
-        case TK_PLUS:// +
-            ret =  value_plus(lhs,rhs);break;
-        case TK_MINUS:// -
-            ret = value_minus(lhs,rhs);break;
-        case TK_MUL:// *
-            ret =  value_mul(lhs,rhs);break;
-        case TK_DIV:// \ .
-            ret =  value_div(lhs,rhs);break;
-
-        case TK_BITAND:// &
-            ret =  value_bitand(lhs,rhs);break;
-        case TK_BITOR:// |
-            ret =  value_bitor(lhs,rhs);break;
-        case TK_SHIFTL:
-            ret =  value_shift_left(lhs,rhs);break;
-        case TK_SHIFTR:
-            ret =  value_shift_right(lhs,rhs);break;
-
-        case TK_LT:// <
-            ret =  value_lowerthan(lhs,rhs,FALSE);break;
-        case TK_LE:// <=
-            ret =  value_lowerthan(lhs,rhs,TRUE);break;
-        case TK_GE:// >=
-            ret =  value_greaterthan(lhs,rhs,TRUE);break;
-        case TK_GT:// >
-            ret =  value_greaterthan(lhs,rhs,FALSE);break;
-        case TK_EQ:// ==
-            ret =  value_equal(lhs,rhs,TRUE);break;
-        case TK_NE:// !=
-            ret =  value_equal(lhs,rhs,FALSE);break;
-        case TK_LOGAND:// &&
-            ret =  value_logand(lhs,rhs);break;
-        case TK_LOGOR:// ||
-            ret =  value_logor(lhs,rhs);break;
-        default:
-            printf(" [binary-op] unknow op:%d \n",opt);
-            return NULL;
-    }
+    Value* ret = operator_switch(opt,lhs,rhs);
     if((ret->data == 1 && ret->type == String) || ret == 0x7ffff7fad090){
         printf("some erro");
     }

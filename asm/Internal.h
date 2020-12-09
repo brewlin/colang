@@ -12,8 +12,6 @@ class Internal
 {
 public:
     static void call_operator(Token opt,std::string name);
-    //专门为对象定制的
-    static void call_object_operator(Token opt,std::string name);
     static void newobject(int type,long data);
     static void gc_malloc();
     static void isTrue();
@@ -30,6 +28,7 @@ public:
 
     //object
     static void object_member_get(std::string name);
+    static void call_object_operator(Token opt,std::string name,std::string method);
 };
 
 #endif //CO_LANG_INTERNAL_H

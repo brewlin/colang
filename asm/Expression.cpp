@@ -406,7 +406,7 @@ void  AssignExpr::asmgen(std::deque<Context*> ctx){
                 this->rhs->asmgen(ctx);
                 AsmGen::Push();
                 //运算需要调用统一的方法
-                Internal::call_object_operator(this->opt,varname);
+                Internal::call_object_operator(this->opt,varname,"object_unary_operator");
                 return;
             }
             //说明这是一个跨包访问
@@ -517,6 +517,7 @@ void  BinaryExpr::asmgen(std::deque<Context*> ctx)
             "line:%d column:%d \n\n"
             "expression:\n%s\n",
             this->line,this->column,this->toString().c_str());
+
     //保存rax寄存器的值 因为下面右值计算的时候会用到rax寄存器
     this->lhs->asmgen(ctx);
     AsmGen::Push();

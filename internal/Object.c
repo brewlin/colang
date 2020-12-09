@@ -67,12 +67,14 @@ Value* object_member_get(Value* object, uint_t k){
     }
     return value;
 }
-void object_operator(int opt,Value* object,uint_t k,Value* value){
+void object_unary_operator(int opt,Value* object,uint_t k,Value* value){
     if( !object || !value ){
-        printf(" [object-op] probably wrong at there! object:%p rhs:%p\n",object,value);
+        printf(" [object-uop] probably wrong at there! object:%p rhs:%p\n",object,value);
         return NULL;
     }
     Value* key = object_member_get(object,k);
-    Value* ret = unary_operator_switch(opt,key,value);
+    Value* ret = operator_switch(opt,key,value);
     object_member_update(object,k,ret);
 }
+
+

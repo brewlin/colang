@@ -22,7 +22,7 @@ void Internal::call_operator(Token opt,std::string name)
     call(name);
 }
 
-void Internal::call_object_operator(Token opt, std::string name) {
+void Internal::call_object_operator(Token opt, std::string name,std::string method) {
     //第一个参数
     AsmGen::writeln("  mov $%ld, %%rdi", opt);
     //第四个参数是 rhs
@@ -35,7 +35,7 @@ void Internal::call_object_operator(Token opt, std::string name) {
 
     //第二个参数  obj
     AsmGen::Pop("%rsi");
-    call("object_operator");
+    call(method);
 }
 void Internal::gc_malloc()
 {

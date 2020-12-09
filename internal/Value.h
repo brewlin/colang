@@ -83,7 +83,7 @@ Value* value_logor(Value* lhs,Value* rhs);
 int isTrue(Value* cond);
 Value* binary_operator(int opt, Value *lhs, Value* rhs);
 void   unary_operator(int opt, Value *lhs, Value* rhs);
-Value* unary_operator_switch(int opt,Value* lhs,Value* rhs);
+Value* operator_switch(int opt,Value* lhs,Value* rhs);
 
 /*********************arr|map**************************/
 void   kv_update(Value* root,Value* index,Value* var);
