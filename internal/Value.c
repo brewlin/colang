@@ -360,6 +360,39 @@ int isTrue(Value* cond){
  * @param opt
  * @param lhs
  * @param rhs
+ */
+Value* unary_operator_switch(int opt,Value* lhs,Value* rhs){
+    Value* ret;
+    switch (opt){
+        case TK_ASSIGN:
+            ret = rhs;break;
+        case TK_PLUS_AGN:
+            ret = value_plus(lhs,rhs);break;
+        case TK_MINUS_AGN:
+            ret = value_minus(lhs,rhs);break;
+        case TK_MUL_AGN:
+            ret = value_mul(lhs,rhs);break;
+        case TK_DIV_AGN:
+            ret = value_div(lhs,rhs);break;
+        case TK_BITAND_AGN:
+            ret = value_bitand(lhs,rhs);break;
+        case TK_BITOR_AGN:
+            ret = value_bitor(lhs,rhs);break;
+        case TK_SHIFTL_AGN:
+            ret = value_shift_left(lhs,rhs);break;
+        case TK_SHIFTR_AGN:
+            ret = value_shift_right(lhs,rhs);break;
+        default:
+            printf(" [unary-op] unkown op:%d\n",opt);
+            ret = rhs;
+    }
+    return ret;
+}
+/**
+ *
+ * @param opt
+ * @param lhs
+ * @param rhs
  * @return
  */
 void unary_operator(int opt,Value *lhs,Value* rhs)
@@ -368,30 +401,7 @@ void unary_operator(int opt,Value *lhs,Value* rhs)
         printf(" [unary-op] probably wrong at there! lhs:%p rhs:%p\n",lhs,rhs);
         return;
     }
-    Value* ret;
-    switch (opt){
-        case TK_ASSIGN:
-            ret = rhs;break;
-        case TK_PLUS_AGN:
-            ret = value_plus(*(Value**)lhs,rhs);break;
-        case TK_MINUS_AGN:
-            ret = value_minus(*(Value**)lhs,rhs);break;
-        case TK_MUL_AGN:
-            ret = value_mul(*(Value**)lhs,rhs);break;
-        case TK_DIV_AGN:
-            ret = value_div(*(Value**)lhs,rhs);break;
-        case TK_BITAND_AGN:
-            ret = value_bitand(*(Value**)lhs,rhs);break;
-        case TK_BITOR_AGN:
-            ret = value_bitor(*(Value**)lhs,rhs);break;
-        case TK_SHIFTL_AGN:
-            ret = value_shift_left(*(Value**)lhs,rhs);break;
-        case TK_SHIFTR_AGN:
-            ret = value_shift_right(*(Value**)lhs,rhs);break;
-        default:
-            printf(" [unary-op] unkown op:%d\n",opt);
-            ret = rhs;
-    }
+    Value* ret = unary_operator_switch(opt,*(Value**)lhs,rhs);
     // assign =
     *(Value**)lhs = ret;
 }

@@ -72,32 +72,7 @@ void object_operator(int opt,Value* object,uint_t k,Value* value){
         printf(" [object-op] probably wrong at there! object:%p rhs:%p\n",object,value);
         return NULL;
     }
-    Value* ret;
-    switch (opt){
-        case TK_ASSIGN:
-            object_member_update(object,k,value);
-            break;
-//        case TK_PLUS_AGN:
-//            ret = value_plus(*(Value**)lhs,rhs);break;
-//        case TK_MINUS_AGN:
-//            ret = value_minus(*(Value**)lhs,rhs);break;
-//        case TK_MUL_AGN:
-//            ret = value_mul(*(Value**)lhs,rhs);break;
-//        case TK_DIV_AGN:
-//            ret = value_div(*(Value**)lhs,rhs);break;
-//        case TK_BITAND_AGN:
-//            ret = value_bitand(*(Value**)lhs,rhs);break;
-//        case TK_BITOR_AGN:
-//            ret = value_bitor(*(Value**)lhs,rhs);break;
-//        case TK_SHIFTL_AGN:
-//            ret = value_shift_left(*(Value**)lhs,rhs);break;
-//        case TK_SHIFTR_AGN:
-//            ret = value_shift_right(*(Value**)lhs,rhs);break;
-        default:
-            printf(" [obj-unary-op] unkown op:%d\n",opt);
-//            ret = rhs;
-    }
-    // assign =
-//    *(Value**)lhs = ret;
-
+    Value* key = object_member_get(object,k);
+    Value* ret = unary_operator_switch(opt,key,value);
+    object_member_update(object,k,ret);
 }
