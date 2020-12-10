@@ -59,13 +59,13 @@ void Parser::parseClassDef()
     while(getCurrentToken() != TK_RBRACE){
         //定义成员变量
         if(getCurrentToken() == TK_VAR){
-//            s->members.push_back(new IdentDeclaration(getCurrentLexeme(),line,column));
             s->members.push_back(getCurrentLexeme());
             currentToken = scan();
 
         // 定义成员函数函数
         }else if(getCurrentToken() == KW_FUNC){
-            Function *f = parseFuncDef();
+            //解析成员函数
+            Function *f = parseFuncDef(true);
             assert(f != nullptr);
             //成员函数
             f->isObj = true;
@@ -85,9 +85,10 @@ void Parser::parseClassDef()
 }
 /**
  * 解析函数表达式
+ * @param member 表示当前函数是否为成员函数
  * @return
  */
-Function* Parser::parseFuncDef()
+Function* Parser::parseFuncDef(bool member)
 {
     Debug("found function. start parser..");
     //当前是否已经解析到 func 关键字
@@ -108,8 +109,17 @@ Function* Parser::parseFuncDef()
     //指向 func name'(') 括号
     currentToken = scan();
     assert(getCurrentToken() == TK_LPAREN);
+
+    //如果为成员函数需要填充第一个 this 参数
+    if(member){
+        VarExpr* var = new VarExpr("this",line,column);
+        node->params_var[getCurrentLexeme()] = var;
+        node->params_order_var.push_back(var);
+        node->params.push_back("this");
+    }
+    auto params  = parseParameterList();
     //解析函数参数
-    node->params = parseParameterList();
+    node->params.insert(node->params.end(),params.begin(),params.end());
     //解析block 函数主体表达式
     node->block = parseBlock();
     //leave parse function

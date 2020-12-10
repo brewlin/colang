@@ -26,6 +26,8 @@ void Parser::asmgen()
     AsmGen::registerStrings();
     //4 注册 函数信息
     AsmGen::registerFuncs();
+    //5 注册 对象
+    AsmGen::registerObjects();
     AsmGen::parser = nullptr;
 
 

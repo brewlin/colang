@@ -12,8 +12,8 @@
  */
 void Compiler::registerStruct()
 {
-    Debug("start regist structs");
-    for(auto v : rt->structs){
+    Debug("start regist classs");
+    for(auto v : rt->classs){
         Struct *s = v.second;
         Debug("regist struct name:%s\n",s->name.c_str());
         declarationStruct(rt,ctx,s);
@@ -70,7 +70,7 @@ void Compiler::declarationStruct(Runtime *rt, std::deque<Context *> ctx, Struct 
     }
 
     std::string structName = structPtr->getType()->getStructName().str();
-    Struct* s = rt->structs[structName];
+    Struct* s = rt->classs[structName];
     int index = 0;
     for (int i = 0; i < s->members.size(); ++i)
         if(s->members[i] == membername)

@@ -46,7 +46,9 @@ public:
     static void CreateGlobalString(StringExpr* expr);
 
     static void registerFuncs();
-    static void CreateFunction(Function* fn);
+    static void CreateFunction(Function* fn,Class* c = nullptr);
+    static void registerObjects();
+    static void registerObjectFuncs(Class* c);
     //寄存器相关
     static void Store_gp(int r, int offset, int sz);
     static void Store();

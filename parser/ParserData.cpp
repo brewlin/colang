@@ -48,7 +48,7 @@ Function* Parser::getFunc(const std::string &name, bool is_extern)
  */
 void Parser::addClass(const std::string &name, Class *f)
 {
-    structs.insert(std::make_pair(name,f));
+    classs.insert(std::make_pair(name,f));
 }
 /**
  * 检查是否存在该结构体
@@ -57,7 +57,7 @@ void Parser::addClass(const std::string &name, Class *f)
  */
 bool Parser::hasClass(const std::string &name)
 {
-    return structs.count(name) == 1;
+    return classs.count(name) == 1;
 }
 /**
  * 获取一个Class
@@ -66,7 +66,7 @@ bool Parser::hasClass(const std::string &name)
  */
 Class* Parser::getClass(const std::string &name)
 {
-    if(auto f = structs.find(name);f != structs.end())
+    if(auto f = classs.find(name);f != classs.end())
         return f->second;
     return nullptr;
 }

@@ -1,0 +1,20 @@
+package main
+
+#import fmt
+#import os
+
+class http {
+    # 可以不必显示定义成员变量
+    # 可以动态定义变量
+    request
+    response
+    func handler(){
+        #fmt.println("http.handler")
+
+    }
+}
+
+func main(){
+    a = new http()
+    #a.handler()
+}

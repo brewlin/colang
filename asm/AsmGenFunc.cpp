@@ -28,11 +28,15 @@ void AsmGen::registerFuncs()
  * 注册fn
  * @param f
  */
-void AsmGen::CreateFunction(Function *fn)
+void AsmGen::CreateFunction(Function *fn,Class* c)
 {
     //extern 不需要 翻译
     if(fn->isExtern) return;
     std::string funcname = fn->parser->getpkgname() + "." + fn->name;
+    //成员函数
+    if(c){
+        funcname = fn->parser->getpkgname() + "." + c->name + "." + fn->name;
+    }
     Debug("create function :%s",funcname.c_str())
 
     //定义函数块 名

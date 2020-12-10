@@ -41,7 +41,7 @@ public:
     void asmgen();
 
     //存储结构体定义
-    std::unordered_map<std::string,Class*>     structs;
+    std::unordered_map<std::string,Class*>     classs;
     //全局变量
     std::unordered_map<std::string,VarExpr*>   gvars;
     //存储全局函数
@@ -66,7 +66,7 @@ private:
 
     //parse keywords
     void 			parseImportDef();
-    Function*       parseFuncDef();
+    Function*       parseFuncDef(bool member = false);
     Function*       parseExternDef();
     void            parseClassDef();
     void            parsePackageDef();
