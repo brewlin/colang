@@ -71,12 +71,12 @@ Value* map_find(Value* map, Value* key){
     rbtree_t *rbtree = (rbtree_t*)map->data;
     rbtree_node_t  *node, *sentinel;
 
-    u_int hk = 0;
+    rbtree_key_int_t hk = 0;
     switch (key->type){
         case Bool:
         case Int:
         case Double:
-            hk = (u_int)key->data;break;
+            hk = (rbtree_key_int_t)key->data;break;
         case String:
             hk = hash_key(key->data,stringlen(key->data));
             break;

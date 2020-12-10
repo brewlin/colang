@@ -14,7 +14,7 @@
 
 typedef int  int_t;
 #define ushort_t  u_short
-#define uint_t    u_int
+#define uint_t    size_t
 #define ARRAY_SIZE 8
 
 typedef struct {

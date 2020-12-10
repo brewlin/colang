@@ -1,6 +1,6 @@
 package main
 
-#import fmt
+import fmt
 #import os
 
 class http {
@@ -9,12 +9,11 @@ class http {
     request
     response
     func handler(){
-        #fmt.println("http.handler")
-
+        fmt.println("http.handler")
     }
 }
 
 func main(){
     a = new http()
-    #a.handler()
+    a.handler()
 }

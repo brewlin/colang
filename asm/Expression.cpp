@@ -324,6 +324,13 @@ void  FunCallExpr::asmgen(std::deque<Context*> ctx)
         return;
     }else{
         Package *pkg  = Package::packages[package];
+        if(!pkg){
+            parse_err(
+                    "AsmError: can not find package definition of %s "
+                    "line:%d column:%d \n\n"
+                    "expression:\n%s\n",
+                    package.c_str(),this->line,this->column,this->toString().c_str());
+        }
         //函数查找
         func = pkg->getFunc(funcname,is_extern); 
         func->isObj       = false;
@@ -582,7 +589,7 @@ void  NewExpr::asmgen(std::deque<Context*> ctx)
                                 "." + s->name + "." + func->name;
         AsmGen::writeln("  mov %s@GOTPCREL(%%rip), %%rax", funcname.c_str());
         AsmGen::Push();
-        Internal::object_func_add(funcname);
+        Internal::object_func_add(func->name);
     }
     AsmGen::Pop("%rax");
 

@@ -3,8 +3,8 @@
 
 #include "Value.h"
 
-typedef u_int          rbtree_key_t;
-typedef int            rbtree_key_int_t;
+typedef size_t          rbtree_key_t;
+typedef size_t            rbtree_key_int_t;
 
 typedef struct rbtree_node_s  rbtree_node_t;
 

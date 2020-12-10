@@ -39,12 +39,12 @@ void member_insert_or_update(rbtree_node_t *temp, rbtree_node_t *node,rbtree_nod
 Value* member_find(rbtree_t* rbtree, Value* key){
     rbtree_node_t  *node, *sentinel;
 
-    u_int hk = 0;
+    rbtree_key_int_t hk = 0;
     switch (key->type){
         case Bool:
         case Int:
         case Double:
-            hk = (u_int)key->data;break;
+            hk = (rbtree_key_int_t)key->data;break;
         case String:
             hk = hash_key(key->data,stringlen(key->data));
             break;

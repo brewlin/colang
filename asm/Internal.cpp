@@ -126,7 +126,7 @@ void Internal::object_func_add(std::string name)
     //第二个参数  key
     std::hash<std::string> hash_key;
     size_t hk = hash_key(name);
-    AsmGen::writeln("  mov $%ld,%%rsi",hk);
+    AsmGen::writeln("  mov $%zu,%%rsi",hk);
 
     //object
     AsmGen::writeln("  mov (%rsp),%rdi");
@@ -141,7 +141,7 @@ void Internal::object_func_addr(std::string name)
     //第二个参数  key
     std::hash<std::string> hash_key;
     size_t hk = hash_key(name);
-    AsmGen::writeln("  mov $%ld,%%rsi",hk);
+    AsmGen::writeln("  mov $%zu,%%rsi",hk);
 
     call("object_func_addr");
 }
