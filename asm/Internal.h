@@ -29,6 +29,8 @@ public:
     //object
     static void object_member_get(std::string name);
     static void call_object_operator(Token opt,std::string name,std::string method);
+    static void object_func_add(std::string name);
+    static void object_func_addr(std::string name);
 };
 
 #endif //CO_LANG_INTERNAL_H

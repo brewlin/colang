@@ -11,8 +11,12 @@
 #include "Array.h"
 #include "Value.h"
 #include "Map.h"
+typedef struct{
+    rbtree_t* members;
+    rbtree_t* funcs;
+}Class;
 
-rbtree_t* object_create(int size);
+Class* object_create(int size);
 Value* object_member_update(Value* object,uint_t k,Value* v);
 Value* object_member_get(Value* object, uint_t k);
 void   object_operator(int opt,Value* object,uint_t k,Value* value);

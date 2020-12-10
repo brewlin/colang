@@ -304,23 +304,49 @@ void  FunCallExpr::asmgen(std::deque<Context*> ctx)
         package      = cfunc->parser->getpkgname();
         is_extern = true;
     }
-    Package *pkg  = Package::packages[package];
-    //函数查找
-    if(auto* func = pkg->getFunc(funcname,is_extern); func != nullptr)
-    {
 
-        //只会进行提示，现在默认已实现不足6个参数会默认置0
-        if(func->params.size() != this->args.size())
-            Debug("ArgumentError: expects %d arguments but got %d\n",(int)func->params.size(),(int)this->args.size());
+    Function *func;
+    //说明这是一个对象成员函数调用
+    if (auto *var = Context::getVar(ctx,package);var != nullptr) {
+        //get var
+        //获取object对象
+        AsmGen::GenAddr(var);
+        AsmGen::Load();
+        AsmGen::Push();
+        Internal::object_func_addr(funcname);
+        //获取到成员函数的函数地址
+        AsmGen::Push();
+        //构造一个假的function
+        func = new Function;
+        func->isExtern    = false;
+        func->isObj       = true;
+        func->is_variadic = false;
+        return;
+    }else{
+        Package *pkg  = Package::packages[package];
+        //函数查找
+        func = pkg->getFunc(funcname,is_extern); 
+        func->isObj       = false;
+        if(func == nullptr)
+            parse_err(
+                    "AsmError: can not find function definition of %s "
+                    "line:%d column:%d \n\n"
+                    "expression:\n%s\n",
+                    funcname.c_str(),this->line,this->column,this->toString().c_str());
+    }
 
-        int stack_args = AsmGen::Push_arg(ctx,args,func->is_variadic,funcname);
+    //只会进行提示，现在默认已实现不足6个参数会默认置0
+    if(func->params.size() != this->args.size())
+        Debug("ArgumentError: expects %d arguments but got %d\n",(int)func->params.size(),(int)this->args.size());
 
-        //如果没有可变参数传参  默认执行 通用寄存器赋值即可
-        if(!cfunc || !cfunc->is_variadic || !have_variadic)
-            //这里是对 rdi  rsi rdx rcx r8 r9 寄存器传参赋值
-            for (int i = 0; i < GP_MAX; ++i)
-                AsmGen::Pop(AsmGen::argreg64[gp++]);
+    int stack_args = AsmGen::Push_arg(ctx,args,func->is_variadic,funcname);
 
+    //如果没有可变参数传参  默认执行 通用寄存器赋值即可
+    if(!cfunc || !cfunc->is_variadic || !have_variadic)
+        //这里是对 rdi  rsi rdx rcx r8 r9 寄存器传参赋值
+        for (int i = 0; i < GP_MAX; ++i)
+            AsmGen::Pop(AsmGen::argreg64[gp++]);
+    if(!func->isObj){
         //需要判断是不是外部链接函数，否则需要加上包名
         if(func->isExtern){
             AsmGen::writeln("  mov %s@GOTPCREL(%%rip), %%rax", funcname.c_str());
@@ -332,33 +358,32 @@ void  FunCallExpr::asmgen(std::deque<Context*> ctx)
         AsmGen::writeln("  mov %%rax, %%r10");
         AsmGen::writeln("  mov $%d, %%rax", fp);
         AsmGen::writeln("  call *%%r10");
+    }else{
+        AsmGen::Pop("%r10");
+        AsmGen::writeln("  mov $%d, %%rax", fp);
+        AsmGen::writeln("  call *%%r10");
+    }
 
 
-        //如果当前函数调用存在解引用可变参数则需要动态计算函数栈上移的大小
-        if(AsmGen::currentFunc && AsmGen::currentFunc->is_variadic && have_variadic)
-        {
-            int c = AsmGen::count++;
-            AsmGen::writeln("  mov -8(%%rbp),%%rdi");
-            AsmGen::writeln("  mov %%rdi,%d(%%rbp)",AsmGen::currentFunc->stack);
-            AsmGen::writeln("  sub $-7,%d(%%rbp)",AsmGen::currentFunc->stack);
-            //判断如果此时有栈参数则需要去除
-            AsmGen::writeln("  cmp $0,%d(%%rbp)",AsmGen::currentFunc->stack);
-            AsmGen::writeln("  jle .L.if.end.%d",c);
-            AsmGen::writeln("  cmp %d(%%rbp),%%rdi",AsmGen::currentFunc->stack);
-            AsmGen::writeln("  add %%rdi, %%rsp", stack_args * 8);
-            AsmGen::writeln(".L.if.end.%d:",c);
-        }else{
-            AsmGen::writeln("  add $%d, %%rsp", stack_args * 8);
-
-        }
-        return;
+    //如果当前函数调用存在解引用可变参数则需要动态计算函数栈上移的大小
+    if(AsmGen::currentFunc && AsmGen::currentFunc->is_variadic && have_variadic)
+    {
+        int c = AsmGen::count++;
+        AsmGen::writeln("  mov -8(%%rbp),%%rdi");
+        AsmGen::writeln("  mov %%rdi,%d(%%rbp)",AsmGen::currentFunc->stack);
+        AsmGen::writeln("  sub $-7,%d(%%rbp)",AsmGen::currentFunc->stack);
+        //判断如果此时有栈参数则需要去除
+        AsmGen::writeln("  cmp $0,%d(%%rbp)",AsmGen::currentFunc->stack);
+        AsmGen::writeln("  jle .L.if.end.%d",c);
+        AsmGen::writeln("  cmp %d(%%rbp),%%rdi",AsmGen::currentFunc->stack);
+        AsmGen::writeln("  add %%rdi, %%rsp", stack_args * 8);
+        AsmGen::writeln(".L.if.end.%d:",c);
+    }else{
+        AsmGen::writeln("  add $%d, %%rsp", stack_args * 8);
 
     }
-    parse_err(
-            "AsmError: can not find function definition of %s "
-            "line:%d column:%d \n\n"
-            "expression:\n%s\n",
-            funcname.c_str(),this->line,this->column,this->toString().c_str());
+    return;
+
 }
 /**
  * 赋值运算符 求值
@@ -549,7 +574,17 @@ void  NewExpr::asmgen(std::deque<Context*> ctx)
             "line:%d column:%d \n\n",
             type.c_str(),this->line,this->column);
     }
-    Internal::newobject(Object,s->members.size());
+    Internal::newobject(Object,s->funcs.size());
+    AsmGen::Push();
+
+    for(auto func : s->funcs){
+        std::string funcname = func->parser->getpkgname() + 
+                                "." + s->name + "." + func->name;
+        AsmGen::writeln("  mov %s@GOTPCREL(%%rip), %%rax", funcname.c_str());
+        AsmGen::Push();
+        Internal::object_func_add(funcname);
+    }
+    AsmGen::Pop("%rax");
 
 }
 /**

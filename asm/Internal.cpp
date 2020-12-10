@@ -113,6 +113,35 @@ void Internal::object_member_get(std::string name)
     std::hash<std::string> hash_key;
     size_t hk = hash_key(name);
     AsmGen::writeln("  mov $%ld,%%rsi",hk);
+
     call("object_member_get");
 
+}
+void Internal::object_func_add(std::string name)
+{
+    //func addr
+    AsmGen::Pop("%rdx");
+
+    //rsi func_name
+    //第二个参数  key
+    std::hash<std::string> hash_key;
+    size_t hk = hash_key(name);
+    AsmGen::writeln("  mov $%ld,%%rsi",hk);
+
+    //object
+    AsmGen::writeln("  mov (%rsp),%rdi");
+
+    call("object_func_add");
+}
+void Internal::object_func_addr(std::string name)
+{
+    //第一个参数 object
+    AsmGen::Pop("%rdi");
+
+    //第二个参数  key
+    std::hash<std::string> hash_key;
+    size_t hk = hash_key(name);
+    AsmGen::writeln("  mov $%ld,%%rsi",hk);
+
+    call("object_func_addr");
 }
