@@ -113,7 +113,7 @@ Function* Parser::parseFuncDef(bool member)
     //如果为成员函数需要填充第一个 this 参数
     if(member){
         VarExpr* var = new VarExpr("this",line,column);
-        node->params_var[getCurrentLexeme()] = var;
+        node->params_var["this"] = var;
         node->params_order_var.push_back(var);
         node->params.push_back("this");
     }

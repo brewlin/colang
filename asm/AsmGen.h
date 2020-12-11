@@ -38,7 +38,9 @@ public:
     static void enterContext(std::deque<Context *> &ctx);
     static void leaveContext(std::deque<Context *> ctx);
 
-    static void assign_offsets();
+    static void assign_offsets(Function* fn);
+    static void funcs_offsets();
+    static void classs_offsets();
     static void registerMain();
     static void registerStrings();
     static void registerVars();

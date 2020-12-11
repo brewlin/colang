@@ -297,13 +297,26 @@ Expression* Parser::parseVarExpr()
             assert(getCurrentToken() == TK_VAR);
             std::string pfuncname = getCurrentLexeme();
 
-            //下一个如果是 `(` 则说明为跨包函数调用
+            //下一个如果是 `(` 则说明为跨包函数调用 | 或者内部函数调用
             currentToken = scan();
             if( getCurrentToken() == TK_LPAREN)
             {
                 FunCallExpr* call = dynamic_cast<FunCallExpr*>(parseFuncallExpr(pfuncname));
                 call->is_pkgcall  = true;
                 call->package     = var;
+                //这里判断如果 包名是之前的一个变量说明这个函数调用为成员函数调用
+                VarExpr* obj;
+                if(currentFunc->locals.count(var))
+                    obj = currentFunc->locals[var];
+                else
+                    obj = currentFunc->params_var[var];
+                //表明为成员函数调用
+                if(obj){
+                    auto params = call->args;
+                    call->args.clear();
+                    call->args.push_back(obj);
+                    call->args.insert(call->args.end(),params.begin(),params.end());
+                }
                 return call;
             }else if(getCurrentToken() == TK_LBRACKET){
                 IndexExpr* index = dynamic_cast<IndexExpr*>(parseIndexExpr(pfuncname));
