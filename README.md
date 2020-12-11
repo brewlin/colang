@@ -42,13 +42,20 @@ gcc version 7.5.0 (Ubuntu 7.5.0-3ubuntu1~18.04)
 - [x] bool
 - [x] map
 - [x] array
-- [ ] object
-    - [x] member variable `[update,get,unary-op,binary-op]`
-    - [ ] member function
+- [x] object
 ```
 package main
 import fmt
 
+class http{
+    # member
+    request
+    # func
+    func handler(){
+        fmt.println("hello world!")
+        fmt.println(this.request)
+    }
+}
 func main(){
     a = "this is a string"
     fmt.println(a)
@@ -59,6 +66,9 @@ func main(){
     //or fmt.print(a)
     b = {"sdfds":"sdfsd",1:2,"sdfds":3,"a":a}
     fmt.print(b["a"],b["sdfds"])
+    obj = new http()
+    obj.request = {"method":"POST"}
+    obj.handler()
     
 }
 ```
