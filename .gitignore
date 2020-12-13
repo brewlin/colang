@@ -11,6 +11,7 @@ bin
 tmp.s
 cmake-build-debug
 tests/asm
+tests/compiler
 tests/ast
 tests/lib
 tests/gc

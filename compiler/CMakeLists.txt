@@ -1,3 +1,3 @@
 aux_source_directory(. srcs)
 
-add_library(asm ${srcs})
+add_library(compiler ${srcs})
