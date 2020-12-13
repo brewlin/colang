@@ -9,14 +9,14 @@ set (CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -g -w")
 
 set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++17 -g")
 
-include_directories(. compiler ast parser lib internal gc)
+include_directories(. compiler src/ast src/parser src/lib src/internal src/gc)
 
-add_subdirectory(ast)
 add_subdirectory(compiler)
-add_subdirectory(parser)
-add_subdirectory(lib)
-add_subdirectory(internal)
-add_subdirectory(gc)
+add_subdirectory(src/ast)
+add_subdirectory(src/parser)
+add_subdirectory(src/lib)
+add_subdirectory(src/internal)
+add_subdirectory(src/gc)
 
 add_executable(colang colang.cpp)
 

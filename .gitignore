@@ -28,3 +28,4 @@ tests/do
 tests/co
 tests/colang
 tests/*.s
+tests/src/*

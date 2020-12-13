@@ -8,7 +8,7 @@ extern int print(string)
 func sprintf(args...){
    _.printf(*args)
 }
-# every elements with the \n
+# each elements with the \n
 func println(size,args...){
    _.println(args)
 }
