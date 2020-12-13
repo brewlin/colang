@@ -4,7 +4,7 @@
 #include <tuple>
 #include <iostream>
 #include <fstream>
-#include "asm_ast/Token.h"
+#include "Token.h"
 #include <memory>
 #include <unordered_map>
 #include <vector>
@@ -12,8 +12,7 @@
 #include <cstdlib>
 #include "Scanner.h"
 
-namespace asm
-{
+namespace asm{
     
 class Parser {
 public:
@@ -26,7 +25,7 @@ public:
     void parse();
 };
 
-};
+}
 
 
 #endif //CO_LANG_PARSER_H

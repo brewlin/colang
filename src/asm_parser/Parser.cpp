@@ -1,10 +1,10 @@
 #include "Parser.h"
 
-Parser::Parser(const std::string filepath):
+asm::Parser::Parser(const std::string filepath):
 {
     scanner = new Scanner(filepath);
 }
-Parser::~Parser()
+asm::Parser::~Parser()
 {
     delete scanner;
 }
@@ -12,11 +12,11 @@ Parser::~Parser()
 /**
  * @param rt
  */
-void Parser::parse()
+void asm::Parser::parse()
 {
 }
 
-std::string Parser::printToken()
+std::string asm::Parser::printToken()
 {
     auto  tk = scanner->scan();
     while(std::get<0>(tk) != TK_EOF){
