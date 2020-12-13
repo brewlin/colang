@@ -24,7 +24,7 @@ assert(){
     log "[compile] ./colang -s $input ..."
     ./colang -s $input
     check
-    gcc -g *.s -L./internal -linternal -L./gc -lgc
+    gcc -g *.s -L./src/internal -linternal -L./src/gc -lgc
     check
     ./a.out
     check
