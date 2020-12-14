@@ -4,7 +4,7 @@
 #include <tuple>
 #include <iostream>
 #include <fstream>
-#include "Token.h"
+#include "src/asm_ast/Token.h"
 #include <memory>
 #include <unordered_map>
 #include <vector>
@@ -14,6 +14,7 @@
 
 
 namespace asmer {
+
     
 class Parser {
 public:
@@ -24,9 +25,16 @@ public:
     ~Parser();
     std::string printToken();
     void parse();
+    void parseKeyword();
+    void parseLabel();
+    void parseInstruct();
 };
 
 };
 
+//记录扫描的次数，第一遍扫描计算所有符号的地址或者值，第二编扫描，生成指令的二进制内容
+extern int scanLop;
+//有效数据长度
+extern int dataLen;
 
 #endif //CO_LANG_PARSER_H

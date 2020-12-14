@@ -2,9 +2,12 @@
 #include <string>
 #include <cstring>
 #include <stdio.h>
+#include "asmer.h"
+
 using namespace std;
 using namespace asmer;
 
+bool showAss = false;
 
 int print_help () {
     fprintf(stderr,

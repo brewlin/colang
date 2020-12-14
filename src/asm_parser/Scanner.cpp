@@ -9,6 +9,7 @@ Scanner::Scanner(const std::string filepath)
     keywords["comm"]       = KW_COMM;
     keywords["global"]     = KW_GLOBAL;
     keywords["text"]       = KW_TEXT;
+    keywords["data"]       = KW_DATA;
     keywords["type"]       = KW_TYPE;
     keywords["string"]    = KW_STRING;
     keywords["push"]     = KW_PUSH;

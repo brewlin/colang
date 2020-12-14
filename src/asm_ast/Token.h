@@ -9,6 +9,7 @@ enum Token {
     KW_COMM,
     KW_STRING,
     KW_GLOBAL,
+    KW_DATA,
     KW_TEXT,
     KW_TYPE,
     KW_LABEL,

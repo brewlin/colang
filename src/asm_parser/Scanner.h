@@ -31,7 +31,7 @@ public:
 
     char            next();
     char            peek();
-    Token    token()const;
+    Token           token()const;
     std::string     value()const;
 
     std::tuple <Token ,std::string> scan();
