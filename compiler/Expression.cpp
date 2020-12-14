@@ -15,65 +15,65 @@
 
 void  NullExpr::asmgen(std::deque<Context*> ctx)
 {
-//    AsmGen::writeln("  .loc %d %d %d",AsmGen::parser->fileno,line,column);
+//    AsmGen::writeln("    .loc %d %d %d",AsmGen::parser->fileno,line,column);
     Internal::newobject(Null,0);
 //    Internal::gc_malloc();
-//    AsmGen::writeln("  mov $%ld, (%%rax)", Null);
+//    AsmGen::writeln("    mov $%ld, (%%rax)", Null);
 
 }
 void  BoolExpr::asmgen(std::deque<Context*> ctx)
 {
-//    AsmGen::writeln("  .loc %d %d %d",AsmGen::parser->fileno,line,column);
+//    AsmGen::writeln("    .loc %d %d %d",AsmGen::parser->fileno,line,column);
     Internal::newobject(Bool,this->literal);
 //    Internal::gc_malloc();
-//    AsmGen::writeln("  mov $%ld, (%%rax)", Bool);
-//    AsmGen::writeln("  mov $%ld, %d(%%rax)", this->literal,25);
+//    AsmGen::writeln("    mov $%ld, (%%rax)", Bool);
+//    AsmGen::writeln("    mov $%ld, %d(%%rax)", this->literal,25);
 }
 void  CharExpr::asmgen(
                          std::deque<Context*> ctx) {
-//    AsmGen::writeln("  .loc %d %d %d",AsmGen::parser->fileno,line,column);
+//    AsmGen::writeln("    .loc %d %d %d",AsmGen::parser->fileno,line,column);
 
     Internal::newobject(Char,this->literal);
 //    Internal::gc_malloc();
-//    AsmGen::writeln("  mov $%ld, (%%rax)", Char);
-//    AsmGen::writeln("  mov $%ld, %d(%%rax)", this->literal,16);
+//    AsmGen::writeln("    mov $%ld, (%%rax)", Char);
+//    AsmGen::writeln("    mov $%ld, %d(%%rax)", this->literal,16);
 
 }
 
 void  IntExpr::asmgen( std::deque<Context*> ctx) {
-//    AsmGen::writeln("  .loc %d %d %d",AsmGen::parser->fileno,line,column);
+//    AsmGen::writeln("    .loc %d %d %d",AsmGen::parser->fileno,line,column);
 
     Internal::newobject(Int,this->literal);
 //    Internal::gc_malloc();
-//    AsmGen::writeln("  mov $%ld,%%rdi",Int);
-//    AsmGen::writeln("  mov %%rdi, (%%rax)");
-//    AsmGen::writeln("  mov $%ld,%%rdi",this->literal);
-//    AsmGen::writeln("  mov %%rdi, %d(%%rax)", this->literal,4);
+//    AsmGen::writeln("    mov $%ld,%%rdi",Int);
+//    AsmGen::writeln("    mov %%rdi, (%%rax)");
+//    AsmGen::writeln("    mov $%ld,%%rdi",this->literal);
+//    AsmGen::writeln("    mov %%rdi, %d(%%rax)", this->literal,4);
 
 }
 
 void  DoubleExpr::asmgen(std::deque<Context*> ctx) {
-//    AsmGen::writeln("  .loc %d %d %d",AsmGen::parser->fileno,line,column);
+//    AsmGen::writeln("    .loc %d %d %d",AsmGen::parser->fileno,line,column);
     Internal::newobject(Double,this->literal);
 //    Internal::gc_malloc();
-//    AsmGen::writeln("  mov $%ld, (%%rax)", Double);
-//    AsmGen::writeln("  mov $%ld, %d(%%rax)", this->literal,8);
+//    AsmGen::writeln("    mov $%ld, (%%rax)", Double);
+//    AsmGen::writeln("    mov $%ld, %d(%%rax)", this->literal,8);
 
 
 }
 
 void  StringExpr::asmgen(std::deque<Context*> ctx) {
 
-//    AsmGen::writeln("  .loc %d %d %d",AsmGen::parser->fileno,line,column);
+//    AsmGen::writeln("    .loc %d %d %d",AsmGen::parser->fileno,line,column);
     //string类型 传的是地址 需要调用方构造
-    AsmGen::writeln("  lea %s(%%rip), %%rsi", name.c_str());
+    AsmGen::writeln("    lea %s(%%rip), %%rsi", name.c_str());
     Internal::newobject(String,0);
 //    Internal::gc_malloc();
-//    AsmGen::writeln("  mov $%ld,%%rdi",String);
-//    AsmGen::writeln("  mov %%rdi, (%%rax)", String);
+//    AsmGen::writeln("    mov $%ld,%%rdi",String);
+//    AsmGen::writeln("    mov %%rdi, (%%rax)", String);
 //
-//    AsmGen::writeln("  lea %s(%%rip), %%rdi", name.c_str());
-//    AsmGen::writeln("  mov %%rdi, %d(%%rax)", 17);
+//    AsmGen::writeln("    lea %s(%%rip), %%rdi", name.c_str());
+//    AsmGen::writeln("    mov %%rdi, %d(%%rax)", 17);
 
 }
 /**
@@ -82,7 +82,7 @@ void  StringExpr::asmgen(std::deque<Context*> ctx) {
  * @return
  */
 void  ArrayExpr::asmgen(std::deque<Context*> ctx){
-//    AsmGen::writeln("  .loc %d %d %d",AsmGen::parser->fileno,line,column);
+//    AsmGen::writeln("    .loc %d %d %d",AsmGen::parser->fileno,line,column);
     //new array & push array
     Internal::newobject(Array, 0);
     AsmGen::Push();
@@ -104,7 +104,7 @@ void  ArrayExpr::asmgen(std::deque<Context*> ctx){
  */
 void  MapExpr::asmgen(std::deque<Context*> ctx){
     Debug("MapExpr: parsing... package:%s func:%s",package.c_str(),funcname.c_str());
-//    AsmGen::writeln("  .loc %d %d %d",AsmGen::parser->fileno,line,column);
+//    AsmGen::writeln("    .loc %d %d %d",AsmGen::parser->fileno,line,column);
 
     //new array & push array
     Internal::newobject(Map, 0);
@@ -125,7 +125,7 @@ void  MapExpr::asmgen(std::deque<Context*> ctx){
  */
 void  KVExpr::asmgen(std::deque<Context*> ctx){
     Debug("KVExpr: parsing... package:%s func:%s",package.c_str(),funcname.c_str());
-//    AsmGen::writeln("  .loc %d %d %d",AsmGen::parser->fileno,line,column);
+//    AsmGen::writeln("    .loc %d %d %d",AsmGen::parser->fileno,line,column);
 
     //push key
     this->key->asmgen(ctx);
@@ -143,7 +143,7 @@ void  KVExpr::asmgen(std::deque<Context*> ctx){
  * @return
  */
 void  VarExpr::asmgen(std::deque<Context*> ctx){
-//    AsmGen::writeln("  .loc %d %d %d",AsmGen::parser->fileno,line,column);
+//    AsmGen::writeln("    .loc %d %d %d",AsmGen::parser->fileno,line,column);
     VarExpr* var;
     //检查全局变量,1s_local有两层含义
     //1. 在asm阶段表示是否为全局变量
@@ -208,7 +208,7 @@ void  VarExpr::asmgen(std::deque<Context*> ctx){
  * @return
  */
 void  IndexExpr::asmgen(std::deque<Context*> ctx) {
-//    AsmGen::writeln("  .loc %d %d %d",AsmGen::parser->fileno,line,column);
+//    AsmGen::writeln("    .loc %d %d %d",AsmGen::parser->fileno,line,column);
     VarExpr* var;
     std::string   package = this->package;
     //看看是否是包变量调用
@@ -274,7 +274,7 @@ void  IndexExpr::asmgen(std::deque<Context*> ctx) {
 void  FunCallExpr::asmgen(std::deque<Context*> ctx)
 {
     Debug("FunCallExpr: parsing... package:%s func:%s",package.c_str(),funcname.c_str());
-//    AsmGen::writeln("  .loc %d %d %d",AsmGen::parser->fileno,line,column);
+//    AsmGen::writeln("    .loc %d %d %d",AsmGen::parser->fileno,line,column);
     //gp 通用寄存器个数统计
     //fp 浮点数寄存器个数统计
     int gp = 0, fp = 0;
@@ -355,19 +355,19 @@ void  FunCallExpr::asmgen(std::deque<Context*> ctx)
     if(!func->isObj){
         //需要判断是不是外部链接函数，否则需要加上包名
         if(func->isExtern){
-            AsmGen::writeln("  mov %s@GOTPCREL(%%rip), %%rax", funcname.c_str());
+            AsmGen::writeln("    mov %s@GOTPCREL(%%rip), %%rax", funcname.c_str());
         }else{
             std::string realfuncname = package + "." + funcname;
-            AsmGen::writeln("  mov %s@GOTPCREL(%%rip), %%rax", realfuncname.c_str());
+            AsmGen::writeln("    mov %s@GOTPCREL(%%rip), %%rax", realfuncname.c_str());
         }
 
-        AsmGen::writeln("  mov %%rax, %%r10");
-        AsmGen::writeln("  mov $%d, %%rax", fp);
-        AsmGen::writeln("  call *%%r10");
+        AsmGen::writeln("    mov %%rax, %%r10");
+        AsmGen::writeln("    mov $%d, %%rax", fp);
+        AsmGen::writeln("    call *%%r10");
     }else{
         AsmGen::Pop("%r10");
-        AsmGen::writeln("  mov $%d, %%rax", fp);
-        AsmGen::writeln("  call *%%r10");
+        AsmGen::writeln("    mov $%d, %%rax", fp);
+        AsmGen::writeln("    call *%%r10");
     }
 
 
@@ -375,17 +375,17 @@ void  FunCallExpr::asmgen(std::deque<Context*> ctx)
     if(AsmGen::currentFunc && AsmGen::currentFunc->is_variadic && have_variadic)
     {
         int c = AsmGen::count++;
-        AsmGen::writeln("  mov -8(%%rbp),%%rdi");
-        AsmGen::writeln("  mov %%rdi,%d(%%rbp)",AsmGen::currentFunc->stack);
-        AsmGen::writeln("  sub $-7,%d(%%rbp)",AsmGen::currentFunc->stack);
+        AsmGen::writeln("    mov -8(%%rbp),%%rdi");
+        AsmGen::writeln("    mov %%rdi,%d(%%rbp)",AsmGen::currentFunc->stack);
+        AsmGen::writeln("    sub $-7,%d(%%rbp)",AsmGen::currentFunc->stack);
         //判断如果此时有栈参数则需要去除
-        AsmGen::writeln("  cmp $0,%d(%%rbp)",AsmGen::currentFunc->stack);
-        AsmGen::writeln("  jle .L.if.end.%d",c);
-        AsmGen::writeln("  cmp %d(%%rbp),%%rdi",AsmGen::currentFunc->stack);
-        AsmGen::writeln("  add %%rdi, %%rsp", stack_args * 8);
+        AsmGen::writeln("    cmp $0,%d(%%rbp)",AsmGen::currentFunc->stack);
+        AsmGen::writeln("    jle .L.if.end.%d",c);
+        AsmGen::writeln("    cmp %d(%%rbp),%%rdi",AsmGen::currentFunc->stack);
+        AsmGen::writeln("    add %%rdi, %%rsp", stack_args * 8);
         AsmGen::writeln(".L.if.end.%d:",c);
     }else{
-        AsmGen::writeln("  add $%d, %%rsp", stack_args * 8);
+        AsmGen::writeln("    add $%d, %%rsp", stack_args * 8);
 
     }
     return;
@@ -398,7 +398,7 @@ void  FunCallExpr::asmgen(std::deque<Context*> ctx)
  */
 void  AssignExpr::asmgen(std::deque<Context*> ctx){
 
-//    AsmGen::writeln("  .loc %d %d %d",AsmGen::parser->fileno,line,column);
+//    AsmGen::writeln("    .loc %d %d %d",AsmGen::parser->fileno,line,column);
     Debug("AssignExpr: parsing... lhs:%s opt:%s rhs:%s",
           lhs->toString().c_str(),
           getTokenString(opt).c_str(),
@@ -537,7 +537,7 @@ void  AssignExpr::asmgen(std::deque<Context*> ctx){
  */
 void  BinaryExpr::asmgen(std::deque<Context*> ctx)
 {
-//    AsmGen::writeln("  .loc %d %d %d",AsmGen::parser->fileno,line,column);
+//    AsmGen::writeln("    .loc %d %d %d",AsmGen::parser->fileno,line,column);
     Debug("BinaryExpr: parsing... lhs:%s opt:%s rhs:%s",
           lhs->toString().c_str(),
           getTokenString(opt).c_str(),
@@ -570,7 +570,7 @@ void  BinaryExpr::asmgen(std::deque<Context*> ctx)
 void  NewExpr::asmgen(std::deque<Context*> ctx)
 {
 
-//    AsmGen::writeln("  .loc %d %d %d",AsmGen::parser->fileno,line,column);
+//    AsmGen::writeln("    .loc %d %d %d",AsmGen::parser->fileno,line,column);
     Debug("new expr got: type:%s",this->type.c_str());
     //获取struct 类型
     Class* s = AsmGen::parser->getClass(this->type);
@@ -586,7 +586,7 @@ void  NewExpr::asmgen(std::deque<Context*> ctx)
     for(auto func : s->funcs){
         std::string funcname = func->parser->getpkgname() + 
                                 "." + s->name + "." + func->name;
-        AsmGen::writeln("  mov %s@GOTPCREL(%%rip), %%rax", funcname.c_str());
+        AsmGen::writeln("    mov %s@GOTPCREL(%%rip), %%rax", funcname.c_str());
         AsmGen::Push();
         Internal::object_func_add(func->name);
     }

@@ -45,11 +45,11 @@ void AsmGen::CreateFunction(Function *fn,Class* c)
 
     //标记函数 start
     //保存rbp栈帧
-    writeln("  push %%rbp");
-    writeln("  mov %%rsp, %%rbp");
-    writeln("  sub $%d, %%rsp", fn->stack_size);
+    writeln("    push %%rbp");
+    writeln("    mov %%rsp, %%rbp");
+    writeln("    sub $%d, %%rsp", fn->stack_size);
 //    保存当前rsp
-//    writeln("  mov %%rsp, %d(%%rbp)", -16);
+//    writeln("    mov %%rsp, %d(%%rbp)", -16);
 
     //不管多少个参数，先把寄存器参数保存到栈在上再说
     for (int i = 0; i < 6; ++i)
@@ -88,10 +88,10 @@ void AsmGen::CreateFunction(Function *fn,Class* c)
         leaveContext(funcCtxChain);
     }
     if(fn->name == "main")
-        writeln("  mov $0, %%rax");
+        writeln("    mov $0, %%rax");
 
     writeln(".L.return.%s:", funcname.c_str());
-    writeln("  mov %%rbp, %%rsp");
-    writeln("  pop %%rbp");
-    writeln("  ret");
+    writeln("    mov %%rbp, %%rsp");
+    writeln("    pop %%rbp");
+    writeln("    ret");
 }

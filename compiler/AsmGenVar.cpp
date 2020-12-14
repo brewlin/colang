@@ -25,7 +25,7 @@ void AsmGen::registerStrings()
 //        Class *s = iter.second;
 //        for(auto m : s->members){
 //            writeln("%s:", m.c_str());
-//            writeln("  .string \"%s\"",m.c_str());
+//            writeln("    .string \"%s\"",m.c_str());
 //        }
 //    }
 
@@ -35,7 +35,7 @@ void AsmGen::registerVars()
     for(auto &var:parser->gvars){
         string name  = var.first;
         string gname = parser->getpkgname() + "." + name;
-        writeln("  .comm   %s,8,8",gname.c_str());
+        writeln("    .comm   %s,8,8",gname.c_str());
     }
 }
 /**
@@ -45,12 +45,12 @@ void AsmGen::registerVars()
 void AsmGen::CreateGlobalString(StringExpr *var)
 {
     //默认全局变量
-//    writeln("  .globl %s", var->name.c_str());
+//    writeln("    .globl %s", var->name.c_str());
 
-//    writeln("  .data");
-//    writeln("  .type %s, @object", var->name.c_str());
-//    writeln("  .size %s, %d", var->literal.c_str(), var->literal.length());
-//    writeln("  .align %d", 1);
+//    writeln("    .data");
+//    writeln("    .type %s, @object", var->name.c_str());
+//    writeln("    .size %s, %d", var->literal.c_str(), var->literal.length());
+//    writeln("    .align %d", 1);
     writeln("%s:", var->name.c_str());
-    writeln("  .string \"%s\"",var->literal.c_str());
+    writeln("    .string \"%s\"",var->literal.c_str());
 }

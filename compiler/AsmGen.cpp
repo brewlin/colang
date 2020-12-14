@@ -38,19 +38,19 @@ void AsmGen::execute()
 }
 void AsmGen::registerMain()
 {
-    writeln("  .globl main");
+    writeln("    .globl main");
     writeln("main:");
-    writeln("  push %%rbp");
-    writeln("  mov %%rsp, %%rbp");
-    writeln("  sub $%d, %%rsp", 0);
+    writeln("    push %%rbp");
+    writeln("    mov %%rsp, %%rbp");
+    writeln("    sub $%d, %%rsp", 0);
     Internal::call("gc_init");
-    writeln("  mov %s@GOTPCREL(%%rip), %%rax", "main.main");
-    writeln("  mov %%rax, %%r10");
-    writeln("  mov $%d, %%rax", 0);
-    writeln("  call *%%r10");
-    writeln("  mov %%rbp, %%rsp");
-    writeln("  pop %%rbp");
-    writeln("  ret");
+    writeln("    mov %s@GOTPCREL(%%rip), %%rax", "main.main");
+    writeln("    mov %%rax, %%r10");
+    writeln("    mov $%d, %%rax", 0);
+    writeln("    call *%%r10");
+    writeln("    mov %%rbp, %%rsp");
+    writeln("    pop %%rbp");
+    writeln("    ret");
 
 }
 void AsmGen::funcs_offsets() {

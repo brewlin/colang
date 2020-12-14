@@ -23,21 +23,21 @@ void AsmGen::Store_gp(int r, int offset, int sz)
 {
     switch (sz) {
         case 1:
-            writeln("  mov %s, %d(%%rbp)", argreg8[r], offset);
+            writeln("    mov %s, %d(%%rbp)", argreg8[r], offset);
             return;
         case 2:
-            writeln("  mov %s, %d(%%rbp)", argreg16[r], offset);
+            writeln("    mov %s, %d(%%rbp)", argreg16[r], offset);
             return;
         case 4:
-            writeln("  mov %s, %d(%%rbp)", argreg32[r], offset);
+            writeln("    mov %s, %d(%%rbp)", argreg32[r], offset);
             return;
         case 8:
-            writeln("  mov %s, %d(%%rbp)", argreg64[r], offset);
+            writeln("    mov %s, %d(%%rbp)", argreg64[r], offset);
             return;
         default:
             for (int i = 0; i < sz; i++) {
-                writeln("  mov %s, %d(%%rbp)", argreg8[r], offset + i);
-                writeln("  shr $8, %s", argreg64[r]);
+                writeln("    mov %s, %d(%%rbp)", argreg8[r], offset + i);
+                writeln("    shr $8, %s", argreg64[r]);
             }
             return;
     }
@@ -51,6 +51,6 @@ void AsmGen::Store()
     //将栈顶 rax 的值保存到 rdi中
     Pop("%rdi");
     //现在所有的变量都是指针类型，都是8字节
-    writeln("  mov %%rax, (%%rdi)");
+    writeln("    mov %%rax, (%%rdi)");
 
 }

@@ -23,7 +23,7 @@ void Parser::asmgen()
     AsmGen::registerStrings();
 
     AsmGen::writeln(".text");
-    //    AsmGen::writeln("  .file %d \"%s\"",fileno,filepath.c_str());
+    //    AsmGen::writeln("    .file %d \"%s\"",fileno,filepath.c_str());
     if(package == "main"){
         //register main
         AsmGen::registerMain();

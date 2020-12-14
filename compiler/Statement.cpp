@@ -22,7 +22,7 @@ void IfStmt::asmgen(std::deque<Context *> ctx)
     Internal::isTrue();
 
     AsmGen::CreateCmp();
-    AsmGen::writeln("  je  .L.else.%d", c);
+    AsmGen::writeln("    je  .L.else.%d", c);
 
     AsmGen::enterContext(ctx);
 
@@ -32,7 +32,7 @@ void IfStmt::asmgen(std::deque<Context *> ctx)
         stmt->asmgen(ctx);
     }
     AsmGen::leaveContext(ctx);
-    AsmGen::writeln("  jmp .L.end.%d", c);
+    AsmGen::writeln("    jmp .L.end.%d", c);
     AsmGen::writeln(".L.else.%d:", c);
 
     if(elseBlock != nullptr){
@@ -63,7 +63,7 @@ void WhileStmt::asmgen(std::deque<Context *> ctx)
     this->cond->asmgen(ctx);
     Internal::isTrue();
     AsmGen::CreateCmp();
-    AsmGen::writeln("  je  .L.while.end.%d", c);
+    AsmGen::writeln("    je  .L.while.end.%d", c);
 
     AsmGen::enterContext(ctx);
     //设置当前ctx 所处的 count计数  用于定位标签
@@ -78,7 +78,7 @@ void WhileStmt::asmgen(std::deque<Context *> ctx)
     }
     AsmGen::leaveContext(ctx);
 
-    AsmGen::writeln("  jmp .L.while.begin.%d",c);
+    AsmGen::writeln("    jmp .L.while.begin.%d",c);
     AsmGen::writeln(".L.while.end.%d:", c);
 }
 /**
@@ -107,7 +107,7 @@ void ReturnStmt::asmgen(std::deque<Context *> ctx)
         //如果该变量不是 array 则抛出类型错误，不能对非数组变量进行索引操作
         std::string funcName = (*p)->cur_funcname;
         if (!funcName.empty())
-            AsmGen::writeln("  jmp .L.return.%s",funcName.c_str());
+            AsmGen::writeln("    jmp .L.return.%s",funcName.c_str());
     }
 }
 /**
@@ -120,13 +120,13 @@ void BreakStmt::asmgen(std::deque<Context *> ctx)
     //判断当前是否处在循环中
 //    Context* c = ctx.back();
 //    if(c->point && !c->end_str.empty()){
-//        AsmGen::writeln("  jmp %s.%d",c->end_str.c_str(),c->point);
+//        AsmGen::writeln("    jmp %s.%d",c->end_str.c_str(),c->point);
 //    }
     //可能要递归去查找当前是否处于循环中了
     for(auto p = ctx.crbegin(); p != ctx.crend(); ++p) {
         Context* c = *p;
         if(c->point && !c->end_str.empty()){
-            AsmGen::writeln("  jmp %s.%d",c->end_str.c_str(),c->point);
+            AsmGen::writeln("    jmp %s.%d",c->end_str.c_str(),c->point);
         }
     }
 }
@@ -142,7 +142,7 @@ void ContinueStmt::asmgen(std::deque<Context *> ctx)
         Context *c = *p;
 //    Context* c = ctx.back();
         if (c->point && !c->start_str.empty()) {
-            AsmGen::writeln("  jmp %s.%d", c->start_str.c_str(), c->point);
+            AsmGen::writeln("    jmp %s.%d", c->start_str.c_str(), c->point);
         }
     }
 }
