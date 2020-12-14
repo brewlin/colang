@@ -1,16 +1,17 @@
-#ifndef CO_LANG_ASM_TOKEN_H
-#define CO_LANG_ASM_TOKEN_H
+#ifndef CO_LANG_ASMER_TOKEN_H
+#define CO_LANG_ASMER_TOKEN_H
 
-namespace asm
+namespace asmer
 {
     
 enum Token {
     INVALID = 0, TK_EOF,
     KW_COMM,
+    KW_STRING,
     KW_GLOBAL,
     KW_TEXT,
     KW_TYPE,
-    KW_STRING,
+    KW_LABEL,
 
     KW_PUSH,
     KW_POP,
@@ -33,11 +34,20 @@ enum Token {
     KW_R10,
     KW_RSP,
     KW_RBP,
-    
-    KW_LABEL,
-    TK_NUMBER,
-    TK_COLON, 
-    TK_COMMA,
+
+    TK_NUMBER, // int
+    TK_DOUBLE, // double
+    TK_STRING, // string
+    TK_DOT,    // .
+    TK_COLON,  // :
+    TK_COMMA,  // ,
+    TK_MUL,    // *
+    TK_AT,     // @
+    TK_IMME,   // $ immediate
+    TK_SUB,    // -
+    TK_REM,    // %
+    TK_LPAREN, // (
+    TK_RPAREN, // )
 };
 
 };

@@ -1,5 +1,5 @@
-#ifndef CO_LANG_ASM_PARSER_H
-#define CO_LANG_ASM_PARSER_H
+#ifndef CO_LANG_ASMER_PARSER_H
+#define CO_LANG_ASMER_PARSER_H
 #include <string>
 #include <tuple>
 #include <iostream>
@@ -12,11 +12,12 @@
 #include <cstdlib>
 #include "Scanner.h"
 
-namespace asm{
+
+namespace asmer {
     
 class Parser {
 public:
-    Scanner* scanner;
+    asmer::Scanner* scanner;
 
 public:
     explicit Parser(const std::string filepath);
@@ -25,7 +26,7 @@ public:
     void parse();
 };
 
-}
+};
 
 
 #endif //CO_LANG_PARSER_H

@@ -1,10 +1,11 @@
 #include "Parser.h"
+namespace asmer{
 
-asm::Parser::Parser(const std::string filepath):
+Parser::Parser(const std::string filepath)
 {
     scanner = new Scanner(filepath);
 }
-asm::Parser::~Parser()
+Parser::~Parser()
 {
     delete scanner;
 }
@@ -12,16 +13,18 @@ asm::Parser::~Parser()
 /**
  * @param rt
  */
-void asm::Parser::parse()
+void Parser::parse()
 {
 }
 
-std::string asm::Parser::printToken()
+std::string Parser::printToken()
 {
     auto  tk = scanner->scan();
     while(std::get<0>(tk) != TK_EOF){
-        std::cout << "" << getstd::get<0>(tk) << " => " << std::get<1>(tk) << "\n";
+        std::cout << "" << std::get<0>(tk) << " => " << std::get<1>(tk) << "\n";
         tk = scanner->scan();
     }
 
 }
+
+};
