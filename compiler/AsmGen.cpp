@@ -39,8 +39,6 @@ void AsmGen::execute()
 void AsmGen::registerMain()
 {
     writeln("  .globl main");
-    writeln("  .text");
-    writeln("  .type main, @function");
     writeln("main:");
     writeln("  push %%rbp");
     writeln("  mov %%rsp, %%rbp");

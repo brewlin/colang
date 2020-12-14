@@ -13,11 +13,7 @@ void Parser::asmgen()
         filename.c_str());
     }
     AsmGen::parser = this;
-//    AsmGen::writeln("  .file %d \"%s\"",fileno,filepath.c_str());
-    if(package == "main"){
-        //register main
-        AsmGen::registerMain();
-    }
+    AsmGen::writeln(".data");
     //1 计算变量的栈偏移量
     AsmGen::funcs_offsets();
     AsmGen::classs_offsets();
@@ -25,6 +21,13 @@ void Parser::asmgen()
     AsmGen::registerVars();
     //3 注册全局 string
     AsmGen::registerStrings();
+
+    AsmGen::writeln(".text");
+    //    AsmGen::writeln("  .file %d \"%s\"",fileno,filepath.c_str());
+    if(package == "main"){
+        //register main
+        AsmGen::registerMain();
+    }
     //4 注册 函数信息
     AsmGen::registerFuncs();
     //5 注册 对象

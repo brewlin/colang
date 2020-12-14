@@ -40,9 +40,7 @@ void AsmGen::CreateFunction(Function *fn,Class* c)
     Debug("create function :%s",funcname.c_str())
 
     //定义函数块 名
-    writeln("  .globl %s", funcname.c_str());
-    writeln("  .text");
-    writeln("  .type %s, @function", funcname.c_str());
+    writeln(".globl %s", funcname.c_str());
     writeln("%s:", funcname.c_str());
 
     //标记函数 start
