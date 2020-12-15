@@ -160,8 +160,8 @@ AsmGen::Push_arg(
 
 //        while
 
-        writeln("    jmp .L.while.end.%d",c);
-        writeln(".L.while.%d:",c);
+        writeln("    jmp L.while.end.%d",c);
+        writeln("L.while.%d:",c);
 
         //         stack = 16 + (size * 8);
         //         push(gstack(%rbp)
@@ -180,10 +180,10 @@ AsmGen::Push_arg(
 
         writeln("    sub $1,%d(%%rbp)",currentFunc->size);
         //while condition
-        writeln(".L.while.end.%d:",c);
+        writeln("L.while.end.%d:",c);
         writeln("    mov %d(%%rbp),%%rax",currentFunc->size);
         writeln("    cmp $0,%%rax");
-        writeln("    jg  .L.while.%d",c);
+        writeln("    jg  L.while.%d",c);
 
     //不需要对可变参数进行解引用，顺序存储寄存器即可
     }else{

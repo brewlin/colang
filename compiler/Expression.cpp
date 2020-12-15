@@ -380,10 +380,10 @@ void  FunCallExpr::asmgen(std::deque<Context*> ctx)
         AsmGen::writeln("    sub $-7,%d(%%rbp)",AsmGen::currentFunc->stack);
         //判断如果此时有栈参数则需要去除
         AsmGen::writeln("    cmp $0,%d(%%rbp)",AsmGen::currentFunc->stack);
-        AsmGen::writeln("    jle .L.if.end.%d",c);
+        AsmGen::writeln("    jle L.if.end.%d",c);
         AsmGen::writeln("    cmp %d(%%rbp),%%rdi",AsmGen::currentFunc->stack);
         AsmGen::writeln("    add %%rdi, %%rsp", stack_args * 8);
-        AsmGen::writeln(".L.if.end.%d:",c);
+        AsmGen::writeln("L.if.end.%d:",c);
     }else{
         AsmGen::writeln("    add $%d, %%rsp", stack_args * 8);
 

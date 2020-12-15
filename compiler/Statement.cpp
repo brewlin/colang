@@ -22,7 +22,7 @@ void IfStmt::asmgen(std::deque<Context *> ctx)
     Internal::isTrue();
 
     AsmGen::CreateCmp();
-    AsmGen::writeln("    je  .L.else.%d", c);
+    AsmGen::writeln("    je  L.else.%d", c);
 
     AsmGen::enterContext(ctx);
 
@@ -32,8 +32,8 @@ void IfStmt::asmgen(std::deque<Context *> ctx)
         stmt->asmgen(ctx);
     }
     AsmGen::leaveContext(ctx);
-    AsmGen::writeln("    jmp .L.end.%d", c);
-    AsmGen::writeln(".L.else.%d:", c);
+    AsmGen::writeln("    jmp L.end.%d", c);
+    AsmGen::writeln("L.else.%d:", c);
 
     if(elseBlock != nullptr){
         AsmGen::enterContext(ctx);
@@ -45,7 +45,7 @@ void IfStmt::asmgen(std::deque<Context *> ctx)
         //离开上下文
         AsmGen::leaveContext(ctx);
     }
-    AsmGen::writeln(".L.end.%d:", c);
+    AsmGen::writeln("L.end.%d:", c);
 
 }
 /**
@@ -58,18 +58,18 @@ void WhileStmt::asmgen(std::deque<Context *> ctx)
 
     int c = AsmGen::count ++;
     //表示循环开始的 标签：
-    AsmGen::writeln(".L.while.begin.%d:", c);
+    AsmGen::writeln("L.while.begin.%d:", c);
     //对判断条件的表达式求值
     this->cond->asmgen(ctx);
     Internal::isTrue();
     AsmGen::CreateCmp();
-    AsmGen::writeln("    je  .L.while.end.%d", c);
+    AsmGen::writeln("    je  L.while.end.%d", c);
 
     AsmGen::enterContext(ctx);
     //设置当前ctx 所处的 count计数  用于定位标签
     ctx.back()->point = c;
-    ctx.back()->end_str   = ".L.while.end";
-    ctx.back()->start_str = ".L.while.begin";
+    ctx.back()->end_str   = "L.while.end";
+    ctx.back()->start_str = "L.while.begin";
     //内层循环不断执行 while语句块
     //外层用于判断 条件是否继续为true
     for(auto& stmt : block->stmts){
@@ -78,8 +78,8 @@ void WhileStmt::asmgen(std::deque<Context *> ctx)
     }
     AsmGen::leaveContext(ctx);
 
-    AsmGen::writeln("    jmp .L.while.begin.%d",c);
-    AsmGen::writeln(".L.while.end.%d:", c);
+    AsmGen::writeln("    jmp L.while.begin.%d",c);
+    AsmGen::writeln("L.while.end.%d:", c);
 }
 /**
  * 表达式 语句
@@ -107,7 +107,7 @@ void ReturnStmt::asmgen(std::deque<Context *> ctx)
         //如果该变量不是 array 则抛出类型错误，不能对非数组变量进行索引操作
         std::string funcName = (*p)->cur_funcname;
         if (!funcName.empty())
-            AsmGen::writeln("    jmp .L.return.%s",funcName.c_str());
+            AsmGen::writeln("    jmp L.return.%s",funcName.c_str());
     }
 }
 /**

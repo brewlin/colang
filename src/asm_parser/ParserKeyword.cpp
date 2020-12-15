@@ -10,23 +10,31 @@
 
 namespace asmer{
     void Parser::parseKeyword() {
-        //必须以 .开头
-        assert(scanner->token() == TK_DOT);
-        //next
-        scanner->scan();
+        std::string label;
 
-        //解析段 .data .text
-        if(scanner->token() == KW_DATA || scanner->token() == KW_TEXT){
-            symtable->switchSeg(scanner->value());
-            //next
+        //解析到了 .
+        if(scanner->token() == TK_DOT){
+            // += .
+            label += scanner->value();
+            //eat .
             scanner->scan();
-            return;
+
+            //解析段 .data .text
+            if(scanner->token() == KW_DATA || scanner->token() == KW_TEXT){
+                symtable->switchSeg(scanner->value());
+                //next
+                scanner->scan();
+                return;
+            }
+            //解析 Label
+            if(scanner->token() == KW_LABEL){
+                parseLabel();
+                return;
+            }
+
         }
-        //解析 Label
-        if(scanner->token() == KW_LABEL){
-            parseLabel();
-            return;
-        }
+
+
     }
 
     //解析label

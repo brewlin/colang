@@ -39,6 +39,7 @@ int asmgen(char* argv[],bool run = false)
     gen.execute();
     if(run){
         system("gcc -g *.s -L./src/internal -linternal -L./src/gc -lgc");
+        system("rm *.s");
         system("./a.out");
     }
     return 0;

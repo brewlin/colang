@@ -15,7 +15,7 @@ void AsmGen::registerStrings()
     for(auto &var:parser->strs){
         stringstream ss;
         string r;
-        ss << ".L.." << count++;
+        ss << "L.." << count++;
         ss >> r;
         var->name = r;
         CreateGlobalString(var);

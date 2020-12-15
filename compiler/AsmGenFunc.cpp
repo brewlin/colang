@@ -90,7 +90,7 @@ void AsmGen::CreateFunction(Function *fn,Class* c)
     if(fn->name == "main")
         writeln("    mov $0, %%rax");
 
-    writeln(".L.return.%s:", funcname.c_str());
+    writeln("L.return.%s:", funcname.c_str());
     writeln("    mov %%rbp, %%rsp");
     writeln("    pop %%rbp");
     writeln("    ret");
