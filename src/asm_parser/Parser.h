@@ -26,7 +26,12 @@ public:
     std::string printToken();
     void parse();
     void parseKeyword();
+    void parseGlobal();
+    void parseQuad();
+    void parseString();
+
     void parseLabel();
+
     void parseInstruct();
 };
 

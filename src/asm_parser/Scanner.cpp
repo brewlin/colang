@@ -6,12 +6,12 @@ namespace asmer {
 
 Scanner::Scanner(const std::string filepath)
 {
-    keywords["comm"]       = KW_COMM;
-    keywords["global"]     = KW_GLOBAL;
-    keywords["text"]       = KW_TEXT;
-    keywords["data"]       = KW_DATA;
-    keywords["type"]       = KW_TYPE;
-    keywords["string"]    = KW_STRING;
+    keywords[".global"]     = KW_GLOBAL;
+    keywords[".text"]       = KW_TEXT;
+    keywords[".data"]       = KW_DATA;
+    keywords[".string"]    = KW_STRING;
+    keywords[".quad"]    = KW_QUAD;
+
     keywords["push"]     = KW_PUSH;
     keywords["pop"]     = KW_POP;
     keywords["mov"]     = KW_MOV;

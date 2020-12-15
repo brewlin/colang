@@ -6,12 +6,11 @@ namespace asmer
     
 enum Token {
     INVALID = 0, TK_EOF,
-    KW_COMM,
     KW_STRING,
+    KW_QUAD,
     KW_GLOBAL,
     KW_DATA,
     KW_TEXT,
-    KW_TYPE,
     KW_LABEL,
 
     KW_PUSH,

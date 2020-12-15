@@ -19,6 +19,9 @@ namespace asmer{
             //eat .
             scanner->scan();
 
+            //下面肯定是关键字了，目前规定只有.label 是关键字
+            assert(scanner->token() >= KW_COMM && scanner->token() <= KW_LABEL);
+
             //解析段 .data .text
             if(scanner->token() == KW_DATA || scanner->token() == KW_TEXT){
                 symtable->switchSeg(scanner->value());
@@ -26,12 +29,13 @@ namespace asmer{
                 scanner->scan();
                 return;
             }
-            //解析 Label
-            if(scanner->token() == KW_LABEL){
-                parseLabel();
-                return;
-            }
+            //解析其他的如 .global .quad .string
+        }
 
+        //解析 Label
+        if(scanner->token() == KW_LABEL){
+            parseLabel();
+            return;
         }
 
 
