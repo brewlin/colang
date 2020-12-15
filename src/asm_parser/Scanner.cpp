@@ -54,10 +54,10 @@ Token Scanner::token()const {
 std::string Scanner::value()const {
     return std::get<std::string>(currentToken);
 }
-std::tuple<Token,std::string> Scanner::scan(){
+Token Scanner::scan(){
     auto tk = _scan();
     currentToken = tk;
-    return tk;
+    return token();
 }
 // parseNumber
 std::tuple<Token,std::string> Scanner::parseNumber(char first)
@@ -144,10 +144,9 @@ std::tuple<Token,std::string> Scanner::_scan() {
         goto blank;
     }
     if(c >= '0' && c <= '9') return parseNumber(c);
-    if( (c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') || c == '_') return parseKeyword(c);
+    if( c == '.' || (c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') || c == '_') return parseKeyword(c);
 
     if(c == '\"') return parseString(c);
-    if(c == '.')  return std::make_tuple(TK_DOT     ,".");
     if(c == ':')  return std::make_tuple(TK_COLON   ,":");
     if(c == '(')  return std::make_tuple(TK_LPAREN  ,"(");
     if(c == ')')  return std::make_tuple(TK_RPAREN  ,")");

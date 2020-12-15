@@ -23,18 +23,17 @@ public:
     ~Scanner();
     std::string printToken();
 
-    // std::unordered_map<std::string,VarExpr*>   gvars;
-    // std::vector<StringExpr*>                   strs;
     std::fstream fs;
     std::unordered_map<std::string,Token > keywords;
     std::tuple<Token ,std::string>         currentToken;
 
-    char            next();
-    char            peek();
     Token           token()const;
     std::string     value()const;
+    Token           scan();
+private:
+    char            next();
+    char            peek();
 
-    std::tuple <Token ,std::string> scan();
     std::tuple <Token ,std::string> _scan();
     std::tuple <Token ,std::string> parseNumber(char first);
     std::tuple <Token ,std::string> parseString(char c);

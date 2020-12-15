@@ -9,38 +9,21 @@
 #include "src/asm_ast/Sym.h""
 
 namespace asmer{
-    void Parser::parseKeyword() {
-        std::string label;
+    /**
+     * 解析 global定义
+     */
+    void Parser::parseGlobal() {
+        assert(scanner->token() == KW_GLOBAL);
 
-        //解析到了 .
-        if(scanner->token() == TK_DOT){
-            // += .
-            label += scanner->value();
-            //eat .
-            scanner->scan();
+        //next
+        assert(scanner->scan() == KW_LABEL);
 
-            //下面肯定是关键字了，目前规定只有.label 是关键字
-            assert(scanner->token() >= KW_COMM && scanner->token() <= KW_LABEL);
+        //TODO: save global label
+        std::string labelname = scanner->value();
 
-            //解析段 .data .text
-            if(scanner->token() == KW_DATA || scanner->token() == KW_TEXT){
-                symtable->switchSeg(scanner->value());
-                //next
-                scanner->scan();
-                return;
-            }
-            //解析其他的如 .global .quad .string
-        }
-
-        //解析 Label
-        if(scanner->token() == KW_LABEL){
-            parseLabel();
-            return;
-        }
-
-
+        scanner->next();
+        return;
     }
-
     //解析label
     void Parser::parseLabel() {
         std::string labelname = scanner->value();
@@ -48,41 +31,56 @@ namespace asmer{
         scanner->scan();
         // :
         assert(scanner->token() == TK_COLON);
+
+        //label下有两种情况，
+        //1 数据定义
+        //2 函数指令
+        //next
+        switch(scanner->scan()){
+            case KW_QUAD:
+                parseQuad(labelname);
+                return;
+            case KW_STRING:
+                parseString(labelname):
+                return;
+            default:
+        }
+
+        //其他情况就是函数定义了
+        Function* func =parseFunction(labelname);
+        funcs.push_back(func);
+        return;
+
+    }
+    /**
+     * 解析 全局变量
+     * @param labelname
+     */
+    void Parser::parseQuad(std::string labelname) {
+        assert(scanner->token() == KW_QUAD);
+
+        //下一个是变量的大小
+        assert(scanner->scan() == TK_NUMBER);
+        int len = std::stoi(scanner->value());
+
+        Sym* sym = new Sym(labelname,len);
+        symtable->addSym(sym);
+
+        //next
         scanner->scan();
+        return;
+    }
+    void Parser::parseString(std::string labelname) {
+         assert(scanner->token() == KW_STRING);
 
-        //下面有两种可能
-        /**
-         * 1. label: 这个是一个函数定义
-         * 2. label :数据类型定义
-         *          .string
-         */
-         //stirng 数据定义
-         if(scanner->token() == TK_DOT){
-             //must .string
-             scanner->scan();
-             assert(scanner->token() == KW_STRING);
+        //下一个是变量的大小
+        assert(scanner->scan() == TK_STRING);
 
-             //string value
-             scanner->scan();
-             assert(scanner->token() == TK_STRING);
+        Sym* sym = new Sym(labelname,scanner->value());
+        symtable->addSym(sym);
 
-             //将该全局字符串符号加入 符号表
-             Sym* sym = new Sym(labelname,false);
-             sym->str = scanner->value();
-             symtable->addSym(sym);
-
-             //next
-             scanner->next();
-             return;
-
-         //普通标签定义 如 :函数名
-         }else{
-             Sym* sym = new Sym(labelname,false);
-             symtable->addSym(sym);
-//             当前返回让顶层继续解析
-             return;
-
-         }
-
+        //next
+        scanner->scan();
+        return;
     }
 };

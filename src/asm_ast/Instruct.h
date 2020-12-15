@@ -41,6 +41,17 @@ namespace asmer{
         void writeDisp();
     };
 
+    class Instruct{
+    public:
+        Instruct(Token type):type(type){}
+        ~Instruct(){}
+
+        Token  type;
+        Inst*  inst;
+        SIB*   sib;
+        ModRM* modrm;
+    };
+
 };
 
 #endif //COLANG_INSTRUCT_H

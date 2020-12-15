@@ -11,6 +11,8 @@
 #include <cassert>
 #include <cstdlib>
 #include "Scanner.h"
+#include "src/asm_ast/Function.h"
+#include "src/asm_ast/Instruct.h"
 
 
 namespace asmer {
@@ -18,7 +20,9 @@ namespace asmer {
     
 class Parser {
 public:
-    asmer::Scanner* scanner;
+    asmer::Scanner*        scanner;
+    asmer::SymTable*       symtable;
+    std::vector<Function*> funcs;
 
 public:
     explicit Parser(const std::string filepath);
@@ -27,12 +31,15 @@ public:
     void parse();
     void parseKeyword();
     void parseGlobal();
-    void parseQuad();
-    void parseString();
-
+    void parseQuad(std::string labelname);
+    void parseString(std::string labelname);
     void parseLabel();
 
-    void parseInstruct();
+    Instruct* parseInstruct();
+    Instruct* parseZeroInstruct();
+    Instruct* parseOneInstruct();
+    Instruct* parseTwoInstruct();
+    Function* parseFunction(std::string labelname);
 };
 
 };

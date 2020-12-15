@@ -10,6 +10,7 @@ namespace asmer{
 Parser::Parser(const std::string filepath)
 {
     scanner = new Scanner(filepath);
+    symtable = new SymTable();
 }
 Parser::~Parser()
 {
@@ -17,6 +18,7 @@ Parser::~Parser()
 }
 
 /**
+ * 解析
  * @param rt
  */
 void Parser::parse()
@@ -25,22 +27,28 @@ void Parser::parse()
     if(scanner->token() == TK_EOF) return;
 
     do{
-        asmer::Token tk = scanner->token();
-        //解析指令 mov,push je jmp call ...等
-        if(tk >= KW_PUSH && tk <= KW_JE){
-            parseInstruct();
-            continue;
+        //能走到最外层 一般只有 .text .data  .global 已经标签声明
+        switch(scanner->token()){
+            //解析段声明
+            case KW_DATA:
+            case KW_TEXT:{
+                symtable->switchSeg(scanner->value());
+                //next
+                scanner->scan();
+                continue;
+            }
+            case KW_GLOBAL: parseGlobal(); continue;
+            case KW_LABEL : parseLabel();  continue;
+            default:
         }
-        //解析全局关键字，如全局数据定义
-        if(tk == TK_DOT || (tk >= KW_COMM && tk <= KW_LABEL)){
-            parseKeyword();
-            continue;
-        }
-
-        parse_err("unknow instruct:%s\n",scanner->value());
+        parse_err("[Paser] unknow instruct:%s\n",scanner->value());
     }while(scanner->token() != TK_EOF);
 }
 
+/**
+ *
+ * @return
+ */
 std::string Parser::printToken()
 {
     auto  tk = scanner->scan();

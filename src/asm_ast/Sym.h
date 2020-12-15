@@ -38,6 +38,8 @@ namespace asmer{
         int         len;
         std::string str;
         Sym(std::string name,bool externed);
+        Sym(std::string name,int len);
+        Sym(std::string name,std::string str);
         ~Sym();
         //输出符号内容
         void write();

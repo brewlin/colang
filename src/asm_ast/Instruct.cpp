@@ -12,11 +12,6 @@ namespace asmer{
 //ModRM,SIB,Inst结构
     ModRM::ModRM()
     {
-        init();
-    }
-
-    void ModRM::init()
-    {
         mod=-1;
         reg=0;
         rm=0;
@@ -24,22 +19,13 @@ namespace asmer{
 
     SIB::SIB()
     {
-        init();
-    }
-
-    void SIB::init()
-    {
         scale=-1;
         index=0;
         base=0;
     }
 
-    Inst::Inst()
-    {
-        init();
-    }
 
-    void Inst::init()
+    Inst::Inst()
     {
         opcode=0;
         disp=0;

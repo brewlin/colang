@@ -29,7 +29,7 @@ namespace asmer
         //初始化当前符号偏移量
         addr = curAddr;
         //TODO: 初始化当前符号所在的段名
-//        segName = currentSeg;
+        segName = ".text";
         //当前符号默认长度为0
         len = 0;
         if(externed){
@@ -39,7 +39,64 @@ namespace asmer
         }
 
     }
+    /**
+     * 数字定义
+     * @param name
+     * @param len
+     */
+    Sym::Sym(std::string name, int len) {
+        addr     = curAddr;
+        segName  = ".data";
+        len      = len;
+        externed = false;
+        curAddr  += len;
+    }
+    void Sym::write() {
+        //TODO:
+        Asmer::write(value,len);
+    }
+    Sym::~Sym() {
 
+    }
+
+
+    int SymTable::hasName(std::string name) {
+        return symbolTable.find(name) != symbolTable.end();
+    }
+    void SymTable::addSym(asmer::Sym *sym) {
+        //只在第一遍添加符号
+        if(scanLop != 1){
+            delete  sym;
+            return;
+        }
+        //本地符号覆盖外部符号
+        if(hasName(sym->name)){
+            //如果本地保存的为外部符号，且新增的这个为本地符号 说明可以覆盖了
+            if(symbolTable[sym->name]->externed == true && sym->externed == false){
+                //删除之前保存的
+                delete symbolTable[sym->name];
+                symbolTable[sym->name] = sym;
+            }
+            //符号不存在
+        }else{
+            symbolTable[sym->name] = sym;
+        }
+
+    }
+    /**
+     * 静态字符串定义
+     * @param name
+     * @param str
+     */
+    Sym::Sym(std::string name, std::string str):
+    name(name)
+    {
+        addr     = curAddr;
+        segName  = ".data";
+        len      = str.size();
+        externed = false;
+        curAddr  += str.size();
+    }
     void Sym::write() {
         //TODO:
         Asmer::write(value,len);

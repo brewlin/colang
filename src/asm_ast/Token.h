@@ -13,15 +13,31 @@ enum Token {
     KW_TEXT,
     KW_LABEL,
 
+    // need 2 op
+    KW_MOV,
+    KW_CMP,
+    KW_SUB,
+    KW_ADD,
+    KW_LEA,
+
+    // need 1 op
+    KW_CALL,
+    KW_MUL,
+    KW_DIV,
+    KW_NEG,
+    KW_INC,
+    KW_DEC,
+    KW_JMP,
+    KW_JE,
+    KW_JG,
+    KW_JL,
+    KW_JLE,
+    KW_JNA,
     KW_PUSH,
     KW_POP,
-    KW_MOV,
-    KW_SUB,
-    KW_CALL,
+
+    //need 0 op
     KW_RET,
-    KW_LEA,
-    KW_CMP,
-    KW_JE,
 
     KW_RAX,
     KW_RBX,
@@ -48,6 +64,18 @@ enum Token {
     TK_REM,    // %
     TK_LPAREN, // (
     TK_RPAREN, // )
+};
+
+//指令类型
+//1 立即数
+//2 寄存器
+//3 内存地址
+enum InstType {
+
+    INVALID = 0,
+    TY_IMMED,
+    TY_REG,
+    TY_MEM,
 };
 
 };
