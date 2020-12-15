@@ -34,7 +34,7 @@ void AsmGen::registerVars()
 {
     for(auto &var:parser->gvars){
         string name  = var.first;
-        string gname = parser->getpkgname() + "." + name;
+        string gname = parser->getpkgname() + "_" + name;
         writeln("    .global %s",gname.c_str());
         writeln("%s:",gname.c_str());
         writeln("    .quad   8");

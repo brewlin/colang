@@ -357,7 +357,7 @@ void  FunCallExpr::asmgen(std::deque<Context*> ctx)
         if(func->isExtern){
             AsmGen::writeln("    mov %s@GOTPCREL(%%rip), %%rax", funcname.c_str());
         }else{
-            std::string realfuncname = package + "." + funcname;
+            std::string realfuncname = package + "_" + funcname;
             AsmGen::writeln("    mov %s@GOTPCREL(%%rip), %%rax", realfuncname.c_str());
         }
 
@@ -585,7 +585,7 @@ void  NewExpr::asmgen(std::deque<Context*> ctx)
 
     for(auto func : s->funcs){
         std::string funcname = func->parser->getpkgname() + 
-                                "." + s->name + "." + func->name;
+                                "_" + s->name + "_" + func->name;
         AsmGen::writeln("    mov %s@GOTPCREL(%%rip), %%rax", funcname.c_str());
         AsmGen::Push();
         Internal::object_func_add(func->name);

@@ -32,10 +32,10 @@ void AsmGen::CreateFunction(Function *fn,Class* c)
 {
     //extern 不需要 翻译
     if(fn->isExtern) return;
-    std::string funcname = fn->parser->getpkgname() + "." + fn->name;
+    std::string funcname = fn->parser->getpkgname() + "_" + fn->name;
     //成员函数
     if(c){
-        funcname = fn->parser->getpkgname() + "." + c->name + "." + fn->name;
+        funcname = fn->parser->getpkgname() + "_" + c->name + "_" + fn->name;
     }
     Debug("create function :%s",funcname.c_str())
 

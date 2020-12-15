@@ -44,7 +44,7 @@ void AsmGen::registerMain()
     writeln("    mov %%rsp, %%rbp");
     writeln("    sub $%d, %%rsp", 0);
     Internal::call("gc_init");
-    writeln("    mov %s@GOTPCREL(%%rip), %%rax", "main.main");
+    writeln("    mov %s@GOTPCREL(%%rip), %%rax", "main_main");
     writeln("    mov %%rax, %%r10");
     writeln("    mov $%d, %%rax", 0);
     writeln("    call *%%r10");
