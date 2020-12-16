@@ -50,6 +50,7 @@ enum Token {
     KW_R10,
     KW_RSP,
     KW_RBP,
+    KW_RIP,
 
     TK_NUMBER, // int
     TK_DOUBLE, // double
@@ -70,12 +71,14 @@ enum Token {
 //1 立即数
 //2 寄存器
 //3 内存地址
+//4 重定位链接符号
 enum InstType {
 
     INVALID = 0,
     TY_IMMED,
     TY_REG,
     TY_MEM,
+    TY_REL,
 };
 
 };

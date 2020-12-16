@@ -43,9 +43,15 @@ namespace asmer{
 
     class Instruct{
     public:
-        Instruct(Token type):type(type){}
+        Instruct(Token type):
+        type(type),
+        regnum(0){}
         ~Instruct(){}
 
+        //两个指令中 可能有一个是重定向符号
+        std::string name;
+        //寄存器个数
+        int    regnum;
         Token  type;
         Inst*  inst;
         SIB*   sib;

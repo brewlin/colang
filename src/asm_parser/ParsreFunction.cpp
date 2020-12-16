@@ -21,10 +21,26 @@ namespace asmer
         //将标签保存起来
         Function* func = new Function(labelname);
 
+        //解析当前标签(函数)下所有的指令 并保存到function中
+        Instruct* inst;
         do{
-            Instruct* inst = parseInstruct();
-            func->instructs.push_back(inst);
 
+            Token token = scanner->token();
+
+            //解析两个参数的指令
+            if( token >= KW_MOV && token <= KW_LEA )
+                inst  = parseTwoInstruct();
+            //解析1个参数的指令
+            else if( token >= KW_CALL && token <= KW_POP )
+                inst  = parseOneInstruct();
+            //解析0个参数的指令
+            else if(token == KW_RET)
+                inst  = parseZeroInstruct();
+            else
+                parse_err("[Parser] unknow instruct:%s\n",scanner->value());
+
+            func->instructs.push_back(inst);
+        //当前token 必须是指令
         }(scanner->token() >= KW_PUSH && scanner->token() <= KW_RET);
 
     }

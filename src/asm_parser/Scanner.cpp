@@ -33,6 +33,7 @@ Scanner::Scanner(const std::string filepath)
     keywords["%r10"]  = KW_R10;
     keywords["%rsp"]  = KW_RSP;
     keywords["%rbp"]  = KW_RBP;
+    keywords["%rip"]  = KW_RIP;
     fs.open(filepath);
     if(!fs.is_open()){
         parse_err("ParserError: can not open script file :%s\n",filepath.c_str());
@@ -151,7 +152,7 @@ std::tuple<Token,std::string> Scanner::_scan() {
     if(c == '(')  return std::make_tuple(TK_LPAREN  ,"(");
     if(c == ')')  return std::make_tuple(TK_RPAREN  ,")");
     if(c == ',')  return std::make_tuple(TK_COMMA   ,",");
-    if(c == '%')  return std::make_tuple(TK_REM     ,"%");
+    if(c == '%')  return parseKeyword('%');//std::make_tuple(TK_REM     ,"%");
     if(c == '-')  return std::make_tuple(TK_SUB     ,"-");
     if(c == '*')  return std::make_tuple(TK_MUL     ,"*");
     if(c == '@')  return std::make_tuple(TK_AT      ,"@");

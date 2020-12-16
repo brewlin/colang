@@ -35,10 +35,11 @@ public:
     void parseString(std::string labelname);
     void parseLabel();
 
-    Instruct* parseInstruct();
+    void      parseInstruct(Instruct* inst);
     Instruct* parseZeroInstruct();
     Instruct* parseOneInstruct();
     Instruct* parseTwoInstruct();
+
     Function* parseFunction(std::string labelname);
 };
 

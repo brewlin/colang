@@ -142,7 +142,7 @@ namespace asmer
         if(hasName(name)){
             return symbolTable[name];
         }else{
-            //处理未知符号
+            //获取诸葛符号的时候没有定义，默认先创建一个外部符号添加到全局符号表中
             symbolTable[name] = new Sym(name,true);
             return symbolTable[name];
         }
