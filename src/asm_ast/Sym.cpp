@@ -154,15 +154,12 @@ namespace asmer
      * @param segname
      */
     void SymTable::switchSeg(std::string segname) {
-        if(scanLop == 1)
-        {
-            //地址对齐
-            dataLen += (4 - dataLen % 4 ) % 4;
-            //新建一个段
-            obj.addShdr(curSeg,Sym::curAddr);
-            if(curSeg != ".bss")
-                dataLen += Sym::curAddr;
-        }
+        //地址对齐
+        dataLen += (4 - dataLen % 4 ) % 4;
+        //新建一个段
+        obj.addShdr(curSeg,Sym::curAddr);
+        if(curSeg != ".bss")
+            dataLen += Sym::curAddr;
         //切换下一个段名
         curSeg = segname;
         //清0段偏移

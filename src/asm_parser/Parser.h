@@ -20,8 +20,11 @@ namespace asmer {
     
 class Parser {
 public:
+    //文件解析扫描
     asmer::Scanner*        scanner;
+    //全局 data段里的各种符号
     asmer::SymTable*       symtable;
+    //全局 text段里的各种指令
     std::vector<Function*> funcs;
 
 public:

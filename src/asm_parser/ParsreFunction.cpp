@@ -43,6 +43,7 @@ namespace asmer
         //当前token 必须是指令
         }(scanner->token() >= KW_PUSH && scanner->token() <= KW_RET);
 
+        return func;
     }
 
 };

@@ -12,7 +12,7 @@
 
 namespace asmer{
     void      Parser::parseInstruct(Instruct* inst) {
-        std::string name;;
+        std::string name;
         Sym* sym;
         //为了兼容 gnu 汇编 语法，这里做了很多兼容，目前支持的汇编指令如下
         /**
@@ -64,8 +64,11 @@ namespace asmer{
             case KW_LABEL:{
                 //label name
                 std::string name = scanner->value();
+                inst->rel        = true;
                 //next one
                 if(scanner->scan() == TK_AT){
+                    //表明这是一个函数引用，需要进行相对地址定位
+                    inst->is_func = true;
                     //next one shuould be GOTPCREL
                     assert(scanner->scan() == KW_LABEL);
                     //next one
@@ -80,6 +83,7 @@ namespace asmer{
                 assert(scanner->scan() == TK_RPAREN);
                 //从符号表里查找看看是否已经定义了
                 //计算没有定义也会返回一个 默认的 sym 并写入符号表中
+                //TODO: 代码段中 有对符号的引用，需要后面计算是本地符号还是外部符号
                 Sym* sym = symtable->getSym(name);
                 //获得该符号的偏移量地址
                 inst->inst->imm32 = sym->addr;
@@ -189,16 +193,23 @@ namespace asmer{
         assert(scanner->token() >= KW_MOV && scanner->token() <= KW_LEA );
         //构建一条指令数据
         Instruct * inst = new Instruct(scanner->token());
-
-
-
+        parseInstruct(inst);
+        //这里应该是逗号 ,
+        assert(scanner->token() == TK_COMMA);
+        //eat ,
+        parseInstruct(inst);
+        return inst;
     }
     Instruct* Parser::parseOneInstruct() {
         //构建一条指令数据
-        Instruct * inst = new Instruct;
+        Instruct * inst = new Instruct(scanner->token());
+        parseInstruct(inst);
+        return inst;
     }
     Instruct* Parser::parseZeroInstruct() {
-        //构建一条指令数据
-        Instruct * inst = new Instruct;
+        //构建一条指令数据  like: ret
+        Instruct * inst = new Instruct(scanner->token());
+        parseInstruct(inst);
+        return inst;
     }
 };

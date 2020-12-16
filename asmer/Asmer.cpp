@@ -7,6 +7,26 @@
 #include "Asmer.h"
 #include "src/asm_ast/Sym.h"
 
+void Asmer::Asmer(std::string filename) {
+    paser = new Parser(filename);
+}
+/**
+ * start
+ */
+void Asmer::execute() {
+    /**
+     * 进行汇编代码翻译
+     * 1. 解析数据段 加入符号表
+     * 2. 解析代码段 备用
+     */
+    paser->parse();
+
+    //更新代码段中的引用
+    updateText();
+    //处理所有的指令集 并更新重定位
+    updateInstructs();
+
+}
 
 /**
  * 	按照小端顺序（little endian）输出指定长度数据

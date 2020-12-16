@@ -44,18 +44,35 @@ namespace asmer{
     class Instruct{
     public:
         Instruct(Token type):
+        is_rel(false),
+        is_func(false),
         type(type),
         regnum(0){}
         ~Instruct(){}
 
-        //两个指令中 可能有一个是重定向符号
+        //表示有引用
+        bool   is_rel;
+        //表示当前组合中，有一个指令包含了引用符号，两个指令中 可能有一个是重定向符号
         std::string name;
+        //表明当前的指令组合中有 对外的函数引用，那么上面的name就是那个函数的标签
+        bool   is_func;
+        Token  type;
         //寄存器个数
         int    regnum;
-        Token  type;
+
+
         Inst*  inst;
         SIB*   sib;
         ModRM* modrm;
+
+    public:
+        bool updateRel(int type);//处理可能的重定位信息
+        void gen2Op();
+        void gen1Op();
+        void gen0Op();
+        void writeModRM();
+        void writeSIB();
+        void writeBytes(int value,int len);
     };
 
 };
