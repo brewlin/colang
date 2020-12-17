@@ -5,7 +5,8 @@
 #include "elf.h"
 #include "src/asm_ast/Sym.h"
 //STL模板库
-#include <ext/hash_map>
+#include <unordered_map>
+#include <map>
 #include <vector>
 using namespace std;
 using namespace __gnu_cxx;
@@ -31,40 +32,47 @@ struct RelInfo
 
 
 //elf文件类，包含elf文件的重要内容，处理elf文件
-class Elf_file
+class ElfFile
 {
 public:
+	int  offset = 0;
 	//elf文件重要数据结构
-	Elf32_Ehdr ehdr;//文件头
-	hash_map<string, Elf32_Shdr*,string_hash> shdrTab;//段表
-	vector<string>shdrNames;//段表名和索引的映射关系，方便符号查询自己的段信息
-	hash_map<string,Elf32_Sym*,string_hash>symTab;//符号表
-	vector<string>symNames;//符号名与符号表项索引的映射关系，对于重定位表生成重要
-	vector<RelInfo*>relTab;//重定位表
+	Elf64_Ehdr ehdr;//文件头
+	map<string, Elf64_Shdr*> shdrTab;//段表
+	map<string,int>          strIndex; //段字符串表
+	vector<string>			 shdrNames;//段表名和索引的映射关系，方便符号查询自己的段信息
+	map<string,Elf64_Sym*>   symTab; //符号表
+	vector<string>			 symNames;//符号名与符号表项索引的映射关系，对于重定位表生成重要
+	vector<RelInfo*>		 relTab;//重定位表
+	vector<Elf64_Rel*>       relTextTab,relDataTab;
 	//辅助数据
-	char*shstrtab;//段表字符串表数据
-	int shstrtabSize;//段表字符串表长
-	char*strtab;//字符串表数据
-	int strtabSize;//字符串表长
-	vector<Elf32_Rel*>relTextTab,relDataTab;
+	char	*shstrtab;//段表字符串表数据
+	int 	shstrtab_size;//段表字符串表长
+	char	*strtab;//字符串表数据
+	int 	strtab_size;//字符串表长
 public:
-	Elf_file();
+	ElfFile();
 	int getSegIndex(string segName);//获取指定段名在段表下标
 	int getSymIndex(string symName);//获取指定符号名在符号表下标
 	void addShdr(string sh_name,int size);
-	void addShdr(string sh_name,Elf32_Word sh_type,Elf32_Word sh_flags,Elf32_Addr sh_addr,Elf32_Off sh_offset,
-			Elf32_Word sh_size,Elf32_Word sh_link,Elf32_Word sh_info,Elf32_Word sh_addralign,
-			Elf32_Word sh_entsize);//添加一个段表项
+	void addShdr(string sh_name,Elf64_Word sh_type,Elf64_Word sh_flags,Elf64_Addr sh_addr,Elf64_Off sh_offset,
+			Elf64_Word sh_size,Elf64_Word sh_link,Elf64_Word sh_info,Elf64_Word sh_addralign,
+			Elf64_Word sh_entsize);//添加一个段表项
 	void addSym(Sym*lb);
-	void addSym(string st_name,Elf32_Sym*);//添加一个符号表项
+	void addSym(string st_name,Elf64_Sym*);//添加一个符号表项
 	RelInfo* addRel(string seg,int addr,string lb,int type);//添加一个重定位项，相同段的重定位项连续（一般是先是.rel.text后.rel.data）
 	void padSeg(string first,string second);//填充段间的空隙
-	void assmObj();//组装文件
-	void writeElfTail();//输出文件尾部
-	void writeElf();
-	void printAll();	
+	//构建头部和段表
+	void buildEhdr();
+	void buildSectab();
+	void buildData();
+	void buildText();
+	void buildShstrtab();
+	void buildSymtab();
+	void buildStrtab();
+	void buildRelTab();
+	void printAll();
 	~Elf_file();
 };
 
-extern Elf_file obj;//输出目标文件，使用fout输出
 #endif //elf_file.h

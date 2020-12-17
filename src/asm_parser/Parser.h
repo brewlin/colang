@@ -26,6 +26,8 @@ public:
     asmer::SymTable*       symtable;
     //全局 text段里的各种指令
     std::vector<Function*> funcs;
+    std::string            filename;
+    std::string            outname;
 
 public:
     explicit Parser(const std::string filepath);
@@ -38,7 +40,7 @@ public:
     void parseString(std::string labelname);
     void parseLabel();
 
-    void      parseInstruct(Instruct* inst);
+    InstType  parseInstruct(Instruct* inst);
     Instruct* parseZeroInstruct();
     Instruct* parseOneInstruct();
     Instruct* parseTwoInstruct();

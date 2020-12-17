@@ -47,6 +47,8 @@ namespace asmer{
         is_rel(false),
         is_func(false),
         type(type),
+        left(-1),
+        right(-1),
         regnum(0){}
         ~Instruct(){}
 
@@ -60,6 +62,8 @@ namespace asmer{
         //寄存器个数
         int    regnum;
 
+        InstType   left;
+        InstType   right;
 
         Inst*  inst;
         SIB*   sib;
@@ -67,6 +71,7 @@ namespace asmer{
 
     public:
         bool updateRel(int type);//处理可能的重定位信息
+        void gen();
         void gen2Op();
         void gen1Op();
         void gen0Op();

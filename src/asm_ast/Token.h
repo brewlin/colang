@@ -34,6 +34,7 @@ enum Token {
     KW_JLE,
     KW_JNA,
     KW_PUSH,
+    KW_INT,
     KW_POP,
 
     //need 0 op
@@ -73,7 +74,6 @@ enum Token {
 //3 内存地址
 //4 重定位链接符号
 enum InstType {
-
     INVALID = 0,
     TY_IMMED,
     TY_REG,

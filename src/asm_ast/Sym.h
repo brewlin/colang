@@ -20,12 +20,13 @@
 
 namespace asmer{
 
+    extern int  curAddr;
+    extern int  dataLen;
 
     //符号记录
     struct Sym
     {
         //一个段内符号的偏移累加量
-        static int  curAddr;
         //段名，如: .text .data .bass 当前64位没有显示指定 会自动判断
         std::string segName;
         //符号名
@@ -41,8 +42,6 @@ namespace asmer{
         Sym(std::string name,int len);
         Sym(std::string name,std::string str);
         ~Sym();
-        //输出符号内容
-        void write();
     };
 
     //符号表
@@ -53,7 +52,7 @@ namespace asmer{
         //符号声明列表
         std::unordered_map<std::string,Sym*> symbolTable;
         //记录有序的符号数据定义
-        std::vector<Sym*>                    order_symbol;
+        std::vector<Sym*>                    data_symbol;
 
     public:
         //检查符号是否存在

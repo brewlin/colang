@@ -54,7 +54,7 @@ namespace asmer{
                 }
                 //保存立即数
                 inst->inst->imm32 = number;
-                break;
+                return TY_IMMED;
             }
             /*
              * 2. 重定位符号
@@ -91,7 +91,7 @@ namespace asmer{
 
                 //next one
                 scanner->scan();
-                break;
+                return TY_REL;
             }
             /**
              *
@@ -135,7 +135,7 @@ namespace asmer{
                 //next one
                 assert(scanner->scan() == TK_RPAREN);
                 scanner->scan();
-                break;
+                return TY_MEM;
 
             }
             case TK_LPAREN:{
@@ -165,7 +165,7 @@ namespace asmer{
                 assert(scanner->scan() == TK_RPAREN);
                 //next one
                 scanner->scan();
-                break;
+                return TY_MEM;
             }
             default: {//寄存器操作数 11 rm=des reg=src
                 //其他的默认为指令
@@ -184,32 +184,30 @@ namespace asmer{
 
                 //next one
                 scanner->scan();
-
+                return TY_REG;
             }
         }
-        return inst;
     }
     Instruct* Parser::parseTwoInstruct() {
         assert(scanner->token() >= KW_MOV && scanner->token() <= KW_LEA );
         //构建一条指令数据
         Instruct * inst = new Instruct(scanner->token());
-        parseInstruct(inst);
+        inst->left      = parseInstruct(inst);
         //这里应该是逗号 ,
         assert(scanner->token() == TK_COMMA);
         //eat ,
-        parseInstruct(inst);
+        inst->right     = parseInstruct(inst);
         return inst;
     }
     Instruct* Parser::parseOneInstruct() {
         //构建一条指令数据
         Instruct * inst = new Instruct(scanner->token());
-        parseInstruct(inst);
+        inst->left      = parseInstruct(inst);
         return inst;
     }
     Instruct* Parser::parseZeroInstruct() {
         //构建一条指令数据  like: ret
         Instruct * inst = new Instruct(scanner->token());
-        parseInstruct(inst);
         return inst;
     }
 };

@@ -14,6 +14,7 @@ Scanner::Scanner(const std::string filepath)
 
     keywords["push"]     = KW_PUSH;
     keywords["pop"]     = KW_POP;
+    keywords["int"]     = KW_INT;
     keywords["mov"]     = KW_MOV;
     keywords["sub"]   = KW_SUB;
     keywords["call"]    = KW_CALL;

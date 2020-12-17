@@ -7,6 +7,10 @@
 #include "Asmer.h"
 #include <iomanip>
 #include "../src/asm_ast/Instruct.h"
+#include "../src/asm_ast/Token.h"
+
+
+
 namespace asmer{
     
 
@@ -41,7 +45,7 @@ int inLen = 0;
 void Instruct::writeModRM() {
     if(modrm.mod!=-1)//有效
     {
-        unsigned char mrm=(unsigned char)(((modrm.mod&0x00000003)<<6)+((modrm.reg&0x0000007)<<3)+(modrm.rm&0x00000007));
+        unsigned char mrm=(unsigned char)(((modrm.mod&0x00000003)<<6)+((modrm->reg&0x0000007)<<3)+(modrm->rm&0x00000007));
         writeBytes(mrm,1);
         //printf("输出ModRM=0x%08x\n",mrm);
     }
@@ -51,7 +55,7 @@ void Instruct::writeModRM() {
 	scale(2)|index(3)|base(3)
 */
 void Instruct::writeSIB() {
-    if(sib.scale!=-1)
+    if(sib.scale != -1)
     {
         unsigned char _sib=(unsigned char)(((sib.scale&0x00000003)<<6)+((sib.index&0x00000007)<<3)+(sib.base&0x00000007));
         writeBytes(_sib,1);
@@ -66,100 +70,93 @@ void Instruct::writeSIB() {
 */
 void Instruct::writeBytes(int value, int len) {
 
-    lb_record::curAddr+=len;//计算地址
+    Asmer::curAddr += len;//计算地址
     fwrite(&value,len,1,fout);
-    inLen += len;
-    //cout<<lb_record::curAddr<<"\t"<<inLen<<endl;
 }
 
 bool Instruct::updateRel(int type) {
 
-    if(scanLop==1||relLb==NULL)
+    bool flag = false;
+    //如果没有引用就返回
+    if(name == "") return flag;
+
+    //表示数据的引用
+    if(!is_func)//绝对重定位
     {
-        relLb=NULL;
-        return false;
+        obj.addRel(".text",Asmer::curAddr,name,R_386_32);
+        flag=true;
     }
-    bool flag=false;
-    if(type==R_386_32)//绝对重定位
+    else if(is_func)//相对重定位
     {
-        if(!relLb->isEqu)//只要是地址符号就必须重定位，宏除外[这里判断与否都可以，relLb非NULL都是非equ符号]
-        {
-            obj.addRel(curSeg,lb_record::curAddr,relLb->lbName,type);
-            flag=true;
+        Sym* sym  = Asmer::obj->parser->symtable->getSym(name);
+        //如果当前指令有函数标签，说明是函数调用
+        //外部函数
+        if(sym->externed){
+            obj.addRel(".text",Asmer::curAddr,name,R_386_PC32);
+            flag = true;
         }
     }
-    else if(type==R_386_PC32)//相对重定位
-    {
-        if(relLb->externed)//对于跳转，内部的不需要重定位，外部的需要重定位
-        {
-            obj.addRel(curSeg,lb_record::curAddr,relLb->lbName,type);
-            flag=true;
-        }
-    }
-    relLb=NULL;
     return flag;
 }
 void Instruct::gen2Op() {
-    int oldAddr=lb_record::curAddr;
-    //lb_record::curAddr=0;
     //测试信息
 //     cout<<"len="<<len<<"(1-Byte;4-DWord)\n";
 //     cout<<"des:type="<<des_t<<"(1-imm;2-mem;3-reg)\n";
 //     cout<<"src:type="<<src_t<<"(1-imm;2-mem;3-reg)\n";
-    //  cout<<"ModR/M="<<modrm.mod<<" "<<modrm.reg<<" "<<modrm.rm<<endl;
+    //  cout<<"ModR/M="<<modrm.mod<<" "<<modrm->reg<<" "<<modrm->rm<<endl;
     // cout<<"SIB="<<sib.scale<<" "<<sib.index<<" "<<sib.base<<endl;
-    // cout<<"disp32="<<instr.disp32<<",disp8="<<(int)instr.disp8<<"(<-"<<instr.disptype<<":(0-disp8;1-disp32) imm32="<<instr.imm32<<endl;
+    // cout<<"disp32="<<inst.disp32<<",disp8="<<(int)inst.disp8<<"(<-"<<inst.disptype<<":(0-disp8;1-disp32) imm32="<<inst->imm32<<endl;
     //计算操作码索引 (mov,8,reg,reg)=000 (mov,8,reg,mem)=001 (mov,8,mem,reg)=010 (mov,8,reg,imm)=011
     //(mov,32,reg,reg)=100 (mov,32,reg,mem)=101 (mov,32,mem,reg)=110 (mov,32,reg,imm)=111  [0-7]*(i_lea-i_mov)
-    int index=-1;
-    if(src_t==immd)//鉴别操作数种类
-        index=3;
+    int index = -1;
+    if(left == TY_IMMED)//鉴别操作数种类
+        index = 3;
     else
-        index=(des_t-2)*2+src_t-2;
-    index=(opt-i_mov)*8+(1-len%4)*4+index;//附加指令名称和长度
-    unsigned char opcode=i_2opcode[index];
+        index = (right -2) * 2 + left - 2;
+    index = (type - KW_MOV ) * 8+ ( 1 - 8 % 8)* 8 + index;//附加指令名称和长度
+    unsigned char opcode = i_2opcode[index];
     unsigned char exchar;
-    switch(modrm.mod)
+    switch(modrm->mod)
     {
         case -1://reg,imm
-            switch(opt)
+            switch(type)
             {
-                case i_mov://b0+rb MOV r/m8,imm8 b8+rd MOV r/m32,imm32 
-                    opcode+=(unsigned char)(modrm.reg);
+                case KW_MOV://b0+rb MOV r/m8,imm8 b8+rd MOV r/m32,imm32
+                    opcode += (unsigned char)(modrm->reg);
                     writeBytes(opcode,1);
                     break;
-                case i_cmp://80 /7 ib CMP r/m8,imm8 81 /7 id CMP r/m32,imm32 
+                case KW_CMP://80 /7 ib CMP r/m8,imm8 81 /7 id CMP r/m32,imm32
                     writeBytes(opcode,1);
-                    exchar=0xf8;
-                    exchar+=(unsigned char)(modrm.reg);
+                    exchar = 0xf8;
+                    exchar += (unsigned char)(modrm->reg);
                     writeBytes(exchar,1);
                     break;
-                case i_add://80 /0 ib ADD r/m8, imm8 81 /0 id ADD r/m32, imm32 
+                case KW_ADD://80 /0 ib ADD r/m8, imm8 81 /0 id ADD r/m32, imm32
                     writeBytes(opcode,1);
-                    exchar=0xc0;
-                    exchar+=(unsigned char)(modrm.reg);
+                    exchar = 0xc0;
+                    exchar += ( unsigned char )(modrm->reg);
                     writeBytes(exchar,1);
                     break;
-                case i_sub://80 /5 ib SUB r/m8, imm8 81 /5 id SUB r/m32, imm32
+                case KW_SUB://80 /5 ib SUB r/m8, imm8 81 /5 id SUB r/m32, imm32
                     writeBytes(opcode,1);
-                    exchar=0xe8;
-                    exchar+=(unsigned char)(modrm.reg);
+                    exchar = 0xe8;
+                    exchar += ( unsigned char)(modrm->reg);
                     writeBytes(exchar,1);
                     break;
             }
             //可能的重定位位置 mov eax,@buffer,也有可能是mov eax,@buffer_len，就不许要重定位，因为是宏
-            processRel(R_386_32);
-            writeBytes(instr.imm32,len);//一定要按照长度输出立即数
+            updateRel();
+            writeBytes(inst->imm32,len);//一定要按照长度输出立即数
             break;
         case 0://[reg],reg reg,[reg]
             writeBytes(opcode,1);
             writeModRM();
-            if(modrm.rm==5)//[disp32]
+            if(modrm->rm == 5)//[disp32]
             {
-                processRel(R_386_32);//可能是mov eax,[@buffer],后边disp8和disp32不会出现类似情况
-                instr.writeDisp();//地址肯定是4字节长度
+                updateRel();//可能是mov eax,[@buffer],后边disp8和disp32不会出现类似情况
+                inst->writeDisp();//地址肯定是4字节长度
             }
-            else if(modrm.rm==4)//SIB
+            else if(modrm->rm == 4)//SIB
             {
                 writeSIB();
             }
@@ -167,16 +164,16 @@ void Instruct::gen2Op() {
         case 1://[reg+disp8],reg reg,[reg+disp8]
             writeBytes(opcode,1);
             writeModRM();
-            if(modrm.rm==4)
+            if(modrm->rm == 4)
                 writeSIB();
-            instr.writeDisp();
+            inst->writeDisp();
             break;
         case 2://[reg+disp32],reg reg,[reg+disp32]
             writeBytes(opcode,1);
             writeModRM();
-            if(modrm.rm==4)
+            if(modrm->rm == 4)
                 writeSIB();
-            instr.writeDisp();
+            inst->writeDisp();
             break;
         case 3://reg,reg
             writeBytes(opcode,1);
@@ -186,106 +183,92 @@ void Instruct::gen2Op() {
 }
 
 void Instruct::gen1Op() {
-    int oldAddr=lb_record::curAddr;
+    int len  = 8 ;//默认是8
     unsigned char exchar;
-    unsigned short int opcode=i_1opcode[opt-i_call];
-    if(opt==i_call||opt>=i_jmp&&opt<=i_jna)
+    unsigned short int opcode = i_1opcode[type - KW_CALL];
+    if(type == KW_CALL || type >= KW_JMP && type <= KW_JNA)
     {
         //统一使用长地址跳转，短跳转不好定位
-        if(opt==i_call||opt==i_jmp)
+        if(type == KW_CALL  || type == KW_JMP)
             writeBytes(opcode,1);
         else
         {
-            writeBytes(opcode>>8,1);
+            writeBytes(opcode >> 8,1);
             writeBytes(opcode,1);
         }
-        int rel=instr.imm32-(lb_record::curAddr+4);//调用符号地址相对于下一条指令地址的偏移，因此加4
-        bool ret=processRel(R_386_PC32);//处理可能的相对重定位信息，call fun,如果fun是本地定义的函数就不会重定位了
+        int rel  = inst->imm32 - (Asmer::curAddr + 4);//调用符号地址相对于下一条指令地址的偏移，因此加4
+        bool ret = updateRel();//处理可能的相对重定位信息，call fun,如果fun是本地定义的函数就不会重定位了
         if(ret)//相对重定位成功，说明之前计算的偏移错误
-            rel=-4;//对于链接器必须的初始值
+            rel = -4;//对于链接器必须的初始值
         writeBytes(rel,4);
     }
-    else if(opt==i_int)
+    else if(type == KW_INT)
     {
         writeBytes(opcode,1);
-        writeBytes(instr.imm32,1);
+        writeBytes(inst->imm32,1);
     }
-    else if(opt==i_push)
+    else if(type == KW_PUSH)
     {
-        if(opr_t==immd)
+        if(left == TY_IMMED)
         {
-            opcode=0x68;
+            opcode = 0x68;
             writeBytes(opcode,1);
-            writeBytes(instr.imm32,4);
+            writeBytes(inst->imm32,4);
         }
         else
         {
-            opcode+=(unsigned char)(modrm.reg);
+            opcode +=(unsigned char)(modrm->reg);
             writeBytes(opcode,1);
         }
     }
-    else if(opt==i_inc)
+    else if(type == KW_INC)
     {
-        if(len==1)
-        {
-            opcode=0xfe;
-            writeBytes(opcode,1);
-            exchar=0xc0;
-            exchar+=(unsigned char)(modrm.reg);
-            writeBytes(exchar,1);
-        }
-        else
-        {
-            opcode+=(unsigned char)(modrm.reg);
-            writeBytes(opcode,1);
-        }
+        opcode+=(unsigned char)(modrm->reg);
+        writeBytes(opcode,1);
     }
-    else if(opt==i_dec)
+    else if(opt == i_dec)
     {
-        if(len==1)
-        {
-            opcode=0xfe;
-            writeBytes(opcode,1);
-            exchar=0xc8;
-            exchar+=(unsigned char)(modrm.reg);
-            writeBytes(exchar,1);
-        }
-        else
-        {
-            opcode+=(unsigned char)(modrm.reg);
-            writeBytes(opcode,1);
-        }
+        opcode += (unsigned char)(modrm->reg);
+        writeBytes(opcode,1);
     }
-    else if(opt==i_neg)
+    else if(type == KW_NEG)
     {
-        if(len==1)
-            opcode=0xf6;
         exchar=0xd8;
-        exchar+=(unsigned char)(modrm.reg);
+        exchar+=(unsigned char)(modrm->reg);
         writeBytes(opcode,1);
         writeBytes(exchar,1);
     }
-    else if(opt==i_pop)
+    else if(type == KW_POP)
     {
-        opcode+=(unsigned char)(modrm.reg);
+        opcode += (unsigned char)(modrm->reg);
         writeBytes(opcode,1);
     }
-    else if(opt==i_imul||opt==i_idiv)
+    else if(type == KW_MUL || type == KW_DIV)
     {
         writeBytes(opcode,1);
-        if(opt==i_imul)
-            exchar=0xe8;
+        if(type == KW_MUL)
+            exchar = 0xe8;
         else
-            exchar=0xf8;
-        exchar+=(unsigned char)(modrm.reg);
+            exchar = 0xf8;
+        exchar += (unsigned char)(modrm->reg);
         writeBytes(exchar,1);
     }
 }
 
 void Instruct::gen0Op() {
-    int oldAddr=lb_record::curAddr;
-    unsigned char opcode=i_0opcode[0];
+    unsigned char opcode = i_0opcode[0];
     writeBytes(opcode,1);
+}
+void Instruct::gen(){
+
+    if( token >= KW_MOV && token <= KW_LEA )
+        gen2Op();
+    else if( token >= KW_CALL && token <= KW_POP )
+        gen1Op();
+    else if(token == KW_RET)
+        gen0Op();
+    else
+        parse_err("[Parser] unknow instuct:%s\n",scanner->value());
 }
 
 

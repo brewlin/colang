@@ -11,6 +11,10 @@ Parser::Parser(const std::string filepath)
 {
     scanner = new Scanner(filepath);
     symtable = new SymTable();
+
+    std::string fullname = filepath.substr(filepath.find_last_of('/')+1);
+    filename = fullname.substr(0,fullname.size() - 2);
+    outname  = filename + ".o";
 }
 Parser::~Parser()
 {
