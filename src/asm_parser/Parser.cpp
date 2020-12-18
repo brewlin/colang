@@ -12,6 +12,8 @@ Parser::Parser(const std::string filepath)
     scanner = new Scanner(filepath);
     symtable = new SymTable();
 
+    this->filepath = filepath;
+
     std::string fullname = filepath.substr(filepath.find_last_of('/')+1);
     filename = fullname.substr(0,fullname.size() - 2);
     outname  = filename + ".o";
@@ -28,7 +30,10 @@ Parser::~Parser()
 void Parser::parse()
 {
     scanner->scan();
-    if(scanner->token() == TK_EOF) return;
+    if(scanner->token() == TK_EOF) {
+        parse_err("[asmer] unrecognized file format :\'%s\'\n",filepath.c_str());
+        return;
+    }
 
     do{
         //能走到最外层 一般只有 .text .data  .global 已经标签声明

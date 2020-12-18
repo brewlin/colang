@@ -28,6 +28,7 @@ public:
     asmer::SymTable*       symtable;
     //全局 text段里的各种指令
     std::vector<Function*> funcs;
+    std::string            filepath;
     std::string            filename;
     std::string            outname;
 

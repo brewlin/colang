@@ -64,12 +64,11 @@ void Asmer::writeElf() {
     }
     //写入数据区 每个全局数据类型当前语言实现默认为指针
     for (auto *sym : parser->symtable->data_symbol) {
-        std::cout << "[writeElf] sym:" << sym->name << std::endl;
+        std::cout << "[writeElf] data sym:" << sym->name << std::endl;
         //现在假定所有的 数据区变量都占8字节，用于存储指针类型
-//        for(int i = 0 ; i < 8 ; i ++)
-            //当前全局区域都是存储的8字节指针
-            int b[8] = {0};
-            fwrite(b,8,1,out);
+        //当前全局区域都是存储的8字节指针
+        int b[8] = {0};
+        fwrite(b,8,1,out);
     }
     //写入代码区
     Asmer::obj->InstGen();
