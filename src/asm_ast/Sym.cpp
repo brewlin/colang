@@ -6,9 +6,8 @@
  **/
 #include "Sym.h"
 #include "Asmer.h"
-#include "src/asm_parser/Parser.h
+#include "src/asm_parser/Parser.h"
 #include "ElfFile.h"
-#include "asmer.h"
 
 //对于重定位文件是0，链接后开始于0x08048100
 namespace asmer

@@ -22,11 +22,11 @@ using namespace asmer;
 class Asmer
 {
 public:
-    Parser*     paser;
+    Parser*     parser;
     FILE*       out;
 public:
     static ElfFile*    elf;
-    static Asmer       obj;
+    static Asmer*      obj;
 public:
     Asmer(std::string filename);
     ~Asmer();
@@ -44,7 +44,7 @@ public:
     void InstGen();
     //在构建elf文件的时候主要是计算偏移量，不进行指令翻译
     void InstUpdate();
-    void InstUpdateOp(Instruct* inst);
+    void InstUpdate0p(Instruct* inst);
     void InstUpdate1p(Instruct* inst);
     void InstUpdate2p(Instruct* inst);
 

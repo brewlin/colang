@@ -10,12 +10,8 @@
  */
 void Asmer::InstGen() {
     //这里其实是属于新的段了，curAddr 段大小需要从0开始计数， 但是datalen是持续累加的
-    for(auto it : paser->funcs){
-        Function* func = it.second;
-
+    for(auto func : parser->funcs){
         //这里需要将函数名加入符号表
-        Sym* sym = new Sym(func->name);
-        paser->symtable->addSym(sym)
         //接下来解析函数区域所有的指令
         for(auto inst : func->instructs){
             //进行代码段指令翻译生成
@@ -28,21 +24,20 @@ void Asmer::InstGen() {
  */
 void Asmer::InstUpdate(){
     //这里是计算指令段了，所以需要清空之前的计数
-    Asmer::curAddr = 0;
+    asmer::curAddr = 0;
 
     //这里其实是属于新的段了，curAddr 段大小需要从0开始计数， 但是datalen是持续累加的
-    for(auto it : paser->funcs){
-        Function* func = it.second;
+    for(auto func : parser->funcs){
 
         //这里需要将函数名加入符号表
-        Sym* sym = new Sym(func->name);
-        paser->symtable->addSym(sym)
+        Sym* sym = new Sym(func->labelname,false);
+        //当前非外部符号
+        parser->symtable->addSym(sym);
         //接下来解析函数区域所有的指令
         for(auto inst : func->instructs){
-            Token token = inst->inst->type;
+            Token token = inst->type;
             if( token >= KW_MOV && token <= KW_LEA )
                 InstUpdate2p(inst);
-                gen2Op();
             else if( token >= KW_CALL && token <= KW_POP )
                 InstUpdate1p(inst);
             else if(token == KW_RET)
@@ -59,117 +54,117 @@ void Asmer::InstUpdate2p(Instruct *inst) {
     switch(inst->modrm->mod)
     {
         case -1://reg,imm
-            switch(type)
+            switch(inst->type)
             {
                 case KW_MOV:
                 case KW_CMP:
                 case KW_ADD:
                 case KW_SUB:
                     //1字节
-                    Asmer::curAddr += 1;
+                    asmer::curAddr += 1;
                     break;
                 default:
                     break;
             }
             //寄存器一定是8位
-            Asmer::curAddr += 8;
+            asmer::curAddr += 8;
             break;
         case 0://[reg],reg reg,[reg]
 
-            Asmer::curAddr += 1;
+            asmer::curAddr += 1;
             if(inst->modrm->mod != -1){
                 //有效
-                Asmer::curAddr += 1;
+                asmer::curAddr += 1;
             }
             if(inst->modrm->rm == 5)//[disp32]
             {
-                Asmer::curAddr += inst->inst->dispLen;
+                asmer::curAddr += inst->inst->dispLen;
             }
-            else if(inst->modrm->rm == 4 && sib->scale != -1)//SIB
+            else if(inst->modrm->rm == 4 && inst->sib->scale != -1)//SIB
             {
-                Asmer::curAddr += 1;
+                asmer::curAddr += 1;
             }
             break;
         case 1://[reg+disp8],reg reg,[reg+disp8]
-            Asmer::curAddr += 1;
+            asmer::curAddr += 1;
             if(inst->modrm->mod != -1)
-                Asmer::curAddr += 1;
-            if(inst->modrm->rm == 4 && sib->scale != -1)//SIB
-                    Asmer::curAddr += 1;
+                asmer::curAddr += 1;
+            if(inst->modrm->rm == 4 && inst->sib->scale != -1)//SIB
+                    asmer::curAddr += 1;
 
-            Asmer::curAddr += inst->inst->dispLen;
+            asmer::curAddr += inst->inst->dispLen;
             break;
         case 2://[reg+disp32],reg reg,[reg+disp32]
-            Asmer::curAddr += 1;
+            asmer::curAddr += 1;
             if(inst->modrm->mod != -1)
-                Asmer::curAddr += 1;
-            if(inst->modrm->rm == 4 && sib->scale != -1)//SIB
-                Asmer::curAddr += 1;
+                asmer::curAddr += 1;
+            if(inst->modrm->rm == 4 && inst->sib->scale != -1)//SIB
+                asmer::curAddr += 1;
 
-            Asmer::curAddr += inst->inst->dispLen;
+            asmer::curAddr += inst->inst->dispLen;
             break;
         case 3://reg,reg
-            Asmer::curAddr += 1;
+            asmer::curAddr += 1;
             if(inst->modrm->mod != -1)
-                Asmer::curAddr += 1;
+                asmer::curAddr += 1;
             break;
     }
 }
 
 void Asmer::InstUpdate1p(Instruct *inst) {
-    if(type == KW_CALL || type >= KW_JMP && type <= KW_JNA)
+    if(inst->type == KW_CALL || inst->type >= KW_JMP && inst->type <= KW_JNA)
     {
         //统一使用长地址跳转，短跳转不好定位
-        if(type == KW_CALL  || type == KW_JMP)
-            Asmer::curAddr += 1;
+        if(inst->type == KW_CALL  || inst->type == KW_JMP)
+            asmer::curAddr += 1;
         else
         {
-            Asmer::curAddr += 1;
-            Asmer::curAddr += 1;
+            asmer::curAddr += 1;
+            asmer::curAddr += 1;
         }
-        Asmer::curAddr += 8;
+        asmer::curAddr += 8;
     }
-    else if(type == KW_INT)
+    else if(inst->type == KW_INT)
     {
-        Asmer::curAddr += 1;
-        Asmer::curAddr += 1;
+        asmer::curAddr += 1;
+        asmer::curAddr += 1;
     }
-    else if(type == KW_PUSH)
+    else if(inst->type == KW_PUSH)
     {
-        if(left == TY_IMMED)
+        if(inst->left == TY_IMMED)
         {
-            Asmer::curAddr += 1;
-            Asmer::curAddr += 8;
+            asmer::curAddr += 1;
+            asmer::curAddr += 8;
         }
         else
         {
-            Asmer::curAddr += 1;
+            asmer::curAddr += 1;
         }
     }
-    else if(type == KW_INC)
+    else if(inst->type == KW_INC)
     {
-        Asmer::curAddr += 1;
+        asmer::curAddr += 1;
     }
-    else if(opt == i_dec)
+    else if(inst->type == KW_DEC)
     {
-        Asmer::curAddr += 1;
+        asmer::curAddr += 1;
     }
-    else if(type == KW_NEG)
+    else if(inst->type == KW_NEG)
     {
-        Asmer::curAddr += 1;
-        Asmer::curAddr += 1;
+        asmer::curAddr += 1;
+        asmer::curAddr += 1;
     }
-    else if(type == KW_POP)
+    else if(inst->type == KW_POP)
     {
-        Asmer::curAddr += 1;
+        asmer::curAddr += 1;
     }
-    else if(type == KW_MUL || type == KW_DIV)
+    else if(inst->type == KW_MUL || inst->type == KW_DIV)
     {
-        Asmer::curAddr += 1;
-        Asmer::curAddr += 1;
+        asmer::curAddr += 1;
+        asmer::curAddr += 1;
     }
 }
 
-void Asmer::InstUpdateOp(Instruct *inst) {
-    Asmer::curAddr += 1;
+void Asmer::InstUpdate0p(Instruct *inst) {
+    asmer::curAddr += 1;
 }

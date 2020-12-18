@@ -140,12 +140,12 @@ RelInfo* ElfFile::addRel(string seg,int addr,string lb,int type)
 
 void ElfFile::padSeg(string first,string second)//填充段间的空隙
 {
-	char pad[1] = {0};
-	int padNum  = shdrTab[second]->sh_offset-(shdrTab[first]->sh_offset+shdrTab[first]->sh_size);
-	while(padNum--)
-	{
-		fwrite(pad,1,1,fout);//填充
-	}
+//	char pad[1] = {0};
+//	int padNum  = shdrTab[second]->sh_offset-(shdrTab[first]->sh_offset+shdrTab[first]->sh_size);
+//	while(padNum--)
+//	{
+//		fwrite(pad,1,1,out);//填充
+//	}
 }
 
 /**
@@ -191,27 +191,26 @@ void ElfFile::buildEhdr() {
 /**
  * 构建段表
  */
-void ElfFile::buildSectab{
+void ElfFile::buildSectab(){
 	//默认八个段 + 1个空段
 	offset += sizeof(Elf64_Shdr) * 9;
-
 };
 void ElfFile::buildData(){
    	//表示当前的数据段的大小
-	obj.addShdr(".data",Asmer::curAddr);
+	addShdr(".data",asmer::curAddr);
 	//数据段紧跟其后
 	offset += curAddr;
 	//TODO: 后面要加上pad 对齐
 }
 void ElfFile::buildText(){
     //代码段还没有开始计算偏移量
-    Asmer::obj.InstUpdate();
-	obj.addShdr(".text",Asmer::curAddr);
-	offset += Asmer::curAddr;
+    Asmer::obj->InstUpdate();
+	addShdr(".text",asmer::curAddr);
+	offset += asmer::curAddr;
 	//TODO: 后面要加上pad对齐
 
 	//到这里就源代码解析完了，需要导出所有符号表
-	Asmer::obj.paser->exportSyms();
+	Asmer::obj->parser->symtable->exportSyms();
 
 }
 /**
@@ -286,12 +285,12 @@ void ElfFile::buildSymtab() {
 
 	//.symtab,sh_link 代表.strtab索引，默认在.symtab之后,sh_info不能确定
 	//计算总共字符串表的大小
-	strtab_size = symNames * sizeof(Elf64_Sym);
+	strtab_size = symNames.size() * sizeof(Elf64_Sym);
 	Debug("str_tab: offset[%d,%d] size:%d", offset, offset + strtab_size, strtab_size);
 	//偏移跟上
 	offset += strtab_size;
 	//计算字符串表的大小
-	addShdr(".symtab", SHT_SYMTAB, 0, 0, strtab_size, 0, 0, 1, 16);
+	addShdr(".symtab", SHT_SYMTAB, 0, 0, offset,strtab_size, 0, 0, 1, 16);
 	//找到字符串段在段表中的索引，这里应该是4
 	shdrTab[".symtab"]->sh_link = getSegIndex(".symtab") + 1;//.strtab默认在.symtab之后
 }
@@ -304,18 +303,18 @@ void ElfFile::buildStrtab() {
 		strtab_size += symNames[i].length() + 1;
 	}
 	//添加字符串表
-	addShdr(".strtab", SHT_STRTAB, 0, 0, curOff, strtab_size, SHN_UNDEF, 0, 1, 0);//.strtab
+	addShdr(".strtab", SHT_STRTAB, 0, 0, offset, strtab_size, SHN_UNDEF, 0, 1, 0);//.strtab
 
 	//填充strtab数据
-	char *str = new char[strtabSize];
+	char *str = new char[strtab_size];
 	this->strtab = str;
-	index = 0;
+	int index = 0;
 	//串表与符号表名字更新
 	for (int i = 0; i < symNames.size(); ++i) {
 		//更新符号表中对应于字符串的索引
 		symTab[symNames[i]]->st_name = index;
 		strcpy(str + index, symNames[i].c_str());
-		index += (symNames[i].length() + 1);
+		index += symNames[i].length() + 1;
 	}
 	//这里存储的是字符串区需要加上这个
 	offset += strtab_size;
@@ -334,17 +333,17 @@ void ElfFile::buildRelTab(){
 		//将重定项中的类型进行区分，代码区和数据区
 		if(relTab[i]->tarSeg == ".text")
 			relTextTab.push_back(rel);
-		else if(relTab[i]->tarSeg==".data")
+		else if(relTab[i]->tarSeg == ".data")
 			relDataTab.push_back(rel);
 	}
-	//如果存在函数的外部引用，已经全局变量的外部引用,需要进行重定位
+	//如果存在函数的外部引用，以及全局变量的外部引用,需要进行重定位
 	//加上代码区
 	int text_size = relDataTab.size() * sizeof(Elf64_Rel);
 	addShdr(".rel.text",SHT_REL,0,0,offset,text_size,getSegIndex(".symtab"),getSegIndex(".text"),1,8);//.rel.text
 	offset += text_size;
 
 	//加上代码区
-	addShdr(".rel.data",SHT_REL,0,0,curOff,relDataTab.size()*8,getSegIndex(".symtab"),getSegIndex(".data"),1,8);//.rel.data
+	addShdr(".rel.data",SHT_REL,0,0,offset,relDataTab.size()*8,getSegIndex(".symtab"),getSegIndex(".data"),1,8);//.rel.data
 	//更新段表name
 	for(int i = 0; i < shdrNames.size();++i){
 		int index = strIndex[shdrNames[i]];
@@ -362,7 +361,7 @@ void ElfFile:: printAll()
 	for(auto it : shdrTab){
 		if(it.first == "")
 			continue;
-		cout << it->first << ":" << it.second->sh_size << endl;
+		cout << it.first << ":" << it.second->sh_size << endl;
 	}
 	cout << "------------符号信息------------" << endl;
 	for(auto it : symTab){
@@ -371,22 +370,14 @@ void ElfFile:: printAll()
 		cout << it.first << ":";
 		if(it.second->st_shndx==0)
 			cout << "外部";
-		if(ELF64_ST_BIND(i.second->st_info) == STB_GLOBAL)
+		if(ELF64_ST_BIND(it.second->st_info) == STB_GLOBAL)
 			cout << "全局";
-		else if(ELF64_ST_BIND(i.second->st_info) == STB_LOCAL)
+		else if(ELF64_ST_BIND(it.second->st_info) == STB_LOCAL)
 			cout << "局部";
 		cout << endl;
 	}
 	cout << "------------重定位信息------------" << endl;
 	for(auto it : relTab){
-		cout << it->tarSeg << ":" << it->offset->offset << "<-" << it->lbName << endl;
-	}
-	cout << "------------text重定位信息------------" << endl;
-	for(auto it : relTextTab){
-		cout << it->tarSeg << ":" << it->offset->offset << "<-" << it->lbName << endl;
-	}
-	cout << "------------data重定位信息------------" << endl;
-	for(auto it : relDataTab){
-		cout << it->tarSeg << ":" << it->offset->offset << "<-" << it->lbName << endl;
+		cout << it->tarSeg << ":" << it->offset << "<-" << it->lbName << endl;
 	}
 }

@@ -8,7 +8,7 @@
 #include <iomanip>
 #include "../src/asm_ast/Instruct.h"
 #include "../src/asm_ast/Token.h"
-
+#include "Utils.h"
 
 
 namespace asmer{
@@ -43,9 +43,9 @@ int inLen = 0;
 	mod(2)|reg(3)|rm(3)
 */
 void Instruct::writeModRM() {
-    if(modrm.mod!=-1)//有效
+    if(modrm->mod!=-1)//有效
     {
-        unsigned char mrm=(unsigned char)(((modrm.mod&0x00000003)<<6)+((modrm->reg&0x0000007)<<3)+(modrm->rm&0x00000007));
+        unsigned char mrm=(unsigned char)(((modrm->mod&0x00000003)<<6)+((modrm->reg&0x0000007)<<3)+(modrm->rm&0x00000007));
         writeBytes(mrm,1);
         //printf("输出ModRM=0x%08x\n",mrm);
     }
@@ -55,9 +55,9 @@ void Instruct::writeModRM() {
 	scale(2)|index(3)|base(3)
 */
 void Instruct::writeSIB() {
-    if(sib.scale != -1)
+    if(sib->scale != -1)
     {
-        unsigned char _sib=(unsigned char)(((sib.scale&0x00000003)<<6)+((sib.index&0x00000007)<<3)+(sib.base&0x00000007));
+        unsigned char _sib=(unsigned char)(((sib->scale&0x00000003)<<6)+((sib->index&0x00000007)<<3)+(sib->base&0x00000007));
         writeBytes(_sib,1);
         //printf("输出SIB=0x%08x\n",_sib);
     }
@@ -70,11 +70,11 @@ void Instruct::writeSIB() {
 */
 void Instruct::writeBytes(int value, int len) {
 
-    Asmer::curAddr += len;//计算地址
-    fwrite(&value,len,1,fout);
+    asmer::curAddr += len;//计算地址
+    fwrite(&value,len,1,Asmer::obj->out);
 }
 
-bool Instruct::updateRel(int type) {
+bool Instruct::updateRel() {
 
     bool flag = false;
     //如果没有引用就返回
@@ -83,7 +83,7 @@ bool Instruct::updateRel(int type) {
     //表示数据的引用
     if(!is_func)//绝对重定位
     {
-        Asmer::elf->addRel(".text",Asmer::curAddr,name,R_386_32);
+        Asmer::elf->addRel(".text",asmer::curAddr,name,R_386_32);
         flag=true;
     }
     else if(is_func)//相对重定位
@@ -92,7 +92,7 @@ bool Instruct::updateRel(int type) {
         //如果当前指令有函数标签，说明是函数调用
         //外部函数
         if(sym->externed){
-            Asmer::elf->addRel(".text",Asmer::curAddr,name,R_386_PC32);
+            Asmer::elf->addRel(".text",asmer::curAddr,name,R_386_PC32);
             flag = true;
         }
     }
@@ -103,12 +103,14 @@ void Instruct::gen2Op() {
 //     cout<<"len="<<len<<"(1-Byte;4-DWord)\n";
 //     cout<<"des:type="<<des_t<<"(1-imm;2-mem;3-reg)\n";
 //     cout<<"src:type="<<src_t<<"(1-imm;2-mem;3-reg)\n";
-    //  cout<<"ModR/M="<<modrm.mod<<" "<<modrm->reg<<" "<<modrm->rm<<endl;
-    // cout<<"SIB="<<sib.scale<<" "<<sib.index<<" "<<sib.base<<endl;
+    //  cout<<"ModR/M="<<modrm->mod<<" "<<modrm->reg<<" "<<modrm->rm<<endl;
+    // cout<<"SIB="<<sib->scale<<" "<<sib->index<<" "<<sib->base<<endl;
     // cout<<"disp32="<<inst.disp32<<",disp8="<<(int)inst.disp8<<"(<-"<<inst.disptype<<":(0-disp8;1-disp32) imm32="<<inst->imm32<<endl;
     //计算操作码索引 (mov,8,reg,reg)=000 (mov,8,reg,mem)=001 (mov,8,mem,reg)=010 (mov,8,reg,imm)=011
     //(mov,32,reg,reg)=100 (mov,32,reg,mem)=101 (mov,32,mem,reg)=110 (mov,32,reg,imm)=111  [0-7]*(i_lea-i_mov)
     int index = -1;
+    //立即数都是8字节
+    int len   = 8;
     if(left == TY_IMMED)//鉴别操作数种类
         index = 3;
     else
@@ -196,7 +198,7 @@ void Instruct::gen1Op() {
             writeBytes(opcode >> 8,1);
             writeBytes(opcode,1);
         }
-        int rel  = inst->imm32 - (Asmer::curAddr + 4);//调用符号地址相对于下一条指令地址的偏移，因此加4
+        int rel  = inst->imm32 - (asmer::curAddr + 4);//调用符号地址相对于下一条指令地址的偏移，因此加4
         bool ret = updateRel();//处理可能的相对重定位信息，call fun,如果fun是本地定义的函数就不会重定位了
         if(ret)//相对重定位成功，说明之前计算的偏移错误
             rel = -4;//对于链接器必须的初始值
@@ -226,7 +228,7 @@ void Instruct::gen1Op() {
         opcode+=(unsigned char)(modrm->reg);
         writeBytes(opcode,1);
     }
-    else if(opt == i_dec)
+    else if(type == KW_DEC)
     {
         opcode += (unsigned char)(modrm->reg);
         writeBytes(opcode,1);
@@ -260,7 +262,7 @@ void Instruct::gen0Op() {
     writeBytes(opcode,1);
 }
 void Instruct::gen(){
-
+    Token token = type;
     if( token >= KW_MOV && token <= KW_LEA )
         gen2Op();
     else if( token >= KW_CALL && token <= KW_POP )
@@ -268,7 +270,7 @@ void Instruct::gen(){
     else if(token == KW_RET)
         gen0Op();
     else
-        parse_err("[Parser] unknow instuct:%s\n",scanner->value());
+        parse_err("[instruct gen] unknow instuct\n");
 }
 
 

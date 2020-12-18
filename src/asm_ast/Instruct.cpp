@@ -6,35 +6,26 @@
  *@Version 1.0
  **/
 #include "Instruct.h"
+#include <iostream>
+#include <string>
+#include "Token.h"
 
 namespace asmer{
 
 //ModRM,SIB,Inst结构
-    ModRM::ModRM()
+    ModRM::ModRM():mod(-1),reg(0),rm(0){}
+    SIB::SIB()    :scale(-1),index(0),base(0){}
+    Inst::Inst()  :opcode(0),disp(0),dispLen(0),imm32(0){}
+
+    Instruct::Instruct(Token type)
     {
-        mod=-1;
-        reg=0;
-        rm=0;
+        is_rel     = false;
+        is_func    = false;
+        this->type = type;
+        left       = TY_INVAL;
+        right      = TY_INVAL;
+        regnum     = 0;
     }
-
-    SIB::SIB()
-    {
-        scale=-1;
-        index=0;
-        base=0;
-    }
-
-
-    Inst::Inst()
-    {
-        opcode=0;
-        disp=0;
-        dispLen=0;
-        imm32=0;
-        modrm.init();
-        sib.init();
-    }
-
     //设置disp，自动检测disp长度（符号），及时是无符号地址值也无妨
     void Inst::setDisp(int d,int len)
     {
@@ -46,8 +37,8 @@ namespace asmer{
     {
         if(dispLen)
         {
-            writeBytes(disp,dispLen);
-            dispLen=0;//还原
+            Instruct::writeBytes(disp,dispLen);
+            dispLen = 0;//还原
         }
     }
 };

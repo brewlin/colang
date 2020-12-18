@@ -6,9 +6,11 @@
  *@Version 1.0
  **/
 #include "SymTable.h"
+#include "Asmer.h"
 
 namespace asmer{
-    int SymTable::hasName(std::string name) {
+
+    bool SymTable::hasName(std::string name) {
         return symbolTable.find(name) != symbolTable.end();
     }
     void SymTable::addSym(asmer::Sym *sym) {
@@ -27,7 +29,7 @@ namespace asmer{
 
         //保存数据
         if(sym->segName == ".data"){
-            data_symbol->push_back(sym);
+            data_symbol.push_back(sym);
         }
 
     }
@@ -53,14 +55,9 @@ namespace asmer{
     void SymTable::switchSeg(std::string segname) {
         //地址对齐
         dataLen += (4 - dataLen % 4 ) % 4;
-        //新建一个段
-//        obj.addShdr(curSeg,Sym::curAddr);
-//        if(curSeg != ".bss")
-        dataLen += Sym::curAddr;
+        dataLen += asmer::curAddr;
         //切换下一个段名
-        curSeg = segname;
-        //清0段偏移
-//        curAddr = 0;
+//        curSeg = segname;
     }
     /**
      * 导出所有段符号
@@ -70,7 +67,7 @@ namespace asmer{
         for(auto it : symbolTable)
         {
             Sym* sym = it.second;
-            obj.addSym(sym);
+            Asmer::elf->addSym(sym);
         }
     }
     SymTable::~SymTable() {

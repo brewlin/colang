@@ -10,13 +10,13 @@
 ElfFile* Asmer::elf = nullptr;
 Asmer*   Asmer::obj = nullptr;
 
-void Asmer::Asmer(std::string filename) {
-    paser = new Parser(filename);
+Asmer::Asmer(std::string filename) {
+    parser = new Parser(filename);
     //初始化 file.o文件
     out  = fopen(parser->outname.c_str(),"w");
     //初始化elf文件相关
     elf   = new ElfFile;
-    obj   = this;
+    Asmer::obj   = this;
 }
 /**
  * start
@@ -27,7 +27,7 @@ void Asmer::execute() {
      * 1. 解析数据段 加入符号表
      * 2. 解析代码段 备用
      */
-    paser->parse();
+    parser->parse();
     //构建elf结构
     buildElf();
     //写入elf文件
@@ -46,31 +46,33 @@ void Asmer::buildElf() {
     //构建段名字符串表，并拷贝所有字符串
     elf->buildShstrtab();
     //构建段符号表
-    elf->buildSymtab()
+    elf->buildSymtab();
     //构建字符串表，包括了上面所有的符号
-    elf->buildStrtab()
+    elf->buildStrtab();
     //构建重定位代码段和数据段
     elf->buildRelTab();
 }
 void Asmer::writeElf() {
     //写入elf header
-    fwrite(&elf->ehdr, ehdr.e_ehsize, 1, out);
+    fwrite(&elf->ehdr, elf->ehdr.e_ehsize, 1, out);
 
     //写入段表
     for (auto name : elf->shdrNames) {
         //遍历每一个段名
-        Elf32_Shdr *sh = elf->shdrTab[name];
+        Elf64_Shdr *sh = elf->shdrTab[name];
         fwrite(sh, elf->ehdr.e_shentsize, 1, out);
     }
     //写入数据区 每个全局数据类型当前语言实现默认为指针
-    for (auto *sym : paser->symtable->data_symbol) {
+    for (auto *sym : parser->symtable->data_symbol) {
         std::cout << "[writeElf] sym:" << sym->name << std::endl;
         //现在假定所有的 数据区变量都占8字节，用于存储指针类型
-        for(int i = 0 ; i < 8 ; i ++)
-            fwrite(0,len,1,fout)
+//        for(int i = 0 ; i < 8 ; i ++)
+            //当前全局区域都是存储的8字节指针
+            int b[8] = {0};
+            fwrite(b,8,1,out);
     }
     //写入代码区
-    Asmer::obj.InstGen();
+    Asmer::obj->InstGen();
 
     //.shstrtab 将所有的段名字符串写入到文件里
     fwrite(elf->shstrtab,elf->shstrtab_size,1,out);
