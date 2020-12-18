@@ -9,8 +9,10 @@
  * 2. 对外部符号进行重定位记录
  */
 void Asmer::InstGen() {
+    std::cout << "[writeElf] .text:" << std::endl;
     //这里其实是属于新的段了，curAddr 段大小需要从0开始计数， 但是datalen是持续累加的
     for(auto func : parser->funcs){
+        std::cout << "[writeElf] .text: func:" << func->labelname <<  std::endl;
         //这里需要将函数名加入符号表
         //接下来解析函数区域所有的指令
         for(auto inst : func->instructs){
