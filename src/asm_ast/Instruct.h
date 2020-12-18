@@ -47,8 +47,8 @@ namespace asmer{
         is_rel(false),
         is_func(false),
         type(type),
-        left(-1),
-        right(-1),
+        left(TY_INVAL),
+        right(TY_INVAL),
         regnum(0){}
         ~Instruct(){}
 

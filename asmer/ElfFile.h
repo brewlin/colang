@@ -9,16 +9,8 @@
 #include <map>
 #include <vector>
 using namespace std;
+using namespace asmer;
 using namespace __gnu_cxx;
-
-// 需要自己写hash函数
-struct string_hash
-{
-  size_t operator()(const string& str) const
-  {
-    return __stl_hash_string(str.c_str());
-  }
-};
 
 //重定位信息
 struct RelInfo
@@ -58,7 +50,7 @@ public:
 	void addShdr(string sh_name,Elf64_Word sh_type,Elf64_Word sh_flags,Elf64_Addr sh_addr,Elf64_Off sh_offset,
 			Elf64_Word sh_size,Elf64_Word sh_link,Elf64_Word sh_info,Elf64_Word sh_addralign,
 			Elf64_Word sh_entsize);//添加一个段表项
-	void addSym(Sym*lb);
+	void addSym(asmer::Sym* sym);
 	void addSym(string st_name,Elf64_Sym*);//添加一个符号表项
 	RelInfo* addRel(string seg,int addr,string lb,int type);//添加一个重定位项，相同段的重定位项连续（一般是先是.rel.text后.rel.data）
 	void padSeg(string first,string second);//填充段间的空隙
@@ -72,7 +64,7 @@ public:
 	void buildStrtab();
 	void buildRelTab();
 	void printAll();
-	~Elf_file();
+	~ElfFile();
 };
 
 #endif //elf_file.h

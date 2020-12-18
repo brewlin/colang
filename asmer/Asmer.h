@@ -11,7 +11,7 @@
 #include <iostream>
 #include <string>
 
-#include "src/asm_parser/Parer.h"
+#include "src/asm_parser/Parser.h"
 #include "src/asm_ast/Function.h"
 #include "src/asm_ast/Instruct.h"
 #include "src/asm_ast/Token.h"
@@ -21,6 +21,7 @@ using namespace asmer;
 
 class Asmer
 {
+public:
     Parser*     paser;
     FILE*       out;
 public:
@@ -35,7 +36,6 @@ public:
     void buildElf();
     //生成
     void writeElf();
-
     //更新代码段中的引用
     void updateText();
     void updateTextFunc(asmer::Function* func);

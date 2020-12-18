@@ -74,7 +74,7 @@ enum Token {
 //3 内存地址
 //4 重定位链接符号
 enum InstType {
-    INVALID = 0,
+    TY_INVAL = 0,
     TY_IMMED,
     TY_REG,
     TY_MEM,

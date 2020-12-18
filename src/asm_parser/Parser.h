@@ -13,6 +13,8 @@
 #include "Scanner.h"
 #include "src/asm_ast/Function.h"
 #include "src/asm_ast/Instruct.h"
+#include "src/asm_ast/Sym.h"
+#include "src/asm_ast/SymTable.h"
 
 
 namespace asmer {

@@ -82,52 +82,28 @@ void ElfFile::addShdr(string sh_name,Elf64_Word sh_type,Elf64_Word sh_flags,Elf6
 	shdrNames.push_back(sh_name);
 }
 
-void ElfFile::addSym(Sym* lb)
+void ElfFile::addSym(asmer::Sym* sym)
 {
 	//解析符号的全局性局部性，避免符号冲突
-	bool glb=false;
-	string name=lb->lbName;
-	/*
-	//对于@while_ @if_ @lab_ @cal_开头和@s_stack的都是局部符号，可以不用导出，但是为了objdump方便而导出
-	*/
-	if(name.find("@lab_")==0||name.find("@if_")==0||name.find("@while_")==0||name.find("@cal_")==0||name=="@s_stack")
-		return;
-	
-	if(lb->segName==".text")//代码段
-	{
-		if(name=="@str2long"||name=="@procBuf")
-			glb=true;
-		else if(name[0]!='@')//不带@符号的，都是定义的函数或者_start,全局的
-			glb=true;
-	}
-	else if(lb->segName==".data")//数据段
-	{
-		int index=name.find("@str_");
-		if(index==0)//@str_开头符号
-		{
-			glb=!(name[5]>='0'&&name[5]<='9');//不是紧跟数字，全局str
-		}
-		else//其他类型全局符号
-			glb=true;
-	}
-	else if(lb->segName=="")//外部符号
-	{
-		glb=lb->externed;//false
-	}
-	Elf64_Sym*sym=new Elf64_Sym();
-	sym->st_name=0;
-	sym->st_value=lb->addr;//符号段偏移,外部符号地址为0
-	sym->st_size=lb->times*lb->len*lb->cont_len;//函数无法通过目前的设计确定，而且不必关心
-	if(glb)//统一记作无类型符号，和链接器lit协议保持一致
-		sym->st_info=ELF32_ST_INFO(STB_GLOBAL,STT_NOTYPE);//全局符号
+	std::string name 	 = sym->name;
+
+	Elf64_Sym *elfsym 	 = new Elf64_Sym();
+	elfsym->st_name   	 = 0;
+	elfsym->st_value  	 = sym->addr;//符号段偏移,外部符号地址为0
+	elfsym->st_size   	 = 8;        //目前只支持8位支持的全局变量定义，其他的函数标签不需要管
+	//是否为全局
+	if(sym->global)
+		elfsym->st_info  = ELF64_ST_INFO(STB_GLOBAL,STT_NOTYPE);//全局符号
 	else
-		sym->st_info=ELF32_ST_INFO(STB_LOCAL,STT_NOTYPE);//局部符号，避免名字冲突
-	sym->st_other=0;
-	if(lb->externed)
-		sym->st_shndx=STN_UNDEF;
+		elfsym->st_info  = ELF64_ST_INFO(STB_LOCAL,STT_NOTYPE);//局部符号，避免名字冲突
+
+	elfsym->st_other     = 0;
+	if(sym->externed)
+		elfsym->st_shndx = STN_UNDEF;
 	else
-		sym->st_shndx=getSegIndex(lb->segName);
-	addSym(lb->lbName,sym);
+		elfsym->st_shndx = getSegIndex(sym->segName);
+
+	addSym(name,elfsym);
 }
 
 void ElfFile::addSym(string st_name,Elf64_Sym*s)
@@ -135,21 +111,21 @@ void ElfFile::addSym(string st_name,Elf64_Sym*s)
 	Elf64_Sym*sym = symTab[st_name] = new Elf64_Sym();
 	if(st_name == "")
 	{
-		sym->st_name = 0;
-		sym->st_value =0;
-		sym->st_size =0;
-		sym->st_info =0;
-		sym->st_other=0;
-		sym->st_shndx=0;
+		sym->st_name  = 0;
+		sym->st_value = 0;
+		sym->st_size  = 0;
+		sym->st_info  = 0;
+		sym->st_other = 0;
+		sym->st_shndx = 0;
 	}
 	else
 	{
-		sym->st_name=0;
-		sym->st_value=s->st_value;
-		sym->st_size=s->st_size;
-		sym->st_info=s->st_info;
-		sym->st_other=s->st_other;
-		sym->st_shndx=s->st_shndx;
+		sym->st_name  = 0;
+		sym->st_value = s->st_value;
+		sym->st_size  = s->st_size;
+		sym->st_info  = s->st_info;
+		sym->st_other = s->st_other;
+		sym->st_shndx = s->st_shndx;
 	}
 	symNames.push_back(st_name);
 }
@@ -157,15 +133,15 @@ void ElfFile::addSym(string st_name,Elf64_Sym*s)
 
 RelInfo* ElfFile::addRel(string seg,int addr,string lb,int type)
 {
-	RelInfo*rel=new RelInfo(seg,addr,lb,type);
+	RelInfo *rel = new RelInfo(seg,addr,lb,type);
 	relTab.push_back(rel);
 	return rel;
 }
 
 void ElfFile::padSeg(string first,string second)//填充段间的空隙
 {
-	char pad[1]={0};
-	int padNum=shdrTab[second]->sh_offset-(shdrTab[first]->sh_offset+shdrTab[first]->sh_size);
+	char pad[1] = {0};
+	int padNum  = shdrTab[second]->sh_offset-(shdrTab[first]->sh_offset+shdrTab[first]->sh_size);
 	while(padNum--)
 	{
 		fwrite(pad,1,1,fout);//填充
@@ -225,14 +201,18 @@ void ElfFile::buildData(){
 	obj.addShdr(".data",Asmer::curAddr);
 	//数据段紧跟其后
 	offset += curAddr;
-	//后面要加上pad 对齐
+	//TODO: 后面要加上pad 对齐
 }
 void ElfFile::buildText(){
     //代码段还没有开始计算偏移量
     Asmer::obj.InstUpdate();
 	obj.addShdr(".text",Asmer::curAddr);
 	offset += Asmer::curAddr;
-	//后面要加上pad对齐
+	//TODO: 后面要加上pad对齐
+
+	//到这里就源代码解析完了，需要导出所有符号表
+	Asmer::obj.paser->exportSyms();
+
 }
 /**
  * 构建段字符串表

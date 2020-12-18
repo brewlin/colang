@@ -11,7 +11,7 @@
 #include "Utils.h"
 
 namespace asmer{
-    void      Parser::parseInstruct(Instruct* inst) {
+    InstType Parser::parseInstruct(Instruct* inst) {
         std::string name;
         Sym* sym;
         //为了兼容 gnu 汇编 语法，这里做了很多兼容，目前支持的汇编指令如下
@@ -33,7 +33,7 @@ namespace asmer{
         switch(scanner->scan()) {
             //立即数 $ (正,负)
             //     mov $10,%rax     $开头的一定是立即数
-            case TK_IMMED:{
+            case TK_IMME:{
                 bool negative = false;
                 int  number   = 0;
                 //next one
@@ -42,7 +42,7 @@ namespace asmer{
                     case TK_NUMBER:
                         number = std::stoi(scanner->value());
                         break;
-                        /get -;
+                        //get -;
                     case TK_SUB:
                         negative = true;
                         //should be number
@@ -64,7 +64,7 @@ namespace asmer{
             case KW_LABEL:{
                 //label name
                 std::string name = scanner->value();
-                inst->rel        = true;
+                inst->is_rel        = true;
                 //next one
                 if(scanner->scan() == TK_AT){
                     //表明这是一个函数引用，需要进行相对地址定位
@@ -105,9 +105,9 @@ namespace asmer{
                 int num = 0;
                 if(scanner->token() == TK_SUB){
                     assert(scanner->scan() == TK_NUMBER);
-                    num -= std::atoi(scanner->value());
+                    num -= std::atoi(scanner->value().c_str());
                 }else{
-                    num = std::atoi(scanner->value());
+                    num = std::atoi(scanner->value().c_str());
                 }
                 //获取寄存器
                 assert(scanner->scan() == TK_LPAREN);

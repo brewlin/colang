@@ -38,38 +38,11 @@ namespace asmer{
         //符号字节长度 db-1 d2-2 dd-4 xword-8
         int         len;
         std::string str;
+        bool        global;
         Sym(std::string name,bool externed);
         Sym(std::string name,int len);
         Sym(std::string name,std::string str);
         ~Sym();
     };
-
-    //符号表
-    class SymTable
-    {
-
-    public:
-        //符号声明列表
-        std::unordered_map<std::string,Sym*> symbolTable;
-        //记录有序的符号数据定义
-        std::vector<Sym*>                    data_symbol;
-
-    public:
-        //检查符号是否存在
-        bool hasName(std::string name);
-        //添加符号
-        void addSym (Sym* sym);
-        //获取已经定义的符号
-        Sym* getSym (std::string name);
-        //切换下一个段，由于一般只有.text和.data，因此可以此时创建段表项目
-        void switchSeg(std::string segname);
-        //导出所有的符号到elf
-        void exportSyms();
-        void write();
-        //注销所有空间
-        ~SymTable();
-    };
-
 };
-extern asmer::SymTable symtable;
 #endif //COLANG_SYM_H

@@ -6,6 +6,7 @@
  **/
 #include "Parser.h"
 #include "src/asm_ast/Function.h"
+#include "Utils.h"
 
 namespace asmer
 {
@@ -41,7 +42,7 @@ namespace asmer
 
             func->instructs.push_back(inst);
         //当前token 必须是指令
-        }(scanner->token() >= KW_PUSH && scanner->token() <= KW_RET);
+        }while(scanner->token() >= KW_PUSH && scanner->token() <= KW_RET);
 
         return func;
     }

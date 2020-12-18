@@ -43,9 +43,10 @@ void Parser::parse()
             }
             case KW_GLOBAL: parseGlobal(); continue;
             case KW_LABEL : parseLabel();  continue;
+            case TK_EOF:                   break;
             default:
+                parse_err("[Paser] unknow instruct:%s\n",scanner->value());
         }
-        parse_err("[Paser] unknow instruct:%s\n",scanner->value());
     }while(scanner->token() != TK_EOF);
 }
 
@@ -56,8 +57,9 @@ void Parser::parse()
 std::string Parser::printToken()
 {
     auto  tk = scanner->scan();
-    while(std::get<0>(tk) != TK_EOF){
-        std::cout << "" << std::get<0>(tk) << " => " << std::get<1>(tk) << "\n";
+    auto  str = scanner->value();
+    while(tk != TK_EOF){
+        std::cout << "" << tk << " => " << str << "\n";
         tk = scanner->scan();
     }
 

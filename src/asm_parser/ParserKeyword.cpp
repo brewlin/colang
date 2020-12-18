@@ -6,7 +6,7 @@
  **/
 
 #include "Parser.h"
-#include "src/asm_ast/Sym.h""
+#include "src/asm_ast/Sym.h"
 
 namespace asmer{
     /**
@@ -18,10 +18,13 @@ namespace asmer{
         //next
         assert(scanner->scan() == KW_LABEL);
 
-        //TODO: save global label
         std::string labelname = scanner->value();
+        Sym* sym = new Sym(labelname, false);
+        //全局符号
+        sym->global = true;
+        symtable->addSym(sym);
 
-        scanner->next();
+        scanner->scan();
         return;
     }
     //解析label
@@ -41,9 +44,10 @@ namespace asmer{
                 parseQuad(labelname);
                 return;
             case KW_STRING:
-                parseString(labelname):
+                parseString(labelname);
                 return;
             default:
+                break;
         }
 
         //其他情况就是函数定义了

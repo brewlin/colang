@@ -64,10 +64,12 @@ void Asmer::writeElf() {
     }
     //写入数据区 每个全局数据类型当前语言实现默认为指针
     for (auto *sym : paser->symtable->data_symbol) {
+        std::cout << "[writeElf] sym:" << sym->name << std::endl;
         //现在假定所有的 数据区变量都占8字节，用于存储指针类型
         for(int i = 0 ; i < 8 ; i ++)
             fwrite(0,len,1,fout)
     }
+    //写入代码区
     Asmer::obj.InstGen();
 
     //.shstrtab 将所有的段名字符串写入到文件里
