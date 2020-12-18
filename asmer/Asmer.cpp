@@ -28,14 +28,10 @@ void Asmer::execute() {
      * 2. 解析代码段 备用
      */
     paser->parse();
-
-    //更新代码段中的引用
-    updateText();
-    //处理所有的指令集 并更新重定位
-    updateInstructs();
-
-    //构建elf文件
-    build();
+    //构建elf结构
+    buildElf();
+    //写入elf文件
+    writeElf();
 
 }
 void Asmer::buildElf() {
@@ -72,7 +68,6 @@ void Asmer::writeElf() {
         for(int i = 0 ; i < 8 ; i ++)
             fwrite(0,len,1,fout)
     }
-    //TODO: 写入代码区
     Asmer::obj.InstGen();
 
     //.shstrtab 将所有的段名字符串写入到文件里
@@ -97,22 +92,3 @@ void Asmer::writeElf() {
     }
 }
 
-/**
- * 	按照小端顺序（little endian）输出指定长度数据
-	len=1：输出第4字节
-	len=2:输出第3,4字节
-	len=4:输出第1,2,3,4字节
- * @param value
- * @param len
- */
-void Asmer::write(int value, int len)
-{
-    //计算地址
-    asmer::Sym::curAddr += len;
-    if(scanLop==2)
-    {
-        fwrite(&value,len,1,out);
-        inLen+=len;
-    }
-    //cout<<lb_record::curAddr<<"\t"<<inLen<<endl;
-}

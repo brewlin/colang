@@ -222,20 +222,17 @@ void ElfFile::buildSectab{
 };
 void ElfFile::buildData(){
    	//表示当前的数据段的大小
-	obj.addShdr(".data",cuAddr);
+	obj.addShdr(".data",Asmer::curAddr);
 	//数据段紧跟其后
 	offset += curAddr;
 	//后面要加上pad 对齐
 }
 void ElfFile::buildText(){
     //代码段还没有开始计算偏移量
-    //TODO: 只计算符号偏移，不实际生产指令
-    Asmer::obj.InstGen();
-
-	obj.addShdr(".text",offset);
-	offset += 0;
+    Asmer::obj.InstUpdate();
+	obj.addShdr(".text",Asmer::curAddr);
+	offset += Asmer::curAddr;
 	//后面要加上pad对齐
-
 }
 /**
  * 构建段字符串表

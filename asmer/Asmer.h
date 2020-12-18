@@ -29,9 +29,11 @@ public:
 public:
     Asmer(std::string filename);
     ~Asmer();
-    void write(int value,int len);
+    //解析
     void execute();
+    //构建
     void buildElf();
+    //生成
     void writeElf();
 
     //更新代码段中的引用
@@ -40,6 +42,11 @@ public:
     //数据段中暂不支持引用
     //指令生成
     void InstGen();
+    //在构建elf文件的时候主要是计算偏移量，不进行指令翻译
+    void InstUpdate();
+    void InstUpdateOp(Instruct* inst);
+    void InstUpdate1p(Instruct* inst);
+    void InstUpdate2p(Instruct* inst);
 
 };
 

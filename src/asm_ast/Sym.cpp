@@ -112,7 +112,7 @@ namespace asmer
         //切换下一个段名
         curSeg = segname;
         //清0段偏移
-        curAddr = 0;
+//        curAddr = 0;
     }
     /**
      * 导出所有段符号

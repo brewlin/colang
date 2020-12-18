@@ -3,11 +3,11 @@
 #include <cstring>
 #include <stdio.h>
 #include "asmer.h"
+#include "asmer/Asmer.h"
 
 using namespace std;
 using namespace asmer;
 
-bool showAss = false;
 
 int print_help () {
     fprintf(stderr,
@@ -22,6 +22,8 @@ int print_help () {
  */
 int asmgen(char* argv[],bool run = false)
 {
+    Asmer* aer = new Asmer(argv);
+    aer->execute();
     return 0;
 }
 int print_ast(char* argv[]){

@@ -7,6 +7,6 @@
 #ifndef COLANG_ASMER_H
 #define COLANG_ASMER_H
 
-extern bool showAss;
+
 
 #endif //COLANG_ASMER_H

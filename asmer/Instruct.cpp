@@ -83,7 +83,7 @@ bool Instruct::updateRel(int type) {
     //表示数据的引用
     if(!is_func)//绝对重定位
     {
-        obj.addRel(".text",Asmer::curAddr,name,R_386_32);
+        Asmer::elf->addRel(".text",Asmer::curAddr,name,R_386_32);
         flag=true;
     }
     else if(is_func)//相对重定位
@@ -92,7 +92,7 @@ bool Instruct::updateRel(int type) {
         //如果当前指令有函数标签，说明是函数调用
         //外部函数
         if(sym->externed){
-            obj.addRel(".text",Asmer::curAddr,name,R_386_PC32);
+            Asmer::elf->addRel(".text",Asmer::curAddr,name,R_386_PC32);
             flag = true;
         }
     }
