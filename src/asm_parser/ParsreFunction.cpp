@@ -16,8 +16,9 @@ namespace asmer
      * @param labelname
      */
     Function* Parser::parseFunction(std::string labelname) {
-        //当前token 必须是指令
-        assert(scanner->token() >= KW_PUSH && scanner->token() <= KW_RET);
+        //这里可能是函数的开头
+        //也可能是函数某一部分的标签，例如if，else这些默认会生成标签
+        assert(scanner->token() >= KW_MOV && scanner->token() <= KW_RET);
 
         //将标签保存起来
         Function* func = new Function(labelname);
@@ -42,7 +43,7 @@ namespace asmer
 
             func->instructs.push_back(inst);
         //当前token 必须是指令
-        }while(scanner->token() >= KW_PUSH && scanner->token() <= KW_RET);
+        }while(scanner->token() >= KW_MOV && scanner->token() <= KW_RET);
 
         return func;
     }

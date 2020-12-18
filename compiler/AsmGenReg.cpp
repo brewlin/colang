@@ -52,7 +52,7 @@ void AsmGen::Load()
  */
 void AsmGen::CreateCmp()
 {
-    writeln("    cmp $0, %%eax");
+    writeln("    cmp $0, %%rax");
 }
 void AsmGen::PushS(const char *arg)
 {

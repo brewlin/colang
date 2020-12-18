@@ -59,7 +59,7 @@ std::string Parser::printToken()
     auto  tk = scanner->scan();
     auto  str = scanner->value();
     while(tk != TK_EOF){
-        std::cout << "" << tk << " => " << str << "\n";
+        std::cout << "" << tk << " => " << scanner->value() << "\n";
         tk = scanner->scan();
     }
 

@@ -54,6 +54,8 @@ namespace asmer{
                 }
                 //保存立即数
                 inst->inst->imm32 = number;
+                //next one
+                scanner->scan();
                 return TY_IMMED;
             }
             /*
@@ -74,13 +76,17 @@ namespace asmer{
                     //next one
                     scanner->scan();
                 }
-                //接下来肯定解析的是 (%rip)
-                //should be (
-                assert(scanner->token() == TK_LPAREN);
-                //shoulde be %rip
-                assert(scanner->scan() == KW_RIP);
-                //shoulde be )
-                assert(scanner->scan() == TK_RPAREN);
+                //如果下面不是( 说明可能只是一个单独的标签调用，例如 jmp L.ELSE: 这种跳转
+                if(scanner->token() == TK_LPAREN){
+                    //接下来肯定解析的是 (%rip)
+                    //shoulde be %rip
+                    assert(scanner->scan() == KW_RIP);
+                    //shoulde be )
+                    assert(scanner->scan() == TK_RPAREN);
+
+                    //next one
+                    scanner->scan();
+                }
                 //从符号表里查找看看是否已经定义了
                 //计算没有定义也会返回一个 默认的 sym 并写入符号表中
                 //TODO: 代码段中 有对符号的引用，需要后面计算是本地符号还是外部符号
@@ -89,8 +95,6 @@ namespace asmer{
                 inst->inst->imm32 = sym->addr;
                 inst->name = name;
 
-                //next one
-                scanner->scan();
                 return TY_REL;
             }
             /**
@@ -140,7 +144,7 @@ namespace asmer{
             }
             case TK_LPAREN:{
                 //一般寄存器内存访问
-                switch(scanner->token()){
+                switch(scanner->scan()){
                     case KW_RSP: {
                         inst->modrm->mod = 0;
                         inst->modrm->rm  = 4;//引导SIB
@@ -167,6 +171,9 @@ namespace asmer{
                 scanner->scan();
                 return TY_MEM;
             }
+            case TK_MUL://* 号一般用于函数调用，例如 call *%r10
+                //eat *
+               scanner->scan();
             default: {//寄存器操作数 11 rm=des reg=src
                 //其他的默认为指令
                 assert(scanner->token() >= KW_RAX && scanner->token() <= KW_RIP);
@@ -208,6 +215,8 @@ namespace asmer{
     Instruct* Parser::parseZeroInstruct() {
         //构建一条指令数据  like: ret
         Instruct * inst = new Instruct(scanner->token());
+        //eat ret
+        scanner->scan();
         return inst;
     }
 };

@@ -16,8 +16,12 @@ Scanner::Scanner(const std::string filepath)
     keywords["pop"]     = KW_POP;
     keywords["int"]     = KW_INT;
     keywords["mov"]     = KW_MOV;
-    keywords["sub"]   = KW_SUB;
+    keywords["sub"]     = KW_SUB;
+    keywords["add"]   = KW_ADD;
+    keywords["dec"]   = KW_DEC;
+
     keywords["call"]    = KW_CALL;
+    keywords["jmp"]    = KW_JMP;
     keywords["ret"] = KW_RET;
     keywords["lea"]   = KW_LEA;
     keywords["cmp"]   = KW_CMP;

@@ -38,7 +38,7 @@ void AsmGen::execute()
 }
 void AsmGen::registerMain()
 {
-    writeln("    .globl main");
+    writeln("    .global main");
     writeln("main:");
     writeln("    push %%rbp");
     writeln("    mov %%rsp, %%rbp");

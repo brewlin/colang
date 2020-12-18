@@ -39,6 +39,7 @@ namespace asmer{
         //1 数据定义
         //2 函数指令
         //next
+        Sym* sym;
         switch(scanner->scan()){
             case KW_QUAD:
                 parseQuad(labelname);
@@ -46,12 +47,22 @@ namespace asmer{
             case KW_STRING:
                 parseString(labelname);
                 return;
+                /**
+                 * 这里处理一下,会有下面同样也是标签的情况
+                 *  L.else.11:
+                 *  L.end.11:
+                 */
+            case KW_LABEL:
+                //记下这个标签的位置
+                sym = new Sym(labelname, false);
+                symtable->addSym(sym);
+                return;
             default:
                 break;
         }
 
         //其他情况就是函数定义了
-        Function* func =parseFunction(labelname);
+        Function* func = parseFunction(labelname);
         funcs.push_back(func);
         return;
 
