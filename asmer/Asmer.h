@@ -27,6 +27,8 @@ public:
 public:
     static ElfFile*    elf;
     static Asmer*      obj;
+    //实时统计写入的字节数
+    static int         bytes;
 public:
     Asmer(std::string filename);
     ~Asmer();
@@ -47,7 +49,8 @@ public:
     void InstUpdate0p(Instruct* inst);
     void InstUpdate1p(Instruct* inst);
     void InstUpdate2p(Instruct* inst);
-
+    //写入
+    static void writeBytes(void* b, int len);
 };
 
 //

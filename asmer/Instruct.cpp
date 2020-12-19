@@ -71,7 +71,7 @@ void Instruct::writeSIB() {
 void Instruct::writeBytes(int value, int len) {
 
     asmer::curAddr += len;//计算地址
-    fwrite(&value,len,1,Asmer::obj->out);
+    Asmer::writeBytes(&value,len);
 }
 
 bool Instruct::updateRel() {

@@ -11,6 +11,7 @@ bin
 tmp.s
 cmake-build-debug
 tests/asm
+tests/asmer
 tests/compiler
 tests/ast
 tests/lib
@@ -29,3 +30,4 @@ tests/co
 tests/colang
 tests/*.s
 tests/src/*
+co-asmer

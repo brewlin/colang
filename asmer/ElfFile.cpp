@@ -31,7 +31,7 @@ void ElfFile::pad(string first,string second)
 	int  num    = shdrTab[second]->sh_offset - (shdrTab[first]->sh_offset + shdrTab[first]->sh_size);
 	while(num--)
 	{
-		fwrite(pad,1,1,Asmer::obj->out);//填充
+		Asmer::writeBytes(pad,1);
 	}
 }
 
@@ -225,7 +225,7 @@ void ElfFile::buildShstrtab() {
 	/**
 	 * 当前所处位置
 	 * ehdr
-	 * section table * 9
+	 * section table * 8
 	 * text
 	 * data
 	 * now: 段字符串段表
@@ -242,7 +242,7 @@ void ElfFile::buildShstrtab() {
 	//每个字符串末尾都要留一个空格
 	shstrtab_size = reltext.length() + 1 +
 						reldata.length() + 1 +
-						bss.length() + 1 +
+						// bss.length() + 1 +
 						shstrtab.length() + 1 +
 						symtab.length() + 1 +
 						strtab.length() + 1 +
@@ -264,9 +264,9 @@ void ElfFile::buildShstrtab() {
 	//data段同样可以共用
 	strIndex[".data"] = index + 4;
 	index += reldata.length() + 1;
-	strIndex[".bss"] = index;
-	strcpy(str + index, ".bss");
-	index += bss.length() + 1;
+	// strIndex[".bss"] = index;
+	// strcpy(str + index, ".bss");
+	// index += bss.length() + 1;
 	strIndex[".shstrtab"] = index;
 	strcpy(str + index, ".shstrtab");
 	index += shstrtab.length() + 1;
@@ -355,10 +355,15 @@ void ElfFile::buildRelTab(){
 	addShdr(".rel.data",SHT_REL,0,0,offset,data_size,getSegIndex(".symtab"),getSegIndex(".data"),1, sizeof(Elf64_Rel));//.rel.data
 	std::cout << "[buildElf] .rel.data:[" << offset << "," << data_size <<"]" << std::endl;
 	offset += data_size;
+	for(int i = 0; i < shstrtab_size; i ++){
+		std::cout << shstrtab[i];
+	}
+	std::cout <<std::endl;
 	//更新段表name
-	for(int i = 0; i < shdrNames.size();++i){
-		int index = strIndex[shdrNames[i]];
-		shdrTab[shdrNames[i]]->sh_name=index;
+	for(auto str : shdrNames ){
+		int index = strIndex[str];
+		shdrTab[str]->sh_name = index;
+		std::cout << "[buildElf] section_name_index:[" << str << "," << shdrTab[str]->sh_name <<"]" << std::endl;
 	}
 }
 
@@ -372,7 +377,7 @@ void ElfFile:: printAll()
 	for(auto it : shdrTab){
 		if(it.first == "")
 			continue;
-		cout << it.first << ":" << it.second->sh_size << endl;
+		cout << it.first << ":" << it.second->sh_offset<< endl;
 	}
 	cout << "------------符号信息------------" << endl;
 	for(auto it : symTab){

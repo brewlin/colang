@@ -7,8 +7,9 @@
 #include "Asmer.h"
 #include "src/asm_ast/Sym.h"
 #include "ElfFile.h"
-ElfFile* Asmer::elf = nullptr;
-Asmer*   Asmer::obj = nullptr;
+ElfFile* Asmer::elf   = nullptr;
+Asmer*   Asmer::obj   = nullptr;
+int      Asmer::bytes = 0;
 
 Asmer::Asmer(std::string filename) {
     parser = new Parser(filename);
@@ -54,7 +55,7 @@ void Asmer::buildElf() {
 }
 void Asmer::writeElf() {
     //写入elf header
-    fwrite(&elf->ehdr, elf->ehdr.e_ehsize, 1, out);
+    writeBytes(&elf->ehdr,elf->ehdr.e_ehsize);
     std::cout << "[writeElf] header size:" << elf->ehdr.e_ehsize << std::endl;
 
     //写入段表
@@ -62,8 +63,8 @@ void Asmer::writeElf() {
         //遍历每一个段名
         Elf64_Shdr *sh = elf->shdrTab[name];
         std::cout << "[writeElf] section table:" << name
-                  << " size:" << elf->ehdr.e_shentsize <<  std::endl;
-        fwrite(sh, elf->ehdr.e_shentsize, 1, out);
+                  << " offset:" << sh->sh_offset <<  std::endl;
+        writeBytes(sh,elf->ehdr.e_shentsize);
     }
     int data_size  = parser->symtable->data_symbol.size() ;
     std::cout << "[writeElf] .data size:" << data_size <<  std::endl;
@@ -72,7 +73,7 @@ void Asmer::writeElf() {
         //现在假定所有的 数据区变量都占8字节，用于存储指针类型
         //当前全局区域都是存储的8字节指针
         int b[8] = {0};
-        fwrite(b,8,1,out);
+        writeBytes(b,8);
     }
     elf->pad(".data",".text");
     //写入代码区
@@ -81,29 +82,35 @@ void Asmer::writeElf() {
 
     std::cout << "[writeElf] .shstrtab: size:" << elf->shstrtab_size << std::endl;
     //.shstrtab 将所有的段名字符串写入到文件里
-    fwrite(elf->shstrtab,elf->shstrtab_size,1,out);
+    writeBytes(elf->shstrtab,elf->shstrtab_size);
     //.symtab   写入所有的字符串表
     for(auto symname : elf->symNames){
         std::cout << "[writeElf] .strtab:" << symname << std::endl;
         Elf64_Sym* sym = elf->symTab[symname];
-        fwrite(sym,sizeof(Elf64_Sym),1,out);
+        writeBytes(sym,sizeof(Elf64_Sym));
     }
     std::cout << "[writeElf] str: size" << elf->strtab_size << std::endl;
     //.strtab 写入所有的字符串
-    fwrite(elf->strtab,elf->strtab_size,1,out);
+    writeBytes(elf->strtab,elf->strtab_size);
 
     //.rel_text 写入重定向代码表
     for(auto* rel : elf->relTextTab){
         std::cout << "[writeElf] .rel.text: "  <<  std::endl;
-        fwrite(rel,sizeof(Elf64_Rel),1,out);
+        writeBytes(rel,sizeof(Elf64_Rel));
         delete rel;
     }
     //.rel_data 写入重定向数据表
     for(auto* rel : elf->relDataTab){
         std::cout << "[writeElf] .rel.data: "  <<  std::endl;
-        fwrite(rel,sizeof(Elf64_Rel),1,out);
+        writeBytes(rel,sizeof(Elf64_Rel));
         delete rel;
     }
 
+}
+// void b, int len
+void Asmer::writeBytes(void* b, int len)
+{
+    bytes += len;
+    fwrite(b,len,1,obj->out);
 }
 
