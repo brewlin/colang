@@ -46,16 +46,22 @@ namespace asmer
         name(name),
         global(false)
     {
+        cout << name <<endl;
+        cout << "cur:" << curAddr << " size:" << str.size() <<endl;
         addr     = curAddr;
         segName  = ".data";
         len      = str.size();
         externed = false;
         curAddr  += str.size();
     }
-    Sym::Sym(std::string name, int len) {
+    Sym::Sym(std::string name, int len):
+    name(name),
+   global(false) {
+        cout << name <<endl;
+        cout << "cur:" << curAddr << " size:" << len <<endl;
         addr     = curAddr;
         segName  = ".data";
-        len      = len;
+        this->len      = len;
         externed = false;
         global   = false;
         curAddr  += len;

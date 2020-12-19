@@ -5,6 +5,7 @@
 #include "Log.h"
 #include "Asmer.h"
 
+int ElfFile::offset = 0;
 
 
 RelInfo::RelInfo(string seg,int addr,string lb,int t)
@@ -24,15 +25,17 @@ ElfFile::ElfFile()
 	addSym("",NULL);//空符号表项
 }
 
-void ElfFile::pad(string first,string second)
+int ElfFile::pad(string first,string second)
 {
 	//填充段间的空隙
 	char pad[1] = {0};
 	int  num    = shdrTab[second]->sh_offset - (shdrTab[first]->sh_offset + shdrTab[first]->sh_size);
-	while(num--)
-	{
+	cout << second << ":" << shdrTab[second]->sh_offset << ":" << first << ":" << shdrTab[first]->sh_offset + shdrTab[first]->sh_size << endl;
+	int  ret = num;
+	while(num--){
 		Asmer::writeBytes(pad,1);
 	}
+	return ret;
 }
 
 int ElfFile::getSegIndex(string segName)
@@ -203,7 +206,7 @@ void ElfFile::buildData(){
 	std::cout << "[buildElf] .data:[" << offset << "," << curAddr <<"]" << std::endl;
 	//数据段紧跟其后
 	offset += curAddr;
-	//TODO: 后面要加上pad 对齐
+	Asmer::data = asmer::curAddr;
 }
 void ElfFile::buildText(){
     //代码段还没有开始计算偏移量
@@ -211,8 +214,8 @@ void ElfFile::buildText(){
 	addShdr(".text",asmer::curAddr);
 	std::cout << "[buildElf] .text:[" << offset << "," << asmer::curAddr <<"]" << std::endl;
 	offset += asmer::curAddr;
-	//TODO: 后面要加上pad对齐
-
+	Asmer::text = asmer::curAddr;
+	cout << asmer::curAddr <<endl;
 	//到这里就源代码解析完了，需要导出所有符号表
 	Asmer::obj->parser->symtable->exportSyms();
 

@@ -27,7 +27,7 @@ struct RelInfo
 class ElfFile
 {
 public:
-	int  offset = 0;
+	static int  offset;
 	//elf文件重要数据结构
 	Elf64_Ehdr ehdr;//文件头
 	map<string, Elf64_Shdr*> shdrTab;//段表
@@ -53,7 +53,7 @@ public:
 	void addSym(asmer::Sym* sym);
 	void addSym(string st_name,Elf64_Sym*);//添加一个符号表项
 	RelInfo* addRel(string seg,int addr,string lb,int type);//添加一个重定位项，相同段的重定位项连续（一般是先是.rel.text后.rel.data）
-	void pad(string first,string second);
+	int  pad(string first,string second);
 	//构建头部和段表
 	void buildEhdr();
 	void buildSectab();

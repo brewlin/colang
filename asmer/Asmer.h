@@ -29,6 +29,8 @@ public:
     static Asmer*      obj;
     //实时统计写入的字节数
     static int         bytes;
+    static int         data;
+    static int         text;
 public:
     Asmer(std::string filename);
     ~Asmer();
@@ -51,6 +53,7 @@ public:
     void InstUpdate2p(Instruct* inst);
     //写入
     static void writeBytes(void* b, int len);
+    static void expand(int len);
 };
 
 //
