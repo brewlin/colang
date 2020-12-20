@@ -52,7 +52,7 @@ public:
     void InstUpdate1p(Instruct* inst);
     void InstUpdate2p(Instruct* inst);
     //写入
-    static void writeBytes(void* b, int len);
+    static void writeBytes(const void* b, int len);
     static void expand(int len);
 };
 

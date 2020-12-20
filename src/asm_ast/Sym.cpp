@@ -44,7 +44,8 @@ namespace asmer
      */
     Sym::Sym(std::string name, std::string str):
         name(name),
-        global(false)
+        global(false),
+        str(str)
     {
         cout << name <<endl;
         cout << "cur:" << curAddr << " size:" << str.size() <<endl;

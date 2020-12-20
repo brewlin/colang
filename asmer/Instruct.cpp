@@ -26,8 +26,10 @@ static unsigned char i_2opcode[]=
     };
 static unsigned short int i_1opcode[]=
     {
+    //KW_CALL,KW_MUL,KW_DIV,KW_NEG,KW_INC,KW_DEC,KW_JMP,KW_JE,KW_JG,KW_JL,KW_JLE,KW_JNA,KW_PUSH,KW_INT,KW_POP,
+
         0xe8,0xcd,/*0xfe,*/0xf7,0xf7,0xf7,0x40,0x48,0xe9,//call,int,imul,idiv,neg,inc,dec,jmp<rel32>
-        0x0f84,0x0f8f,0x0f8c,0x0f8d,0x0f8e,0x0f85,0x0f86,//je,jg,jl,jge,jle,jne,jna<rel32>
+        0x0f84,0x0f8f,0x0f8c,0x0f8d,0x55,0x0f85,0x0f86,//je,jg,jl,jge,jle,jne,jna<rel32>
         //0xeb,//jmp rel8
         //0x74,0x7f,0x7c,0x7d,0x7e,0x75,0x76,//je,jg,jl,jge,jle,jne,jna<rel8>
         /*0x68,*/0x50,//push
@@ -70,8 +72,8 @@ void Instruct::writeSIB() {
 */
 void Instruct::writeBytes(int value, int len) {
 
-    asmer::curAddr += len;//计算地址
-    Asmer::writeBytes(&value,len);
+    Asmer::bytes += len;
+    fwrite(&value,len,1,Asmer::obj->out);
 }
 
 bool Instruct::updateRel() {

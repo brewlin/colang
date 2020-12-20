@@ -82,7 +82,11 @@ void Asmer::writeElf() {
         //现在假定所有的 数据区变量都占8字节，用于存储指针类型
         //当前全局区域都是存储的8字节指针
         int b[20] = {0};
-        writeBytes(b,sym->len);
+        if(sym->str != ""){
+            writeBytes(sym->str.c_str(),sym->len);
+        }else{
+            writeBytes(b,sym->len);
+        }
         ds += sym->len;
         cout << sym->name <<":" << sym->len <<endl;
     }
@@ -138,7 +142,7 @@ void Asmer::writeElf() {
 
 }
 // void b, int len
-void Asmer::writeBytes(void* b, int len)
+void Asmer::writeBytes(const void* b, int len)
 {
     bytes += len;
     fwrite(b,len,1,obj->out);
