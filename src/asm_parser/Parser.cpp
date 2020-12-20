@@ -41,7 +41,7 @@ void Parser::parse()
             //解析段声明
             case KW_DATA:
             case KW_TEXT:{
-                symtable->switchSeg(scanner->value());
+                //nothing todo
                 //next
                 scanner->scan();
                 continue;

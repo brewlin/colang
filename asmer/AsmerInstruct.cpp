@@ -28,7 +28,6 @@ void Asmer::InstUpdate(){
     //这里是计算指令段了，所以需要清空之前的计数
     asmer::curAddr = 0;
 
-    cout << "text-start:" << asmer::curAddr << endl;
     //这里其实是属于新的段了，curAddr 段大小需要从0开始计数， 但是datalen是持续累加的
     for(auto func : parser->funcs){
 
@@ -36,6 +35,7 @@ void Asmer::InstUpdate(){
         Sym* sym = new Sym(func->labelname,false);
         //当前非外部符号
         parser->symtable->addSym(sym);
+        cout << func->labelname << ":" << asmer::curAddr << ":" << sym->addr << endl;
         //接下来解析函数区域所有的指令
         for(auto inst : func->instructs){
             Token token = inst->type;

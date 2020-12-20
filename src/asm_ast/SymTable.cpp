@@ -14,21 +14,7 @@ namespace asmer{
         return symbolTable.find(name) != symbolTable.end();
     }
     void SymTable::addSym(asmer::Sym *sym) {
-        //本地符号覆盖外部符号
-        if(hasName(sym->name)){
-            //如果本地保存的为外部符号，且新增的这个为本地符号 说明可以覆盖了
-            if(symbolTable[sym->name]->externed == true && sym->externed == false){
-                //删除之前保存的
-                delete symbolTable[sym->name];
-                symbolTable[sym->name] = sym;
-            }
-            //第一次全局符号的时候默认是text，可能本身是一个全局变量
-            symbolTable[sym->name]->segName = sym->segName;
-            //符号不存在
-        }else{
-            symbolTable[sym->name] = sym;
-        }
-
+        symbolTable[sym->name] = sym;
         //保存数据
         if(sym->segName == ".data"){
             data_symbol.push_back(sym);
@@ -49,18 +35,6 @@ namespace asmer{
         }
     }
 
-    /**
-     * 切换下一个段，由于一般只有.text和.data，因此可以此时创建段表项目
-     * 当前段名
-     * @param segname
-     */
-    void SymTable::switchSeg(std::string segname) {
-        //地址对齐
-        dataLen += (4 - dataLen % 4 ) % 4;
-        dataLen += asmer::curAddr;
-        //切换下一个段名
-//        curSeg = segname;
-    }
     /**
      * 导出所有段符号
      */
