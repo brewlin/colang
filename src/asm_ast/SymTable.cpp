@@ -22,6 +22,8 @@ namespace asmer{
                 delete symbolTable[sym->name];
                 symbolTable[sym->name] = sym;
             }
+            //第一次全局符号的时候默认是text，可能本身是一个全局变量
+            symbolTable[sym->name]->segName = sym->segName;
             //符号不存在
         }else{
             symbolTable[sym->name] = sym;

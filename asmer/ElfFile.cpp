@@ -102,7 +102,7 @@ void ElfFile::addSym(asmer::Sym* sym)
 	Elf64_Sym *elfsym 	 = new Elf64_Sym();
 	elfsym->st_name   	 = 0;
 	elfsym->st_value  	 = sym->addr;//符号段偏移,外部符号地址为0
-	elfsym->st_size   	 = 8;        //目前只支持8位支持的全局变量定义，其他的函数标签不需要管
+	elfsym->st_size   	 = 0;        //目前只支持8位支持的全局变量定义，其他的函数标签不需要管
 	//是否为全局
 	if(sym->global)
 		elfsym->st_info  = ELF64_ST_INFO(STB_GLOBAL,STT_NOTYPE);//全局符号
@@ -110,10 +110,12 @@ void ElfFile::addSym(asmer::Sym* sym)
 		elfsym->st_info  = ELF64_ST_INFO(STB_LOCAL,STT_NOTYPE);//局部符号，避免名字冲突
 
 	elfsym->st_other     = 0;
-	if(sym->externed)
+	if(sym->externed){
 		elfsym->st_shndx = STN_UNDEF;
-	else
+	}else{
 		elfsym->st_shndx = getSegIndex(sym->segName);
+	}
+	cout << "符号:" << sym->name << " 所在段:" << sym->segName << " " <<elfsym->st_shndx <<endl;
 
 	addSym(name,elfsym);
 }
@@ -302,6 +304,7 @@ void ElfFile::buildSymtab() {
 	offset += strtab_size;
 	//找到字符串段在段表中的索引，这里应该是4
 	shdrTab[".symtab"]->sh_link = getSegIndex(".symtab") + 1;//.strtab默认在.symtab之后
+	shdrTab[".symtab"]->sh_info = symNames.size();
 }
 //构建字符串表
 void ElfFile::buildStrtab() {
@@ -319,12 +322,17 @@ void ElfFile::buildStrtab() {
 	this->strtab = str;
 	int index = 0;
 	//串表与符号表名字更新
-	for (int i = 0; i < symNames.size(); ++i) {
+	for(auto strs : symNames){
 		//更新符号表中对应于字符串的索引
-		symTab[symNames[i]]->st_name = index;
-		strcpy(str + index, symNames[i].c_str());
-		index += symNames[i].length() + 1;
+		symTab[strs]->st_name = index;
+		strcpy(str + index, strs.c_str());
+		index += strs.length() + 1;
+		cout << "[" << strs << "," << strs.length() + 1 << "]" << "index:" << index <<endl;
 	}
+	for(int i = 0; i < this->strtab_size ; i ++){
+		cout << strtab[i];
+	}
+	cout << endl;
 	//这里存储的是字符串区需要加上这个
 	std::cout << "[buildElf] .strtab:[" << offset << "," << strtab_size <<"]" << std::endl;
 	offset += strtab_size;
