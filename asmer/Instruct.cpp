@@ -26,7 +26,6 @@ static unsigned char i_2opcode[]=
 static unsigned short int i_1opcode[]=
     {
     //KW_CALL,KW_MUL,KW_DIV,KW_NEG,KW_INC,KW_DEC,KW_JMP,KW_JE,KW_JG,KW_JL,KW_JLE,KW_JNA,KW_PUSH,KW_INT,KW_POP,
-
         0xe8,0xcd,/*0xfe,*/0xf7,0xf7,0xf7,0x40,0x48,0xe9,//call,int,imul,idiv,neg,inc,dec,jmp<rel32>
         0x0f84,0x0f8f,0x0f8c,0x0f8d,0x55,0x0f85,0x0f86,//je,jg,jl,jge,jle,jne,jna<rel32>
         //0xeb,//jmp rel8
@@ -116,17 +115,21 @@ void Instruct::gen2Op() {
         index = 3;
     else
         index = (right -2) * 2 + left - 2;
-    index = (type - KW_MOV ) * 8+ ( 1 - 8 % 8)* 8 + index;//附加指令名称和长度
+    //计算所在索引
+    index = (type - KW_MOV ) * 4  + index;
+    //附加指令名称和长度
     unsigned char opcode = i_2opcode[index];
     unsigned char exchar;
     switch(modrm->mod)
     {
-        case -1://reg,imm
+        case -1://immediate,register
             switch(type)
             {
-                case KW_MOV://b0+rb MOV r/m8,imm8 b8+rd MOV r/m32,imm32
-                    opcode += (unsigned char)(modrm->reg);
-                    writeBytes(opcode,1);
+                //0xc0 + 寄存器索引
+                //可以有8位寄存器
+                case KW_MOV:
+                    opcode += 0xc0 + (unsigned char)(modrm->reg);
+                    writeBytes(opcode,2);
                     break;
                 case KW_CMP://80 /7 ib CMP r/m8,imm8 81 /7 id CMP r/m32,imm32
                     writeBytes(opcode,1);

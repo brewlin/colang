@@ -36,7 +36,8 @@ namespace asmer{
     {
         unsigned char opcode;
         int disp;
-        int imm32;
+        //对于mov 支持64位立即数
+        long int imm32;
         int dispLen;//偏移的长度
         Inst();
         void init();

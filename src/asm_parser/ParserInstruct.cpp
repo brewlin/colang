@@ -35,7 +35,7 @@ namespace asmer{
             //     mov $10,%rax     $开头的一定是立即数
             case TK_IMME:{
                 bool negative = false;
-                int  number   = 0;
+                long int  number   = 0;
                 //next one
                 switch (scanner->scan()) {
                     //get number;
@@ -102,7 +102,6 @@ namespace asmer{
              * 3. 内存访问
              *    mov -8(%rsp),$rax
              *    mov 8(%rsp),%rax
-             *    mov (%rsp),%rax
              */
             case TK_SUB:
             case TK_NUMBER:{
@@ -118,23 +117,28 @@ namespace asmer{
                 //可以是任意寄存器
                 scanner->scan();
                 assert(scanner->token() >= KW_RAX && scanner->token() <= KW_RIP);
-
+                //8位偏移量计算
                 if( num >= -128 && num < 128)//disp8
                 {
                     inst->modrm->mod = 1;
                     inst->inst->setDisp(num,1);
-                }
-                else{
+                //32为偏移量计算
+                }else{
+                    //mod: 1 0 
                     inst->modrm->mod = 2;
+                    //填充32位数据，不够的需要补0
                     inst->inst->setDisp(num,4);
                 }
-                inst->modrm->rm = scanner->token() - KW_RAX - ( 1 - 8 % 8) * 8;
+                //索引
+                inst->modrm->rm = scanner->token() - KW_RAX;
+                //如果为rsp间接寻址就要特别一点
+                //会额外多出sib指令段
                 if( scanner->token() == KW_RSP)//sib
                 {
-                    inst->modrm->rm  = 4;//引导SIB
-                    inst->sib->scale = 0;
-                    inst->sib->index = 4;
-                    inst->sib->base  = 4;
+                    inst->modrm->rm  = 4;//rm = 4 表示rsp的索引
+                    inst->sib->scale = 0;//默认为0
+                    inst->sib->index = 4;//index = 0b100 表示不存在该变址寄存器
+                    inst->sib->base  = 4;//rsp 索引为4
                 }
                 //next one
                 assert(scanner->scan() == TK_RPAREN);
@@ -142,10 +146,12 @@ namespace asmer{
                 return TY_MEM;
 
             }
+            //mov (%rsp),%rax
             case TK_LPAREN:{
                 //一般寄存器内存访问
                 switch(scanner->scan()){
                     case KW_RSP: {
+                        //间接寻址 mod==0
                         inst->modrm->mod = 0;
                         inst->modrm->rm  = 4;//引导SIB
                         inst->sib->scale = 0;
@@ -182,10 +188,10 @@ namespace asmer{
                 {
                     inst->modrm->mod = 3;//双寄存器模式
                     inst->modrm->rm  = inst->modrm->reg;//因为统一采用opcode rm,r 的指令格式，比如mov rm32,r32就使用0x89,若是使用opcode r,rm 形式则不需要
-                    inst->modrm->reg = scanner->token() - KW_RAX - (1 - 8 % 8) * 8;//计算寄存器的编码
+                    inst->modrm->reg = scanner->token() - KW_RAX;//计算寄存器的编码
                 } else//第一次出现reg，临时在reg中，若双reg这次是目的寄存器，需要交换位置
                 {
-                    inst->modrm->reg = scanner->token() - KW_RAX - (1 - 8 % 8) * 8;//计算寄存器的编码
+                    inst->modrm->reg = scanner->token() - KW_RAX;//计算寄存器的编码
                 }
                 inst->regnum ++ ;
 

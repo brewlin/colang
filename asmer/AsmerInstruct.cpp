@@ -65,7 +65,7 @@ void Asmer::InstUpdate2p(Instruct *inst) {
                 case KW_ADD:
                 case KW_SUB:
                     //1字节
-                    asmer::curAddr += 1;
+                    asmer::curAddr += 2;
                     break;
                 default:
                     break;

@@ -41,16 +41,16 @@ enum Token {
     KW_RET,
 
     KW_RAX,
-    KW_RBX,
     KW_RCX,
     KW_RDX,
-    KW_RDI,
+    KW_RBX,
+    KW_RSP,
+    KW_RBP,
     KW_RSI,
+    KW_RDI,
     KW_R8,
     KW_R9,
     KW_R10,
-    KW_RSP,
-    KW_RBP,
     KW_RIP,
 
     TK_NUMBER, // int
