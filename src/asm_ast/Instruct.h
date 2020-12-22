@@ -9,7 +9,9 @@
 
 #include <string>
 #include <iostream>
+#include <vector>
 #include "Token.h"
+using  namespace std;
 
 namespace asmer{
 
@@ -60,6 +62,7 @@ namespace asmer{
         int         regnum;
         InstType    left;
         InstType    right;
+        vector<Token> tks;
         Inst*       inst;
         SIB*        sib;
         ModRM*      modrm;

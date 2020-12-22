@@ -186,6 +186,7 @@ namespace asmer{
             default: {//寄存器操作数 11 rm=des reg=src
                 //其他的默认为指令
                 assert(scanner->token() >= KW_RAX && scanner->token() <= KW_RIP);
+                inst->tks.push_back(scanner->token());
 
                 if (inst->regnum)//双reg，将原来reg写入rm作为目的操作数，本次写入reg
                 {
@@ -194,7 +195,12 @@ namespace asmer{
                     inst->modrm->reg = scanner->token() - KW_RAX;//计算寄存器的编码
                 } else//第一次出现reg，临时在reg中，若双reg这次是目的寄存器，需要交换位置
                 {
-                    inst->modrm->reg = scanner->token() - KW_RAX;//计算寄存器的编码
+                    //如果寄存器位 r8,r9,r10-r15 需要单独计算索引
+                    if(scanner->token() >= KW_R8 && scanner->token() <= KW_R10){
+                        inst->modrm->reg = scanner->token() - KW_R8;//计算寄存器的编码
+                    }else{
+                        inst->modrm->reg = scanner->token() - KW_RAX;//计算寄存器的编码
+                    }
                 }
                 inst->regnum ++ ;
 

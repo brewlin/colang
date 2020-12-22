@@ -25,19 +25,22 @@ static unsigned short int i_2opcode[]=
     };
 static unsigned short int i_1opcode[]=
     {
-    //KW_CALL,KW_MUL,KW_DIV,KW_NEG,KW_INC,KW_DEC,KW_JMP,KW_JE,KW_JG,KW_JL,KW_JLE,KW_JNA,KW_PUSH,KW_INT,KW_POP,
-        0xe8,0xcd,/*0xfe,*/0xf7,0xf7,0xf7,0x40,0x48,0xe9,//call,int,imul,idiv,neg,inc,dec,jmp<rel32>
-        0x0f84,0x0f8f,0x0f8c,0x0f8d,0x55,0x0f85,0x0f86,//je,jg,jl,jge,jle,jne,jna<rel32>
+    //KW_CALL,KW_DIV,KW_NEG,KW_INC,KW_DEC,KW_JMP,KW_JE,KW_JG,KW_JL,KW_JLE,KW_JNA,KW_PUSH,KW_INT,KW_POP,
+        //call,int, imul,idiv,neg, inc, dec, jmp<rel32>
+        0xe8,  0xcd,0xf7,0xf7,0xf7,0x40,0x48,0xe9,
+        //je,jg,jl,jge,jle,jne,jna<rel32>
+        0x0f84,0x0f8f,0x0f8c,0x0f8d,0x55,0x0f85,0x0f86,
         //0xeb,//jmp rel8
         //0x74,0x7f,0x7c,0x7d,0x7e,0x75,0x76,//je,jg,jl,jge,jle,jne,jna<rel8>
-        /*0x68,*/0x50,//push
-        0x58//pop
+        //push
+        0x50,
+        //pop
+        0x58
     };
 static unsigned char i_0opcode[]=
     {
         0xc3//ret
     };
-int inLen = 0;
 /*
 	输出ModRM字节
 	mod(2)|reg(3)|rm(3)
@@ -84,7 +87,7 @@ bool Instruct::updateRel() {
     if(!is_func)//绝对重定位
     {
         Asmer::elf->addRel(".text",asmer::curAddr,name,R_386_32);
-        flag=true;
+        flag = true;
     }
     else if(is_func)//相对重定位
     {
@@ -239,18 +242,53 @@ void Instruct::gen1Op() {
     unsigned short int opcode = i_1opcode[type - KW_CALL];
     if(type == KW_CALL || type >= KW_JMP && type <= KW_JNA)
     {
-        //统一使用长地址跳转，短跳转不好定位
-        if(type == KW_CALL  || type == KW_JMP)
-            writeBytes(opcode,1);
-        else
-        {
-            writeBytes(opcode >> 8,1);
-            writeBytes(opcode,1);
+        bool is_rel = updateRel();//处理可能的相对重定位信息，call fun,如果fun是本地定义的函数就不会重定位了
+        switch(type){
+            //统一使用长地址跳转，短跳转不好定位
+            case KW_CALL:{
+                //1. call 标签
+                if(left == TY_REL){
+                    opcode = 0xe8;
+                    writeBytes(opcode,1);
+                }
+                //寄存器间接调用
+                if(left == TY_REG){
+                    if(tks[0] < KW_R8){
+                        //2. call 通用寄存器
+                        opcode = 0x41ff;
+                        writeBytes(opcode,2);
+                        //写入寄存器索引
+                        writeBytes(0xd0 + modrm->reg,1);
+                    }else{
+                        //3. call r8-r15寄存器
+                        opcode = 0xffd0 + modrm->reg;
+                        writeBytes(opcode,2);
+                    }
+                }
+                break;
+            }
+            case KW_JMP:{
+                if(is_rel){
+                    //1. 内部符号 eb
+                    opcode = 0xeb;
+                }else{
+                    //2. 外部符号 e9 00 00 00 00
+                    opcode = 0xe9;
+                }
+                writeBytes(opcode,1);
+                break;
+            }
+            default:{
+                writeBytes(opcode >> 8,1);
+                writeBytes(opcode,1);
+            }
         }
         int rel  = inst->imm - (asmer::curAddr + 4);//调用符号地址相对于下一条指令地址的偏移，因此加4
-        bool ret = updateRel();//处理可能的相对重定位信息，call fun,如果fun是本地定义的函数就不会重定位了
-        if(ret)//相对重定位成功，说明之前计算的偏移错误
-            rel = -4;//对于链接器必须的初始值
+        //存在外部引用
+        if(is_rel){
+            //构建4字节 0
+            writeBytes(0x00000000,4);
+        }
         writeBytes(rel,4);
     }
     else if(type == KW_INT)
@@ -260,34 +298,32 @@ void Instruct::gen1Op() {
     }
     else if(type == KW_PUSH)
     {
+        //1. 立即数 push
         if(left == TY_IMMED)
         {
+            //强制使用32位立即数进行存储
             opcode = 0x68;
             writeBytes(opcode,1);
             writeBytes(inst->imm,4);
         }
-        else
+        else if(tks[0] < KW_R8)
         {
+            opcode +=(unsigned char)(modrm->reg);
+            writeBytes(opcode,1);
+        }else{
+            //要加个0x41 前缀指令
+            writeBytes(0x41,1);
             opcode +=(unsigned char)(modrm->reg);
             writeBytes(opcode,1);
         }
     }
-    else if(type == KW_INC)
+    //TODO : supoort inc instruct
+    //TODO : supoort dec instruct
+    //TODO : supoort neg instruct
+    else if(type == KW_INC || type == KW_DEC || type == KW_NEG )
     {
-        opcode+=(unsigned char)(modrm->reg);
-        writeBytes(opcode,1);
-    }
-    else if(type == KW_DEC)
-    {
-        opcode += (unsigned char)(modrm->reg);
-        writeBytes(opcode,1);
-    }
-    else if(type == KW_NEG)
-    {
-        exchar=0xd8;
-        exchar+=(unsigned char)(modrm->reg);
-        writeBytes(opcode,1);
-        writeBytes(exchar,1);
+        std::cout << "not support instruct:" << type << std::endl;
+        assert(false);
     }
     else if(type == KW_POP)
     {
