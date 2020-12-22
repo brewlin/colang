@@ -53,7 +53,7 @@ namespace asmer{
                         parse_err("[Parser] should be number at but got instruct:%s\n", scanner->value());
                 }
                 //保存立即数
-                inst->inst->imm32 = number;
+                inst->inst->imm = number;
                 //next one
                 scanner->scan();
                 return TY_IMMED;
@@ -92,7 +92,7 @@ namespace asmer{
                 //TODO: 代码段中 有对符号的引用，需要后面计算是本地符号还是外部符号
                 Sym* sym = symtable->getSym(name);
                 //获得该符号的偏移量地址
-                inst->inst->imm32 = sym->addr;
+                inst->inst->imm = sym->addr;
                 inst->name = name;
 
                 return TY_REL;
@@ -160,8 +160,11 @@ namespace asmer{
                         break;
                     }
                     case KW_RBP:{
-                        inst->modrm->mod = 1;//8-bit 0 disp，或者mod=2 32-bit 0 disp
+                        //对于rbp的间接访问，需要当做偏移量访问
+                        // mov (%rbp),%rax 实际是  mov 0(%rbp),%rax
+                        inst->modrm->mod = 1;
                         inst->modrm->rm  = 5;
+                        //所有需要补充1个0的偏移量字节
                         inst->inst->setDisp(0,1);
                         break;
                     }

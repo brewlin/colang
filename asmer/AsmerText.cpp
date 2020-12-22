@@ -33,7 +33,7 @@ void Asmer::updateTextFunc(asmer::Function *func) {
         if(inst->is_rel){
             Sym* sym = parser->symtable->getSym(inst->name);
             //获得该符号的偏移量地址
-            inst->inst->imm32 = sym->addr;
+            inst->inst->imm = sym->addr;
         }
 
     }

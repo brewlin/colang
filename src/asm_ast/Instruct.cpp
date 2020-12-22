@@ -15,7 +15,7 @@ namespace asmer{
 //ModRM,SIB,Inst结构
     ModRM::ModRM():mod(-1),reg(0),rm(0){}
     SIB::SIB()    :scale(-1),index(0),base(0){}
-    Inst::Inst()  :opcode(0),disp(0),dispLen(0),imm32(0){}
+    Inst::Inst()  :opcode(0),disp(0),dispLen(0),imm(0){}
 
     Instruct::Instruct(Token type)
     {
