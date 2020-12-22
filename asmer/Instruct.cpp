@@ -14,32 +14,29 @@
 namespace asmer{
     
 
-static unsigned short int i_2opcode[]=
+static unsigned short int opcode2[]=
     {
         //r,r   rm,r    r,rm    im,r
         0x4889, 0x488b, 0x4889, 0x48c7,//mov
         0x4839, 0x483b, 0x4839, 0x4883,//cmp
         0x4829, 0x482b, 0x4829, 0x4883,//sub
         0x4801, 0x4803, 0x4801, 0x4883,//add
+        0x0000, 0x0000, 0x0000, 0x486b,//imul
         0x4800, 0x488d, 0x4800, 0x4800//lea
     };
-static unsigned short int i_1opcode[]=
+static unsigned short int opcode1[]=
     {
-    //KW_CALL,KW_DIV,KW_NEG,KW_INC,KW_DEC,KW_JMP,KW_JE,KW_JG,KW_JL,KW_JLE,KW_JNA,KW_PUSH,KW_INT,KW_POP,
-        //call,int, imul,idiv,neg, inc, dec, jmp<rel32>
-        0xe8,  0xcd,0xf7,0xf7,0xf7,0x40,0x48,0xe9,
-        //je,jg,jl,jge,jle,jne,jna<rel32>
+        //CALL INT  DIV  NEG  INC  DEC  JMP,
+        0xe8,  0xf7,0xf7,0x40,0x48,0xe9,
+        //JE   JG     JL     JLE    JNE  JNE    JNA
         0x0f84,0x0f8f,0x0f8c,0x0f8d,0x55,0x0f85,0x0f86,
-        //0xeb,//jmp rel8
-        //0x74,0x7f,0x7c,0x7d,0x7e,0x75,0x76,//je,jg,jl,jge,jle,jne,jna<rel8>
-        //push
-        0x50,
-        //pop
-        0x58
+        //PUSH INT POP
+        0x50,0xcd,0x58
     };
-static unsigned char i_0opcode[]=
+static unsigned char opcode0[]=
     {
-        0xc3//ret
+        //RET
+        0xc3
     };
 /*
 	输出ModRM字节
@@ -102,15 +99,6 @@ bool Instruct::updateRel() {
     return flag;
 }
 void Instruct::gen2Op() {
-    //测试信息
-//     cout<<"len="<<len<<"(1-Byte;4-DWord)\n";
-//     cout<<"des:type="<<des_t<<"(1-imm;2-mem;3-reg)\n";
-//     cout<<"src:type="<<src_t<<"(1-imm;2-mem;3-reg)\n";
-    //  cout<<"ModR/M="<<modrm->mod<<" "<<modrm->reg<<" "<<modrm->rm<<endl;
-    // cout<<"SIB="<<sib->scale<<" "<<sib->index<<" "<<sib->base<<endl;
-    // cout<<"disp32="<<inst.disp32<<",disp8="<<(int)inst.disp8<<"(<-"<<inst.disptype<<":(0-disp8;1-disp32) imm="<<inst->imm<<endl;
-    //计算操作码索引 (mov,8,reg,reg)=000 (mov,8,reg,mem)=001 (mov,8,mem,reg)=010 (mov,8,reg,imm)=011
-    //(mov,32,reg,reg)=100 (mov,32,reg,mem)=101 (mov,32,mem,reg)=110 (mov,32,reg,imm)=111  [0-7]*(i_lea-i_mov)
     int index = -1;
     //立即数 默认1字节
     int len   = 1;
@@ -121,7 +109,7 @@ void Instruct::gen2Op() {
     //计算所在索引
     index = (type - KW_MOV ) * 4  + index;
     //附加指令名称和长度
-    unsigned char opcode = i_2opcode[index];
+    unsigned short int opcode = opcode2[index];
     unsigned char exchar;
     switch(modrm->mod)
     {
@@ -139,9 +127,10 @@ void Instruct::gen2Op() {
                         writeBytes(opcode,2);
                     }else{
                         len = 4;
-                        opcode += 0xc0 + (unsigned char)(modrm->reg);
-                        //三字节
-                        writeBytes(opcode,3);
+                        writeBytes(opcode,2);
+
+                        exchar = 0xc0 + (unsigned char)(modrm->reg);
+                        writeBytes(exchar,1);
                     }
                     break;
                 }
@@ -187,6 +176,16 @@ void Instruct::gen2Op() {
                     exchar += ( unsigned char)(modrm->reg);
                     writeBytes(exchar,1);
                     break;
+                }
+                case KW_MUL:{
+                    writeBytes(opcode,2);
+                    exchar = 0xc0;
+                    exchar += (unsigned char)(modrm->reg) * 0x09;
+                    writeBytes(exchar,1);
+                }
+                default:{
+                    std::cout << "unsupport instruct:" << type << std::endl;
+                    assert(false);
                 }
             }
             //可能的重定位位置 mov eax,@buffer,也有可能是mov eax,@buffer_len，就不许要重定位，因为是宏
@@ -239,7 +238,7 @@ void Instruct::gen2Op() {
 void Instruct::gen1Op() {
     int len  = 8 ;//默认是8
     unsigned char exchar;
-    unsigned short int opcode = i_1opcode[type - KW_CALL];
+    unsigned short int opcode = opcode1[type - KW_CALL];
     if(type == KW_CALL || type >= KW_JMP && type <= KW_JNA)
     {
         bool is_rel = updateRel();//处理可能的相对重定位信息，call fun,如果fun是本地定义的函数就不会重定位了
@@ -320,30 +319,40 @@ void Instruct::gen1Op() {
     //TODO : supoort inc instruct
     //TODO : supoort dec instruct
     //TODO : supoort neg instruct
-    else if(type == KW_INC || type == KW_DEC || type == KW_NEG )
+    else if(type == KW_INC || type == KW_DEC || type == KW_NEG || type == KW_DIV)
     {
         std::cout << "not support instruct:" << type << std::endl;
         assert(false);
     }
     else if(type == KW_POP)
     {
-        opcode += (unsigned char)(modrm->reg);
-        writeBytes(opcode,1);
+        //1间接访问的指令不一样
+        if(left == TY_MEM){
+            if(tks[0] == KW_RSP || tks[0] == KW_RBP){
+                std::cout << "not support instruct:" << tks[0] << std::endl;
+                assert(false);
+            }
+            opcode = 0x8f;
+            writeBytes(opcode,1);
+            //写入寄存器索引
+            writeBytes((unsigned char)(modrm->reg),1);
+        //TODO: 支持偏移量访问如: pop 10(%rax)    
+        //2寄存器访问
+        }else{
+            //TODO: 支持 pop (%rsp) | pop (%rbp)
+            //%r8 以上需要加上前缀指令
+            if(tks[0] >= KW_R8){
+                writeBytes(0x41,1);
+            }
+            opcode += (unsigned char)(modrm->reg);
+            writeBytes(opcode,1);
+        }
     }
-    else if(type == KW_MUL || type == KW_DIV)
-    {
-        writeBytes(opcode,1);
-        if(type == KW_MUL)
-            exchar = 0xe8;
-        else
-            exchar = 0xf8;
-        exchar += (unsigned char)(modrm->reg);
-        writeBytes(exchar,1);
-    }
+
 }
 
 void Instruct::gen0Op() {
-    unsigned char opcode = i_0opcode[0];
+    unsigned char opcode = opcode0[0];
     writeBytes(opcode,1);
 }
 void Instruct::gen(){

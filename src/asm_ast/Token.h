@@ -18,11 +18,12 @@ enum Token {
     KW_CMP,
     KW_SUB,
     KW_ADD,
+    KW_MUL,
     KW_LEA,
 
     // need 1 op
     KW_CALL,
-    KW_MUL,
+    KW_INT,
     KW_DIV,
     KW_NEG,
     KW_INC,
@@ -32,9 +33,9 @@ enum Token {
     KW_JG,
     KW_JL,
     KW_JLE,
+    KW_JNE,
     KW_JNA,
     KW_PUSH,
-    KW_INT,
     KW_POP,
 
     //need 0 op
