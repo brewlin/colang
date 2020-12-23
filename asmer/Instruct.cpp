@@ -28,22 +28,22 @@ static unsigned short int opcode2[]=
 static unsigned short int opcode1[]=
     {
         //CALL INT  DIV  NEG  INC  DEC  JMP,
-        0xe8,  0xf7,0xf7,0x40,0x48,0xe9,
-        //JE   JG     JL     JLE    JNE  JNE    JNA
-        0x0f84,0x0f8f,0x0f8c,0x0f8d,0x55,0x0f85,0x0f86,
+        0xe8,  0xcd,0xf7,0x40,0x48,0x00,0xe9,
+        //JE   JG     JL     JLE    JNE  JNA
+        0x0f84,0x0f8f,0x0f8c,0x0f8d,0x55,0x0f86,
         //PUSH INT POP
-        0x50,0xcd,0x58
+        0x50,0x58
     };
 static unsigned char opcode0[]=
     {
         //RET
         0xc3
     };
-void Instruct::append(unsigned short int b) {
+void Instruct::append(unsigned char b) {
     bytes[size++] = b;
     asmer::curAddr += 1;
 }
-void Instruct::append(unsigned char b) {
+void Instruct::append(unsigned short int b) {
     memcpy(bytes + size , &b , 2);
     size += 2;
     asmer::curAddr += 2;
