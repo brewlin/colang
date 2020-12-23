@@ -210,8 +210,8 @@ namespace asmer{
                 if (inst->regnum)//双reg，将原来reg写入rm作为目的操作数，本次写入reg
                 {
                     inst->modrm->mod = 3;//双寄存器模式
-                    inst->modrm->rm  = inst->modrm->reg;//因为统一采用opcode rm,r 的指令格式，比如mov rm32,r32就使用0x89,若是使用opcode r,rm 形式则不需要
-                    inst->modrm->reg = scanner->token() - KW_RAX;//计算寄存器的编码
+                    // inst->modrm->rm  = inst->modrm->reg;//因为统一采用opcode rm,r 的指令格式，比如mov rm32,r32就使用0x89,若是使用opcode r,rm 形式则不需要
+                    inst->modrm->rm = scanner->token() - KW_RAX;//计算寄存器的编码
                 } else//第一次出现reg，临时在reg中，若双reg这次是目的寄存器，需要交换位置
                 {
                     //如果寄存器位 r8,r9,r10-r15 需要单独计算索引

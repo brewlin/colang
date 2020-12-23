@@ -23,7 +23,7 @@ static unsigned short int opcode2[]=
         0x4829, 0x482b, 0x4829, 0x4883,//sub
         0x4801, 0x4803, 0x4801, 0x4883,//add
         0x0000, 0x0000, 0x0000, 0x486b,//imul
-        0x4800, 0x488d, 0x4800, 0x4800//lea
+        0x488d, 0x488d, 0x488d, 0x488d//lea
     };
 static unsigned short int opcode1[]=
     {
@@ -44,14 +44,13 @@ void Instruct::append(unsigned char b) {
     asmer::curAddr += 1;
 }
 void Instruct::append(unsigned short int b) {
-    memcpy(bytes + size , &b , 2);
-    size += 2;
-    asmer::curAddr += 2;
+    append((unsigned char)(b >> 8));
+    append((unsigned char)(b));
 }
 void Instruct::append(long int b, int len) {
-    memcpy(bytes + size , &b , len);
-    size += len;
-    asmer::curAddr += len;
+    for(int i = 0; i < len ; i ++ ){
+        append((unsigned char)(b >> (8*i)));
+    }
 }
 /*
  * 输出ModRM字节
@@ -130,6 +129,13 @@ void Instruct::gen2Op() {
                     }else{
                         len = 4;
                         exchar = 0xc0 + (unsigned char)(modrm->reg);
+                    }
+                    //兼容gnu assmebley 语法
+                    //mov label@GOTPCREL(%rip),%rax
+                    //mov label(%rip),%rax
+                    if(left == TY_REL){
+                        opcode = 0x488b;
+                        exchar = 0x05 + (unsigned char)modrm->reg * 8;
                     }
                     break;
                 }
@@ -241,11 +247,17 @@ void Instruct::gen2Op() {
                 append(inst->disp,inst->dispLen);
             break;
         //寄存器访问
-        case 0b11:
+        case 0b11:{
+            //默认0x4889
+            if(tks[0] >= KW_R8)
+                opcode = 0x4c89;
+            if(tks[1] >= KW_R8)
+                opcode = 0x4989;
             append(opcode);
             //写入modrm字段
             writeModRM();
             break;
+        }
     }
 }
 
@@ -268,16 +280,20 @@ void Instruct::gen1Op() {
                 if(left == TY_REG){
                     if(tks[0] < KW_R8){
                         //2. call 通用寄存器
-                        opcode = 0x41ff;
-                        append(opcode);
+                        opcode = 0xff;
+                        append((unsigned char)opcode);
                         //写入寄存器索引
                         unsigned  char reg = 0xd0 + (unsigned char)modrm->reg;
                         append(reg);
                     }else{
                         //3. call r8-r15寄存器
-                        opcode = 0xffd0 + modrm->reg;
+                        opcode = 0x41ff;
                         append(opcode);
+                        exchar = 0xd0 + modrm->reg;
+                        append(exchar);
                     }
+                    //寄存器间调用就结束了，不需要再写入偏移量了
+                    return;
                 }
                 break;
             }
@@ -291,6 +307,7 @@ void Instruct::gen1Op() {
                 }
                 //1字节
                 append((unsigned char)opcode);
+                //jmp后面不需要再
                 break;
             }
             case KW_JE:{
@@ -315,6 +332,7 @@ void Instruct::gen1Op() {
         if(is_rel){
             //构建4字节 0
             append(0x00000000,4);
+            return;
         }
         append(rel,4);
     }
