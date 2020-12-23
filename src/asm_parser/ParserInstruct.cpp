@@ -29,7 +29,7 @@ namespace asmer{
          *     mov %rsp,%ax,
          */
 
-        inst->str += scanner->value();
+        inst->str += scanner->value() + " ";
         //判断每个指令
         switch(scanner->scan()) {
             //立即数 $ (正,负)
