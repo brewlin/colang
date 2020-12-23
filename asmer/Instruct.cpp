@@ -41,18 +41,21 @@ static unsigned char opcode0[]=
     };
 void Instruct::append(unsigned short int b) {
     bytes[size++] = b;
+    asmer::curAddr += 1;
 }
 void Instruct::append(unsigned char b) {
     memcpy(bytes + size , &b , 2);
     size += 2;
+    asmer::curAddr += 2;
 }
 void Instruct::append(long int b, int len) {
     memcpy(bytes + size , &b , len);
     size += len;
+    asmer::curAddr += len;
 }
 /*
-	输出ModRM字节
-	mod(2)|reg(3)|rm(3)
+ * 输出ModRM字节
+ * mod(2)|reg(3)|rm(3)
 */
 void Instruct::writeModRM() {
     if(modrm->mod != -1)//有效

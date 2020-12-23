@@ -29,6 +29,7 @@ namespace asmer{
          *     mov %rsp,%ax,
          */
 
+        inst->str += scanner->value();
         //判断每个指令
         switch(scanner->scan()) {
             //立即数 $ (正,负)
@@ -36,6 +37,8 @@ namespace asmer{
             case TK_IMME:{
                 bool negative = false;
                 long int  number   = 0;
+
+                inst->str += scanner->value();
                 //next one
                 switch (scanner->scan()) {
                     //get number;
@@ -54,6 +57,7 @@ namespace asmer{
                 }
                 //保存立即数
                 inst->inst->imm = number;
+                inst->str += scanner->value();
                 //next one
                 scanner->scan();
                 return TY_IMMED;
@@ -68,23 +72,29 @@ namespace asmer{
                 std::string name = scanner->value();
                 inst->is_rel        = true;
                 //next one
+                inst->str += scanner->value();
                 if(scanner->scan() == TK_AT){
                     //表明这是一个函数引用，需要进行相对地址定位
                     inst->is_func = true;
                     //next one shuould be GOTPCREL
+                    inst->str += scanner->value();
                     assert(scanner->scan() == KW_LABEL);
                     //next one
+                    inst->str += scanner->value();
                     scanner->scan();
                 }
                 //如果下面不是( 说明可能只是一个单独的标签调用，例如 jmp L.ELSE: 这种跳转
                 if(scanner->token() == TK_LPAREN){
                     //接下来肯定解析的是 (%rip)
                     //shoulde be %rip
+                    inst->str += scanner->value();
                     assert(scanner->scan() == KW_RIP);
                     //shoulde be )
+                    inst->str += scanner->value();
                     assert(scanner->scan() == TK_RPAREN);
 
                     //next one
+                    inst->str += scanner->value();
                     scanner->scan();
                 }
                 //从符号表里查找看看是否已经定义了
@@ -107,14 +117,17 @@ namespace asmer{
             case TK_NUMBER:{
                 int num = 0;
                 if(scanner->token() == TK_SUB){
+                    inst->str += scanner->value();
                     assert(scanner->scan() == TK_NUMBER);
                     num -= std::atoi(scanner->value().c_str());
                 }else{
                     num = std::atoi(scanner->value().c_str());
                 }
                 //获取寄存器
+                inst->str += scanner->value();
                 assert(scanner->scan() == TK_LPAREN);
                 //可以是任意寄存器
+                inst->str += scanner->value();
                 scanner->scan();
                 assert(scanner->token() >= KW_RAX && scanner->token() <= KW_RIP);
                 //8位偏移量计算
@@ -141,7 +154,9 @@ namespace asmer{
                     inst->sib->base  = 4;//rsp 索引为4
                 }
                 //next one
+                inst->str += scanner->value();
                 assert(scanner->scan() == TK_RPAREN);
+                inst->str += scanner->value();
                 scanner->scan();
                 return TY_MEM;
 
@@ -149,6 +164,7 @@ namespace asmer{
             //mov (%rsp),%rax
             case TK_LPAREN:{
                 //一般寄存器内存访问
+                inst->str += scanner->value();
                 switch(scanner->scan()){
                     case KW_RSP: {
                         //间接寻址 mod==0
@@ -175,13 +191,16 @@ namespace asmer{
                     }
                 }
                 //eat )
+                inst->str += scanner->value();
                 assert(scanner->scan() == TK_RPAREN);
                 //next one
+                inst->str += scanner->value();
                 scanner->scan();
                 return TY_MEM;
             }
             case TK_MUL://* 号一般用于函数调用，例如 call *%r10
                 //eat *
+                inst->str += scanner->value();
                scanner->scan();
             default: {//寄存器操作数 11 rm=des reg=src
                 //其他的默认为指令
@@ -205,6 +224,7 @@ namespace asmer{
                 inst->regnum ++ ;
 
                 //next one
+                inst->str += scanner->value();
                 scanner->scan();
                 return TY_REG;
             }
@@ -231,6 +251,7 @@ namespace asmer{
         //构建一条指令数据  like: ret
         Instruct * inst = new Instruct(scanner->token());
         //eat ret
+        inst->str = scanner->value();
         scanner->scan();
         return inst;
     }

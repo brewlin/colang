@@ -66,6 +66,7 @@ namespace asmer{
         SIB*        sib;
         ModRM*      modrm;
 
+        std::string str;
         char        bytes[20];
         int         size;
 

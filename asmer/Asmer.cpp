@@ -97,7 +97,7 @@ void Asmer::writeElf() {
     assert(Asmer::bytes == offset);
 
     //写入代码区
-    Asmer::obj->InstGen();
+    Asmer::obj->InstWrite();
     pads = elf->pad(".text",".shstrtab");
     offset += Asmer::text + pads;
     Asmer::expand(offset - Asmer::bytes);

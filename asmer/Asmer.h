@@ -45,12 +45,9 @@ public:
     void updateTextFunc(asmer::Function* func);
     //数据段中暂不支持引用
     //指令生成
-    void InstGen();
+    void InstCollect();
     //在构建elf文件的时候主要是计算偏移量，不进行指令翻译
-    void InstUpdate();
-    void InstUpdate0p(Instruct* inst);
-    void InstUpdate1p(Instruct* inst);
-    void InstUpdate2p(Instruct* inst);
+    void InstWrite();
     //写入
     static void writeBytes(const void* b, int len);
     static void expand(int len);
