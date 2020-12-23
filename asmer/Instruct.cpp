@@ -10,6 +10,7 @@
 #include "../src/asm_ast/Token.h"
 #include "Utils.h"
 #include <climits>
+#include <cstring>
 
 namespace asmer{
     
@@ -38,6 +39,17 @@ static unsigned char opcode0[]=
         //RET
         0xc3
     };
+void Instruct::append(unsigned short int b) {
+    bytes[size++] = b;
+}
+void Instruct::append(unsigned char b) {
+    memcpy(bytes + size , &b , 2);
+    size += 2;
+}
+void Instruct::append(long int b, int len) {
+    memcpy(bytes + size , &b , len);
+    size += len;
+}
 /*
 	输出ModRM字节
 	mod(2)|reg(3)|rm(3)
@@ -46,7 +58,7 @@ void Instruct::writeModRM() {
     if(modrm->mod != -1)//有效
     {
         unsigned char mrm = (unsigned char)(((modrm->mod & 0x00000003)<<6)+((modrm->reg & 0x0000007) << 3)+(modrm->rm & 0x00000007));
-        writeBytes(mrm,1);
+        append(mrm);
         printf("[writeModrm: 0x%08x\n",mrm);
     }
 }
@@ -58,20 +70,9 @@ void Instruct::writeSIB() {
     if(sib->scale != -1)
     {
         unsigned char _sib=(unsigned char)(((sib->scale&0x00000003)<<6)+((sib->index&0x00000007)<<3)+(sib->base&0x00000007));
-        writeBytes(_sib,1);
-        //printf("输出SIB=0x%08x\n",_sib);
+        append(_sib);
+        printf("输出SIB=0x%08x\n",_sib);
     }
-}
-/*
-	按照小端顺序（little endian）输出指定长度数据
-	len=1：输出第4字节
-	len=2:输出第3,4字节
-	len=4:输出第1,2,3,4字节
-*/
-void Instruct::writeBytes(int value, int len) {
-
-    Asmer::bytes += len;
-    fwrite(&value,len,1,Asmer::obj->out);
 }
 
 bool Instruct::updateRel() {
@@ -123,14 +124,9 @@ void Instruct::gen2Op() {
                     if(inst->imm > INT_MAX){
                         len = 8;
                         opcode = 0x48b8 + (unsigned char)(modrm->reg);
-                        //写入2字节指令 48 b8 + reg
-                        writeBytes(opcode,2);
                     }else{
                         len = 4;
-                        writeBytes(opcode,2);
-
                         exchar = 0xc0 + (unsigned char)(modrm->reg);
-                        writeBytes(exchar,1);
                     }
                     break;
                 }
@@ -141,12 +137,8 @@ void Instruct::gen2Op() {
                         len = 4;
                         opcode = 0x4881;
                     }
-                    //写入操作数
-                    writeBytes(opcode,2);
                     exchar = 0xf8;
                     exchar += (unsigned char)(modrm->reg);
-                    //写入附加指令
-                    writeBytes(exchar,1);
                     break;
                 }
                 //0xc0 + 寄存器索引
@@ -156,12 +148,8 @@ void Instruct::gen2Op() {
                         len = 4;
                         opcode = 0x4881;
                     }//其他情况 opcode = 0x4883
-                    //写入操作数
-                    writeBytes(opcode,2);
                     exchar = 0xc0;
                     exchar += ( unsigned char )(modrm->reg);
-                    //写入附加指令
-                    writeBytes(exchar,1);
                     break;
                 }
                 //0xe8 + 寄存器索引
@@ -171,40 +159,62 @@ void Instruct::gen2Op() {
                         len = 4;
                         opcode = 0x4881;
                     }//其他情况 opcode = 0x4883
-                    writeBytes(opcode,2);
                     exchar = 0xe8;
                     exchar += ( unsigned char)(modrm->reg);
-                    writeBytes(exchar,1);
                     break;
-                }
-                case KW_MUL:{
-                    writeBytes(opcode,2);
+                }case KW_MUL:{
                     exchar = 0xc0;
                     exchar += (unsigned char)(modrm->reg) * 0x09;
-                    writeBytes(exchar,1);
+                    break;
+                }
+                //可能是 lea variable(%rip),%rax
+                case KW_LEA:{
+                    //判断是否是引用
+                    if(left == TY_REL){
+                        Sym* sym = Asmer::obj->parser->symtable->getSym(name);
+                        //不是外部连接符
+                        inst->imm  = 0;
+                        len        = 4;
+                        if(!sym->externed){
+                            inst->imm = sym->addr;
+                        }
+                        exchar = 0x05 + 0x08 * (unsigned char)modrm->reg;
+                    }else{
+                        std::cout << "unsupport instruct:" << asmer::tk_to_string(type) << std::endl;
+                        assert(false);
+                    }
+
+                    break;
                 }
                 default:{
-                    std::cout << "unsupport instruct:" << type << std::endl;
+                    std::cout << "unsupport instruct:" << asmer::tk_to_string(type) << std::endl;
                     assert(false);
                 }
             }
+            //写入操作数
+            append(opcode);
+            //写入附加指令
+            append(exchar);
             //可能的重定位位置 mov eax,@buffer,也有可能是mov eax,@buffer_len，就不许要重定位，因为是宏
             updateRel();
-            writeBytes(inst->imm,len);//一定要按照长度输出立即数
+            //写入立即数
+            //一定要按照长度输出立即数
+            append(inst->imm,len);
             break;
         //寄存器间接访问
         // mov (%rax),%rcx
         // mpv %rax,(%rcx)
         // 上面两个子类的前缀操作数是不一样的这点要区分
-        case 0:
-            writeBytes(opcode,2);
+        case 0b00:
+            append(opcode);
             writeModRM();
             //说明是rbp 寄存器操作
             if(modrm->rm == 5){
                 updateRel();//可能是mov eax,[@buffer],后边disp8和disp32不会出现类似情况
                 //这里给末尾在加上1字节偏移量
                 //因为对于rbp的寄存器间接访问需要当做偏移量访问
-                inst->writeDisp();
+                if(inst->dispLen)
+                    append(inst->disp,inst->dispLen);
             }
             //说明是rsp寄存器操作 需要有sib字节进行补充
             else if(modrm->rm == 4){
@@ -215,20 +225,21 @@ void Instruct::gen2Op() {
         //偏移量访问，如:
         //mov %rax,100(%rcx)
         //mov 100(%rax),%rcx
-        case 1:
-        case 2:
-            writeBytes(opcode,2);
+        case 0b01:
+        case 0b10:
+            append(opcode);
             //写入1字节modrm字段
             writeModRM();
             //rsp需要单独写入sib引导字段
             if(modrm->rm == 4)
                 writeSIB();
             //写入偏移量 inst->dispLen 一般为1 或者 4
-            inst->writeDisp();
+            if(inst->disp)
+                append(inst->disp,inst->dispLen);
             break;
         //寄存器访问
-        case 3:
-            writeBytes(opcode,2);
+        case 0b11:
+            append(opcode);
             //写入modrm字段
             writeModRM();
             break;
@@ -248,20 +259,21 @@ void Instruct::gen1Op() {
                 //1. call 标签
                 if(left == TY_REL){
                     opcode = 0xe8;
-                    writeBytes(opcode,1);
+                    append((unsigned char)opcode);
                 }
                 //寄存器间接调用
                 if(left == TY_REG){
                     if(tks[0] < KW_R8){
                         //2. call 通用寄存器
                         opcode = 0x41ff;
-                        writeBytes(opcode,2);
+                        append(opcode);
                         //写入寄存器索引
-                        writeBytes(0xd0 + modrm->reg,1);
+                        unsigned  char reg = 0xd0 + (unsigned char)modrm->reg;
+                        append(reg);
                     }else{
                         //3. call r8-r15寄存器
                         opcode = 0xffd0 + modrm->reg;
-                        writeBytes(opcode,2);
+                        append(opcode);
                     }
                 }
                 break;
@@ -274,26 +286,39 @@ void Instruct::gen1Op() {
                     //2. 外部符号 e9 00 00 00 00
                     opcode = 0xe9;
                 }
-                writeBytes(opcode,1);
+                //1字节
+                append((unsigned char)opcode);
+                break;
+            }
+            case KW_JE:{
+                //如果外部符号则 默认当前操作数
+                //当前符号则74
+                if(!is_rel){
+                    opcode = 0x74;
+                }
+                append((unsigned char)opcode);
                 break;
             }
             default:{
-                writeBytes(opcode >> 8,1);
-                writeBytes(opcode,1);
+
+                std::cout << "unsupoort instruct:" << asmer::tk_to_string(type) << std::endl;
+                assert(false);
+                append((unsigned char)(opcode >> 8),1);
+                append((unsigned char)opcode);
             }
         }
         int rel  = inst->imm - (asmer::curAddr + 4);//调用符号地址相对于下一条指令地址的偏移，因此加4
         //存在外部引用
         if(is_rel){
             //构建4字节 0
-            writeBytes(0x00000000,4);
+            append(0x00000000,4);
         }
-        writeBytes(rel,4);
+        append(rel,4);
     }
     else if(type == KW_INT)
     {
-        writeBytes(opcode,1);
-        writeBytes(inst->imm,1);
+        append((unsigned char)opcode);
+        append(inst->imm,1);
     }
     else if(type == KW_PUSH)
     {
@@ -302,18 +327,18 @@ void Instruct::gen1Op() {
         {
             //强制使用32位立即数进行存储
             opcode = 0x68;
-            writeBytes(opcode,1);
-            writeBytes(inst->imm,4);
+            append((unsigned char)opcode);
+            append(inst->imm,4);
         }
         else if(tks[0] < KW_R8)
         {
-            opcode +=(unsigned char)(modrm->reg);
-            writeBytes(opcode,1);
+            opcode += (unsigned char)(modrm->reg);
+            append((unsigned  char)opcode);
         }else{
             //要加个0x41 前缀指令
-            writeBytes(0x41,1);
+            append((unsigned  char)0x41);
             opcode +=(unsigned char)(modrm->reg);
-            writeBytes(opcode,1);
+            append((unsigned char)opcode);
         }
     }
     //TODO : supoort inc instruct
@@ -333,19 +358,19 @@ void Instruct::gen1Op() {
                 assert(false);
             }
             opcode = 0x8f;
-            writeBytes(opcode,1);
+            append((unsigned char)opcode);
             //写入寄存器索引
-            writeBytes((unsigned char)(modrm->reg),1);
-        //TODO: 支持偏移量访问如: pop 10(%rax)    
+            append((unsigned char)modrm->reg);
+        //TODO: 支持偏移量访问如: pop 10(%rax)
         //2寄存器访问
         }else{
             //TODO: 支持 pop (%rsp) | pop (%rbp)
             //%r8 以上需要加上前缀指令
             if(tks[0] >= KW_R8){
-                writeBytes(0x41,1);
+                append((unsigned char)0x41,1);
             }
             opcode += (unsigned char)(modrm->reg);
-            writeBytes(opcode,1);
+            append((unsigned  char)opcode,1);
         }
     }
 
@@ -353,7 +378,7 @@ void Instruct::gen1Op() {
 
 void Instruct::gen0Op() {
     unsigned char opcode = opcode0[0];
-    writeBytes(opcode,1);
+    append(opcode);
 }
 void Instruct::gen(){
     Token token = type;

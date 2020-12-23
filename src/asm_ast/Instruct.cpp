@@ -30,20 +30,13 @@ namespace asmer{
         modrm = new ModRM();
         sib   = new SIB();
         inst  = new Inst();
+        //instructs
+        size  = 0;
     }
     //设置disp，自动检测disp长度（符号），及时是无符号地址值也无妨
     void Inst::setDisp(int d,int len)
     {
         dispLen = len;
         disp = d;
-    }
-    //按照记录的disp长度输出
-    void Inst::writeDisp()
-    {
-        if(dispLen)
-        {
-            Instruct::writeBytes(disp,dispLen);
-            dispLen = 0;//还原
-        }
     }
 };

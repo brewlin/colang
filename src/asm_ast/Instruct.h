@@ -45,7 +45,6 @@ namespace asmer{
         void init();
         //设置disp，自动检测disp长度（符号），即使是无符号地址值也无妨
         void setDisp(int d,int len);
-        void writeDisp();
     };
 
     class Instruct{
@@ -67,7 +66,13 @@ namespace asmer{
         SIB*        sib;
         ModRM*      modrm;
 
+        char        bytes[20];
+        int         size;
+
     public:
+        void append(unsigned char b);
+        void append(unsigned short int b);
+        void append(long int b,int len);
         bool updateRel();//处理可能的重定位信息
         void gen();
         void gen2Op();
@@ -75,7 +80,6 @@ namespace asmer{
         void gen0Op();
         void writeModRM();
         void writeSIB();
-        static void writeBytes(int value,int len);
     };
 
 };

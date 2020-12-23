@@ -1,6 +1,7 @@
 #ifndef CO_LANG_ASMER_TOKEN_H
 #define CO_LANG_ASMER_TOKEN_H
 
+#include <string>
 namespace asmer
 {
     
@@ -68,6 +69,8 @@ enum Token {
     TK_LPAREN, // (
     TK_RPAREN, // )
 };
+
+std::string tk_to_string(Token tk);
 
 //指令类型
 //1 立即数
