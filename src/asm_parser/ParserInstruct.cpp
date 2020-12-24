@@ -35,7 +35,6 @@ namespace asmer{
             //立即数 $ (正,负)
             //     mov $10,%rax     $开头的一定是立即数
             case TK_IMME:{
-                bool negative = false;
                 long int  number   = 0;
 
                 inst->str += scanner->value();
@@ -47,10 +46,10 @@ namespace asmer{
                         break;
                         //get -;
                     case TK_SUB:
-                        negative = true;
                         //should be number
                         assert(scanner->scan() == TK_NUMBER);
                         number   = std::stoi(scanner->value());
+                        number   = -number;
                         break;
                     default:
                         parse_err("[Parser] should be number at but got instruct:%s\n", scanner->value());

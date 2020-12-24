@@ -145,9 +145,9 @@ void ElfFile::addSym(string st_name,Elf64_Sym*s)
 }
 
 
-RelInfo* ElfFile::addRel(string seg,int addr,string lb,int type)
+RelInfo* ElfFile::addRel(string seg,int addr,string name,int type)
 {
-	RelInfo *rel = new RelInfo(seg,addr,lb,type);
+	RelInfo *rel = new RelInfo(seg,addr,name,type);
 	relTab.push_back(rel);
 	return rel;
 }
@@ -213,6 +213,9 @@ void ElfFile::buildData(){
 void ElfFile::buildText(){
     //代码段还没有开始计算偏移量
     Asmer::obj->InstCollect();
+    Instruct::ready = true;
+    Asmer::obj->InstCollect();
+
 	addShdr(".text",asmer::curAddr);
 	std::cout << "[buildElf] .text:[" << offset << "," << asmer::curAddr <<"]" << std::endl;
 	offset += asmer::curAddr;

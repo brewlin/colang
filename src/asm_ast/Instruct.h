@@ -49,6 +49,8 @@ namespace asmer{
 
     class Instruct{
     public:
+        static bool  ready;
+    public:
         Instruct(Token type);
         //表示有引用
         bool        is_rel;

@@ -52,7 +52,7 @@ public:
 			Elf64_Word sh_entsize);//添加一个段表项
 	void addSym(asmer::Sym* sym);
 	void addSym(string st_name,Elf64_Sym*);//添加一个符号表项
-	RelInfo* addRel(string seg,int addr,string lb,int type);//添加一个重定位项，相同段的重定位项连续（一般是先是.rel.text后.rel.data）
+	RelInfo* addRel(string seg,int addr,string name,int type);//添加一个重定位项，相同段的重定位项连续（一般是先是.rel.text后.rel.data）
 	int  pad(string first,string second);
 	//构建头部和段表
 	void buildEhdr();

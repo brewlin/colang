@@ -13,6 +13,8 @@
 #include <cstring>
 
 namespace asmer{
+
+bool Instruct::ready = false;
     
 
 static unsigned short int opcode2[]=
@@ -30,7 +32,7 @@ static unsigned short int opcode1[]=
         //CALL INT  DIV  NEG  INC  DEC  JMP,
         0xe8,  0xcd,0xf7,0x40,0x48,0x00,0xe9,
         //JE   JG     JL     JLE    JNE  JNA
-        0x0f84,0x0f8f,0x0f8c,0x0f8d,0x55,0x0f86,
+        0x74,0x7f,0x0f8c,0x7e,0x55,0x0f86,
         //PUSH INT POP
         0x50,0x58
     };
@@ -40,7 +42,10 @@ static unsigned char opcode0[]=
         0xc3
     };
 void Instruct::append(unsigned char b) {
-    bytes[size++] = b;
+    //第一次单纯的手机label标签，并计算偏移量
+    //第二次才是实际写入指令
+    if(ready)
+        bytes[size++] = b;
     asmer::curAddr += 1;
 }
 void Instruct::append(unsigned short int b) {
@@ -86,7 +91,8 @@ bool Instruct::updateRel() {
     //表示数据的引用
     if(!is_func)//绝对重定位
     {
-        Asmer::elf->addRel(".text",asmer::curAddr,name,R_386_32);
+        if(ready)
+            Asmer::elf->addRel(".text",asmer::curAddr,name,R_X86_64_PC32);
         flag = true;
     }
     else if(is_func)//相对重定位
@@ -95,7 +101,8 @@ bool Instruct::updateRel() {
         //如果当前指令有函数标签，说明是函数调用
         //外部函数
         if(sym->externed){
-            Asmer::elf->addRel(".text",asmer::curAddr,name,R_386_PC32);
+            if(ready)
+                Asmer::elf->addRel(".text",asmer::curAddr,name,R_X86_64_GOTPCREL);
             flag = true;
         }
     }
@@ -262,7 +269,7 @@ void Instruct::gen2Op() {
 }
 
 void Instruct::gen1Op() {
-    int len  = 8 ;//默认是8
+    int len  = 4 ;//默认是8
     unsigned char exchar;
     unsigned short int opcode = opcode1[type - KW_CALL];
     if(type == KW_CALL || type >= KW_JMP && type <= KW_JNA)
@@ -301,6 +308,8 @@ void Instruct::gen1Op() {
                 if(is_rel){
                     //1. 内部符号 eb
                     opcode = 0xeb;
+                    //内部跳转默认1字节
+                    len = 1;
                 }else{
                     //2. 外部符号 e9 00 00 00 00
                     opcode = 0xe9;
@@ -310,12 +319,11 @@ void Instruct::gen1Op() {
                 //jmp后面不需要再
                 break;
             }
-            case KW_JE:{
-                //如果外部符号则 默认当前操作数
-                //当前符号则74
-                if(!is_rel){
-                    opcode = 0x74;
-                }
+            //如果外部符号则 默认当前操作数
+            //当前符号则74
+            case KW_JE:
+            case KW_JLE:
+            case KW_JG:{
                 append((unsigned char)opcode);
                 break;
             }
@@ -331,10 +339,10 @@ void Instruct::gen1Op() {
         //存在外部引用
         if(is_rel){
             //构建4字节 0
-            append(0x00000000,4);
+            append(0x00000000,len);
             return;
         }
-        append(rel,4);
+        append(rel,len);
     }
     else if(type == KW_INT)
     {
@@ -347,9 +355,9 @@ void Instruct::gen1Op() {
         if(left == TY_IMMED)
         {
             //强制使用32位立即数进行存储
-            opcode = 0x68;
+            opcode = 0x6a;
             append((unsigned char)opcode);
-            append(inst->imm,4);
+            append(inst->imm,1);
         }
         else if(tks[0] < KW_R8)
         {
