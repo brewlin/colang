@@ -212,8 +212,10 @@ void ElfFile::buildData(){
 }
 void ElfFile::buildText(){
     //代码段还没有开始计算偏移量
+    int olf = asmer::curAddr;
     Asmer::obj->InstCollect();
     Instruct::ready = true;
+	asmer::curAddr = olf;
     Asmer::obj->InstCollect();
 
 	addShdr(".text",asmer::curAddr);

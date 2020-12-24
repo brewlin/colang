@@ -10,10 +10,10 @@ void test_string();
 void test_array();
 void test_map();
 
-void main(){
-
-   test_string();
-   test_array();
-   test_map();
-   test_report();
-}
+//void main(){
+//
+//   test_string();
+//   test_array();
+//   test_map();
+//   test_report();
+//}

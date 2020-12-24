@@ -65,10 +65,10 @@ void test_logic(){
     assert_s("[logic] p1->next->a",p1->next->a == 22);
     assert_s("[logic] p1->next->b",p1->next->b == 33);
 }
-void main(){
-    sp_start = get_sp();
-    array_test();
-    test_speed();
-    test_logic();
-    test_report();
-}
+//void main(){
+//    sp_start = get_sp();
+//    array_test();
+//    test_speed();
+//    test_logic();
+//    test_report();
+//}

@@ -10,7 +10,7 @@
  */
 void Asmer::InstCollect() {
     //这里是计算指令段了，所以需要清空之前的计数
-    asmer::curAddr = 0;
+//    asmer::curAddr = 0;
     std::cout << "[buildElf] .text:" << std::endl;
     //这里其实是属于新的段了，curAddr 段大小需要从0开始计数， 但是datalen是持续累加的
     for(auto func : parser->funcs){
