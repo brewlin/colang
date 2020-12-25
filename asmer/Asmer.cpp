@@ -100,7 +100,6 @@ void Asmer::writeElf() {
     Asmer::obj->InstWrite();
     pads = elf->pad(".text",".shstrtab");
     offset += Asmer::text + pads;
-    Asmer::expand(offset - Asmer::bytes);
     assert(Asmer::bytes == offset);
 
     std::cout << "[writeElf] .shstrtab: size:" << elf->shstrtab_size << std::endl;
@@ -148,11 +147,3 @@ void Asmer::writeBytes(const void* b, int len)
     fwrite(b,len,1,obj->out);
 }
 
-
-void Asmer::expand(int len){
-
-	char pad[1] = {0};
-	while(len--){
-		writeBytes(pad,1);
-	}
-}

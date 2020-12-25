@@ -93,7 +93,26 @@ void ElfFile::addShdr(string sh_name,Elf64_Word sh_type,Elf64_Word sh_flags,Elf6
 	shdrTab[sh_name]=sh;
 	shdrNames.push_back(sh_name);
 }
+void ElfFile::addSectionSym(){
 
+	Elf64_Sym* elfsym = new Elf64_Sym();
+	elfsym->st_name = 0;
+	elfsym->st_value = 0;
+	elfsym->st_size = 0;
+	elfsym->st_info = ELF64_ST_INFO(STB_LOCAL,STT_SECTION);
+
+	elfsym->st_other = 0;
+	elfsym->st_shndx = getSegIndex(".text");
+	addSym(".text",elfsym);
+	elfsym->st_shndx = getSegIndex(".data");
+	addSym(".data",elfsym);
+	elfsym->st_info = ELF64_ST_INFO(STB_GLOBAL,STT_NOTYPE);
+	elfsym->st_shndx = 0;
+	addSym("_GLOBAL_OFFSET_TABLE_",elfsym);
+
+
+
+}
 void ElfFile::addSym(asmer::Sym* sym)
 {
 	//解析符号的全局性局部性，避免符号冲突
@@ -119,10 +138,14 @@ void ElfFile::addSym(asmer::Sym* sym)
 
 	addSym(name,elfsym);
 }
-
+/**
+ *
+ * @param st_name
+ * @param s
+ */
 void ElfFile::addSym(string st_name,Elf64_Sym*s)
 {
-	Elf64_Sym*sym = symTab[st_name] = new Elf64_Sym();
+	Elf64_Sym *sym = symTab[st_name] = new Elf64_Sym();
 	if(st_name == "")
 	{
 		sym->st_name  = 0;
@@ -223,6 +246,7 @@ void ElfFile::buildText(){
 	Asmer::text = asmer::curAddr;
 	cout << asmer::curAddr <<endl;
 	//到这里就源代码解析完了，需要导出所有符号表
+	addSectionSym();
 	Asmer::obj->parser->symtable->exportSyms();
 
 }
@@ -265,13 +289,13 @@ void ElfFile::buildShstrtab() {
 	strIndex[".rela.text"] = index;
 	strcpy(str + index, ".rela.text");
 	//text段名 和 .rela.text 有相同部分，可以共用
-	strIndex[".text"] = index + 4;
+	strIndex[".text"] = index + 5;
 	index += reltext.length() + 1;
 	strIndex[""] = index - 1;
-	strIndex[".rel.data"] = index;
-	strcpy(str + index, ".rel.data");
+	strIndex[".rela.data"] = index;
+	strcpy(str + index, ".rela.data");
 	//data段同样可以共用
-	strIndex[".data"] = index + 4;
+	strIndex[".data"] = index + 5;
 	index += reldata.length() + 1;
 	// strIndex[".bss"] = index;
 	// strcpy(str + index, ".bss");
@@ -352,7 +376,7 @@ void ElfFile::buildRelTab(){
 		Elf64_Rela *rela = new Elf64_Rela();
 		rela->r_offset  = relTab[i]->offset;
 		rela->r_info    = ELF64_R_INFO((Elf64_Word)getSymIndex(relTab[i]->name),relTab[i]->type);
-		rela->r_addend  = 4;
+		rela->r_addend  = -4;
 		//将重定项中的类型进行区分，代码区和数据区
 		if(relTab[i]->tarSeg == ".text")
 			relTextTab.push_back(rela);
@@ -362,13 +386,13 @@ void ElfFile::buildRelTab(){
 	//如果存在函数的外部引用，以及全局变量的外部引用,需要进行重定位
 	//加上代码区
 	int text_size = relTextTab.size() * sizeof(Elf64_Rela);
-	addShdr(".rela.text",SHT_RELA,0,0,offset,text_size,getSegIndex(".symtab"),getSegIndex(".text"),1, sizeof(Elf64_Rela));//.rela.text
+	addShdr(".rela.text",SHT_RELA,SHF_INFO_LINK,0,offset,text_size,getSegIndex(".symtab"),getSegIndex(".text"),1, sizeof(Elf64_Rela));//.rela.text
 	std::cout << "[buildElf] .rela.text:[" << offset << "," << text_size <<"]" << std::endl;
 	offset += text_size;
 
 	//加上代码区
 	int data_size = relDataTab.size() * sizeof(Elf64_Rela);
-	addShdr(".rela.data",SHT_RELA,0,0,offset,data_size,getSegIndex(".symtab"),getSegIndex(".data"),1, sizeof(Elf64_Rela));//.rel.data
+	addShdr(".rela.data",SHT_RELA,SHF_INFO_LINK,0,offset,data_size,getSegIndex(".symtab"),getSegIndex(".data"),1, sizeof(Elf64_Rela));//.rel.data
 	std::cout << "[buildElf] .rela.data:[" << offset << "," << data_size <<"]" << std::endl;
 	offset += data_size;
 	for(int i = 0; i < shstrtab_size; i ++){

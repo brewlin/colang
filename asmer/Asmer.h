@@ -50,7 +50,6 @@ public:
     void InstWrite();
     //写入
     static void writeBytes(const void* b, int len);
-    static void expand(int len);
 };
 
 //
