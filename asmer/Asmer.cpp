@@ -111,7 +111,7 @@ void Asmer::writeElf() {
 
     //.symtab   写入所有的字符串表
     for(auto symname : elf->symNames){
-        std::cout << "[writeElf] .strtab:" << symname << std::endl;
+//        std::cout << "[writeElf] .strtab:" << symname << std::endl;
         Elf64_Sym* sym = elf->symTab[symname];
         writeBytes(sym,sizeof(Elf64_Sym));
     }
@@ -125,19 +125,19 @@ void Asmer::writeElf() {
 
     //.rel_text 写入重定向代码表
     for(auto* rel : elf->relTextTab){
-        std::cout << "[writeElf] .rel.text: "  <<  std::endl;
-        writeBytes(rel,sizeof(Elf64_Rel));
+//        std::cout << "[writeElf] .rela.text: "  <<  std::endl;
+        writeBytes(rel,sizeof(Elf64_Rela));
         delete rel;
     }
-    offset += elf->relTextTab.size() * sizeof(Elf64_Rel);
+    offset += elf->relTextTab.size() * sizeof(Elf64_Rela);
     assert(Asmer::bytes == offset);
     //.rel_data 写入重定向数据表
     for(auto* rel : elf->relDataTab){
-        std::cout << "[writeElf] .rel.data: "  <<  std::endl;
-        writeBytes(rel,sizeof(Elf64_Rel));
+//        std::cout << "[writeElf] .rel.data: "  <<  std::endl;
+        writeBytes(rel,sizeof(Elf64_Rela));
         delete rel;
     }
-    offset += elf->relDataTab.size() * sizeof(Elf64_Rel);
+    offset += elf->relDataTab.size() * sizeof(Elf64_Rela);
     assert(Asmer::bytes == offset);
 
 }

@@ -42,7 +42,7 @@ static unsigned char opcode0[]=
         0xc3
     };
 void Instruct::append(unsigned char b) {
-    //第一次单纯的手机label标签，并计算偏移量
+    //第一次单纯的收集label标签，并计算偏移量
     //第二次才是实际写入指令
     if(ready)
         bytes[size++] = b;
@@ -66,7 +66,7 @@ void Instruct::writeModRM() {
     {
         unsigned char mrm = (unsigned char)(((modrm->mod & 0x00000003)<<6)+((modrm->reg & 0x0000007) << 3)+(modrm->rm & 0x00000007));
         append(mrm);
-        printf("[writeModrm: 0x%08x\n",mrm);
+//        printf("[writeModrm: 0x%08x\n",mrm);
     }
 }
 /*
@@ -78,7 +78,7 @@ void Instruct::writeSIB() {
     {
         unsigned char _sib=(unsigned char)(((sib->scale&0x00000003)<<6)+((sib->index&0x00000007)<<3)+(sib->base&0x00000007));
         append(_sib);
-        printf("输出SIB=0x%08x\n",_sib);
+//        printf("输出SIB=0x%08x\n",_sib);
     }
 }
 
@@ -102,7 +102,8 @@ bool Instruct::updateRel() {
         //外部函数
         if(sym->externed){
             if(ready)
-                Asmer::elf->addRel(".text",asmer::curAddr,name,R_X86_64_GOTPCREL);
+                //R_X86_64_REX_GOTP  42
+                Asmer::elf->addRel(".text",asmer::curAddr,name,42);
             flag = true;
         }
     }

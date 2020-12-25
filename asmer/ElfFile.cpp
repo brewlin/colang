@@ -12,7 +12,7 @@ RelInfo::RelInfo(string seg,int addr,string lb,int t)
 {
 	offset=addr;
 	tarSeg=seg;
-	lbName=lb;
+	name=lb;
 	type=t;
 }
 
@@ -211,11 +211,10 @@ void ElfFile::buildData(){
 	Asmer::data = asmer::curAddr;
 }
 void ElfFile::buildText(){
-    //代码段还没有开始计算偏移量
-    int olf = asmer::curAddr;
+    asmer::curAddr = 0;
     Asmer::obj->InstCollect();
     Instruct::ready = true;
-	asmer::curAddr = olf;
+	asmer::curAddr = 0;
     Asmer::obj->InstCollect();
 
 	addShdr(".text",asmer::curAddr);
@@ -240,8 +239,8 @@ void ElfFile::buildShstrtab() {
 	 * data
 	 * now: 段字符串段表
 	 */
-	std::string reltext = ".rel.text";
-	std::string reldata = ".rel.data";
+	std::string reltext = ".rela.text";
+	std::string reldata = ".rela.data";
 	std::string bss = ".bss";
 	std::string shstrtab = ".shstrtab";
 	std::string symtab = ".symtab";
@@ -263,9 +262,9 @@ void ElfFile::buildShstrtab() {
 	this->shstrtab  = str;
 
 	int index = 0;
-	strIndex[".rel.text"] = index;
-	strcpy(str + index, ".rel.text");
-	//text段名 和 .rel.text 有相同部分，可以共用
+	strIndex[".rela.text"] = index;
+	strcpy(str + index, ".rela.text");
+	//text段名 和 .rela.text 有相同部分，可以共用
 	strIndex[".text"] = index + 4;
 	index += reltext.length() + 1;
 	strIndex[""] = index - 1;
@@ -288,7 +287,7 @@ void ElfFile::buildShstrtab() {
 	index += strtab.length() + 1;
 	//for(int i=0;i<shstrtabSize;++i)printf("%c",str[i]);printf("\n");
 	//for(int i=0;i<shstrtabSize;++i)printf("%d|",str[i]);printf("\n");
-	//string segNames[]={"",".rel.text",".rel.data",".bss",".shstrtab",".symtab",".strtab"};
+	//string segNames[]={"",".rela.text",".rel.data",".bss",".shstrtab",".symtab",".strtab"};
 	//添加.shstrtab 段字符串表
 	addShdr(".shstrtab", SHT_STRTAB, 0, 0, offset, shstrtab_size, SHN_UNDEF, 0, 1, 0);//.shstrtab
 	std::cout << "[buildElf] .shstrtab:[" << offset << "," << shstrtab_size <<"]" << std::endl;
@@ -350,26 +349,27 @@ void ElfFile::buildStrtab() {
 void ElfFile::buildRelTab(){
 	//处理重定位表
 	for(int i = 0 ;i < relTab.size() ; i++){
-		Elf64_Rel *rel = new Elf64_Rel();
-		rel->r_offset  = relTab[i]->offset;
-		rel->r_info    = ELF64_R_INFO((Elf64_Word)getSymIndex(relTab[i]->lbName),relTab[i]->type);
+		Elf64_Rela *rela = new Elf64_Rela();
+		rela->r_offset  = relTab[i]->offset;
+		rela->r_info    = ELF64_R_INFO((Elf64_Word)getSymIndex(relTab[i]->name),relTab[i]->type);
+		rela->r_addend  = 4;
 		//将重定项中的类型进行区分，代码区和数据区
 		if(relTab[i]->tarSeg == ".text")
-			relTextTab.push_back(rel);
+			relTextTab.push_back(rela);
 		else if(relTab[i]->tarSeg == ".data")
-			relDataTab.push_back(rel);
+			relDataTab.push_back(rela);
 	}
 	//如果存在函数的外部引用，以及全局变量的外部引用,需要进行重定位
 	//加上代码区
-	int text_size = relTextTab.size() * sizeof(Elf64_Rel);
-	addShdr(".rel.text",SHT_REL,0,0,offset,text_size,getSegIndex(".symtab"),getSegIndex(".text"),1, sizeof(Elf64_Rel));//.rel.text
-	std::cout << "[buildElf] .rel.text:[" << offset << "," << text_size <<"]" << std::endl;
+	int text_size = relTextTab.size() * sizeof(Elf64_Rela);
+	addShdr(".rela.text",SHT_RELA,0,0,offset,text_size,getSegIndex(".symtab"),getSegIndex(".text"),1, sizeof(Elf64_Rela));//.rela.text
+	std::cout << "[buildElf] .rela.text:[" << offset << "," << text_size <<"]" << std::endl;
 	offset += text_size;
 
 	//加上代码区
-	int data_size = relDataTab.size() * sizeof(Elf64_Rel);
-	addShdr(".rel.data",SHT_REL,0,0,offset,data_size,getSegIndex(".symtab"),getSegIndex(".data"),1, sizeof(Elf64_Rel));//.rel.data
-	std::cout << "[buildElf] .rel.data:[" << offset << "," << data_size <<"]" << std::endl;
+	int data_size = relDataTab.size() * sizeof(Elf64_Rela);
+	addShdr(".rela.data",SHT_RELA,0,0,offset,data_size,getSegIndex(".symtab"),getSegIndex(".data"),1, sizeof(Elf64_Rela));//.rel.data
+	std::cout << "[buildElf] .rela.data:[" << offset << "," << data_size <<"]" << std::endl;
 	offset += data_size;
 	for(int i = 0; i < shstrtab_size; i ++){
 		std::cout << shstrtab[i];
@@ -410,6 +410,6 @@ void ElfFile:: printAll()
 	}
 	cout << "------------重定位信息------------" << endl;
 	for(auto it : relTab){
-		cout << it->tarSeg << ":" << it->offset << "<-" << it->lbName << endl;
+		cout << it->tarSeg << ":" << it->offset << "<-" << it->name << endl;
 	}
 }

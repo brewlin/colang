@@ -17,7 +17,7 @@ struct RelInfo
 {
 	string tarSeg;//重定位目标段
 	int offset;//重定位位置的偏移
-	string lbName;//重定位符号的名称
+	string name;//重定位符号的名称
 	int type;//重定位类型0-R_386_32；1-R_386_PC32
 	RelInfo(string seg,int addr,string lb,int t);
 };
@@ -36,7 +36,7 @@ public:
 	map<string,Elf64_Sym*>   symTab; //符号表
 	vector<string>			 symNames;//符号名与符号表项索引的映射关系，对于重定位表生成重要
 	vector<RelInfo*>		 relTab;//重定位表
-	vector<Elf64_Rel*>       relTextTab,relDataTab;
+	vector<Elf64_Rela*>       relTextTab,relDataTab;
 	//辅助数据
 	char	*shstrtab;//段表字符串表数据
 	int 	shstrtab_size;//段表字符串表长
