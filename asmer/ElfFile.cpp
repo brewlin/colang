@@ -122,8 +122,8 @@ void ElfFile::addSym(asmer::Sym* sym)
 	elfsym->st_name   	 = 0;
 	elfsym->st_value  	 = sym->addr;//符号段偏移,外部符号地址为0
 	elfsym->st_size   	 = 0;        //目前只支持8位支持的全局变量定义，其他的函数标签不需要管
-	//是否为全局
-	if(sym->global)
+	//外部符号也是全局
+	if(sym->global || sym->externed)
 		elfsym->st_info  = ELF64_ST_INFO(STB_GLOBAL,STT_NOTYPE);//全局符号
 	else
 		elfsym->st_info  = ELF64_ST_INFO(STB_LOCAL,STT_NOTYPE);//局部符号，避免名字冲突
@@ -166,6 +166,26 @@ void ElfFile::addSym(string st_name,Elf64_Sym*s)
 	}
 	symNames.push_back(st_name);
 }
+
+void ElfFile::sortGlobal(){
+	vector<string> global;
+	vector<string> local;
+	for(auto str : symNames){
+		auto sym = symTab[str];
+		if(sym->st_info == ELF64_ST_INFO(STB_GLOBAL,STT_NOTYPE)){
+			global.push_back(str);
+		}else{
+			local.push_back(str);
+		}
+	}
+	symNames.clear();
+	for(auto str : local)
+		symNames.push_back(str);
+	sh_info = local.size();
+	for(auto str : global)
+		symNames.push_back(str);
+}
+
 
 
 RelInfo* ElfFile::addRel(string seg,int addr,string name,int type)
@@ -246,7 +266,7 @@ void ElfFile::buildText(){
 	Asmer::text = asmer::curAddr;
 	cout << asmer::curAddr <<endl;
 	//到这里就源代码解析完了，需要导出所有符号表
-	addSectionSym();
+	// addSectionSym();
 	Asmer::obj->parser->symtable->exportSyms();
 
 }
@@ -320,7 +340,8 @@ void ElfFile::buildShstrtab() {
 }
 //构建字符串表
 void ElfFile::buildSymtab() {
-
+	//进行global 和local 分类
+	sortGlobal();
 	//.symtab,sh_link 代表.strtab索引，默认在.symtab之后,sh_info不能确定
 	//计算总共字符串表的大小
 	strtab_size = symNames.size() * sizeof(Elf64_Sym);
@@ -332,7 +353,7 @@ void ElfFile::buildSymtab() {
 	offset += strtab_size;
 	//找到字符串段在段表中的索引，这里应该是4
 	shdrTab[".symtab"]->sh_link = getSegIndex(".symtab") + 1;//.strtab默认在.symtab之后
-	shdrTab[".symtab"]->sh_info = symNames.size();
+	shdrTab[".symtab"]->sh_info = sh_info;
 }
 //构建字符串表
 void ElfFile::buildStrtab() {
