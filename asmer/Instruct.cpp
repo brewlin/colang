@@ -100,12 +100,12 @@ bool Instruct::updateRel() {
         Sym* sym  = Asmer::obj->parser->symtable->getSym(name);
         //如果当前指令有函数标签，说明是函数调用
         //外部函数
-        if(sym->externed){
+        // if(sym->externed){
             if(ready)
                 //R_X86_64_REX_GOTP  42
                 Asmer::elf->addRel(".text",asmer::curAddr,name,42);
             flag = true;
-        }
+        // }
     }
     return flag;
 }
@@ -176,6 +176,11 @@ void Instruct::gen2Op() {
                         len = 4;
                         opcode = 0x4881;
                     }//其他情况 opcode = 0x4883
+                    //如果右边是内存操作则
+                    //TODO: fix sub mem
+                    if(tks[1] == TY_MEM){
+                        opcode = 0x8368 + (unsigned char)(modrm->reg);
+                    }
                     exchar = 0xe8;
                     exchar += ( unsigned char)(modrm->reg);
                     break;
@@ -275,7 +280,6 @@ void Instruct::gen1Op() {
     unsigned short int opcode = opcode1[type - KW_CALL];
     if(type == KW_CALL || type >= KW_JMP && type <= KW_JNA)
     {
-        bool is_rel = updateRel();//处理可能的相对重定位信息，call fun,如果fun是本地定义的函数就不会重定位了
         switch(type){
             //统一使用长地址跳转，短跳转不好定位
             case KW_CALL:{
@@ -306,7 +310,14 @@ void Instruct::gen1Op() {
                 break;
             }
             case KW_JMP:{
-                if(is_rel){
+                //判断是不是内部符号
+                bool is_internal = true;
+                 if(is_func){
+                    Sym* sym  = Asmer::obj->parser->symtable->getSym(name);
+                    if(sym->externed)
+                        is_internal = false;
+                 }
+                if(is_internal){
                     //1. 内部符号 eb
                     opcode = 0xeb;
                     //内部跳转默认1字节
@@ -336,6 +347,8 @@ void Instruct::gen1Op() {
                 append((unsigned char)opcode);
             }
         }
+        bool is_rel = updateRel();
+        //处理可能的相对重定位信息，call fun,如果fun是本地定义的函数就不会重定位了
         int rel  = inst->imm - (asmer::curAddr + 4);//调用符号地址相对于下一条指令地址的偏移，因此加4
         //存在外部引用
         if(is_rel){
