@@ -149,6 +149,7 @@ void Instruct::gen2Op() {
                 }
                 //0xf8 + 寄存器索引
                 case KW_CMP:{
+
                     //立即数小于 1字节signed char则只需要一个字节
                     if(inst->imm > SCHAR_MAX){
                         len = 4;
@@ -176,11 +177,6 @@ void Instruct::gen2Op() {
                         len = 4;
                         opcode = 0x4881;
                     }//其他情况 opcode = 0x4883
-                    //如果右边是内存操作则
-                    //TODO: fix sub mem
-                    if(tks[1] == TY_MEM){
-                        opcode = 0x8368 + (unsigned char)(modrm->reg);
-                    }
                     exchar = 0xe8;
                     exchar += ( unsigned char)(modrm->reg);
                     break;
@@ -249,6 +245,31 @@ void Instruct::gen2Op() {
         //mov 100(%rax),%rcx
         case 0b01:
         case 0b10:
+            switch(type){
+                case KW_SUB:{
+                    //sub $1,100(%rsp)
+                    if(left == TY_IMMED && right == TY_MEM) {
+                        opcode = 0x8368 + (unsigned char) (modrm->rm);
+                        append(opcode);
+                        append(inst->disp,inst->dispLen);
+                        append(inst->imm,1);
+                        return;
+                    }
+                }
+                case KW_CMP:{
+                    //cmp $0,-40(%rsp) 如果右边是内存访问
+                    if(left == TY_IMMED && right == TY_MEM){
+                        opcode = 0x8378 + (unsigned char)modrm->reg;
+                        append(opcode);
+                        append(inst->disp,inst->dispLen);
+                        //内存比较只支持8位
+                        append(inst->imm,1);
+                        return;
+                    }
+                }
+                default:{
+                }
+            }
             append(opcode);
             //写入1字节modrm字段
             writeModRM();
@@ -337,6 +358,16 @@ void Instruct::gen1Op() {
             case KW_JLE:
             case KW_JG:{
                 append((unsigned char)opcode);
+                //对于jg跳转，一般是内部跳转，所以需要直接找到偏移量
+                if(left == TY_REL){
+                    //写入相对偏移量
+                    Sym* sym = Asmer::obj->parser->symtable->getSym(name);
+                    //可能为负数
+                    short int offset = sym->addr - asmer::curAddr;
+                    append(offset,1);
+//                    append(offset);
+                    return;
+                }
                 break;
             }
             default:{

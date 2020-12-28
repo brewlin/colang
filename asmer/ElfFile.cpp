@@ -134,7 +134,7 @@ void ElfFile::addSym(asmer::Sym* sym)
 	}else{
 		elfsym->st_shndx = getSegIndex(sym->segName);
 	}
-	cout << "符号:" << sym->name << " 所在段:" << sym->segName << " " <<elfsym->st_shndx <<endl;
+//	cout << "符号:" << sym->name << " 所在段:" << sym->segName << " " <<elfsym->st_shndx <<endl;
 
 	addSym(name,elfsym);
 }
@@ -235,20 +235,20 @@ void ElfFile::buildEhdr() {
 	ehdr.e_shoff = sizeof(Elf64_Ehdr);
 
 	offset = sizeof(Elf64_Ehdr);
-	std::cout << "[buildElf] header:[0," << offset <<"]" << std::endl;
+//	std::cout << "[buildElf] header:[0," << offset <<"]" << std::endl;
 }
 /**
  * 构建段表
  */
 void ElfFile::buildSectab(){
 	//默认八个段 + 1个空段
-	std::cout << "[buildElf] .section table:[" << offset << "," << sizeof(Elf64_Shdr) * 9 <<"]" << std::endl;
+//	std::cout << "[buildElf] .section table:[" << offset << "," << sizeof(Elf64_Shdr) * 9 <<"]" << std::endl;
 	offset += sizeof(Elf64_Shdr) * 8;
 };
 void ElfFile::buildData(){
    	//表示当前的数据段的大小
 	addShdr(".data",asmer::curAddr);
-	std::cout << "[buildElf] .data:[" << offset << "," << curAddr <<"]" << std::endl;
+//	std::cout << "[buildElf] .data:[" << offset << "," << curAddr <<"]" << std::endl;
 	//数据段紧跟其后
 	offset += curAddr;
 	Asmer::data = asmer::curAddr;
@@ -261,10 +261,10 @@ void ElfFile::buildText(){
     Asmer::obj->InstCollect();
 
 	addShdr(".text",asmer::curAddr);
-	std::cout << "[buildElf] .text:[" << offset << "," << asmer::curAddr <<"]" << std::endl;
+//	std::cout << "[buildElf] .text:[" << offset << "," << asmer::curAddr <<"]" << std::endl;
 	offset += asmer::curAddr;
 	Asmer::text = asmer::curAddr;
-	cout << asmer::curAddr <<endl;
+//	cout << asmer::curAddr <<endl;
 	//到这里就源代码解析完了，需要导出所有符号表
 	// addSectionSym();
 	Asmer::obj->parser->symtable->exportSyms();
@@ -334,7 +334,7 @@ void ElfFile::buildShstrtab() {
 	//string segNames[]={"",".rela.text",".rel.data",".bss",".shstrtab",".symtab",".strtab"};
 	//添加.shstrtab 段字符串表
 	addShdr(".shstrtab", SHT_STRTAB, 0, 0, offset, shstrtab_size, SHN_UNDEF, 0, 1, 0);//.shstrtab
-	std::cout << "[buildElf] .shstrtab:[" << offset << "," << shstrtab_size <<"]" << std::endl;
+//	std::cout << "[buildElf] .shstrtab:[" << offset << "," << shstrtab_size <<"]" << std::endl;
 	//下一个表
 	offset += shstrtab_size;
 }
@@ -349,7 +349,7 @@ void ElfFile::buildSymtab() {
 	//偏移跟上
 	//计算字符串表的大小
 	addShdr(".symtab", SHT_SYMTAB, 0, 0, offset,strtab_size, 0, 0, 1, sizeof(Elf64_Sym));
-	std::cout << "[buildElf] .symtab:[" << offset << "," << strtab_size <<"]" << std::endl;
+//	std::cout << "[buildElf] .symtab:[" << offset << "," << strtab_size <<"]" << std::endl;
 	offset += strtab_size;
 	//找到字符串段在段表中的索引，这里应该是4
 	shdrTab[".symtab"]->sh_link = getSegIndex(".symtab") + 1;//.strtab默认在.symtab之后
@@ -376,14 +376,14 @@ void ElfFile::buildStrtab() {
 		symTab[strs]->st_name = index;
 		strcpy(str + index, strs.c_str());
 		index += strs.length() + 1;
-		cout << "[" << strs << "," << strs.length() + 1 << "]" << "index:" << index <<endl;
+//		cout << "[" << strs << "," << strs.length() + 1 << "]" << "index:" << index <<endl;
 	}
 	for(int i = 0; i < this->strtab_size ; i ++){
-		cout << strtab[i];
+//		cout << strtab[i];
 	}
-	cout << endl;
+//	cout << endl;
 	//这里存储的是字符串区需要加上这个
-	std::cout << "[buildElf] .strtab:[" << offset << "," << strtab_size <<"]" << std::endl;
+//	std::cout << "[buildElf] .strtab:[" << offset << "," << strtab_size <<"]" << std::endl;
 	offset += strtab_size;
 	//for(int i=0;i<strtab_size;++i)printf("%c",str[i]);printf("\n");
 	//for(int i=0;i<strtab_size;++i)printf("%d|",str[i]);printf("\n");
@@ -408,23 +408,23 @@ void ElfFile::buildRelTab(){
 	//加上代码区
 	int text_size = relTextTab.size() * sizeof(Elf64_Rela);
 	addShdr(".rela.text",SHT_RELA,SHF_INFO_LINK,0,offset,text_size,getSegIndex(".symtab"),getSegIndex(".text"),1, sizeof(Elf64_Rela));//.rela.text
-	std::cout << "[buildElf] .rela.text:[" << offset << "," << text_size <<"]" << std::endl;
+//	std::cout << "[buildElf] .rela.text:[" << offset << "," << text_size <<"]" << std::endl;
 	offset += text_size;
 
 	//加上代码区
 	int data_size = relDataTab.size() * sizeof(Elf64_Rela);
 	addShdr(".rela.data",SHT_RELA,SHF_INFO_LINK,0,offset,data_size,getSegIndex(".symtab"),getSegIndex(".data"),1, sizeof(Elf64_Rela));//.rel.data
-	std::cout << "[buildElf] .rela.data:[" << offset << "," << data_size <<"]" << std::endl;
+//	std::cout << "[buildElf] .rela.data:[" << offset << "," << data_size <<"]" << std::endl;
 	offset += data_size;
 	for(int i = 0; i < shstrtab_size; i ++){
-		std::cout << shstrtab[i];
+//		std::cout << shstrtab[i];
 	}
-	std::cout <<std::endl;
+//	std::cout <<std::endl;
 	//更新段表name
 	for(auto str : shdrNames ){
 		int index = strIndex[str];
 		shdrTab[str]->sh_name = index;
-		std::cout << "[buildElf] section_name_index:[" << str << "," << shdrTab[str]->sh_name <<"]" << std::endl;
+//		std::cout << "[buildElf] section_name_index:[" << str << "," << shdrTab[str]->sh_name <<"]" << std::endl;
 	}
 }
 

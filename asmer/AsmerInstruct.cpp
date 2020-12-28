@@ -11,10 +11,10 @@
 void Asmer::InstCollect() {
     //这里是计算指令段了，所以需要清空之前的计数
 //    asmer::curAddr = 0;
-    std::cout << "[buildElf] .text:" << std::endl;
+//    std::cout << "[buildElf] .text:" << std::endl;
     //这里其实是属于新的段了，curAddr 段大小需要从0开始计数， 但是datalen是持续累加的
     for(auto func : parser->funcs){
-        std::cout << "[buildElf] .text: func:" << func->labelname <<  std::endl;
+//        std::cout << "[buildElf] .text: func:" << func->labelname <<  std::endl;
         //这里需要将函数名加入符号表
         Sym* sym = new Sym(func->labelname,false);
         //当前非外部符号
@@ -26,7 +26,7 @@ void Asmer::InstCollect() {
             //进行代码段指令翻译生成
             inst->gen();
         }
-        cout << "text-end:" << asmer::curAddr << endl;
+//        cout << "text-end:" << asmer::curAddr << endl;
     }
 }
 /**
@@ -39,11 +39,11 @@ void Asmer::InstWrite() {
     for(auto func : parser->funcs){
         //接下来解析函数区域所有的指令
         for(auto inst : func->instructs){
-//            printf("%s : ",inst->str.c_str());
-//            for(int i = 0; i < inst->size ; i ++){
-//                printf("%x ",(unsigned char)inst->bytes[i]);
-//            }
-//            std::cout << std::endl;
+            printf("%s : ",inst->str.c_str());
+            for(int i = 0; i < inst->size ; i ++){
+                printf("%x ",(unsigned char)inst->bytes[i]);
+            }
+            std::cout << std::endl;
             writeBytes(inst->bytes,inst->size);
         }
     }
