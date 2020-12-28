@@ -88,24 +88,24 @@ bool Instruct::updateRel() {
     //如果没有引用就返回
     if(name == "") return flag;
 
+    Sym* sym  = Asmer::obj->parser->symtable->getSym(name);
     //表示数据的引用
     if(!is_func)//绝对重定位
     {
-        if(ready)
+        if(ready && sym->externed){
             Asmer::elf->addRel(".text",asmer::curAddr,name,R_X86_64_PC32);
-        flag = true;
+            flag = true;
+        }
     }
     else if(is_func)//相对重定位
     {
-        Sym* sym  = Asmer::obj->parser->symtable->getSym(name);
         //如果当前指令有函数标签，说明是函数调用
         //外部函数
-        // if(sym->externed){
-            if(ready)
-                //R_X86_64_REX_GOTP  42
-                Asmer::elf->addRel(".text",asmer::curAddr,name,42);
+         if(ready && sym->externed){
+            //R_X86_64_REX_GOTP  42
+            Asmer::elf->addRel(".text",asmer::curAddr,name,42);
             flag = true;
-        // }
+         }
     }
     return flag;
 }
@@ -358,16 +358,6 @@ void Instruct::gen1Op() {
             case KW_JLE:
             case KW_JG:{
                 append((unsigned char)opcode);
-                //对于jg跳转，一般是内部跳转，所以需要直接找到偏移量
-                if(left == TY_REL){
-                    //写入相对偏移量
-                    Sym* sym = Asmer::obj->parser->symtable->getSym(name);
-                    //可能为负数
-                    short int offset = sym->addr - asmer::curAddr;
-                    append(offset,1);
-//                    append(offset);
-                    return;
-                }
                 break;
             }
             default:{
@@ -381,6 +371,15 @@ void Instruct::gen1Op() {
         bool is_rel = updateRel();
         //处理可能的相对重定位信息，call fun,如果fun是本地定义的函数就不会重定位了
         int rel  = inst->imm - (asmer::curAddr + 4);//调用符号地址相对于下一条指令地址的偏移，因此加4
+        //处理有些本地符号在第一次parser的时候由于处于后面导致 偏移量无法获得，需要再次计算
+        if(left == TY_REL && inst->imm == 0){
+            //写入相对偏移量
+            Sym* sym = Asmer::obj->parser->symtable->getSym(name);
+            //可能为负数
+            rel = sym->addr - asmer::curAddr - 1;
+            append(rel,1);
+            return;
+        }
         //存在外部引用
         if(is_rel){
             //构建4字节 0

@@ -54,6 +54,10 @@ namespace asmer{
                  */
             case KW_LABEL:{
                 //记下这个标签的位置
+                //记下这个标签的位置
+                sym = new Sym(labelname, false);
+                symtable->addSym(sym);
+
                 Function* func = new Function(labelname);
                 funcs.push_back(func);
                 return;
@@ -63,6 +67,8 @@ namespace asmer{
             }
         }
 
+        sym = new Sym(labelname, false);
+        symtable->addSym(sym);
         //其他情况就是函数定义了
         Function* func = parseFunction(labelname);
         funcs.push_back(func);
