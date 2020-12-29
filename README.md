@@ -6,17 +6,18 @@
 Colang是一种编程语言，旨在创造一种动态语法的静态编译语言
 ```asciidoc
 ./colang [options] file.co        
-    -run  file  ast -> asm       编译为汇编-链接生成可执行程序自动执行
-    -s    file  ast -> asm       编译为汇编
+    -s    file  ast -> asm       编译.co代码 生成.s汇编文件
+    -run  file  ast -> asm       gcc编译后链接glic生成可执行程序
+    -p    file                   打印token
 ./asmer [options] file.s        
-    -c    file.s  -> file.o      解析编译自定义汇编文件生成.o 可重定向elf
+    -c    file.s  -> file.o      编译.s自定义汇编语言,翻译机器码并生成.o elf文件
     -p                           打印token
 ```
 - [x] compiler
-  - [x] run 采用gcc进行汇编,链接`glibc`
-  - [x] -s  生成.s汇编文件
+  - [x] run
+  - [x] -s  
 - [ ] asmer 
-  - [x] -c 翻译自定义汇编为机器指令生成elf可重定向文件
+  - [x] -c
   - [x] 兼容GNU assembly 汇编语法，
   - [ ] 兼容GNU `as` 汇编器，
 - [ ] linker 
