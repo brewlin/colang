@@ -92,8 +92,10 @@ bool Instruct::updateRel() {
     //表示数据的引用
     if(!is_func)//绝对重定位
     {
-        if(ready && sym->externed){
-            Asmer::elf->addRel(".text",asmer::curAddr,name,R_X86_64_PC32);
+        //数据不管咋样都需要重定位
+//        if(ready && sym->externed){
+        if(ready){
+            Asmer::elf->addRel(".text",asmer::curAddr,".data",R_X86_64_PC32);
             flag = true;
         }
     }
@@ -143,6 +145,10 @@ void Instruct::gen2Op() {
                     //mov label(%rip),%rax
                     if(left == TY_REL){
                         opcode = 0x488b;
+                        //如果右边寄存器大于 %r8
+                        if(tks[0] >= KW_R8){
+                            opcode = 0x4c8b;
+                        }
                         exchar = 0x05 + (unsigned char)modrm->reg * 8;
                     }
                     break;
@@ -193,9 +199,9 @@ void Instruct::gen2Op() {
                         //不是外部连接符
                         inst->imm  = 0;
                         len        = 4;
-                        if(!sym->externed){
-                            inst->imm = sym->addr;
-                        }
+//                        if(!sym->externed){
+//                            inst->imm = sym->addr;
+//                        }
                         exchar = 0x05 + 0x08 * (unsigned char)modrm->reg;
                     }else{
                         std::cout << "unsupport instruct:" << asmer::tk_to_string(type) << std::endl;
