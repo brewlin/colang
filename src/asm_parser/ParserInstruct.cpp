@@ -69,12 +69,14 @@ namespace asmer{
             case KW_LABEL:{
                 //label name
                 std::string name = scanner->value();
-                inst->is_rel        = true;
+                //默认是本地引用
+                inst->is_rel        = false;
                 //next one
                 inst->str += scanner->value();
                 if(scanner->scan() == TK_AT){
                     //表明这是一个函数引用，需要进行相对地址定位
                     inst->is_func = true;
+                    inst->is_rel  = true;
                     //next one shuould be GOTPCREL
                     inst->str += scanner->value();
                     assert(scanner->scan() == KW_LABEL);
@@ -82,8 +84,9 @@ namespace asmer{
                     inst->str += scanner->value();
                     scanner->scan();
                 }
-                //如果下面不是( 说明可能只是一个单独的标签调用，例如 jmp L.ELSE: 这种跳转
+                //如果下面不是( 说明需要重定位
                 if(scanner->token() == TK_LPAREN){
+                    inst->is_rel  = true;
                     //接下来肯定解析的是 (%rip)
                     //shoulde be %rip
                     inst->str += scanner->value();
@@ -96,6 +99,8 @@ namespace asmer{
                     inst->str += scanner->value();
                     scanner->scan();
                 }
+                //其他情况 可能只是一个单独的标签调用，例如 jmp L.ELSE: 这种跳转
+
                 //从符号表里查找看看是否已经定义了
                 //计算没有定义也会返回一个 默认的 sym 并写入符号表中
                 //TODO: 代码段中 有对符号的引用，需要后面计算是本地符号还是外部符号
