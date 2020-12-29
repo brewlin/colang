@@ -53,7 +53,7 @@ namespace asmer
         segName  = ".data";
         len      = str.size();
         externed = false;
-        curAddr  += str.size();
+        curAddr  += str.size() + 1;
     }
     Sym::Sym(std::string name, int len):
     name(name),

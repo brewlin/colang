@@ -56,7 +56,8 @@ public:
 	void sortGlobal();
 	void addSectionSym();
 	RelInfo* addRel(string seg,int addr,string name,int type);//添加一个重定位项，相同段的重定位项连续（一般是先是.rel.text后.rel.data）
-	int  pad(string first,string second);
+//	int  pad(string first,string second);
+    int  pad(int pad);
 	//构建头部和段表
 	void buildEhdr();
 	void buildSectab();

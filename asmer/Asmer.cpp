@@ -49,10 +49,18 @@ void Asmer::buildElf() {
     //构建段名字符串表，并拷贝所有字符串
     elf->buildShstrtab();
     //构建段符号表
+    int pad = (8 - ElfFile::offset % 8 ) %8;
+    ElfFile::offset += pad;
+//    cout << "pad:" << pad <<endl;
+    cout << "pad:" << pad <<endl;
+    cout << "buildelf:" <<  ElfFile::offset <<endl;
     elf->buildSymtab();
     //构建字符串表，包括了上面所有的符号
     elf->buildStrtab();
     //构建重定位代码段和数据段
+    pad = (8 - ElfFile::offset % 8 ) %8;
+    cout << "pad:" << pad <<endl;
+    ElfFile::offset += pad;
     elf->buildRelTab();
 }
 void Asmer::writeElf() {
@@ -83,7 +91,7 @@ void Asmer::writeElf() {
         //当前全局区域都是存储的8字节指针
         int b[20] = {0};
         if(sym->str != ""){
-            writeBytes(sym->str.c_str(),sym->len);
+            writeBytes(sym->str.c_str(),sym->len + 1);
         }else{
             writeBytes(b,sym->len);
         }
@@ -91,15 +99,15 @@ void Asmer::writeElf() {
 //        cout << sym->name <<":" << sym->len <<endl;
     }
 //    cout << ds << ":" << Asmer::data <<endl;
-    int pads = elf->pad(".data",".text");
-    offset += Asmer::data + pads;
-//    std::cout << pads << ":bytes:" << Asmer::bytes << " offset:" << offset <<std::endl;
+//    int pads = elf->pad(".data",".text");
+    offset += Asmer::data;
+    std::cout << ":bytes:" << Asmer::bytes << " offset:" << offset <<std::endl;
     assert(Asmer::bytes == offset);
 
     //写入代码区
     Asmer::obj->InstWrite();
-    pads = elf->pad(".text",".shstrtab");
-    offset += Asmer::text + pads;
+//    pads = elf->pad(".text",".shstrtab");
+    offset += Asmer::text;
     assert(Asmer::bytes == offset);
 
 //    std::cout << "[writeElf] .shstrtab: size:" << elf->shstrtab_size << std::endl;
@@ -109,6 +117,11 @@ void Asmer::writeElf() {
     assert(Asmer::bytes == offset);
 
     //.symtab   写入所有的字符串表
+    cout << "writeelf:" <<  offset << endl;
+    int pad = (8 - offset % 8 ) %8;
+    cout << "pad:" << pad <<endl;
+    elf->pad(pad);
+    offset += pad;
     for(auto symname : elf->symNames){
 //        std::cout << "[writeElf] .strtab:" << symname << std::endl;
         Elf64_Sym* sym = elf->symTab[symname];
@@ -123,6 +136,10 @@ void Asmer::writeElf() {
     assert(Asmer::bytes == offset);
 
     //.rel_text 写入重定向代码表
+    pad = (8 - offset % 8 ) %8;
+    cout << "pad:" << pad <<endl;
+    elf->pad(pad);
+    offset += pad;
     for(auto* rel : elf->relTextTab){
 //        std::cout << "[writeElf] .rela.text: "  <<  std::endl;
         writeBytes(rel,sizeof(Elf64_Rela));
