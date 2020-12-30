@@ -374,7 +374,16 @@ void Instruct::gen1Op() {
             }
             //如果外部符号则 默认当前操作数
             //当前符号则74
-            case KW_JE:
+            case KW_JE:{
+                opcode = 0x0f84;
+                append(opcode);
+                updateRel();
+                Sym* sym = Asmer::obj->parser->symtable->getSym(name);
+                //可能为负数
+                int rel = sym->addr - asmer::curAddr - 4;
+                append(rel,4);
+                return;
+            }
             case KW_JLE:
             case KW_JG:{
                 append((unsigned char)opcode);
@@ -406,6 +415,7 @@ void Instruct::gen1Op() {
             append(0x00000000,len);
             return;
         }
+        cout << rel << ":" << len <<endl;
         append(rel,len);
     }
     else if(type == KW_INT)
