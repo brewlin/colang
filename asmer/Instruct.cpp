@@ -297,7 +297,7 @@ void Instruct::gen2Op() {
             if(modrm->rm == 4)
                 writeSIB();
             //写入偏移量 inst->dispLen 一般为1 或者 4
-            if(inst->disp)
+            if(inst->dispLen)
                 append(inst->disp,inst->dispLen);
             break;
         //寄存器访问
