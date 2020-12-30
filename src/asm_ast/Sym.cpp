@@ -47,8 +47,8 @@ namespace asmer
         global(false),
         str(str)
     {
-        cout << name <<endl;
-        cout << "cur:" << curAddr << " size:" << str.size() <<endl;
+        // cout << name <<endl;
+        // cout << "cur:" << curAddr << " size:" << str.size() <<endl;
         addr     = curAddr;
         segName  = ".data";
         len      = str.size();
@@ -59,7 +59,7 @@ namespace asmer
     name(name),
    global(false) {
         cout << name <<endl;
-        cout << "cur:" << curAddr << " size:" << len <<endl;
+        // cout << "cur:" << curAddr << " size:" << len <<endl;
         addr     = curAddr;
         segName  = ".data";
         this->len      = len;

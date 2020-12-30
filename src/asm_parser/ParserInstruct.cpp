@@ -35,20 +35,20 @@ namespace asmer{
             //立即数 $ (正,负)
             //     mov $10,%rax     $开头的一定是立即数
             case TK_IMME:{
-                long int  number   = 0;
+                unsigned long int  number   = 0;
 
                 inst->str += scanner->value();
                 //next one
                 switch (scanner->scan()) {
                     //get number;
                     case TK_NUMBER:
-                        number = std::stoi(scanner->value());
+                        number = std::stoul(scanner->value());
                         break;
                         //get -;
                     case TK_SUB:
                         //should be number
                         assert(scanner->scan() == TK_NUMBER);
-                        number   = std::stoi(scanner->value());
+                        number   = std::stoul(scanner->value());
                         number   = -number;
                         break;
                     default:

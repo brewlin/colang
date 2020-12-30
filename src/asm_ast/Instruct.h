@@ -39,7 +39,7 @@ namespace asmer{
         unsigned char opcode;
         int disp;
         //对于mov 支持64位立即数
-        long int imm;
+        unsigned long int imm;
         int dispLen;//偏移的长度
         Inst();
         void init();
@@ -75,7 +75,7 @@ namespace asmer{
     public:
         void append(unsigned char b);
         void append(unsigned short int b);
-        void append(long int b,int len);
+        void append(unsigned long int b,int len);
         bool updateRel();//处理可能的重定位信息
         void gen();
         void gen2Op();

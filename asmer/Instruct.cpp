@@ -52,7 +52,7 @@ void Instruct::append(unsigned short int b) {
     append((unsigned char)(b >> 8));
     append((unsigned char)(b));
 }
-void Instruct::append(long int b, int len) {
+void Instruct::append(unsigned long int b, int len) {
     for(int i = 0; i < len ; i ++ ){
         append((unsigned char)(b >> (8*i)));
     }
@@ -139,6 +139,9 @@ void Instruct::gen2Op() {
                     if(inst->imm > INT_MAX){
                         len = 8;
                         opcode = 0x48b8 + (unsigned char)(modrm->reg);
+                        append(opcode);
+                        append(inst->imm,len);
+                        return;
                     }else{
                         len = 4;
                         exchar = 0xc0 + (unsigned char)(modrm->reg);
@@ -220,7 +223,9 @@ void Instruct::gen2Op() {
             }
             //写入操作数
             append(opcode);
+            //大于INT_MAX 不需要附加指令
             //写入附加指令
+            // if(inst->imm < INT_MAX)
             append(exchar);
             //可能的重定位位置 mov eax,@buffer,也有可能是mov eax,@buffer_len，就不许要重定位，因为是宏
             updateRel();

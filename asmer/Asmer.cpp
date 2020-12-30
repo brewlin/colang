@@ -7,6 +7,9 @@
 #include "Asmer.h"
 #include "src/asm_ast/Sym.h"
 #include "ElfFile.h"
+
+
+
 ElfFile* Asmer::elf   = nullptr;
 Asmer*   Asmer::obj   = nullptr;
 int      Asmer::bytes = 0;
@@ -51,15 +54,14 @@ void Asmer::buildElf() {
     //构建段符号表
     int pad = (8 - ElfFile::offset % 8 ) %8;
     ElfFile::offset += pad;
-//    cout << "pad:" << pad <<endl;
-    cout << "pad:" << pad <<endl;
-    cout << "buildelf:" <<  ElfFile::offset <<endl;
+    
+    // cout << "buildelf:" <<  ElfFile::offset <<endl;
     elf->buildSymtab();
     //构建字符串表，包括了上面所有的符号
     elf->buildStrtab();
     //构建重定位代码段和数据段
     pad = (8 - ElfFile::offset % 8 ) %8;
-    cout << "pad:" << pad <<endl;
+    // cout << "pad:" << pad <<endl;
     ElfFile::offset += pad;
     elf->buildRelTab();
 }
@@ -101,7 +103,7 @@ void Asmer::writeElf() {
 //    cout << ds << ":" << Asmer::data <<endl;
 //    int pads = elf->pad(".data",".text");
     offset += Asmer::data;
-    std::cout << ":bytes:" << Asmer::bytes << " offset:" << offset <<std::endl;
+    // std::cout << ":bytes:" << Asmer::bytes << " offset:" << offset <<std::endl;
     assert(Asmer::bytes == offset);
 
     //写入代码区
@@ -117,9 +119,9 @@ void Asmer::writeElf() {
     assert(Asmer::bytes == offset);
 
     //.symtab   写入所有的字符串表
-    cout << "writeelf:" <<  offset << endl;
+    // cout << "writeelf:" <<  offset << endl;
     int pad = (8 - offset % 8 ) %8;
-    cout << "pad:" << pad <<endl;
+    // cout << "pad:" << pad <<endl;
     elf->pad(pad);
     offset += pad;
     for(auto symname : elf->symNames){
@@ -137,7 +139,6 @@ void Asmer::writeElf() {
 
     //.rel_text 写入重定向代码表
     pad = (8 - offset % 8 ) %8;
-    cout << "pad:" << pad <<endl;
     elf->pad(pad);
     offset += pad;
     for(auto* rel : elf->relTextTab){
