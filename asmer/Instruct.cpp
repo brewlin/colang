@@ -226,6 +226,10 @@ void Instruct::gen2Op() {
             updateRel();
             //写入立即数
             //一定要按照长度输出立即数
+            if(is_rel){
+                append(0x0,len);
+                break;
+            }
             append(inst->imm,len);
             break;
         //寄存器间接访问
