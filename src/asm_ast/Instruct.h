@@ -76,11 +76,12 @@ namespace asmer{
         void append(unsigned char b);
         void append(unsigned short int b);
         void append(unsigned long int b,int len);
-        bool updateRel();//处理可能的重定位信息
+        //处理可能的重定位信息
+        bool updateRel();
         void gen();
-        void gen2Op();
-        void gen1Op();
-        void gen0Op();
+        void genTwoInst();
+        void genOneInst();
+        void genZeroInst();
         void writeModRM();
         void writeSIB();
     };

@@ -40,19 +40,12 @@ public:
     void buildElf();
     //生成
     void writeElf();
-    //更新代码段中的引用
-    void updateText();
-    void updateTextFunc(asmer::Function* func);
-    //数据段中暂不支持引用
-    //指令生成
+    //指令收集
     void InstCollect();
     //在构建elf文件的时候主要是计算偏移量，不进行指令翻译
     void InstWrite();
     //写入
     static void writeBytes(const void* b, int len);
 };
-
-//
-extern ElfFile* elf;
 
 #endif //COLANG_ASMER_H

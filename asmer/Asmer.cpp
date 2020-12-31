@@ -5,9 +5,9 @@
  *@Version 1.0
  **/
 #include "Asmer.h"
-#include "src/asm_ast/Sym.h"
+#include "Sym.h"
 #include "ElfFile.h"
-
+#include "Log.h"
 
 
 ElfFile* Asmer::elf   = nullptr;
@@ -52,17 +52,10 @@ void Asmer::buildElf() {
     //构建段名字符串表，并拷贝所有字符串
     elf->buildShstrtab();
     //构建段符号表
-    int pad = (8 - ElfFile::offset % 8 ) %8;
-    ElfFile::offset += pad;
-    
-    // cout << "buildelf:" <<  ElfFile::offset <<endl;
     elf->buildSymtab();
     //构建字符串表，包括了上面所有的符号
     elf->buildStrtab();
     //构建重定位代码段和数据段
-    pad = (8 - ElfFile::offset % 8 ) %8;
-    // cout << "pad:" << pad <<endl;
-    ElfFile::offset += pad;
     elf->buildRelTab();
 }
 void Asmer::writeElf() {
@@ -77,8 +70,6 @@ void Asmer::writeElf() {
     for (auto name : elf->shdrNames) {
         //遍历每一个段名
         Elf64_Shdr *sh = elf->shdrTab[name];
-//        std::cout << "[writeElf] section table:" << name
-//                  << " offset:" << sh->sh_offset <<  std::endl;
         writeBytes(sh,elf->ehdr.e_shentsize);
     }
     offset += elf->ehdr.e_shentsize * 8;
@@ -97,15 +88,12 @@ void Asmer::writeElf() {
             writeBytes(b,sym->len);
         }
     }
-//    cout << ds << ":" << Asmer::data <<endl;
-//    int pads = elf->pad(".data",".text");
     offset += Asmer::data;
     // std::cout << ":bytes:" << Asmer::bytes << " offset:" << offset <<std::endl;
     assert(Asmer::bytes == offset);
 
     //写入代码区
     Asmer::obj->InstWrite();
-//    pads = elf->pad(".text",".shstrtab");
     offset += Asmer::text;
     assert(Asmer::bytes == offset);
 
@@ -117,10 +105,6 @@ void Asmer::writeElf() {
 
     //.symtab   写入所有的字符串表
     // cout << "writeelf:" <<  offset << endl;
-    int pad = (8 - offset % 8 ) %8;
-    // cout << "pad:" << pad <<endl;
-    elf->pad(pad);
-    offset += pad;
     for(auto symname : elf->symNames){
 //        std::cout << "[writeElf] .strtab:" << symname << std::endl;
         Elf64_Sym* sym = elf->symTab[symname];
@@ -135,9 +119,6 @@ void Asmer::writeElf() {
     assert(Asmer::bytes == offset);
 
     //.rel_text 写入重定向代码表
-    pad = (8 - offset % 8 ) %8;
-    elf->pad(pad);
-    offset += pad;
     for(auto* rel : elf->relTextTab){
 //        std::cout << "[writeElf] .rela.text: "  <<  std::endl;
         writeBytes(rel,sizeof(Elf64_Rela));
@@ -147,7 +128,6 @@ void Asmer::writeElf() {
     assert(Asmer::bytes == offset);
     //.rel_data 写入重定向数据表
     for(auto* rel : elf->relDataTab){
-//        std::cout << "[writeElf] .rel.data: "  <<  std::endl;
         writeBytes(rel,sizeof(Elf64_Rela));
         delete rel;
     }

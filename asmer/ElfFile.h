@@ -19,7 +19,11 @@ struct RelInfo
 	int offset;//重定位位置的偏移
 	string name;//重定位符号的名称
 	int type;//重定位类型0-R_386_32；1-R_386_PC32
-	RelInfo(string seg,int addr,string lb,int t);
+	RelInfo(string seg,int addr,string name,int t):
+	tarSeg(seg),
+	offset(addr),
+	name(name),
+	type(t){}
 };
 
 
@@ -56,8 +60,6 @@ public:
 	void sortGlobal();
 	void addSectionSym();
 	RelInfo* addRel(string seg,int addr,string name,int type);//添加一个重定位项，相同段的重定位项连续（一般是先是.rel.text后.rel.data）
-//	int  pad(string first,string second);
-    int  pad(int pad);
 	//构建头部和段表
 	void buildEhdr();
 	void buildSectab();
@@ -67,7 +69,6 @@ public:
 	void buildSymtab();
 	void buildStrtab();
 	void buildRelTab();
-	void printAll();
 	~ElfFile();
 };
 

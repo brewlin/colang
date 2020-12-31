@@ -114,7 +114,9 @@ bool Instruct::updateRel() {
     }
     return flag;
 }
-void Instruct::gen2Op() {
+
+void Instruct::genTwoInst()
+{
     int index = -1;
     //立即数 默认1字节
     int len   = 1;
@@ -324,7 +326,7 @@ void Instruct::gen2Op() {
     }
 }
 
-void Instruct::gen1Op() {
+void Instruct::genOneInst() {
     int len  = 4 ;//默认是8
     unsigned char exchar;
     unsigned short int opcode = opcode1[type - KW_CALL];
@@ -480,18 +482,18 @@ void Instruct::gen1Op() {
 
 }
 
-void Instruct::gen0Op() {
+void Instruct::genZeroInst() {
     unsigned char opcode = opcode0[0];
     append(opcode);
 }
 void Instruct::gen(){
     Token token = type;
     if( token >= KW_MOV && token <= KW_LEA )
-        gen2Op();
+        genTwoInst();
     else if( token >= KW_CALL && token <= KW_POP )
-        gen1Op();
+        genOneInst();
     else if(token == KW_RET)
-        gen0Op();
+        genZeroInst();
     else
         parse_err("[instruct gen] unknow instuct\n");
 }
