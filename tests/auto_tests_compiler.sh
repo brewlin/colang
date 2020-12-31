@@ -21,8 +21,8 @@ check(){
 assert(){
     expected="$1"
     input="$2"
-    log "[compile] ./colang -s $input ..."
-    ./colang -s $input
+    log "[compile] ./co-compiler -s $input ..."
+    ./co-compiler -s $input
     check
     gcc -g *.s -L./src/internal -linternal -L./src/gc -lgc
     check

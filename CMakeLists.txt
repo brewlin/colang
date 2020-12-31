@@ -17,8 +17,8 @@ add_subdirectory(src/parser)
 add_subdirectory(src/lib)
 add_subdirectory(src/internal)
 add_subdirectory(src/gc)
-add_executable(colang colang.cpp)
-target_link_libraries(colang parser compiler ast lib -lstdc++fs)
+add_executable(co-compiler compiler.cpp)
+target_link_libraries(co-compiler parser compiler ast lib -lstdc++fs)
 
 # asmer
 include_directories(. asmer src/asm_ast src/asm_parser src/lib )

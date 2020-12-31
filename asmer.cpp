@@ -11,7 +11,7 @@ using namespace asmer;
 int print_help () {
     fprintf(stderr,
             "usage: ./asmer [options] file.s  可用的选项:\n"
-            "  -c       翻译汇编为机器指令，并生成可重定向elf二进制文件\n"
+            "  -c       翻译汇编为cpu指令，并生成可重定向elf二进制文件\n"
             "  -print   打印token\n"
     );
     return 0;

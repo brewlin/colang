@@ -5,24 +5,26 @@
 
 Colang是一种编程语言，旨在创造一种动态语法的静态编译语言
 ```asciidoc
-./colang [options] file.co        
+./co-compiler [options] file.co        
     -s    file  ast -> asm       编译.co代码 生成.s汇编文件
     -run  file  ast -> asm       gcc编译后链接glic生成可执行程序
     -p    file                   打印token
-./asmer [options] file.s        
+./co-asmer [options] file.s        
     -c    file.s  -> file.o      编译.s自定义汇编语言,翻译机器码并生成.o elf文件
     -p                           打印token
 ```
 - [x] compiler
   - [x] run
   - [x] -s  
-- [ ] asmer 
+- [x] asmer 
   - [x] -c
   - [x] 兼容GNU assembly 汇编语法，
-  - [ ] 兼容GNU `as` 汇编器，
+  - [x] 兼容GNU `as` 汇编器，
+  - [x] 兼容GNU `ld` 链接器，
 - [ ] linker 
   - [ ] 取消`glic`依赖,链接独立运行库生成可执行文件
   - [ ] 兼容GNU `ld` 链接器
+  
 # env & install
 ```asciidoc
 > uname -a
@@ -33,7 +35,8 @@ gcc version 7.5.0 (Ubuntu 7.5.0-3ubuntu1~18.04)
 > cd colang/tests
 > export CO_SRC=/path/to/colang/runtime
 > cmake .. & make
-> dos2unix auto_tests.sh & sh auto_tests.sh
+> dos2unix auto_tests_compiler.sh & sh auto_tests_compiler.sh
+> dos2unix auto_tests_asmer.sh & sh auto_tests_asmer.sh
 
 
 ```
