@@ -96,6 +96,8 @@ std::tuple<Token,std::string> Scanner::parseString(char c)
         cn = peek();
         if(c == '\\' && cn == 'n'){
             lexeme += "\n";
+            c = next();
+            cn = peek();
         }else{
             lexeme += c;
         }
