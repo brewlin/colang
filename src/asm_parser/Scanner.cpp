@@ -93,8 +93,12 @@ std::tuple<Token,std::string> Scanner::parseString(char c)
     char cn = peek();
     while(cn != '"'){
         c = next();
-        lexeme += c;
         cn = peek();
+        if(c == '\\' && cn == 'n'){
+            lexeme += "\n";
+        }else{
+            lexeme += c;
+        }
     }
     c = next();
     return std::make_tuple(TK_STRING,lexeme);
