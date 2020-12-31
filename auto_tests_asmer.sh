@@ -18,21 +18,34 @@ check(){
     fi
 
 }
+
 assert(){
     expected="$1"
     input="$2"
     log "[compile] ./co-compiler -s $input ..."
     ./co-compiler -s $input
     check
-    gcc -g *.s -L./src/internal -linternal -L./src/gc -lgc
+    asmer
+    echo "start linking..."
+    echo "gcc -g *.o -L./src/internal -linternal -L./src/gc -lgc"
+    gcc -g *.o -L./src/internal -linternal -L./src/gc -lgc
     check
+    echo "exec a.out..."
     ./a.out
     check
     rm ./a.out
-    rm *.s
+    echo "exec done..."
 
     return
 #    failed "[compile] $input failed"
+}
+asmer(){
+    for s in `ls *.s`
+    do
+        ./co-asmer -c $s
+        check
+        log "[asmer] ./co-asmer -c $s passed!"
+    done    
 }
 read_dir(){
     for file in `ls *.co`
@@ -40,19 +53,20 @@ read_dir(){
      if [ -d $file ] ; then
         read_dir $file
      else
+         rm *.s
+         rm *.o
         assert "OK" $file
-        log "[compile] $file passed!"
+        log "[compile] $file passed!\n"
      fi
     done
 }
 install_env(){
+    cd tests
     cmake ..
     make
-
     if [  "$?" != 0 ]; then
         failed "make failed"
     fi
-    rm *.s
 }
 install_env
 read_dir

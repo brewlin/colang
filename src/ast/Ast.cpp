@@ -135,7 +135,8 @@ std::string VarExpr::toString() { return "VarExpr(" + varname + ")"; }
 
 std::string IndexExpr::toString() {
     std::string str = "IndexExpr(index=";
-    str += index->toString();
+    if(index)
+        str += index->toString();
     str += ")";
     return str;
 }

@@ -103,7 +103,7 @@ void  ArrayExpr::asmgen(std::deque<Context*> ctx){
  * @param ctx
  */
 void  MapExpr::asmgen(std::deque<Context*> ctx){
-    Debug("MapExpr: parsing... package:%s func:%s",package.c_str(),funcname.c_str());
+    Debug("MapExpr: gen... ");
 //    AsmGen::writeln("    .loc %d %d %d",AsmGen::parser->fileno,line,column);
 
     //new array & push array
@@ -124,7 +124,7 @@ void  MapExpr::asmgen(std::deque<Context*> ctx){
  * @param ctx
  */
 void  KVExpr::asmgen(std::deque<Context*> ctx){
-    Debug("KVExpr: parsing... package:%s func:%s",package.c_str(),funcname.c_str());
+    Debug("KVExpr: gen... k:%s v:%s",key->toString().c_str(),value->toString());
 //    AsmGen::writeln("    .loc %d %d %d",AsmGen::parser->fileno,line,column);
 
     //push key

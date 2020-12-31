@@ -25,28 +25,26 @@ Colang是一种编程语言，旨在创造一种动态语法的静态编译语�
   - [ ] 取消`glic`依赖,链接独立运行库生成可执行文件
   - [ ] 兼容GNU `ld` 链接器
   
-# env & install
+## env & install & tests 
 ```asciidoc
 > uname -a
 Linux ubuntu 4.4.0-157-generic #185-Ubuntu SMP Tue Jul 23 09:17:01 UTC 2019 x86_64 x86_64 x86_64 GNU/Linux
 > gcc -v
 gcc version 7.5.0 (Ubuntu 7.5.0-3ubuntu1~18.04) 
 > git clone https://github.com/brewlin/colang.git
-> cd colang/tests
 > export CO_SRC=/path/to/colang/runtime
-> cmake .. & make
 > dos2unix auto_tests_compiler.sh & sh auto_tests_compiler.sh
 > dos2unix auto_tests_asmer.sh & sh auto_tests_asmer.sh
 
 
 ```
-# @progress
+## @progress
 更多语法测试用例在`/tests`目录下，包含了各种数据结构、运算、gc、demo测试
-## @GC
+### @GC
 - [x] 完成python的内存分配器+标记清除式GC
 - [ ] 优化 `> 256 bytes`的大内存gc
 - [ ] 优化采用 `golang`的多线程内存分配 + 增量式三色标记gc
-## @data struct
+### @data struct
 - [x] long int
 - [ ] double
 - [x] string
@@ -83,7 +81,7 @@ func main(){
     
 }
 ```
-## @keywords
+### @keywords
 - [x] func
 - [x] return
 - [x] package,import
@@ -110,7 +108,7 @@ func main(){
 }
 ```
 
-## @operators
+### @operators
 - [x] `+  and +=` 
 - [x] `-  and -=`
 - [x] `*  and *=`
