@@ -85,7 +85,6 @@ void Asmer::writeElf() {
     assert(Asmer::bytes == offset);
 
     int data_size  = parser->symtable->data_symbol.size() ;
-//    std::cout << "[writeElf] .data size:" << data_size <<  std::endl;
     //写入数据区 每个全局数据类型当前语言实现默认为指针
     int ds = 0;
     for (auto *sym : parser->symtable->data_symbol) {
@@ -93,12 +92,10 @@ void Asmer::writeElf() {
         //当前全局区域都是存储的8字节指针
         int b[20] = {0};
         if(sym->str != ""){
-            writeBytes(sym->str.c_str(),sym->len + 1);
+            writeBytes(sym->str.c_str(),sym->len);
         }else{
             writeBytes(b,sym->len);
         }
-        ds += sym->len;
-//        cout << sym->name <<":" << sym->len <<endl;
     }
 //    cout << ds << ":" << Asmer::data <<endl;
 //    int pads = elf->pad(".data",".text");

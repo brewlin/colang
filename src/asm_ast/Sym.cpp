@@ -51,7 +51,7 @@ namespace asmer
         // cout << "cur:" << curAddr << " size:" << str.size() <<endl;
         addr     = curAddr;
         segName  = ".data";
-        len      = str.size();
+        len      = str.size() + 1;
         externed = false;
         curAddr  += str.size() + 1;
     }
