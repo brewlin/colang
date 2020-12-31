@@ -359,27 +359,19 @@ void Instruct::gen1Op() {
                 }
                 break;
             }
+            //规定当前jmp都是4字节本地跳转，非引用跳转
             case KW_JMP:{
-                //判断是不是内部符号
-                bool is_internal = true;
-                 if(is_func){
-                    Sym* sym  = Asmer::obj->parser->symtable->getSym(name);
-                    if(sym->externed)
-                        is_internal = false;
-                 }
-                if(is_internal){
-                    //1. 内部符号 eb
-                    opcode = 0xeb;
-                    //内部跳转默认1字节
-                    len = 1;
-                }else{
-                    //2. 外部符号 e9 00 00 00 00
-                    opcode = 0xe9;
-                }
+                opcode = 0xe9;
                 //1字节
                 append((unsigned char)opcode);
-                //jmp后面不需要再
-                break;
+                //非必须，因为这里不可能有外部引用存在，在当前的汇编实现中
+                updateRel();
+                //第一次时这个sym可能为0 ，但是不影响我们的偏移量计算，因为固定了4字节
+                Sym* sym = Asmer::obj->parser->symtable->getSym(name);
+                //跳过当前4字节指令
+                int rel = sym->addr - asmer::curAddr - 4;
+                append(rel,4);
+                return;
             }
             //如果外部符号则 默认当前操作数
             //当前符号则74
