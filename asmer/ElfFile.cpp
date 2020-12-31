@@ -411,9 +411,13 @@ void ElfFile::buildRelTab(){
 		//数据是需要添加偏移的
 		if(relTab[i]->type == R_X86_64_PC32){
 		    Sym* sym = Asmer::obj->parser->symtable->getSym(relTab[i]->name);
-			rela->r_info    = ELF64_R_INFO((Elf64_Word)getSymIndex(".data"),relTab[i]->type);
+			//本地全局变量
+			if(!sym->externed){
+				rela->r_info    = ELF64_R_INFO((Elf64_Word)getSymIndex(".data"),relTab[i]->type);
 
-			rela->r_addend  = -4 + sym->addr;
+				rela->r_addend  = -4 + sym->addr;
+			}
+
 		}
 		//将重定项中的类型进行区分，代码区和数据区
 		if(relTab[i]->tarSeg == ".text")
