@@ -13,8 +13,7 @@ int link(int argc,char *argv[])
 {
     Linker linker;
     string outfile = "a.out";
-    int i = 1;
-    for (int i = 0; i < arg; ++i) {
+    for (int i = 1; i < argc; ++i) {
         string obj = argv[i++];
         //添加目标文件
         linker.addElf(obj);
