@@ -242,7 +242,7 @@ void Linker::allocAddr()
 	//当前加载基址
 	unsigned int curAddr = BASE_ADDR;
 	//默认文件偏移,PHT保留.bss段
-	unsigned int curOff  = 52 + 32 * segNames.size();
+	unsigned int curOff  = sizeof(Elf64_Ehdr) + sizeof(Elf64_Phdr) * segNames.size();
 	cout << "地址分配" << endl;
 	//按照类型分配地址，不紧邻.data与.bss段
 	for(auto seg : segNames){
@@ -338,7 +338,6 @@ void Linker::buildExe()
 		);
 		//计算有效数据段的大小和偏移,最后一个决定
 		//修正当前偏移，循环结束后保留的是.bss的基址
-		//TODO: need fix the correct offset
 		curOff = segLists[seg]->offset;
 
 		//生成段表项
@@ -483,10 +482,8 @@ void Linker::writeExe(string out)
 	fclose(fp);
 	//写入段表，段表符串表，符号表，符号字符串表
 	//检查段表字符串表偏移
-	cout << "offset:" <<offset << " .shstrtab:" << exe.shdrTab[".shstrtab"]->sh_offset << endl;
 	assert(offset == exe.shdrTab[".shstrtab"]->sh_offset);
 	offset += exe.shstrtabSize;
-	cout << "offset:" <<offset << " .section:" << exe.ehdr.e_shoff << endl;
 	assert(offset == exe.ehdr.e_shoff);
 	exe.writeSecSym(out);
 }
