@@ -96,14 +96,14 @@ void SegList::relocAddr(unsigned int relAddr,unsigned char type,unsigned int sym
 		}
 	}
 	//处理字节为b->data[relOffset-b->offset]
-	int *pAddr=(int*)(b->data+relOffset-b->offset);
-	if(type==R_386_32)//绝对地址修正
+	int *pAddr = (int*)(b->data + relOffset-b->offset);
+	if(type == R_X86_64_PC32)//绝对地址修正
 	{
 		printf("绝对地址修正：原地址=%08x\t",*pAddr);
 		*pAddr=symAddr;
 		printf("修正后地址=%08x\n",*pAddr);
 	}
-	else if(type==R_386_PC32)//相对地之修正
+	else if(type == 42)//相对地之修正
 	{
 		printf("相对地址修正：原地址=%08x\t",*pAddr);
 		*pAddr=symAddr-relAddr+*pAddr;
@@ -135,6 +135,7 @@ void Linker::addElf(string obj)
 
 
 void Linker::collectInfo() {
+
     //扫描文件
     for (auto elf : elfs) {
         //记录段表信息
@@ -209,7 +210,7 @@ bool Linker::symValid()
 			//printf("%s---VS---%s,%d<->%d\n",symLinks[i]->name.c_str(),symDef[j]->name.c_str()
 				//,symLinks[i]->recv->symTab[symLinks[i]->name]->st_info
 				//,symDef[j]->prov->symTab[symDef[j]->name]->st_info);
-			if(symLinks[i]->name==symDef[j]->name//同名符号
+			if(symLinks[i]->name == symDef[j]->name//同名符号
 				//&&symLinks[i]->recv->symTab[symLinks[i]->name]->st_info
 				//==symDef[j]->prov->symTab[symDef[j]->name]->st_info
 			)//类型相同[!!!不允许函数名符号和变量名符号相同,在汇编时无法区分这种差别!!!]
@@ -219,13 +220,18 @@ bool Linker::symValid()
 				//printf("解析%s\n",symLinks[i]->name.c_str());
 			}
 		}
-		if(symLinks[i]->prov==NULL)//未定义
+		//未定义
+		if(symLinks[i]->prov == NULL)
 		{
-			unsigned char info=symLinks[i]->recv->symTab[symLinks[i]->name]->st_info;
+			unsigned char info = symLinks[i]->recv->symTab[symLinks[i]->name]->st_info;
 			string type;
-			if(ELF64_ST_TYPE(info)==STT_OBJECT)type="变量";
-			else if(ELF64_ST_TYPE(info)==STT_FUNC)type="函数";
-			else type="符号";
+			if(ELF64_ST_TYPE(info) == STT_OBJECT){
+				type = "变量";
+			}else if(ELF64_ST_TYPE(info) == STT_FUNC){
+				type = "函数";
+			}else{
+				type = "符号";
+			}
 			printf("文件%s的%s名%s未定义。\n",symLinks[i]->recv->elf_dir
 				,type.c_str(),symLinks[i]->name.c_str());
 			if(flag)
