@@ -22,8 +22,8 @@ Colang是一种编程语言，旨在创造一种动态语法的静态编译语�
   - [x] 兼容GNU `as` 汇编器，
   - [x] 兼容GNU `ld` 链接器，
 - [ ] linker 
+  - [x] 兼容GNU `ld` 链接器
   - [ ] 取消`glic`依赖,链接独立运行库生成可执行文件
-  - [ ] 兼容GNU `ld` 链接器
   
 ## env & install & tests 
 ```asciidoc
