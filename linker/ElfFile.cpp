@@ -104,7 +104,8 @@ void ElfFile::readElf(string file)
 	}
 	cout << elf_dir << "重定位数据" <<endl;
 	for(auto i : shdrTab){
-		if(i.first.find(".rela") == 0)//是重定位段
+	    //目前数据和代码为了兼容 gnu 都是放在 rela.text中的
+		if(i.first.find(".rela.text") == 0)//是重定位段
 		{
 			Elf64_Shdr *sh_relTab = shdrTab[i.first];//重定位表信息
 			fseek(fp,sh_relTab->sh_offset,0);//转移到重定位表内容
@@ -115,7 +116,9 @@ void ElfFile::readElf(string file)
 				//获取重定位符号引用
 				fread(rela, sizeof(Elf64_Rela),1,fp);
 				int index = symList[ELF64_R_SYM(rela->r_info)]->st_name;
+//				cout <<"relNum:" << relNum << " index:" << index  << " j:" << j << endl;
 				string name(strTabData + index);//获得重定位符号名字
+//				cout << "name:" << name <<endl;
 				//使用shdrNames[sh_relTab->sh_info]访问目标段更标准
 				relTab.push_back(new RelItem(i.first.substr(4),rela,name));//添加重定位项
 //				printf("%s\t%08x\t%s\n",i.first.substr(4).c_str(),rela->r_offset,name.c_str());
