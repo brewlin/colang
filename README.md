@@ -121,3 +121,11 @@ func main(){
 - [x] `>  and >=`
 - [x] `<  and <=`
 - [x] `== and !=`
+
+## links
+- https://github.com/rui314/chibicc
+- https://github.com/fanzhidongyzby/cit
+- https://llvm.org/docs/tutorial/index.html
+- https://github.com/brewlin/gc-learning
+- https://github.com/chai2010/go-ast-book
+- https://github.com/youzhonghui/MiniCRT

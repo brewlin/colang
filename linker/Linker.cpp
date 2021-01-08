@@ -81,7 +81,7 @@ void SegList::allocAddr(string name,unsigned int& base,unsigned int& off)
 	type:重定位类型
 	symAddr:重定位符号的虚拟地址
 */
-void SegList::relocAddr(unsigned int relAddr,unsigned char type,unsigned int symAddr)
+void SegList::relocAddr(unsigned int relAddr,unsigned char type,unsigned int symAddr,int addend)
 {
 
 	unsigned int relOffset = relAddr-baseAddr;//同类合并段的数据偏移
@@ -96,17 +96,18 @@ void SegList::relocAddr(unsigned int relAddr,unsigned char type,unsigned int sym
 		}
 	}
 	//处理字节为b->data[relOffset-b->offset]
-	int *pAddr = (int*)(b->data + relOffset-b->offset);
-	if(type == R_X86_64_PC32)//绝对地址修正
+//	int *pAddr = (int*)(b->data + relOffset + addend - b->offset);
+	int *pAddr = (int*)(b->data + relOffset  - b->offset);
+	if(type == 42)//绝对地址修正
 	{
 		printf("绝对地址修正：原地址=%08x\t",*pAddr);
-		*pAddr=symAddr;
+		*pAddr = symAddr - relAddr +*pAddr;
 		printf("修正后地址=%08x\n",*pAddr);
 	}
-	else if(type == 42)//相对地之修正
+	else if(type == R_X86_64_PC32)//相对地之修正
 	{
 		printf("相对地址修正：原地址=%08x\t",*pAddr);
-		*pAddr=symAddr-relAddr+*pAddr;
+		*pAddr = symAddr - relAddr + *pAddr;
 		printf("修正后地址=%08x\n",*pAddr);
 	}
 }
@@ -152,9 +153,10 @@ void Linker::collectInfo() {
 				symLink->prov = NULL;//标记未定义
 				symLinks.push_back(symLink);
 				//printf("%s---未定义\n",symLink->name.c_str());
-			} else {
+			} else if(sym.second->st_shndx != SHN_ABS) {
 				symLink->prov = elf;//记录定义文件
 				symLink->recv = NULL;//标示该定义符号未被任何文件引用
+				cout << sym.first <<endl;
 				symDef.push_back(symLink);
 				//printf("%s---定义\n",symLink->name.c_str());
 			}
@@ -278,6 +280,7 @@ void Linker::symParser()
 	cout << "----------未定义符号解析----------" << endl;
 
 	for(auto sym : symLinks){
+		cout << sym->name <<endl;
 		Elf64_Sym* provsym = sym->prov->symTab[sym->name];//被引用的符号信息
 		Elf64_Sym* recvsym = sym->recv->symTab[sym->name];//被引用的符号信息
 		recvsym->st_value = provsym->st_value;//被引用符号已经解析了
@@ -292,15 +295,15 @@ void Linker::relocate()
 	//重定位项符号必然在符号表中，且地址已经解析完毕
 	printf("--------------重定位----------------\n");
 	for(auto elf : elfs){
-		vector<RelItem*>tab = elf->relTab;//得到重定位表
+		vector<RelItem*> tab = elf->relTab;//得到重定位表
 
 		for(auto t : tab){
 			Elf64_Sym* sym = elf->symTab[t->relname];//重定位符号信息
-			unsigned int symAddr = sym->st_value;//解析后的符号段偏移为虚拟地址
+			unsigned int symAddr = sym->st_value + t->rel->r_addend;//解析后的符号段偏移为虚拟地址
 			unsigned int relAddr = elf->shdrTab[t->segname]->sh_addr + t->rel->r_offset;//重定位地址
 			//重定位操作
 			printf("%s\trelAddr=%08x\tsymAddr=%08x\n",t->relname.c_str(),relAddr,symAddr);
-			segLists[t->segname]->relocAddr(relAddr,ELF64_R_TYPE(t->rel->r_info),symAddr);
+			segLists[t->segname]->relocAddr(relAddr,ELF64_R_TYPE(t->rel->r_info),symAddr,t->rel->r_addend);
 		}
 	}
 }
