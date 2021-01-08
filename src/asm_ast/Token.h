@@ -19,6 +19,7 @@ enum Token {
     KW_CMP,
     KW_SUB,
     KW_ADD,
+    KW_AND,
     KW_MUL,
     KW_LEA,
 

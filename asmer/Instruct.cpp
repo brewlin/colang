@@ -24,8 +24,9 @@ static unsigned short int opcode2[]=
         0x4839, 0x483b, 0x4839, 0x4883,//cmp
         0x4829, 0x482b, 0x4829, 0x4883,//sub
         0x4801, 0x4803, 0x4801, 0x4883,//add
+        0x4839, 0x483b, 0x4839, 0x4883,//and
         0x0000, 0x0000, 0x0000, 0x486b,//imul
-        0x488d, 0x488d, 0x488d, 0x488d//lea
+        0x488d, 0x488d, 0x488d, 0x488d,//lea
     };
 static unsigned short int opcode1[]=
     {
@@ -182,6 +183,13 @@ void Instruct::genTwoInst()
                     }//其他情况 opcode = 0x4883
                     exchar = 0xc0;
                     exchar += ( unsigned char )(modrm->reg);
+                    break;
+                }
+                //0xc0 + 寄存器索引
+                case KW_AND: {
+                    //opcode = 0x4883
+                    exchar = 0xe0;
+                    exchar += (unsigned char) (modrm->reg);
                     break;
                 }
                 //0xe8 + 寄存器索引

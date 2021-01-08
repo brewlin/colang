@@ -18,6 +18,7 @@ Scanner::Scanner(const std::string filepath)
     keywords["mov"]     = KW_MOV;
     keywords["sub"]     = KW_SUB;
     keywords["add"]   = KW_ADD;
+    keywords["and"]   = KW_AND;
     keywords["imul"]   = KW_MUL;
     keywords["jg"]   = KW_JG;
     keywords["jle"]   = KW_JLE;
