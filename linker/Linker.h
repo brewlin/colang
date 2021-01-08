@@ -28,7 +28,7 @@ struct SegList
 	vector<Block*>blocks;//记录合并后的数据块序列
 
 	void allocAddr(string name,unsigned int& base,unsigned int& off);//每种类型的段计算自己的段修正后位置
-	void relocAddr(unsigned int relAddr,unsigned char type,unsigned int symAddr);//根据提供的重定位信息重定位地址
+	void relocAddr(unsigned int relAddr,unsigned char type,unsigned int symAddr, int addend);//根据提供的重定位信息重定位地址
 	~SegList();
 };
 
@@ -44,7 +44,7 @@ struct SymLink
 #define START "_start"//程序入口位置
 #define BASE_ADDR 0x08040000//默认加载地址
 #define MEM_ALIGN 4096//默认内存对齐大小4KB
-#define DISC_ALIGN 4//默认磁盘对齐大小4B
+#define DISC_ALIGN 8//默认磁盘对齐大小4B
 
 class Linker
 {

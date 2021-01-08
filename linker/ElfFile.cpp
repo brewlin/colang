@@ -93,7 +93,7 @@ void ElfFile::readElf(string file)
 		fread(sym, sizeof(Elf64_Sym),1,fp);
 		symList.push_back(sym);//添加到符号序列
 		string name(strTabData + sym->st_name);
-		if(name.empty())//无名符号，对于链接没有意义,按照链接器设计需要记录全局和局部符号，避免名字冲突
+		if(name.empty() || name == "_GLOBAL_OFFSET_TABLE_")//无名符号，对于链接没有意义,按照链接器设计需要记录全局和局部符号，避免名字冲突
 			delete sym;//删除空符号项
 		else
 		{
@@ -120,7 +120,7 @@ void ElfFile::readElf(string file)
 				string name(strTabData + index);//获得重定位符号名字
 //				cout << "name:" << name <<endl;
 				//使用shdrNames[sh_relTab->sh_info]访问目标段更标准
-				relTab.push_back(new RelItem(i.first.substr(4),rela,name));//添加重定位项
+				relTab.push_back(new RelItem(i.first.substr(5),rela,name));//添加重定位项
 //				printf("%s\t%08x\t%s\n",i.first.substr(4).c_str(),rela->r_offset,name.c_str());
 			}
 		}
