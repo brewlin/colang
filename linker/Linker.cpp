@@ -316,6 +316,7 @@ void Linker::relocate()
 		vector<RelItem*> tab = elf->relTab;//得到重定位表
 
 		for(auto t : tab){
+			if(t->relname == "")continue;
 			Elf64_Sym* sym = elf->symTab[t->relname];//重定位符号信息
 			unsigned int symAddr = sym->st_value + t->rel->r_addend;//解析后的符号段偏移为虚拟地址
 			unsigned int relAddr = elf->shdrTab[t->segname]->sh_addr + t->rel->r_offset;//重定位地址
