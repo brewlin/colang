@@ -89,13 +89,14 @@ void ElfFile::readElf(string file)
 	vector<Elf64_Sym*>   symList;//按照序列记录符号表所有信息，方便重定位符号查询
 	for(int i = 0;i < symNum;++i)//读取符号
 	{
-		Elf64_Sym*sym = new Elf64_Sym();
+		Elf64_Sym *sym = new Elf64_Sym();
 		fread(sym, sizeof(Elf64_Sym),1,fp);
 		symList.push_back(sym);//添加到符号序列
 		string name(strTabData + sym->st_name);
-		if(name.empty() || name == "_GLOBAL_OFFSET_TABLE_")//无名符号，对于链接没有意义,按照链接器设计需要记录全局和局部符号，避免名字冲突
-			delete sym;//删除空符号项
-		else
+
+		if(name == "_GLOBAL_OFFSET_TABLE_"){
+			delete sym;
+		}else if(!name.empty())
 		{
 			//if(ELF64_ST_BIND(sym->st_info)==STB_GLOBAL)
 				//printf("%s\t\t%d\n",strTabData+sym->st_name,sym->st_shndx);
@@ -115,8 +116,9 @@ void ElfFile::readElf(string file)
 				Elf64_Rela *rela = new Elf64_Rela();
 				//获取重定位符号引用
 				fread(rela, sizeof(Elf64_Rela),1,fp);
+				cout << "rela->r_info:"<< ELF64_R_SYM(rela->r_info) << endl;
 				int index = symList[ELF64_R_SYM(rela->r_info)]->st_name;
-//				cout <<"relNum:" << relNum << " index:" << index  << " j:" << j << endl;
+				cout <<"relNum:" << relNum << " index:" << index  << " j:" << j << endl;
 				string name(strTabData + index);//获得重定位符号名字
 //				cout << "name:" << name <<endl;
 				//使用shdrNames[sh_relTab->sh_info]访问目标段更标准
