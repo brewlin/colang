@@ -19,6 +19,10 @@ long mini_crt_init_heap();
 char* itoa(long n,char* str,long radix);
 long strcmp(const char* src, const char* dst);
 char* strcpy(char* dest, const char* src);
+char *strchr (const char *s,int c_in);
+void *memcpy(void *dstpp,const void *srcpp, unsigned long int len);
+void *memmove (void *__dest, __const void *__src, unsigned long int __n);
+int memcmp (__const void *__s1, __const void *__s2, unsigned long int __n);
 unsigned long strlen(const char* str);
 
 //�ļ���IO
@@ -65,5 +69,53 @@ long atexit(atexit_func_t func);
 #endif
 
 
+typedef unsigned char byte;
+
+#define BYTE_COPY_FWD(dst_bp, src_bp, nbytes)				      \
+  do									      \
+    {									      \
+      unsigned long int __nbytes = (nbytes);					      \
+      while (__nbytes > 0)						      \
+	{								      \
+	  byte __x = ((byte *) src_bp)[0];				      \
+	  src_bp += 1;							      \
+	  __nbytes -= 1;						      \
+	  ((byte *) dst_bp)[0] = __x;					      \
+	  dst_bp += 1;							      \
+	}								      \
+    } while (0)
+
+#define PAGE_COPY_FWD_MAYBE(dstp, srcp, nbytes_left, nbytes) /* nada */
+#define WORD_COPY_FWD(dst_bp, src_bp, nbytes_left, nbytes)		      \
+  do									      \
+    {									      \
+      int __d0;								      \
+      asm volatile(/* Clear the direction flag, so copying goes forward.  */  \
+		   "cld\n"						      \
+		   /* Copy longwords.  */				      \
+		   "rep\n"						      \
+		   "movsl" :						      \
+ 		   "=D" (dst_bp), "=S" (src_bp), "=c" (__d0) :		      \
+		   "0" (dst_bp), "1" (src_bp), "2" ((nbytes) / 4) :	      \
+		   "memory");						      \
+      (nbytes_left) = (nbytes) % 4;					      \
+    } while (0)
+#define BYTE_COPY_FWD(dst_bp, src_bp, nbytes)				      \
+  do									      \
+    {									      \
+      unsigned long int __nbytes = (nbytes);					      \
+      while (__nbytes > 0)						      \
+	{								      \
+	  byte __x = ((byte *) src_bp)[0];				      \
+	  src_bp += 1;							      \
+	  __nbytes -= 1;						      \
+	  ((byte *) dst_bp)[0] = __x;					      \
+	  dst_bp += 1;							      \
+	}								      \
+    } while (0)
+
+# define OP_T_THRES	16
+# define op_t	unsigned long int
+# define OPSIZ	(sizeof(op_t))
 #endif // end __MINI_CRT_H__
 
