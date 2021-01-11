@@ -98,17 +98,35 @@ void SegList::relocAddr(unsigned int relAddr,unsigned char type,unsigned int sym
 	//处理字节为b->data[relOffset-b->offset]
 //	int *pAddr = (int*)(b->data + relOffset + addend - b->offset);
 	int *pAddr = (int*)(b->data + relOffset  - b->offset);
+
+	//对于 mov 0x(rip),%rax 这种需要在修正偏移量的时候改写指令
+	//TODO:只针对 mov gplt引用进行了重写指令，其他的重写指令后续在补充
 	if(type == 42)//绝对地址修正
 	{
-		printf("绝对地址修正：原地址=%08x\t",*pAddr);
-		*pAddr = symAddr - relAddr +*pAddr;
-		printf("修正后地址=%08x\n",*pAddr);
+//		printf("绝对地址修正：原地址=%08x\t",*pAddr);
+//		*pAddr = symAddr - relAddr +*pAddr;
+		unsigned  char * inst = (unsigned char *)pAddr;
+		inst --;
+		unsigned char * modr = inst;
+		inst  --;
+		unsigned char * opcode = inst;
+
+		if(*opcode == 0x8b){
+			unsigned  char reg = (*modr - 0x05)/8;
+			*opcode = 0xc7;
+			*modr   = 0xc0 + reg;
+		}
+		*pAddr = symAddr - addend;
+//		printf("修正后地址=%08x\n",*pAddr);
 	}
 	else if(type == R_X86_64_PC32)//相对地之修正
 	{
-		printf("相对地址修正：原地址=%08x\t",*pAddr);
+//		printf("相对地址修正：原地址=%08x\t",*pAddr);
 		*pAddr = symAddr - relAddr + *pAddr;
-		printf("修正后地址=%08x\n",*pAddr);
+//		printf("修正后地址=%08x\n",*pAddr);
+	}else if(type == R_X86_64_PLT32)
+	{
+		*pAddr = symAddr - relAddr + *pAddr;
 	}
 }
 
