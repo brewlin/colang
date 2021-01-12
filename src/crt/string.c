@@ -279,3 +279,98 @@ unsigned long strlen(const char* str)
 
 	return cnt;
 }
+void *memset (void *dstpp, int c, unsigned long int len)
+{
+	int d0;
+	unsigned long int dstp = (unsigned long int) dstpp;
+
+	/* This explicit register allocation
+       improves code very much indeed.  */
+	register op_t x asm("ax");
+
+	x = (unsigned char) c;
+
+	/* Clear the direction flag, so filling will move forward.  */
+	asm volatile("cld");
+
+	/* This threshold value is optimal.  */
+	if (len >= 12)
+	{
+		/* Fill X with four copies of the char we want to fill with.  */
+		x |= (x << 8);
+		x |= (x << 16);
+
+		/* Adjust LEN for the bytes handled in the first loop.  */
+		len -= (-dstp) % OPSIZ;
+
+		/* There are at least some bytes to set.
+       No need to test for LEN == 0 in this alignment loop.  */
+
+		/* Fill bytes until DSTP is aligned on a longword boundary.  */
+		asm volatile("rep\n"
+					 "stosb" /* %0, %2, %3 */ :
+		"=D" (dstp), "=c" (d0) :
+		"0" (dstp), "1" ((-dstp) % OPSIZ), "a" (x) :
+		"memory");
+
+		/* Fill longwords.  */
+		asm volatile("rep\n"
+					 "stosl" /* %0, %2, %3 */ :
+		"=D" (dstp), "=c" (d0) :
+		"0" (dstp), "1" (len / OPSIZ), "a" (x) :
+		"memory");
+		len %= OPSIZ;
+	}
+
+	/* Write the last few bytes.  */
+	asm volatile("rep\n"
+				 "stosb" /* %0, %2, %3 */ :
+	"=D" (dstp), "=c" (d0) :
+	"0" (dstp), "1" (len), "a" (x) :
+	"memory");
+
+	return dstpp;
+}
+// 自定义的tolower函数。
+unsigned int tolower(unsigned int c)
+{
+	if (c>='A' && c<='Z') return c+32;
+	else return c;
+}
+
+unsigned int toupper(unsigned int c)
+{
+	if (c>='a' && c<='z') return c-32;
+	else return c;
+}
+
+/**
+ *
+ * @param dest
+ * @param src
+ * @return
+ */
+char *strcat(char *dest, const char *src)
+{
+	char *s1 = dest;
+	const char *s2 = src;
+	char c;
+
+	/* Find the end of the string.  */
+	do
+		c = *s1++;
+	while (c != '\0');
+
+	/* Make S1 point before the next character, so we can increment
+       it while memory is read (wins on pipelined cpus).  */
+	s1 -= 2;
+
+	do
+	{
+		c = *s2++;
+		*++s1 = c;
+	}
+	while (c != '\0');
+
+	return dest;
+}

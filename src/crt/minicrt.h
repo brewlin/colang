@@ -4,6 +4,15 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
+#ifndef WIN32
+#define va_list char*
+#define va_start(ap,arg) (ap=(va_list)&arg+sizeof(arg))
+#define va_arg(ap,t)	(*(t*)((ap+=sizeof(t)) - sizeof(t)))
+#define va_end(ap) (ap=(va_list)0)
+#else
+#include <Windows.h>
+#endif
+
 
 //malloc 
 #ifndef NULL
@@ -23,7 +32,11 @@ char *strchr (const char *s,int c_in);
 void *memcpy(void *dstpp,const void *srcpp, unsigned long int len);
 void *memmove (void *__dest, __const void *__src, unsigned long int __n);
 int memcmp (__const void *__s1, __const void *__s2, unsigned long int __n);
+void *memset (void *dstpp, int c, unsigned long int len);
 unsigned long strlen(const char* str);
+unsigned int tolower(unsigned int c);
+unsigned int toupper(unsigned int c);
+char *strcat(char *dest, const char *src);
 
 //�ļ���IO
 typedef long FILE;
@@ -52,9 +65,13 @@ long fseek(FILE* fp,long offset,long set);
 
 //printf
 long fputc(char c,FILE* stream);
+long putchar(int c);
+long puts(const char* str);
 long fputs(const char* str,FILE *stream);
 long printf(const char *format,...);
 long fprintf(FILE* stream,const char *format,...);
+long _vsnprintf(char* dstr, const char *format, va_list arglist);
+long vsnprintf(char* dstr,const char *format,...);
 
 //internal 
 void do_global_ctors();
@@ -117,5 +134,6 @@ typedef unsigned char byte;
 # define OP_T_THRES	16
 # define op_t	unsigned long int
 # define OPSIZ	(sizeof(op_t))
+
 #endif // end __MINI_CRT_H__
 

@@ -20,6 +20,11 @@ int main_test(long argc,char *argv[])
 	
 	fclose(fp);
 
+
+	char test[100] = {0};
+	vsnprintf(test,"test%d%s%d\n",100,"-----",100);
+	printf(test);
+
 	return 0; 
 }
 
