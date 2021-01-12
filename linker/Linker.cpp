@@ -127,6 +127,8 @@ void SegList::relocAddr(unsigned int relAddr,unsigned char type,unsigned int sym
 	}else if(type == R_X86_64_PLT32)
 	{
 		*pAddr = symAddr - relAddr + *pAddr;
+	}else{
+	    cout << "unknow rela " <<endl;
 	}
 }
 
@@ -134,9 +136,11 @@ Linker::Linker()
 {
 	segNames.push_back(".text");
 	segNames.push_back(".data");
+	//crt标准库 目前任然采用 gcc预编译，所以会有只读段数据存在
+	segNames.push_back(".rodata");
 	segNames.push_back(".bss");//.bss段有尾端对齐功能，不能删除
-	for(int i=0;i<segNames.size();++i)
-		segLists[segNames[i]]=new SegList();
+	for(auto name : segNames)
+		segLists[name] = new SegList();
 }
 
 /**
@@ -174,7 +178,7 @@ void Linker::collectInfo() {
 			} else if(sym.second->st_shndx != SHN_ABS) {
 				symLink->prov = elf;//记录定义文件
 				symLink->recv = NULL;//标示该定义符号未被任何文件引用
-				cout << sym.first <<endl;
+//				cout << sym.first <<endl;
 				symDef.push_back(symLink);
 				//printf("%s---定义\n",symLink->name.c_str());
 			}
@@ -225,8 +229,8 @@ bool Linker::symValid()
 	{
 		for(int j = 0;j < symDef.size();++j)//遍历定义的符号
 		{
-			if(ELF64_ST_BIND(symDef[j]->prov->symTab[symDef[j]->name]->st_info) != STB_GLOBAL)//只考虑全局符号
-				continue;
+//			if(ELF64_ST_BIND(symDef[j]->prov->symTab[symDef[j]->name]->st_info) != STB_GLOBAL)//只考虑全局符号
+//				continue;
 			//printf("%s---VS---%s,%d<->%d\n",symLinks[i]->name.c_str(),symDef[j]->name.c_str()
 				//,symLinks[i]->recv->symTab[symLinks[i]->name]->st_info
 				//,symDef[j]->prov->symTab[symDef[j]->name]->st_info);
@@ -298,7 +302,6 @@ void Linker::symParser()
 	cout << "----------未定义符号解析----------" << endl;
 
 	for(auto sym : symLinks){
-		cout << sym->name <<endl;
 		Elf64_Sym* provsym = sym->prov->symTab[sym->name];//被引用的符号信息
 		Elf64_Sym* recvsym = sym->recv->symTab[sym->name];//被引用的符号信息
 		recvsym->st_value = provsym->st_value;//被引用符号已经解析了
@@ -321,7 +324,7 @@ void Linker::relocate()
 			unsigned int symAddr = sym->st_value + t->rel->r_addend;//解析后的符号段偏移为虚拟地址
 			unsigned int relAddr = elf->shdrTab[t->segname]->sh_addr + t->rel->r_offset;//重定位地址
 			//重定位操作
-			printf("%s\trelAddr=%08x\tsymAddr=%08x\n",t->relname.c_str(),relAddr,symAddr);
+//			printf("%s\trelAddr=%08x\tsymAddr=%08x\n",t->relname.c_str(),relAddr,symAddr);
 			segLists[t->segname]->relocAddr(relAddr,ELF64_R_TYPE(t->rel->r_info),symAddr,t->rel->r_addend);
 		}
 	}
@@ -402,10 +405,10 @@ void Linker::buildExe()
 		strcpy(str + index,i.c_str());
 		index += i.length() + 1;
 	}
-	for(int i=0;i<shstrtabSize;++i)printf("%c",str[i]);printf("\n");
-	for(int i=0;i<shstrtabSize;++i)printf("%d|",str[i]);printf("\n");
+//	for(int i=0;i<shstrtabSize;++i)printf("%c",str[i]);printf("\n");
+//	for(int i=0;i<shstrtabSize;++i)printf("%d|",str[i]);printf("\n");
 	//生成.shstrtab
-	printf(".shstrtab:\tbase=%08x\tsize=%08x\n",curOff,shstrtabSize);
+//	printf(".shstrtab:\tbase=%08x\tsize=%08x\n",curOff,shstrtabSize);
 	exe.addShdr(".shstrtab",SHT_STRTAB,0,0,curOff,shstrtabSize,SHN_UNDEF,0,1,0);//.shstrtab
 	exe.ehdr.e_shstrndx  = exe.getSegIndex(".shstrtab");//1+segNames.size();//空表项+所有段数
 	//段表偏移
@@ -485,7 +488,7 @@ void Linker::writeExe(string out)
 		SegList *sl = segLists[seg];
 		int padnum  = sl->offset-sl->begin;
 		offset += padnum;
-		cout << "segment:" << seg << " offset:" << offset << " pad:" << padnum << endl;
+//		cout << "segment:" << seg << " offset:" << offset << " pad:" << padnum << endl;
 		while(padnum--)
 			fwrite(pad,1,1,fp);//填充
 		//输出数据

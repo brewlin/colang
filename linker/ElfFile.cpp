@@ -100,7 +100,16 @@ void ElfFile::readElf(string file)
 		{
 			//if(ELF64_ST_BIND(sym->st_info)==STB_GLOBAL)
 				//printf("%s\t\t%d\n",strTabData+sym->st_name,sym->st_shndx);
-			symTab[name]=sym;//加入符号表
+			symTab[name] = sym;//加入符号表
+		}
+		else if(sym->st_shndx != SHN_UNDEF && sym->st_name == 0){
+			//可能是段名
+			name = shdrNames[sym->st_shndx];
+			if(!name.empty()){
+				symTab[name] = sym;
+			}
+
+
 		}
 	}
 	cout << elf_dir << "重定位数据" <<endl;
@@ -116,12 +125,18 @@ void ElfFile::readElf(string file)
 				Elf64_Rela *rela = new Elf64_Rela();
 				//获取重定位符号引用
 				fread(rela, sizeof(Elf64_Rela),1,fp);
-				cout << "rela->r_info:"<< ELF64_R_SYM(rela->r_info) << endl;
-				int index = symList[ELF64_R_SYM(rela->r_info)]->st_name;
-				cout <<"relNum:" << relNum << " index:" << index  << " j:" << j << endl;
+//				cout << "rela->r_info:"<< ELF64_R_SYM(rela->r_info) << endl;
+				Elf64_Sym* sym = symList[ELF64_R_SYM(rela->r_info)];
+				int index      = sym->st_name;
+//				cout <<"relNum:" << relNum << " index:" << index  << " j:" << j << endl;
 				string name(strTabData + index);//获得重定位符号名字
 //				cout << "name:" << name <<endl;
 				//使用shdrNames[sh_relTab->sh_info]访问目标段更标准
+				//有些重定位符号是 基于段偏移  比如 .rodata 就是存在与段表里面的
+				if(name == "" && sym->st_shndx != SHN_UNDEF){
+					name = shdrNames[sym->st_shndx];
+				}
+				cout << "name:" << name << " inde:" << index << endl;
 				relTab.push_back(new RelItem(i.first.substr(5),rela,name));//添加重定位项
 //				printf("%s\t%08x\t%s\n",i.first.substr(4).c_str(),rela->r_offset,name.c_str());
 			}
