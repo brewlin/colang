@@ -13,6 +13,10 @@ using namespace std;
 void ElfFile::getData(char*buf,Elf64_Off offset,Elf64_Word size)
 {
 	FILE *fp = fopen(elf_dir,"rb");
+	if(!fp){
+		cout << "file invalid:" << elf_dir <<endl;
+		exit(1);
+	}
 	rewind(fp);
 	//设置读取偏移量
 	fseek(fp,offset,0);
@@ -31,6 +35,10 @@ void ElfFile::readElf(string file)
 	elf_dir  = new char[file.length() + 1];
 	strcpy(elf_dir,file.c_str());
 	FILE*fp  = fopen(file.c_str(),"rb");
+	if(!fp){
+		cout << "file invalid:" << elf_dir <<endl;
+		exit(1);
+	}
 	rewind(fp);
 	fread(&ehdr,sizeof(Elf64_Ehdr),1,fp);//读取文件头
 

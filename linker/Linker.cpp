@@ -196,7 +196,7 @@ bool Linker::symValid()
 	{
 		if(ELF64_ST_BIND(symDef[i]->prov->symTab[symDef[i]->name]->st_info) != STB_GLOBAL)//只考虑全局符号
 			continue;
-		if(symDef[i]->name == "_start")//记录程序入口文件
+		if(symDef[i]->name == "mini_crt_entry")//记录程序入口文件
 			startOwner = symDef[i]->prov;
 
 		for(int j = i + 1;j < symDef.size(); ++j)//遍历后边定义的符号
@@ -222,7 +222,7 @@ bool Linker::symValid()
 	}
 	if(startOwner == NULL)
 	{
-		cout << "链接器找不到程序入口:_start" <<endl;
+		cout << "链接器找不到程序入口:mini_crt_entry" <<endl;
 		flag = false;
 	}
 	for(int i = 0;i < symLinks.size();++i)//遍历未定义符号
@@ -292,7 +292,12 @@ void Linker::symParser()
 	cout << "----------定义符号解析----------" << endl;
 	for(auto def : symDef){
 		Elf64_Sym *sym = def->prov->symTab[def->name];//定义的符号信息
-		string segName = def->prov->shdrNames[sym->st_shndx];//段名
+		string segName;
+		if(sym->st_shndx == SHN_COMMON){
+			segName  = ".bss";
+		}else{
+			segName = def->prov->shdrNames[sym->st_shndx];//段名
+		}
 		//if(sym->st_shndx==SHN_COMMON)//bss,该链接器定义不允许出现COMMON
 			//segName=".bss";
 		sym->st_value = sym->st_value + def->prov->shdrTab[segName]->sh_addr;//段基址
@@ -432,7 +437,11 @@ void Linker::buildExe()
 		string name    = def->name;
 		strtabSize    += name.length() + 1;
 		Elf64_Sym *sym = def->prov->symTab[name];
-		sym->st_shndx  = exe.getSegIndex(def->prov->shdrNames[sym->st_shndx]);//重定位后可以修改了
+		if(sym->st_shndx == SHN_COMMON){
+		    sym->st_shndx = exe.getSegIndex(".bss");
+		}else{
+			sym->st_shndx  = exe.getSegIndex(def->prov->shdrNames[sym->st_shndx]);//重定位后可以修改了
+		}
 		exe.addSym(name,sym);
 	}
 	//记录程序入口
@@ -508,7 +517,7 @@ void Linker::writeExe(string out)
 				offset += b->size;
 				fwrite(b->data,b->size,1,fp);
 			}
-		}		
+		}
 	}
 	fclose(fp);
 	//写入段表，段表符串表，符号表，符号字符串表
