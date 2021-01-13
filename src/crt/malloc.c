@@ -45,6 +45,23 @@ void free(void* ptr)
 	}
 }
 
+void* realloc(void *p, unsigned long nbytes){
+	if(!p){
+		if(nbytes < 0){
+			printf("realloc failed\n");
+			return NULL;
+		}
+		return malloc(nbytes);
+	}
+	if(nbytes < 0){
+		free(p);
+		return NULL;
+	}
+	void* new = malloc(nbytes);
+	memcpy(new,p,nbytes);
+	free(p);
+	return new;
+}
 void* malloc(unsigned long size)
 {
 	heap_header *header;

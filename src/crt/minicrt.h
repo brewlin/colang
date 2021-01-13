@@ -21,6 +21,7 @@ extern "C" {
 
 void free(void* ptr);
 void* malloc(unsigned long size);
+void* realloc(void *p, unsigned long nbytes);
 static long brk(void *end_data_segment);
 long mini_crt_init_heap();
 
@@ -38,6 +39,9 @@ unsigned int tolower(unsigned int c);
 unsigned int toupper(unsigned int c);
 char *strcat(char *dest, const char *src);
 
+void assert(int ret);
+void __ctype_b_loc();
+void __stack_chk_fail();
 //�ļ���IO
 typedef long FILE;
 

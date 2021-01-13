@@ -3,12 +3,12 @@
 #include <stdlib.h>
 #include <string.h>
 #include <ctype.h>
-#include <assert.h>
 #include <limits.h>
 #include "String.h"
 #include "Value.h"
 #include "Array.h"
 #include "gc.h"
+
 
 const char *LSTRING_NOINIT = "LSTRING_NOINIT";
 
