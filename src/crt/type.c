@@ -7,4 +7,5 @@ void assert(int ret){
     }
 }
 void __ctype_b_loc(){}
+void __assert_fail(){}
 void __stack_chk_fail(){}

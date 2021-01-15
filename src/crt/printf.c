@@ -1,8 +1,9 @@
 #include "minicrt.h"
 
-static char __fputc_tmp_val__ = 0;
+char __fputc_tmp_val__ = 0;
 long fputc(char c,FILE* stream)
 {
+
 	__fputc_tmp_val__ = c;
 	if (fwrite(&__fputc_tmp_val__,1,1,stream) != 1)
 	{
@@ -20,10 +21,12 @@ long puts(const char* str){
 	fputs(str,stdout);
 }
 
-static char __fputs_tmp_array__[256] = {0};
-static int __fputs_tmp_size__ = 256;
+char __fputs_tmp_array__[256] = {0};
+int __fputs_tmp_size__ = 256;
 long fputs(const char* str,FILE *stream)
 {
+//	char __fputs_tmp_array__[256] = {0};
+//	int __fputs_tmp_size__ = 256;
 	long len		= strlen(str);
 	if( len >= __fputs_tmp_size__ )
 		return EOF;

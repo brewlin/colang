@@ -4,6 +4,7 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
+
 #ifndef WIN32
 #define va_list char*
 #define va_start(ap,arg) (ap=(va_list)&arg+sizeof(arg))
@@ -14,7 +15,7 @@ extern "C" {
 #endif
 
 
-//malloc 
+//malloc
 #ifndef NULL
 #define NULL (0)
 #endif
@@ -35,13 +36,12 @@ void *memmove (void *__dest, __const void *__src, unsigned long int __n);
 int memcmp (__const void *__s1, __const void *__s2, unsigned long int __n);
 void *memset (void *dstpp, int c, unsigned long int len);
 unsigned long strlen(const char* str);
-unsigned int tolower(unsigned int c);
-unsigned int toupper(unsigned int c);
+
 char *strcat(char *dest, const char *src);
 
 void assert(int ret);
-void __ctype_b_loc();
 void __stack_chk_fail();
+void __assert_fail();
 //�ļ���IO
 typedef long FILE;
 

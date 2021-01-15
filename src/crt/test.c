@@ -1,14 +1,13 @@
 #include "minicrt.h"
 
 
-int main_test(long argc,char *argv[])
+void string_test()
 {
 	long i;
 	FILE* fp;
 
 	fp	= fopen("test.txt","w");
 	
-	//
 	{
 	  char* buf = "hello how are you \n";
 	  long len = strlen(buf);
@@ -20,11 +19,23 @@ int main_test(long argc,char *argv[])
 	
 	fclose(fp);
 
-
 	char test[100] = {0};
 	vsnprintf(test,"test%d%s%d\n",100,"-----",100);
 	printf(test);
 
-	return 0; 
+}
+void malloc_test(){
+	char* p = malloc(sizeof(char)*10);
+	const char *s = "test-test";
+	memcpy(p,s,strlen(s));
+	printf(p);
+}
+
+int main(long argc,char *argv[])
+{
+    string_test();
+    malloc_test();
+	return 0;
+
 }
 
