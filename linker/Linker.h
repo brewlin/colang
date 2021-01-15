@@ -42,8 +42,8 @@ struct SymLink
 
 //链接器类，完成目标文件*.o的链接
 #define START "mini_crt_entry"//程序入口位置
-//#define BASE_ADDR 0x08040000//默认加载地址
-#define BASE_ADDR 0x4000e8//默认加载地址
+#define BASE_ADDR 0x08040000//默认加载地址
+//#define BASE_ADDR 0x4000e8//默认加载地址
 #define MEM_ALIGN 4096//默认内存对齐大小4KB
 #define DISC_ALIGN 8//默认磁盘对齐大小4B
 
@@ -52,6 +52,7 @@ class Linker
 	vector<string> 		 segNames;//链接关心的段
 	ElfFile  			 exe;//链接后的输出文件
 	ElfFile* 			 startOwner;//拥有全局符号START/_start的文件
+	int 				 bssaddr = 0;
 public:
 	static int 			 bytes;
 	vector<ElfFile*>     elfs;//所有目标文件对象

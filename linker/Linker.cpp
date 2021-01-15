@@ -49,6 +49,7 @@ void SegList::allocAddr(string name,unsigned int& base,unsigned int& off)
 	if(name ==".text")
 		align=16;
 	off    += (align-off%align)%align;
+
 	//使虚址和偏移按照4k模同余
 	base    = base-base%MEM_ALIGN+off%MEM_ALIGN;
 	//累加地址和偏移
@@ -67,13 +68,16 @@ void SegList::allocAddr(string name,unsigned int& base,unsigned int& off)
 			blocks.push_back(new Block(buf,size,seg->sh_size));//记录数据，对于.bss段数据是空的，不能重定位！没有common段！！！
 		}
 		//修改每个文件中对应段的addr
-		seg->sh_addr=base+size;//修改每个文件的段虚拟，为了方便计算符号或者重定位的虚址，不需要保存合并后文件偏移
-		size+=seg->sh_size;//累加段大小
+		seg->sh_addr = base+size;//修改每个文件的段虚拟，为了方便计算符号或者重定位的虚址，不需要保存合并后文件偏移
+		size        += seg->sh_size;//累加段大小
 	}
 	base+=size;//累加基址
-	if(name!=".bss")//.bss段不修改偏移
-		off+=size;
-	
+	//.bss段不修改偏移
+	if(name!=".bss"){
+//		cout << "before:" <<off <<endl;
+		off += size;
+	}
+
 }
 
 /*
@@ -127,7 +131,11 @@ void SegList::relocAddr(unsigned int relAddr,unsigned char type,unsigned int sym
 	}else if(type == R_X86_64_PLT32)
 	{
 		*pAddr = symAddr - relAddr + *pAddr;
-	}else{
+	}else if(type == R_X86_64_64){
+		*pAddr = symAddr - addend;
+//		*pAddr = symAddr - relAddr + *pAddr;
+	}
+	else{
 	    cout << "unknow rela " <<endl;
 	}
 }
@@ -138,6 +146,7 @@ Linker::Linker()
 	segNames.push_back(".data");
 	//crt标准库 目前任然采用 gcc预编译，所以会有只读段数据存在
 	segNames.push_back(".rodata");
+	segNames.push_back(".data.rel.local");
 	segNames.push_back(".bss");//.bss段有尾端对齐功能，不能删除
 	for(auto name : segNames)
 		segLists[name] = new SegList();
@@ -273,23 +282,27 @@ void Linker::allocAddr()
 	unsigned int curAddr = BASE_ADDR;
 	//默认文件偏移,PHT保留.bss段
 	unsigned int curOff  = sizeof(Elf64_Ehdr) + sizeof(Elf64_Phdr) * segNames.size();
-	cout << "地址分配" << endl;
+//	cout << "地址分配" << endl;
 	//按照类型分配地址，不紧邻.data与.bss段
 	for(auto seg : segNames){
 		//unsigned int oldOff=curOff;//记录分配前的文件偏移
 		segLists[seg]->allocAddr(seg,curAddr,curOff);//自动分配
 		//if(segNames[i]==".bss")//不做处理，在函数内部对off不累加
 		//	segLists[segNames[i]]->offset=segLists[segNames[i]]->end=curOff=oldOff;//撤销.bss对curOff的修改
-		printf("%s\taddr=%08x\toff=%08x\tsize=%08x(%d)\n",seg.c_str(),
-			segLists[seg]->baseAddr,segLists[seg]->offset
-			,segLists[seg]->size,segLists[seg]->size);
+//		printf("%s\taddr=%08x\toff=%08x\tsize=%08x(%d)\n",
+//			seg.c_str(),
+//			segLists[seg]->baseAddr,
+//			segLists[seg]->offset
+//			,segLists[seg]->size,
+//			segLists[seg]->size);
 	}
+	bssaddr = curAddr;
 }
 
 void Linker::symParser()
 {
 	//扫描所有定义符号，原地计算虚拟地址
-	cout << "----------定义符号解析----------" << endl;
+//	cout << "----------定义符号解析----------" << endl;
 	for(auto def : symDef){
 		Elf64_Sym *sym = def->prov->symTab[def->name];//定义的符号信息
 		string segName;
@@ -300,8 +313,16 @@ void Linker::symParser()
 		}
 		//if(sym->st_shndx==SHN_COMMON)//bss,该链接器定义不允许出现COMMON
 			//segName=".bss";
-		sym->st_value = sym->st_value + def->prov->shdrTab[segName]->sh_addr;//段基址
-		printf("%s\t%08x\t%s\n",def->name.c_str(),sym->st_value,def->prov->elf_dir);
+		//对于bss需要重新计算基地址
+		if(segName == ".bss" && def->name != ".bss"){
+
+			bssaddr += sym->st_size;
+			sym->st_value = bssaddr;//段基址
+			printf("%s value:%x bss:%x\n",def->name.c_str(),sym->st_value,bssaddr);
+		}else{
+			sym->st_value = sym->st_value + def->prov->shdrTab[segName]->sh_addr;//段基址
+		}
+//		printf("%s\t%08x\t%s\n",def->name.c_str(),sym->st_value,def->prov->elf_dir);
 	}
 	//扫描所有符号引用，绑定虚拟地址
 	cout << "----------未定义符号解析----------" << endl;
@@ -310,7 +331,7 @@ void Linker::symParser()
 		Elf64_Sym* provsym = sym->prov->symTab[sym->name];//被引用的符号信息
 		Elf64_Sym* recvsym = sym->recv->symTab[sym->name];//被引用的符号信息
 		recvsym->st_value = provsym->st_value;//被引用符号已经解析了
-		printf("%s\t%08x\t%s\n",sym->name.c_str(),recvsym->st_value,sym->recv->elf_dir);
+//		printf("%s\t%08x\t%s\n",sym->name.c_str(),recvsym->st_value,sym->recv->elf_dir);
 	}
 }
 /**
@@ -319,13 +340,26 @@ void Linker::symParser()
 void Linker::relocate()
 {
 	//重定位项符号必然在符号表中，且地址已经解析完毕
-	printf("--------------重定位----------------\n");
+//	printf("--------------重定位----------------\n");
 	for(auto elf : elfs){
 		vector<RelItem*> tab = elf->relTab;//得到重定位表
 
 		for(auto t : tab){
 			if(t->relname == "")continue;
-			Elf64_Sym* sym = elf->symTab[t->relname];//重定位符号信息
+			string symname = t->relname;
+			//有的重定位符号是 .bss 。。。
+			//这里是bss 符号，但是我不清楚对应的符号是哪个 所占的体积是多少
+//			int si = 0;
+//			if(t->relname == ".bss"){
+//				si = ELF64_R_SYM(t->rel->r_info);
+//				symname = elf->symbols[si];
+//			}
+//			cout <<t->relname << ":" <<  symname << " :" << si <<endl;
+//			if(symname == "") continue;
+			Elf64_Sym* sym = elf->symTab[symname];//重定位符号信息
+			string file(elf->elf_dir);
+			if(file == "printf.c.o")
+				cout << symname << ":" << sym->st_value <<endl;
 			unsigned int symAddr = sym->st_value + t->rel->r_addend;//解析后的符号段偏移为虚拟地址
 			unsigned int relAddr = elf->shdrTab[t->segname]->sh_addr + t->rel->r_offset;//重定位地址
 			//重定位操作
@@ -375,6 +409,7 @@ void Linker::buildExe()
 		//计算有效数据段的大小和偏移,最后一个决定
 		//修正当前偏移，循环结束后保留的是.bss的基址
 		curOff = segLists[seg]->offset;
+//		cout << "curoff:" << curOff <<endl;
 
 		//生成段表项
 		Elf64_Word sh_type  = SHT_PROGBITS;
@@ -482,7 +517,7 @@ void Linker::buildExe()
  */
 void Linker::writeExe(string out)
 {
-    cout << "start generation..." << endl;
+//    cout << "start generation..." << endl;
     int offset = 0;
     //写入header + 程序头表
     offset = exe.writeHeader(out);
@@ -522,6 +557,7 @@ void Linker::writeExe(string out)
 	fclose(fp);
 	//写入段表，段表符串表，符号表，符号字符串表
 	//检查段表字符串表偏移
+//	cout << offset << " : " << exe.shdrTab[".shstrtab"]->sh_offset << endl;
 	assert(offset == exe.shdrTab[".shstrtab"]->sh_offset);
 	offset += exe.shstrtabSize;
 	assert(offset == exe.ehdr.e_shoff);

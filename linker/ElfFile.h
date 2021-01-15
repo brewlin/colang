@@ -36,6 +36,7 @@ public:
 	vector<string>			 shdrNames;
 	map<string,Elf64_Sym*>   symTab;//符号表
 	vector<string>			 symNames;//符号名与符号表项索引的映射关系，对于重定位表生成重要
+	vector<string>			 symbols;//符号名与符号表项索引的映射关系，对于重定位表生成重要
 	vector<RelItem*>		 relTab;//重定位表
 	//辅助数据
 	char 					 *elf_dir;//处理elf文件的目录

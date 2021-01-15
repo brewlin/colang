@@ -101,6 +101,7 @@ void ElfFile::readElf(string file)
 		fread(sym, sizeof(Elf64_Sym),1,fp);
 		symList.push_back(sym);//添加到符号序列
 		string name(strTabData + sym->st_name);
+		symbols.push_back(name);
 
 		if(name == "_GLOBAL_OFFSET_TABLE_"){
 			delete sym;
@@ -123,7 +124,7 @@ void ElfFile::readElf(string file)
 	cout << elf_dir << "重定位数据" <<endl;
 	for(auto i : shdrTab){
 	    //目前数据和代码为了兼容 gnu 都是放在 rela.text中的
-		if(i.first.find(".rela.text") == 0)//是重定位段
+		if(i.first.find(".rela.text") == 0 || i.first.find(".rela.data") == 0)//是重定位段
 		{
 			Elf64_Shdr *sh_relTab = shdrTab[i.first];//重定位表信息
 			fseek(fp,sh_relTab->sh_offset,0);//转移到重定位表内容
@@ -144,7 +145,7 @@ void ElfFile::readElf(string file)
 				if(name == "" && sym->st_shndx != SHN_UNDEF){
 					name = shdrNames[sym->st_shndx];
 				}
-				cout << "name:" << name << " inde:" << index << endl;
+//				cout << "name:" << name << " inde:" << index << endl;
 				relTab.push_back(new RelItem(i.first.substr(5),rela,name));//添加重定位项
 //				printf("%s\t%08x\t%s\n",i.first.substr(4).c_str(),rela->r_offset,name.c_str());
 			}
