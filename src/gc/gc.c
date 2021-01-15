@@ -7,12 +7,13 @@ void* sp_start;
 
 //为了快速查询， 设置了多个空闲链表 multi_free_list 0 对应8字节 1 对16字节。。。
 //共64个大小
- poolp usedpools[2 * ((NB_SMALL_SIZE_CLASSES + 7) / 8) * 8] = {
-	PT(0), PT(1), PT(2), PT(3), PT(4), PT(5), PT(6), PT(7),
-	PT(8), PT(9), PT(10), PT(11), PT(12), PT(13), PT(14), PT(15),
-	PT(16), PT(17), PT(18), PT(19), PT(20), PT(21), PT(22), PT(23),
-	PT(24), PT(25), PT(26), PT(27), PT(28), PT(29), PT(30), PT(31)
-};
+// poolp usedpools[2 * ((NB_SMALL_SIZE_CLASSES + 7) / 8) * 8] = {
+//	PT(0), PT(1), PT(2), PT(3), PT(4), PT(5), PT(6), PT(7),
+//	PT(8), PT(9), PT(10), PT(11), PT(12), PT(13), PT(14), PT(15),
+//	PT(16), PT(17), PT(18), PT(19), PT(20), PT(21), PT(22), PT(23),
+//	PT(24), PT(25), PT(26), PT(27), PT(28), PT(29), PT(30), PT(31)
+//};
+poolp usedpools[2 * ((NB_SMALL_SIZE_CLASSES + 7) / 8) * 8];
 
 /*==========================================================================
 unused_arena_objects
@@ -432,6 +433,10 @@ void*  gc_malloc(size_t nbytes)
  */
 void gc_init(){
 	sp_start = get_bp();
+	for (int i = 0; i < 32; ++i) {
+		usedpools[2*i] = PTA(i);
+		usedpools[2*i + 1] = PTA(i);
+	}
 }
 /**
  * @param p
