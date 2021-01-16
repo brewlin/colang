@@ -1,0 +1,41 @@
+package main
+
+import fmt
+import os
+
+func test_int(){
+    fmt.println("test int minus or negative")
+
+    a = 1 -1
+    if(a != 0){
+        fmt.println("test 1 -1 != 0 failed")
+        os.exit(1)
+    }
+    a = 1 - 1
+    if(a != 0){
+        fmt.println("test 1 - 1 != 0 failed")
+        os.exit(1)
+    }
+
+    a = 1 1
+    if(a != 2){
+        fmt.println("test 1 1 != 2 failed")
+        os.exit(1)
+    }
+    fmt.println("test int passed!")
+}
+func test_string(){
+    fmt.println("test string add operate by compiler")
+    a = 100 "test"
+    if(a != "100test"){
+        fmt.println("test 100 test != 100test failed")
+        os.exit(1)
+    }
+    fmt.println("test string add operate by compiler passed")
+}
+
+
+func main(){
+    test_int()
+    test_string()
+}

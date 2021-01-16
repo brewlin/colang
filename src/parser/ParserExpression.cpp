@@ -68,6 +68,25 @@ Expression* Parser::parseExpression(short oldPrecedence)
         // 从程序结构上来说，相当于向左偏的二叉树。
         p = tmp;
     }
+    //fix: （a = 1 1 => a = 1 + 1）,(a = 1 -1 => a = 1 + -1) 自动补充+符号
+    while (anyone(getCurrentToken(),LIT_DOUBLE,LIT_INT,LIT_CHAR,LIT_STR)){
+        //自动补充一个 + 号
+        short currentPrecedence = Parser::precedence(TK_PLUS);
+        if (oldPrecedence > currentPrecedence)
+            // 如果前一个大则停止解析，返回前面的作为单独的表达式
+            return p;
+        // 创建二元表达式
+        auto tmp = new BinaryExpr(line, column);
+        // 左侧等于刚刚解析的p
+        tmp->lhs = p;
+        tmp->opt = TK_PLUS;
+        // 右侧是一个也是一个表达式，所以parseExpression
+        tmp->rhs = parseExpression(currentPrecedence + 1);
+        // 关键来了，这里把刚刚创建的tmp赋值给之前的p，从意义上说相当于把当前这整个表达式作为一元表达式
+        // 如`3+2-5`，解析`3+2`之后把它整体作为二元表达式，然后第二个二元表达式就是左操作数是3+2,右操作数是5,符号是-；
+        // 从程序结构上来说，相当于向左偏的二叉树。
+        p = tmp;
+    }
     return p;
 }
 
