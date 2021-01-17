@@ -33,9 +33,19 @@ func test_string(){
     }
     fmt.println("test string add operate by compiler passed")
 }
+func test_arg(str){
+    fmt.print("test string arg:",str,"\n")
+    if(str != "3str1str2str34str4"){
+        fmt.println("test str arg failed! str:",str)
+        os.exit(1)
+    }
+    fmt.println("test string arg passed")
+
+}
 
 
 func main(){
     test_int()
     test_string()
+    test_arg(1 2 "str1" "str2""str3"4"str4")
 }
