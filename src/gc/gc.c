@@ -13,7 +13,7 @@ void* sp_start;
 //	PT(16), PT(17), PT(18), PT(19), PT(20), PT(21), PT(22), PT(23),
 //	PT(24), PT(25), PT(26), PT(27), PT(28), PT(29), PT(30), PT(31)
 //};
-poolp usedpools[2 * ((NB_SMALL_SIZE_CLASSES + 7) / 8) * 8];
+poolp usedpools[2 * ((NB_SMALL_SIZE_CLASSES + 7) / 8) * 8] = {0};
 
 /*==========================================================================
 unused_arena_objects
