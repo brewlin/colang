@@ -619,7 +619,7 @@ printf:
 .L55:
 	.loc 1 219 0
 #APP
-# 219 "/home/xiaodo/c++/colang/src/crt/printf.c" 1
+# 219 "/home/xiaodo/c++/colang/src/colib/printf.c" 1
 	movq %rbp,%rax
 # 0 "" 2
 #NO_APP
@@ -670,7 +670,7 @@ vsnprintf:
 .L59:
 	.loc 1 226 0
 #APP
-# 226 "/home/xiaodo/c++/colang/src/crt/printf.c" 1
+# 226 "/home/xiaodo/c++/colang/src/colib/printf.c" 1
 	movq %rbp,%rax
 # 0 "" 2
 #NO_APP
@@ -722,7 +722,7 @@ fprintf:
 .L63:
 	.loc 1 234 0
 #APP
-# 234 "/home/xiaodo/c++/colang/src/crt/printf.c" 1
+# 234 "/home/xiaodo/c++/colang/src/colib/printf.c" 1
 	movq %rbp,%rax
 # 0 "" 2
 #NO_APP

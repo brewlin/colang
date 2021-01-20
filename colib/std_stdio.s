@@ -39,7 +39,7 @@ open:
 	movq	$0, -8(%rbp)
 	.loc 1 86 0
 #APP
-# 86 "/home/xiaodo/c++/colang/src/crt/stdio.c" 1
+# 86 "/home/xiaodo/c++/colang/src/colib/stdio.c" 1
 	movq $5,%rax		
 	movq -24(%rbp),%rbx	
 	movq -32(%rbp),%rcx 
@@ -75,7 +75,7 @@ read:
 	movq	$0, -8(%rbp)
 	.loc 1 100 0
 #APP
-# 100 "/home/xiaodo/c++/colang/src/crt/stdio.c" 1
+# 100 "/home/xiaodo/c++/colang/src/colib/stdio.c" 1
 	movq $3,%rax 
 	movq -24(%rbp),%rbx 
 	movq -32(%rbp),%rcx 
@@ -112,7 +112,7 @@ write:
 	movq	$0, -8(%rbp)
 	.loc 1 113 0
 #APP
-# 113 "/home/xiaodo/c++/colang/src/crt/stdio.c" 1
+# 113 "/home/xiaodo/c++/colang/src/colib/stdio.c" 1
 	movq $4,%rax  
 	movq -24(%rbp),%rbx 
 	movq -32(%rbp),%rcx  
@@ -146,7 +146,7 @@ close:
 	movq	$0, -8(%rbp)
 	.loc 1 127 0
 #APP
-# 127 "/home/xiaodo/c++/colang/src/crt/stdio.c" 1
+# 127 "/home/xiaodo/c++/colang/src/colib/stdio.c" 1
 	movq $6,%rax  
 	movq -24(%rbp),%rbx  
 	int $0x80  
@@ -180,7 +180,7 @@ seek:
 	movq	$0, -8(%rbp)
 	.loc 1 139 0
 #APP
-# 139 "/home/xiaodo/c++/colang/src/crt/stdio.c" 1
+# 139 "/home/xiaodo/c++/colang/src/colib/stdio.c" 1
 	movq $19,%rax  
 	movq -24(%rbp),%rbx 
 	movq -32(%rbp),%rcx  

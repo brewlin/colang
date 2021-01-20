@@ -47,7 +47,7 @@ mini_crt_entry:
 	movq	$0, -8(%rbp)
 	.loc 1 58 0
 #APP
-# 58 "/home/xiaodo/c++/colang/src/crt/entry.c" 1
+# 58 "/home/xiaodo/c++/colang/src/colib/entry.c" 1
 	movq %rbp,%rax 
 
 # 0 "" 2
@@ -113,7 +113,7 @@ exit:
 	movq	%rdi, -8(%rbp)
 	.loc 1 85 0
 #APP
-# 85 "/home/xiaodo/c++/colang/src/crt/entry.c" 1
+# 85 "/home/xiaodo/c++/colang/src/colib/entry.c" 1
 	movq -8(%rbp),%rbx 
 	movq $1,%rax 
 	int $0x80		

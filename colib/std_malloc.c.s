@@ -305,7 +305,7 @@ brk:
 	movq	$0, -8(%rbp)
 	.loc 1 115 0
 #APP
-# 115 "/home/xiaodo/c++/colang/src/crt/malloc.c" 1
+# 115 "/home/xiaodo/c++/colang/src/colib/malloc.c" 1
 	movq $45, %rax   
 	movq -24(%rbp), %rbx  
 	int $0x80		

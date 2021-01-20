@@ -600,7 +600,7 @@ memcpy:
 	movq	%rdx, %rdi
 	movq	%rax, %rsi
 #APP
-# 217 "/home/xiaodo/c++/colang/src/crt/string.c" 1
+# 217 "/home/xiaodo/c++/colang/src/colib/string.c" 1
 	cld
 rep
 movsl
@@ -709,7 +709,7 @@ memmove:
 	movq	%rax, %rcx
 	movq	%rdx, %rsi
 #APP
-# 232 "/home/xiaodo/c++/colang/src/crt/string.c" 1
+# 232 "/home/xiaodo/c++/colang/src/colib/string.c" 1
 	cld
 	rep; movsb
 # 0 "" 2
@@ -757,7 +757,7 @@ memmove:
 	movq	%rax, %rcx
 	movq	%rdx, %rsi
 #APP
-# 240 "/home/xiaodo/c++/colang/src/crt/string.c" 1
+# 240 "/home/xiaodo/c++/colang/src/colib/string.c" 1
 	std
 	rep; movsb
 	cld
@@ -836,7 +836,7 @@ memcmp:
 	movq	%rsi, %rdi
 	movq	%rdx, %rsi
 #APP
-# 255 "/home/xiaodo/c++/colang/src/crt/string.c" 1
+# 255 "/home/xiaodo/c++/colang/src/colib/string.c" 1
 	cld
 	test %rcx,%rcx
 	repe; cmpsb
@@ -924,7 +924,7 @@ memset:
 	movzbl	%al, %eax
 	.loc 1 294 0
 #APP
-# 294 "/home/xiaodo/c++/colang/src/crt/string.c" 1
+# 294 "/home/xiaodo/c++/colang/src/colib/string.c" 1
 	cld
 # 0 "" 2
 	.loc 1 297 0
@@ -953,7 +953,7 @@ memset:
 	movq	-8(%rbp), %rdx
 	movq	%rdx, %rdi
 #APP
-# 310 "/home/xiaodo/c++/colang/src/crt/string.c" 1
+# 310 "/home/xiaodo/c++/colang/src/colib/string.c" 1
 	rep
 stosb
 # 0 "" 2
@@ -969,7 +969,7 @@ stosb
 	movq	-8(%rbp), %rdx
 	movq	%rdx, %rdi
 #APP
-# 317 "/home/xiaodo/c++/colang/src/crt/string.c" 1
+# 317 "/home/xiaodo/c++/colang/src/colib/string.c" 1
 	rep
 stosl
 # 0 "" 2
@@ -985,7 +985,7 @@ stosl
 	movq	-40(%rbp), %rcx
 	movq	%rdx, %rdi
 #APP
-# 326 "/home/xiaodo/c++/colang/src/crt/string.c" 1
+# 326 "/home/xiaodo/c++/colang/src/colib/string.c" 1
 	rep
 stosb
 # 0 "" 2

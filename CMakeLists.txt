@@ -34,3 +34,6 @@ add_subdirectory(src/crt)
 add_subdirectory(linker)
 add_executable(co-linker linker.cpp)
 target_link_libraries(co-linker  linker lib -lstdc++fs)
+
+# colib asembly
+add_subdirectory(colib)
