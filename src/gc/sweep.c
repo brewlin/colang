@@ -48,7 +48,7 @@ int gc_mark(void * ptr)
         //对内存解引用，因为内存里面可能存放了内存的地址 也就是引用，需要进行引用的递归标记
 //        gc_mark(*(void **)p);
         if(gc_mark(*(void**)p) == NOT_STACK){
-            mark(&Hugmem,*(void**)p);
+            mark(Hugmem,*(void**)p);
         }
     }
     return TRUE;
@@ -98,7 +98,7 @@ void tell_is_stackarg(void* arg){
     void *top = get_sp();
     if(sp_start > arg && arg > top){
         if(gc_mark(*(void**)arg) == NOT_STACK){
-            mark(&Hugmem,*(void**)arg);
+            mark(Hugmem,*(void**)arg);
         }
     }
 }
@@ -169,7 +169,7 @@ void scan_stack(){
         //这里说明当前内存可能不是由arena分配的，因为超过256byte的数据直接malloc
         //这里调用 hugmem来标记大内存块
         if(gc_mark(ptr) == NOT_STACK){
-            mark(&Hugmem,ptr);
+            mark(Hugmem,ptr);
         }
     }
 }

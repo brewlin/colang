@@ -2,7 +2,7 @@
 #include "root.h"
 #include "Hugmem.h"
 
-List Hugmem;
+List* Hugmem;
 void* sp_start;
 
 //为了快速查询， 设置了多个空闲链表 multi_free_list 0 对应8字节 1 对16字节。。。
@@ -291,7 +291,7 @@ redirect:
 	if (nbytes == 0)
 		nbytes = 1;
 	block* ret = (block*)malloc(nbytes);
-	push(&Hugmem,&ret->addr,nbytes);
+	push(Hugmem,&ret->addr,nbytes);
 	return ret;
 }
 
@@ -411,7 +411,7 @@ void Free(block *p)
 	}
 
 	//说明不是通过asrena上申请的内存，直接free即可
-	del(&Hugmem,&p->addr);
+	del(Hugmem,&p->addr);
 	free((void*) p);
 }
 
@@ -433,6 +433,7 @@ void*  gc_malloc(size_t nbytes)
  */
 void gc_init(){
 	sp_start = get_bp();
+	Hugmem = malloc(sizeof(List));
 	for (int i = 0; i < 32; ++i) {
 		usedpools[2*i] = PTA(i);
 		usedpools[2*i + 1] = PTA(i);

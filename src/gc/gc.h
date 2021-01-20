@@ -175,7 +175,7 @@ void  gc_free(void *p);
 int   gc_mark(void * ptr);
 struct arena_object* new_arena(void);
 
-extern List Hugmem;
+extern List* Hugmem;
 
 
 
