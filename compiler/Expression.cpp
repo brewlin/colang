@@ -331,7 +331,13 @@ void  FunCallExpr::asmgen(std::deque<Context*> ctx)
                     package.c_str(),this->line,this->column,this->toString().c_str());
         }
         //函数查找
-        func = pkg->getFunc(funcname,is_extern); 
+        func = pkg->getFunc(funcname,is_extern);
+        if(!func)
+            parse_err(
+                "AsmError: can not find package definition of %s "
+                "line:%d column:%d \n\n"
+                "expression:\n%s\n",
+                package.c_str(),this->line,this->column,this->toString().c_str());
         func->isObj       = false;
         if(func == nullptr)
             parse_err(

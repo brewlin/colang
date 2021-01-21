@@ -1,10 +1,11 @@
 package time
 
 extern void sleep(int)
+extern void usleep(int)
 
 #func time.sleep
-func usleep(params...){
-    _.sleep(*params)
+func usleep(usecond){
+    _.usleep(*usecond)
 }
 func sleep(second){
     _.sleep(*second)
