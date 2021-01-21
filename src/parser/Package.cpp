@@ -31,7 +31,7 @@ bool Package::parse()
         Debug("Parser: ENV PATH  CO_SRC:%s",srcpath.c_str());
         if(srcpath.empty())
             srcpath = "./";
-        abpath  = srcpath + "/" + package;
+        abpath  = srcpath + "/pkg/" + package;
         Debug("Parser: package import:%s",abpath.c_str());
         if (!filesys::is_directory(abpath, ec))
             return false;  

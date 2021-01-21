@@ -27,8 +27,12 @@ assert(){
     check
     asmer
     echo "start linking..."
-    echo "./co-linker -p ./colib ."
-    ./co-linker -p ./colib/ .
+    echo "gcc -c $CO_SRC/internal/*.s"
+    `gcc -c $CO_SRC/internal/*.s`
+    echo "gcc -c $CO_SRC/syscall/*.s"
+    `gcc -c $CO_SRC/syscall/*.s`
+    echo "./co-linker -p ."
+    ./co-linker -p .
     check
     chmod 777 a.out
     echo "exec a.out..."
@@ -60,6 +64,8 @@ read_dir(){
         log "[compile] $file passed!\n"
      fi
     done
+    rm *.s
+    rm *.o
 }
 install_env(){
     cd tests

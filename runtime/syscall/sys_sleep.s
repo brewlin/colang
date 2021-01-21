@@ -2,7 +2,9 @@
 .globl sleep
 sleep:
      sub    $0x18,%rsp
-     mov    %rdi,0x20(%rsp)
+     mov    %rdi,%rax
+     imul   $1000000,%rax,%rax
+     mov    %rax,0x20(%rsp)
      mov    %rbp,0x10(%rsp)
      lea    0x10(%rsp),%rbp
      mov    $0x0,%edx
