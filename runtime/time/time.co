@@ -3,6 +3,10 @@ package time
 extern void sleep(int)
 
 #func time.sleep
-func sleep(params...){
-    #_.sleep(*params)
+func usleep(params...){
+    _.sleep(*params)
+}
+func sleep(second){
+    second = second * 1000000
+    _.sleep(*second)
 }
