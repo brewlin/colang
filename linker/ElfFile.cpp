@@ -121,7 +121,7 @@ void ElfFile::readElf(string file)
 
 		}
 	}
-	cout << elf_dir << "重定位数据" <<endl;
+//	cout << elf_dir << "重定位数据" <<endl;
 	for(auto i : shdrTab){
 	    //目前数据和代码为了兼容 gnu 都是放在 rela.text中的
 		if(i.first.find(".rela.text") == 0 || i.first.find(".rela.data") == 0)//是重定位段

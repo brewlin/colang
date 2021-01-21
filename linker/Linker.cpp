@@ -318,14 +318,14 @@ void Linker::symParser()
 
 			bssaddr += sym->st_size;
 			sym->st_value = bssaddr;//段基址
-			printf("%s value:%x bss:%x\n",def->name.c_str(),sym->st_value,bssaddr);
+//			printf("%s value:%x bss:%x\n",def->name.c_str(),sym->st_value,bssaddr);
 		}else{
 			sym->st_value = sym->st_value + def->prov->shdrTab[segName]->sh_addr;//段基址
 		}
 //		printf("%s\t%08x\t%s\n",def->name.c_str(),sym->st_value,def->prov->elf_dir);
 	}
 	//扫描所有符号引用，绑定虚拟地址
-	cout << "----------未定义符号解析----------" << endl;
+//	cout << "----------未定义符号解析----------" << endl;
 
 	for(auto sym : symLinks){
 		Elf64_Sym* provsym = sym->prov->symTab[sym->name];//被引用的符号信息
@@ -358,8 +358,8 @@ void Linker::relocate()
 //			if(symname == "") continue;
 			Elf64_Sym* sym = elf->symTab[symname];//重定位符号信息
 			string file(elf->elf_dir);
-			if(file == "printf.c.o")
-				cout << symname << ":" << sym->st_value <<endl;
+//			if(file == "printf.c.o")
+//				cout << symname << ":" << sym->st_value <<endl;
 			unsigned int symAddr = sym->st_value + t->rel->r_addend;//解析后的符号段偏移为虚拟地址
 			unsigned int relAddr = elf->shdrTab[t->segname]->sh_addr + t->rel->r_offset;//重定位地址
 			//重定位操作
