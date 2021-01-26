@@ -29,6 +29,7 @@ Colang是一种编程语言，旨在创造一种动态语法的静态编译语�
   - [x] 兼容GNU `ld` 链接器，
   - [ ] 兼容GNU `.bss .rodata`段
 - [x] linker 
+  - [x] -p 指定扫描目录进行链接
   - [x] 取消`glic`依赖,链接独立运行库生成可执行文件
   - [ ] 兼容GNU `.bss .rodata`段
 - [x] gc
@@ -52,6 +53,7 @@ gcc version 7.5.0 (Ubuntu 7.5.0-3ubuntu1~18.04)
 ```
 docker test
 ```asciidoc
+> docker build . -t brewlin/colang
 > docker run -it brewlin/colang /bin/bash
 > sh auto_tests_compiler.sh
 > sh auto_tests_asmer.sh
