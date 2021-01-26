@@ -71,10 +71,6 @@ install_env(){
     cd tests
     cmake ..
     make
-    //unpackge colib
-    cd colib
-    ar -x libcolib.a
-    cd ../
     if [  "$?" != 0 ]; then
         failed "make failed"
     fi
