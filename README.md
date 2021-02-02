@@ -11,7 +11,8 @@ Colang是一种编程语言，旨在创造一种动态语法的静态编译语�
     -p    file                   打印token
 ./co-asmer [options] file.s        
     -c    file.s  -> file.o      编译.s自定义汇编语言,翻译机器码并生成.o elf文件
-    -p                           打印token
+    -p    path path...           批量扫描目录编译.s文件生成.o elf文件
+    -print                       打印token
 ./co-linker [options|file.o...] 
     -p      path ... -> a.out    指定多个目录,自动扫描所有.0文件进行链接生成可执行程序
     file.o  ...-> a.out          指定多个file.o进行链接    
@@ -24,7 +25,7 @@ Colang是一种编程语言，旨在创造一种动态语法的静态编译语�
   - [x] -s  
   - [x] 兼容GNU `as` 汇编器，
 - [x] asmer 
-  - [x] -c
+  - [x] -c -p
   - [x] 兼容GNU assembly 汇编语法，
   - [x] 兼容GNU `ld` 链接器，
   - [ ] 兼容GNU `.bss .rodata`段
