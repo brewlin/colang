@@ -25,7 +25,8 @@ assert(){
     log "[compile] ./co-compiler -s $input ..."
     ./co-compiler -s $input
     check
-    asmer
+    log "[asmer] ./co-asmer -p ."
+    ./co-asmer -p .
     echo "start linking..."
     echo "gcc -c $CO_SRC/internal/*.s"
     `gcc -c $CO_SRC/internal/*.s`
