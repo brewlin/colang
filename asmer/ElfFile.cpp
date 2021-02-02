@@ -7,7 +7,9 @@
 
 int ElfFile::offset = 0;
 
-ElfFile::~ElfFile(){}
+ElfFile::~ElfFile(){
+	offset = 0;
+}
 ElfFile::ElfFile()
 {
 	shstrtab = NULL;

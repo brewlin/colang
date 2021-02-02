@@ -24,6 +24,18 @@ Asmer::Asmer(std::string filename) {
     elf   = new ElfFile;
     Asmer::obj   = this;
 }
+Asmer::~Asmer() {
+    if(elf)
+        delete  elf;
+    obj = nullptr;
+
+    bytes = 0;
+    data = 0;
+    text = 0;
+    Instruct::ready = false;
+    asmer::curAddr = 0;
+    asmer::dataLen = 0;
+}
 /**
  * start
  */
