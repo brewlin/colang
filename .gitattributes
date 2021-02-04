@@ -1,0 +1,6 @@
+*.sh linguist-language=shell
+*.co linguist-language=colang
+*.c  linguist-language=c
+*.cpp linguist-language=cpp
+*.h  linguist-language=c
+*.s  linguist-language=assembly
