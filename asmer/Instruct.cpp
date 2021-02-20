@@ -215,9 +215,6 @@ void Instruct::genTwoInst()
                         //不是外部连接符
                         inst->imm  = 0;
                         len        = 4;
-//                        if(!sym->externed){
-//                            inst->imm = sym->addr;
-//                        }
                         exchar = 0x05 + 0x08 * (unsigned char)modrm->reg;
                     }else{
                         std::cout << "unsupport instruct:" << asmer::tk_to_string(type) << std::endl;
@@ -489,11 +486,16 @@ void Instruct::genOneInst() {
     }
 
 }
-
+/**
+ * 没有前缀等复杂修饰，直接写入1字节指令即可
+ */
 void Instruct::genZeroInst() {
     unsigned char opcode = opcode0[0];
     append(opcode);
 }
+/**
+ * 对每个指令进行机器码转换，并缓存到bytes数组中
+ */
 void Instruct::gen(){
     Token token = type;
     if( token >= KW_MOV && token <= KW_LEA )
