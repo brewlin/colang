@@ -28,8 +28,8 @@ assert(){
     log "[asmer] ./co-asmer -p ."
     ./co-asmer -p .
     echo "start linking..."
-    echo "gcc -g *.o -L./src/internal -linternal -L./src/gc -lgc"
-    gcc -g *.o -L./src/internal -linternal -L./src/gc -lgc
+    echo "gcc -g *.o -L./internal -linternal -L./gc -lgc"
+    gcc -g *.o -L./internal -linternal -L./gc -lgc
     check
     echo "exec a.out..."
     ./a.out

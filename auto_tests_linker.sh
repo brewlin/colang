@@ -28,11 +28,11 @@ assert(){
     log "[asmer] ./co-asmer -p ."
     ./co-asmer -p .
     echo "start linking..."
-    echo "gcc -c $CO_SRC/internal/*.s"
+#    echo "gcc -c $CO_SRC/internal/*.s"
     `gcc -c $CO_SRC/internal/*.s`
-    echo "gcc -c $CO_SRC/syscall/*.s"
+#    echo "gcc -c $CO_SRC/syscall/*.s"
     `gcc -c $CO_SRC/syscall/*.s`
-    echo "./co-linker -p ."
+    log "[linker] ./co-linker -p ."
     ./co-linker -p .
     check
     chmod 777 a.out

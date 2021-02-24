@@ -1,7 +1,7 @@
 #include "Asmer.h"
-#include "src/asm_ast/Function.h"
-#include "src/asm_ast/Instruct.h"
-#include "src/asm_ast/Sym.h"
+#include "asmer/ast/Function.h"
+#include "asmer/ast/Instruct.h"
+#include "asmer/ast/Sym.h"
 #include "Log.h"
 
 /**

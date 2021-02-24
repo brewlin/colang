@@ -6,8 +6,8 @@
  **/
 #include "Asmer.h"
 #include <iomanip>
-#include "../src/asm_ast/Instruct.h"
-#include "../src/asm_ast/Token.h"
+#include "asmer/ast/Instruct.h"
+#include "asmer/ast/Token.h"
 #include "Utils.h"
 #include <climits>
 #include <cstring>

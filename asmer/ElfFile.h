@@ -3,7 +3,7 @@
 
 //elf文件所有数据结构和宏定义
 #include "elf.h"
-#include "src/asm_ast/Sym.h"
+#include "asmer/ast/Sym.h"
 //STL模板库
 #include <unordered_map>
 #include <map>
