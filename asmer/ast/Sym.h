@@ -40,9 +40,9 @@ namespace asmer{
         std::string str;
         bool        global;
         Sym(std::string name,bool externed);
-        Sym(std::string name,int len);
-        Sym(std::string name,std::string str);
-        ~Sym();
+        Sym(std::string name,int len,int pos);
+        Sym(std::string name,std::string str,int pos);
+        ~Sym(){}
     };
 };
 #endif //COLANG_SYM_H

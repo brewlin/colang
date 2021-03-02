@@ -86,20 +86,25 @@ namespace asmer{
         assert(scanner->scan() == TK_NUMBER);
         int len = std::stoi(scanner->value());
 
-        Sym* sym = new Sym(labelname,len);
+        Sym* sym = new Sym(labelname,len,data_size);
+        data_size += len;
         symtable->addSym(sym);
 
         //next
         scanner->scan();
         return;
     }
+    /**
+     * 解析全局字符串
+     * @param labelname
+     */
     void Parser::parseString(std::string labelname) {
          assert(scanner->token() == KW_STRING);
 
         //下一个是变量的大小
         assert(scanner->scan() == TK_STRING);
-
-        Sym* sym = new Sym(labelname,scanner->value());
+        Sym* sym = new Sym(labelname,scanner->value(),data_size);
+        data_size += scanner->value().size() + 1;
         symtable->addSym(sym);
 
         //next

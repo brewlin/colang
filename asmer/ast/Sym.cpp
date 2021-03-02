@@ -19,10 +19,7 @@ namespace asmer
      * @param name
      * @param externed
      */
-    Sym::Sym(std::string name, bool externed):
-    name(name),
-    global(false),
-    externed(externed)
+    Sym::Sym(std::string name, bool externed):name(name),global(false),externed(externed)
     {
         //初始化当前符号偏移量
         addr = curAddr;
@@ -30,8 +27,8 @@ namespace asmer
         segName = ".text";
         //当前符号默认长度为0
         len = 0;
+        //如果是外部链接 不存在当前符号偏移量,段名也是未知
         if(externed){
-            //如果是外部链接 不存在当前符号偏移量,段名也是未知
             addr = 0;
             segName = "";
         }
@@ -42,32 +39,23 @@ namespace asmer
      * @param name
      * @param str
      */
-    Sym::Sym(std::string name, std::string str):
-        name(name),
-        global(false),
-        str(str)
+    Sym::Sym(std::string name, std::string str,int pos):name(name),global(false),str(str),addr(pos)
     {
-        // cout << name <<endl;
-        // cout << "cur:" << curAddr << " size:" << str.size() <<endl;
-        addr     = curAddr;
         segName  = ".data";
         len      = str.size() + 1;
         externed = false;
-        curAddr  += str.size() + 1;
     }
-    Sym::Sym(std::string name, int len):
-    name(name),
-   global(false) {
-        cout << name <<endl;
-        // cout << "cur:" << curAddr << " size:" << len <<endl;
-        addr     = curAddr;
-        segName  = ".data";
-        this->len      = len;
-        externed = false;
-        global   = false;
-        curAddr  += len;
+    /**
+     * 静态数据定义
+     * @param name
+     * @param len
+     * @param pos
+     */
+    Sym::Sym(std::string name, int len,int pos):name(name),global(false),addr(pos)
+    {
+        segName   = ".data";
+        this->len = len;
+        externed  = false;
+        global    = false;
     }
-    Sym::~Sym() {}
-
-
 };

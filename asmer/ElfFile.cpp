@@ -279,11 +279,12 @@ void ElfFile::buildSectab(){
  */
 void ElfFile::buildData(){
    	//表示当前的数据段的大小
-	addShdr(".data",asmer::curAddr);
-	Debug("data section:[%d,%d]",offset,offset + curAddr);
+   	int s = Asmer::obj->parser->data_size;
+	addShdr(".data",s);
+	Debug("data section:[%d,%d]",offset,offset + s);
 	//数据段紧跟其后
-	offset     += curAddr;
-	Asmer::data = asmer::curAddr;
+	offset     += s;
+	Asmer::data = s;
 }
 /**
  * 代码段

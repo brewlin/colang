@@ -11,6 +11,7 @@ Parser::Parser(const std::string filepath)
 {
     scanner = new Scanner(filepath);
     symtable = new SymTable();
+    data_size = 0;
 
     this->filepath = filepath;
 
