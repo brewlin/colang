@@ -11,9 +11,7 @@
 
 
 ElfFile* Asmer::elf   = nullptr;
-Asmer*   Asmer::obj   = nullptr;
 int      Asmer::bytes = 0;
-int      Asmer::data  = 0;
 int      Asmer::text  = 0;
 
 Asmer::Asmer(std::string filename) {
@@ -21,14 +19,11 @@ Asmer::Asmer(std::string filename) {
     //初始化 file.o文件
     out  = fopen(parser->outname.c_str(),"w");
     //初始化elf文件相关
-    elf   = new ElfFile;
-    Asmer::obj   = this;
+    elf   = new ElfFile(this);
 }
 Asmer::~Asmer() {
     if(elf)
         delete  elf;
-    obj = nullptr;
-
     bytes = 0;
     data = 0;
     text = 0;
@@ -46,6 +41,8 @@ void Asmer::execute() {
      * 2. 解析代码段 备用
      */
     parser->parse();
+    //data段数据大小
+    data = parser->data_size;
     //构建elf结构
     buildElf();
     //写入elf文件
@@ -76,7 +73,7 @@ void Asmer::writeElf() {
     writeBytes(&elf->ehdr,elf->ehdr.e_ehsize);
 //    std::cout << "[writeElf] header size:" << elf->ehdr.e_ehsize << std::endl;
     offset += elf->ehdr.e_ehsize;
-    assert(Asmer::bytes == offset);
+    assert(bytes == offset);
 
     //写入段表
     for (auto name : elf->shdrNames) {
@@ -85,7 +82,7 @@ void Asmer::writeElf() {
         writeBytes(sh,elf->ehdr.e_shentsize);
     }
     offset += elf->ehdr.e_shentsize * 8;
-    assert(Asmer::bytes == offset);
+    assert(bytes == offset);
 
     int data_size  = parser->symtable->data_symbol.size() ;
     //写入数据区 每个全局数据类型当前语言实现默认为指针
@@ -100,20 +97,20 @@ void Asmer::writeElf() {
             writeBytes(b,sym->len);
         }
     }
-    offset += Asmer::data;
+    offset += data;
     // std::cout << ":bytes:" << Asmer::bytes << " offset:" << offset <<std::endl;
-    assert(Asmer::bytes == offset);
+    assert(bytes == offset);
 
     //写入代码区
-    Asmer::obj->InstWrite();
-    offset += Asmer::text;
-    assert(Asmer::bytes == offset);
+    InstWrite();
+    offset += text;
+    assert(bytes == offset);
 
 //    std::cout << "[writeElf] .shstrtab: size:" << elf->shstrtab_size << std::endl;
     //.shstrtab 将所有的段名字符串写入到文件里
     writeBytes(elf->shstrtab,elf->shstrtab_size);
     offset += elf->shstrtab_size;
-    assert(Asmer::bytes == offset);
+    assert(bytes == offset);
 
     //.symtab   写入所有的字符串表
     // cout << "writeelf:" <<  offset << endl;
@@ -123,12 +120,12 @@ void Asmer::writeElf() {
         writeBytes(sym,sizeof(Elf64_Sym));
     }
     offset += elf->symNames.size() * sizeof(Elf64_Sym);
-    assert(Asmer::bytes == offset);
+    assert(bytes == offset);
 //    std::cout << "[writeElf] str: size" << elf->strtab_size << std::endl;
     //.strtab 写入所有的字符串
     writeBytes(elf->strtab,elf->strtab_size);
     offset += elf->strtab_size;
-    assert(Asmer::bytes == offset);
+    assert(bytes == offset);
 
     //.rel_text 写入重定向代码表
     for(auto* rel : elf->relTextTab){
@@ -137,20 +134,20 @@ void Asmer::writeElf() {
         delete rel;
     }
     offset += elf->relTextTab.size() * sizeof(Elf64_Rela);
-    assert(Asmer::bytes == offset);
+    assert(bytes == offset);
     //.rel_data 写入重定向数据表
     for(auto* rel : elf->relDataTab){
         writeBytes(rel,sizeof(Elf64_Rela));
         delete rel;
     }
     offset += elf->relDataTab.size() * sizeof(Elf64_Rela);
-    assert(Asmer::bytes == offset);
+    assert(bytes == offset);
 
 }
 // void b, int len
 void Asmer::writeBytes(const void* b, int len)
 {
     bytes += len;
-    fwrite(b,len,1,obj->out);
+    fwrite(b,len,1,out);
 }
 

@@ -17,7 +17,7 @@ namespace asmer{
     SIB::SIB()    :scale(-1),index(0),base(0){}
     Inst::Inst()  :opcode(0),disp(0),dispLen(0),imm(0){}
 
-    Instruct::Instruct(Token type)
+    Instruct::Instruct(Token type,Parser* parser)
     {
         is_rel     = false;
         is_func    = false;
@@ -30,6 +30,7 @@ namespace asmer{
         modrm = new ModRM();
         sib   = new SIB();
         inst  = new Inst();
+        this->parser = parser;
         //instructs
         size  = 0;
     }

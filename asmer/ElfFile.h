@@ -12,6 +12,8 @@ using namespace std;
 using namespace asmer;
 using namespace __gnu_cxx;
 
+class Asmer;
+
 //重定位信息
 struct RelInfo
 {
@@ -47,8 +49,10 @@ public:
 	char	*strtab;//字符串表数据
 	int 	strtab_size;//字符串表长
 	int		sh_info;
+
+	Asmer* asmer;
 public:
-	ElfFile();
+	ElfFile(Asmer* asmer);
 	int getSegIndex(string segName);//获取指定段名在段表下标
 	int getSymIndex(string symName);//获取指定符号名在符号表下标
 	void addShdr(string sh_name,int size);

@@ -26,11 +26,11 @@ public:
     FILE*       out;
 public:
     static ElfFile*    elf;
-    static Asmer*      obj;
     //实时统计写入的字节数
     static int         bytes;
-    static int         data;
     static int         text;
+    //data数据段总大小
+    int         data;
 public:
     Asmer(std::string filename);
     ~Asmer();
@@ -45,7 +45,7 @@ public:
     //在构建elf文件的时候主要是计算偏移量，不进行指令翻译
     void InstWrite();
     //写入
-    static void writeBytes(const void* b, int len);
+    void writeBytes(const void* b, int len);
 };
 
 #endif //COLANG_ASMER_H

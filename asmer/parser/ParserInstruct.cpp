@@ -237,7 +237,7 @@ namespace asmer{
     Instruct* Parser::parseTwoInstruct() {
         assert(scanner->token() >= KW_MOV && scanner->token() <= KW_LEA );
         //构建一条指令数据
-        Instruct * inst = new Instruct(scanner->token());
+        Instruct * inst = new Instruct(scanner->token(),this);
         inst->left      = parseInstruct(inst);
         //这里应该是逗号 ,
         assert(scanner->token() == TK_COMMA);
@@ -247,13 +247,13 @@ namespace asmer{
     }
     Instruct* Parser::parseOneInstruct() {
         //构建一条指令数据
-        Instruct * inst = new Instruct(scanner->token());
+        Instruct * inst = new Instruct(scanner->token(),this);
         inst->left      = parseInstruct(inst);
         return inst;
     }
     Instruct* Parser::parseZeroInstruct() {
         //构建一条指令数据  like: ret
-        Instruct * inst = new Instruct(scanner->token());
+        Instruct * inst = new Instruct(scanner->token(),this);
         //eat ret
         inst->str = scanner->value();
         scanner->scan();

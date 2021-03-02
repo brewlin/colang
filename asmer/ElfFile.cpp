@@ -10,8 +10,9 @@ int ElfFile::offset = 0;
 ElfFile::~ElfFile(){
 	offset = 0;
 }
-ElfFile::ElfFile()
+ElfFile::ElfFile(Asmer* asmer)
 {
+    this->asmer = asmer;
 	shstrtab = NULL;
 	strtab   = NULL;
 	//空段表项
@@ -279,23 +280,20 @@ void ElfFile::buildSectab(){
  */
 void ElfFile::buildData(){
    	//表示当前的数据段的大小
-   	int s = Asmer::obj->parser->data_size;
-	addShdr(".data",s);
-	Debug("data section:[%d,%d]",offset,offset + s);
+	addShdr(".data",asmer->data);
+	Debug("data section:[%d,%d]",offset,offset + asmer->data);
 	//数据段紧跟其后
-	offset     += s;
-	Asmer::data = s;
+	offset     += asmer->data;
 }
 /**
  * 代码段
  * 需要计算两次，因为第一次可能对应的符号引用偏移量未设置
  */
 void ElfFile::buildText(){
-    asmer::curAddr  = 0;
-    Asmer::obj->InstCollect();
+    asmer->InstCollect();
     Instruct::ready = true;
 	asmer::curAddr  = 0;
-    Asmer::obj->InstCollect();
+    asmer->InstCollect();
 
 	addShdr(".text",asmer::curAddr);
 	Debug("text section:[%d,%d]",offset,offset + asmer::curAddr);
@@ -304,7 +302,7 @@ void ElfFile::buildText(){
 	//添加默认的段
 	addSectionSym();
 	//到这里就源代码解析完了，需要导出所有符号表
-	Asmer::obj->parser->symtable->exportSyms();
+	asmer->parser->symtable->exportSyms();
 }
 /**
  * 构建段字符串表
@@ -424,7 +422,7 @@ void ElfFile::buildRelTab(){
 		rela->r_addend  = -4;
 		//数据是需要添加偏移的
 		if(relTab[i]->type == R_X86_64_PC32){
-		    Sym* sym = Asmer::obj->parser->symtable->getSym(relTab[i]->name);
+		    Sym* sym = asmer->parser->symtable->getSym(relTab[i]->name);
 			//本地全局变量
 			if(!sym->externed){
 				rela->r_info    = ELF64_R_INFO((Elf64_Word)getSymIndex(".data"),relTab[i]->type);

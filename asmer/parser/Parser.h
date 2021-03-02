@@ -12,14 +12,14 @@
 #include <cstdlib>
 #include "Scanner.h"
 #include "asmer/ast/Function.h"
-#include "asmer/ast/Instruct.h"
+//#include "asmer/ast/Instruct.h"
 #include "asmer/ast/Sym.h"
 #include "asmer/ast/SymTable.h"
 
 
 namespace asmer {
 
-    
+class Instruct;
 class Parser {
 public:
     //文件解析扫描

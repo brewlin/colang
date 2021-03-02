@@ -89,7 +89,7 @@ bool Instruct::updateRel() {
     //如果没有引用就返回
     if(name == "") return flag;
 
-    Sym* sym  = Asmer::obj->parser->symtable->getSym(name);
+    Sym* sym  = parser->symtable->getSym(name);
     //表示数据的引用
     if(!is_func)//绝对重定位
     {
@@ -211,7 +211,7 @@ void Instruct::genTwoInst()
                 case KW_LEA:{
                     //判断是否是引用
                     if(left == TY_REL){
-                        Sym* sym = Asmer::obj->parser->symtable->getSym(name);
+                        Sym* sym = parser->symtable->getSym(name);
                         //不是外部连接符
                         inst->imm  = 0;
                         len        = 4;
@@ -374,7 +374,7 @@ void Instruct::genOneInst() {
                 //非必须，因为这里不可能有外部引用存在，在当前的汇编实现中
                 updateRel();
                 //第一次时这个sym可能为0 ，但是不影响我们的偏移量计算，因为固定了4字节
-                Sym* sym = Asmer::obj->parser->symtable->getSym(name);
+                Sym* sym = parser->symtable->getSym(name);
                 //跳过当前4字节指令
                 int rel = sym->addr - asmer::curAddr - 4;
                 append(rel,4);
@@ -386,7 +386,7 @@ void Instruct::genOneInst() {
                 opcode = 0x0f84;
                 append(opcode);
                 updateRel();
-                Sym* sym = Asmer::obj->parser->symtable->getSym(name);
+                Sym* sym = parser->symtable->getSym(name);
                 //可能为负数
                 int rel = sym->addr - asmer::curAddr - 4;
                 append(rel,4);
@@ -411,7 +411,7 @@ void Instruct::genOneInst() {
         //处理有些本地符号在第一次parser的时候由于处于后面导致 偏移量无法获得，需要再次计算
         if(left == TY_REL && inst->imm == 0){
             //写入相对偏移量
-            Sym* sym = Asmer::obj->parser->symtable->getSym(name);
+            Sym* sym = parser->symtable->getSym(name);
             //可能为负数
             rel = sym->addr - asmer::curAddr - 1;
             append(rel,1);

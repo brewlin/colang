@@ -13,8 +13,9 @@
 #include "Token.h"
 using  namespace std;
 
-namespace asmer{
 
+namespace asmer{
+class Parser;
     //modrm字段
     struct ModRM
     {
@@ -51,7 +52,7 @@ namespace asmer{
     public:
         static bool  ready;
     public:
-        Instruct(Token type);
+        Instruct(Token type,Parser* parser);
         //表示有引用
         bool        is_rel;
         //表示当前组合中，有一个指令包含了引用符号，两个指令中 可能有一个是重定向符号
@@ -67,6 +68,9 @@ namespace asmer{
         Inst*       inst;
         SIB*        sib;
         ModRM*      modrm;
+
+        //parser 解析器
+        Parser*     parser;
 
         std::string str;
         char        bytes[20];
