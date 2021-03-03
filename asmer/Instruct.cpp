@@ -83,7 +83,7 @@ void Instruct::writeSIB() {
     }
 }
 
-bool Instruct::updateRel(Asmer* asmer) {
+bool Instruct::updateRel() {
 
     bool flag = false;
     //如果没有引用就返回
@@ -98,7 +98,7 @@ bool Instruct::updateRel(Asmer* asmer) {
         // 2. jmp L2            不需要重定位的本地标签
         // is_rel 正是区分这种情况
         if(ready && is_rel){
-            asmer->elf->addRel(".text",asmer::curAddr,name,R_X86_64_PC32);
+            parser->elf->addRel(".text",asmer::curAddr,name,R_X86_64_PC32);
             flag = true;
         }
     }
@@ -109,14 +109,14 @@ bool Instruct::updateRel(Asmer* asmer) {
         if(ready){
 //         if(ready && sym->externed){
             //R_X86_64_REX_GOTP  42
-            asmer->elf->addRel(".text",asmer::curAddr,name,42);
+            parser->elf->addRel(".text",asmer::curAddr,name,42);
             flag = true;
          }
     }
     return flag;
 }
 
-void Instruct::genTwoInst(Asmer* asmer)
+void Instruct::genTwoInst()
 {
     int index = -1;
     //立即数 默认1字节
@@ -235,7 +235,7 @@ void Instruct::genTwoInst(Asmer* asmer)
             // if(inst->imm < INT_MAX)
             append(exchar);
             //可能的重定位位置 mov eax,@buffer,也有可能是mov eax,@buffer_len，就不许要重定位，因为是宏
-            updateRel(asmer);
+            updateRel();
             //写入立即数
             //一定要按照长度输出立即数
             if(is_rel){
@@ -253,7 +253,7 @@ void Instruct::genTwoInst(Asmer* asmer)
             writeModRM();
             //说明是rbp 寄存器操作
             if(modrm->rm == 5){
-                updateRel(asmer);//可能是mov eax,[@buffer],后边disp8和disp32不会出现类似情况
+                updateRel();//可能是mov eax,[@buffer],后边disp8和disp32不会出现类似情况
                 //这里给末尾在加上1字节偏移量
                 //因为对于rbp的寄存器间接访问需要当做偏移量访问
                 if(inst->dispLen)
@@ -331,7 +331,7 @@ void Instruct::genTwoInst(Asmer* asmer)
     }
 }
 
-void Instruct::genOneInst(Asmer* asmer) {
+void Instruct::genOneInst() {
     int len  = 4 ;//默认是8
     unsigned char exchar;
     unsigned short int opcode = opcode1[type - KW_CALL];
@@ -372,7 +372,7 @@ void Instruct::genOneInst(Asmer* asmer) {
                 //1字节
                 append((unsigned char)opcode);
                 //非必须，因为这里不可能有外部引用存在，在当前的汇编实现中
-                updateRel(asmer);
+                updateRel();
                 //第一次时这个sym可能为0 ，但是不影响我们的偏移量计算，因为固定了4字节
                 Sym* sym = parser->symtable->getSym(name);
                 //跳过当前4字节指令
@@ -385,7 +385,7 @@ void Instruct::genOneInst(Asmer* asmer) {
             case KW_JE:{
                 opcode = 0x0f84;
                 append(opcode);
-                updateRel(asmer);
+                updateRel();
                 Sym* sym = parser->symtable->getSym(name);
                 //可能为负数
                 int rel = sym->addr - asmer::curAddr - 4;
@@ -405,7 +405,7 @@ void Instruct::genOneInst(Asmer* asmer) {
                 append((unsigned char)opcode);
             }
         }
-        bool is_rel = updateRel(asmer);
+        bool is_rel = updateRel();
         //处理可能的相对重定位信息，call fun,如果fun是本地定义的函数就不会重定位了
         int rel  = inst->imm - (asmer::curAddr + 4);//调用符号地址相对于下一条指令地址的偏移，因此加4
         //处理有些本地符号在第一次parser的时候由于处于后面导致 偏移量无法获得，需要再次计算
@@ -489,21 +489,21 @@ void Instruct::genOneInst(Asmer* asmer) {
 /**
  * 没有前缀等复杂修饰，直接写入1字节指令即可
  */
-void Instruct::genZeroInst(Asmer* asmer) {
+void Instruct::genZeroInst() {
     unsigned char opcode = opcode0[0];
     append(opcode);
 }
 /**
  * 对每个指令进行机器码转换，并缓存到bytes数组中
  */
-void Instruct::gen(Asmer* asmer){
+void Instruct::gen(){
     Token token = type;
     if( token >= KW_MOV && token <= KW_LEA )
-        genTwoInst(asmer);
+        genTwoInst();
     else if( token >= KW_CALL && token <= KW_POP )
-        genOneInst(asmer);
+        genOneInst();
     else if(token == KW_RET)
-        genZeroInst(asmer);
+        genZeroInst();
     else
         parse_err("[instruct gen] unknow instuct\n");
 }

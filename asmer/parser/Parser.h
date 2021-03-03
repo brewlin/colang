@@ -15,7 +15,7 @@
 //#include "asmer/ast/Instruct.h"
 #include "asmer/ast/Sym.h"
 #include "asmer/ast/SymTable.h"
-
+#include "asmer/ElfFile.h"
 
 namespace asmer {
 
@@ -26,6 +26,8 @@ public:
     asmer::Scanner*        scanner;
     //全局 data段里的各种符号
     asmer::SymTable*       symtable;
+    //elf文件
+    ElfFile*               elf;
     //全局 text段里的各种指令
     std::vector<Function*> funcs;
     std::string            filepath;
@@ -34,10 +36,12 @@ public:
     //data段的空间大小 data段不需要二次扫描，在parser阶段确定大小和偏移量
     int                    data_size;
 public:
-    explicit Parser(const std::string filepath);
+    explicit Parser(const std::string filepath,ElfFile* elf);
     ~Parser();
     std::string printToken();
     void parse();
+    void parseLex();
+    void genInst();
     void parseKeyword();
     void parseGlobal();
     void parseQuad(std::string labelname);

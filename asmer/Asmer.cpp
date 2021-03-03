@@ -14,11 +14,12 @@ int      Asmer::bytes = 0;
 int      Asmer::text  = 0;
 
 Asmer::Asmer(std::string filename) {
-    parser = new Parser(filename);
-    //初始化 file.o文件
-    out  = fopen(parser->outname.c_str(),"w");
     //初始化elf文件相关
     elf   = new ElfFile(this);
+
+    parser = new Parser(filename,elf);
+    //初始化 file.o文件
+    out  = fopen(parser->outname.c_str(),"w");
 }
 Asmer::~Asmer() {
     if(elf) delete  elf;

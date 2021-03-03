@@ -60,7 +60,7 @@ int asmgenpath(int argc , char* argv[])
     return 0;
 }
 int print_ast(char* argv[]){
-    Parser p(argv[2]);
+    Parser p(argv[2], nullptr);
     p.printToken();
     return 0;
 }

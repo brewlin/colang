@@ -290,11 +290,6 @@ void ElfFile::buildData(){
  * 需要计算两次，因为第一次可能对应的符号引用偏移量未设置
  */
 void ElfFile::buildText(){
-    asmer->InstCollect();
-    Instruct::ready = true;
-	asmer::curAddr  = 0;
-    asmer->InstCollect();
-
 	addShdr(".text",asmer::curAddr);
 	Debug("text section:[%d,%d]",offset,offset + asmer::curAddr);
 	offset += asmer::curAddr;
