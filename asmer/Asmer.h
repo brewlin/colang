@@ -24,13 +24,13 @@ class Asmer
 public:
     Parser*     parser;
     FILE*       out;
+    ElfFile*    elf;
+    //data数据段总大小
+    int         data;
 public:
-    static ElfFile*    elf;
     //实时统计写入的字节数
     static int         bytes;
     static int         text;
-    //data数据段总大小
-    int         data;
 public:
     Asmer(std::string filename);
     ~Asmer();

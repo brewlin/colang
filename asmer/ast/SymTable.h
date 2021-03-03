@@ -40,8 +40,6 @@ namespace asmer{
         Sym* getSym (std::string name);
         //切换下一个段，由于一般只有.text和.data，因此可以此时创建段表项目
         void switchSeg(std::string segname);
-        //导出所有的符号到elf
-        void exportSyms();
         //注销所有空间
         ~SymTable();
     };

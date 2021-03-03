@@ -10,7 +10,6 @@
 #include "Log.h"
 
 
-ElfFile* Asmer::elf   = nullptr;
 int      Asmer::bytes = 0;
 int      Asmer::text  = 0;
 
@@ -22,8 +21,7 @@ Asmer::Asmer(std::string filename) {
     elf   = new ElfFile(this);
 }
 Asmer::~Asmer() {
-    if(elf)
-        delete  elf;
+    if(elf) delete  elf;
     bytes = 0;
     data = 0;
     text = 0;

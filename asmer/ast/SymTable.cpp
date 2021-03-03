@@ -40,18 +40,6 @@ namespace asmer{
             return symbolTable[name];
         }
     }
-
-    /**
-     * 导出所有段符号
-     */
-    void SymTable::exportSyms()
-    {
-        for(auto it : symbolTable)
-        {
-            Sym* sym = it.second;
-            Asmer::elf->addSym(sym);
-        }
-    }
     SymTable::~SymTable() {
 
     }

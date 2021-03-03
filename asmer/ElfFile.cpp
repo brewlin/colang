@@ -302,7 +302,11 @@ void ElfFile::buildText(){
 	//添加默认的段
 	addSectionSym();
 	//到这里就源代码解析完了，需要导出所有符号表
-	asmer->parser->symtable->exportSyms();
+    for(auto it : asmer->parser->symtable->symbolTable)
+    {
+        Sym* sym = it.second;
+        addSym(sym);
+    }
 }
 /**
  * 构建段字符串表
