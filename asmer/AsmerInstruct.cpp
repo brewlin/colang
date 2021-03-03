@@ -22,7 +22,7 @@ void Asmer::InstCollect() {
         //接下来解析函数区域所有的指令
         for(auto inst : func->instructs){
             //进行代码段指令翻译生成
-            inst->gen();
+            inst->gen(this);
         }
     }
 }

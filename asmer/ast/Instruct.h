@@ -11,6 +11,7 @@
 #include <iostream>
 #include <vector>
 #include "Token.h"
+#include "ElfFile.h"
 using  namespace std;
 
 
@@ -81,11 +82,11 @@ class Parser;
         void append(unsigned short int b);
         void append(unsigned long int b,int len);
         //处理可能的重定位信息
-        bool updateRel();
-        void gen();
-        void genTwoInst();
-        void genOneInst();
-        void genZeroInst();
+        bool updateRel(Asmer* asmer);
+        void gen(Asmer* asmer);
+        void genTwoInst(Asmer* asmer);
+        void genOneInst(Asmer* asmer);
+        void genZeroInst(Asmer* asmer);
         void writeModRM();
         void writeSIB();
     };
