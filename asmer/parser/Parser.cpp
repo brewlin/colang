@@ -14,6 +14,7 @@ Parser::Parser(const std::string filepath,ElfFile* elf)
     scanner = new Scanner(filepath);
     symtable = new SymTable();
     data_size = 0;
+    text_size = 0;
 
     this->filepath = filepath;
 
@@ -32,7 +33,7 @@ void Parser::parse() {
     //扫描两次，修正未计算的引用偏移地址
     genInst();
     Instruct::ready = true;
-    asmer::curAddr  = 0;
+    text_size  = 0;
     genInst();
 }
 void Parser::genInst() {
@@ -42,10 +43,10 @@ void Parser::genInst() {
      */
     //这里是计算指令段了，所以需要清空之前的计数
     Debug("instructs collection");
-    //这里其实是属于新的段了，curAddr 段大小需要从0开始计数， 但是datalen是持续累加的
     for(auto func : funcs){
         //这里需要将函数名加入符号表
         Sym* sym = new Sym(func->labelname,false);
+        sym->addr = text_size;
         //当前非外部符号
         //这里需要将函数名加入符号表
         symtable->addSym(sym);

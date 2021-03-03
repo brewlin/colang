@@ -47,7 +47,7 @@ void Instruct::append(unsigned char b) {
     //第二次才是实际写入指令
     if(ready)
         bytes[size++] = b;
-    asmer::curAddr += 1;
+    parser->text_size += 1;
 }
 void Instruct::append(unsigned short int b) {
     append((unsigned char)(b >> 8));
@@ -98,7 +98,7 @@ bool Instruct::updateRel() {
         // 2. jmp L2            不需要重定位的本地标签
         // is_rel 正是区分这种情况
         if(ready && is_rel){
-            parser->elf->addRel(".text",asmer::curAddr,name,R_X86_64_PC32);
+            parser->elf->addRel(".text",parser->text_size,name,R_X86_64_PC32);
             flag = true;
         }
     }
@@ -109,7 +109,7 @@ bool Instruct::updateRel() {
         if(ready){
 //         if(ready && sym->externed){
             //R_X86_64_REX_GOTP  42
-            parser->elf->addRel(".text",asmer::curAddr,name,42);
+            parser->elf->addRel(".text",parser->text_size,name,42);
             flag = true;
          }
     }
@@ -376,7 +376,7 @@ void Instruct::genOneInst() {
                 //第一次时这个sym可能为0 ，但是不影响我们的偏移量计算，因为固定了4字节
                 Sym* sym = parser->symtable->getSym(name);
                 //跳过当前4字节指令
-                int rel = sym->addr - asmer::curAddr - 4;
+                int rel = sym->addr - parser->text_size - 4;
                 append(rel,4);
                 return;
             }
@@ -388,7 +388,7 @@ void Instruct::genOneInst() {
                 updateRel();
                 Sym* sym = parser->symtable->getSym(name);
                 //可能为负数
-                int rel = sym->addr - asmer::curAddr - 4;
+                int rel = sym->addr - parser->text_size - 4;
                 append(rel,4);
                 return;
             }
@@ -407,13 +407,13 @@ void Instruct::genOneInst() {
         }
         bool is_rel = updateRel();
         //处理可能的相对重定位信息，call fun,如果fun是本地定义的函数就不会重定位了
-        int rel  = inst->imm - (asmer::curAddr + 4);//调用符号地址相对于下一条指令地址的偏移，因此加4
+        int rel  = inst->imm - (parser->text_size + 4);//调用符号地址相对于下一条指令地址的偏移，因此加4
         //处理有些本地符号在第一次parser的时候由于处于后面导致 偏移量无法获得，需要再次计算
         if(left == TY_REL && inst->imm == 0){
             //写入相对偏移量
             Sym* sym = parser->symtable->getSym(name);
             //可能为负数
-            rel = sym->addr - asmer::curAddr - 1;
+            rel = sym->addr - parser->text_size - 1;
             append(rel,1);
             return;
         }

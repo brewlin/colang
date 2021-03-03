@@ -20,9 +20,6 @@
 
 namespace asmer{
 
-    extern int  curAddr;
-    extern int  dataLen;
-
     //符号记录
     struct Sym
     {

@@ -290,10 +290,10 @@ void ElfFile::buildData(){
  * 需要计算两次，因为第一次可能对应的符号引用偏移量未设置
  */
 void ElfFile::buildText(){
-	addShdr(".text",asmer::curAddr);
-	Debug("text section:[%d,%d]",offset,offset + asmer::curAddr);
-	offset += asmer::curAddr;
-	Asmer::text = asmer::curAddr;
+	addShdr(".text",asmer->parser->text_size);
+	Debug("text section:[%d,%d]",offset,offset + asmer->parser->text_size);
+	offset += asmer->parser->text_size;
+	asmer->text = asmer->parser->text_size;
 	//添加默认的段
 	addSectionSym();
 	//到这里就源代码解析完了，需要导出所有符号表

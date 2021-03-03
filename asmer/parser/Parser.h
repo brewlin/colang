@@ -35,6 +35,8 @@ public:
     std::string            outname;
     //data段的空间大小 data段不需要二次扫描，在parser阶段确定大小和偏移量
     int                    data_size;
+    //text段指令大小
+    int                    text_size;
 public:
     explicit Parser(const std::string filepath,ElfFile* elf);
     ~Parser();

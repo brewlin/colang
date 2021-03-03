@@ -29,8 +29,8 @@ public:
     int         data;
 public:
     //实时统计写入的字节数
-    static int         bytes;
-    static int         text;
+    int         bytes;
+    int         text;
 public:
     Asmer(std::string filename);
     ~Asmer();
@@ -40,8 +40,6 @@ public:
     void buildElf();
     //生成
     void writeElf();
-    //指令收集
-    void InstCollect();
     //在构建elf文件的时候主要是计算偏移量，不进行指令翻译
     void InstWrite();
     //写入

@@ -12,8 +12,6 @@
 //对于重定位文件是0，链接后开始于0x08048100
 namespace asmer
 {
-    int curAddr = 0;
-    int dataLen = 0;
     /**
      * 创建一个符号
      * @param name
@@ -22,7 +20,6 @@ namespace asmer
     Sym::Sym(std::string name, bool externed):name(name),global(false),externed(externed)
     {
         //初始化当前符号偏移量
-        addr = curAddr;
         //TODO: 初始化当前符号所在的段名
         segName = ".text";
         //当前符号默认长度为0

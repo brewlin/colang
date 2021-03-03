@@ -9,11 +9,7 @@
 #include "ElfFile.h"
 #include "Log.h"
 
-
-int      Asmer::bytes = 0;
-int      Asmer::text  = 0;
-
-Asmer::Asmer(std::string filename) {
+Asmer::Asmer(std::string filename) :text(0),bytes(0){
     //初始化elf文件相关
     elf   = new ElfFile(this);
 
@@ -27,8 +23,6 @@ Asmer::~Asmer() {
     data = 0;
     text = 0;
     Instruct::ready = false;
-    asmer::curAddr = 0;
-    asmer::dataLen = 0;
 }
 /**
  * start
