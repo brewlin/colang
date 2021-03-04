@@ -13,7 +13,7 @@
 
 #include "parser/Parser.h"
 #include "ast/Function.h"
-#include "ast/Instruct.h"
+#include "instruct/Instruct.h"
 #include "ast/Token.h"
 #include "ElfFile.h"
 

@@ -6,7 +6,7 @@
  **/
 
 #include "Parser.h"
-#include "asmer/ast/Instruct.h"
+#include "Instruct.h"
 #include "asmer/ast/Token.h"
 #include "Utils.h"
 

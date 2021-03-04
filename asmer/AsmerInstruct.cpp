@@ -1,6 +1,6 @@
 #include "Asmer.h"
 #include "asmer/ast/Function.h"
-#include "asmer/ast/Instruct.h"
+#include "Instruct.h"
 #include "asmer/ast/Sym.h"
 #include "Log.h"
 

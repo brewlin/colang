@@ -8,7 +8,7 @@
 #include "Instruct.h"
 #include <iostream>
 #include <string>
-#include "Token.h"
+#include "asmer/ast/Token.h"
 
 namespace asmer{
 
