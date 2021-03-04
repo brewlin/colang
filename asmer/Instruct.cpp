@@ -14,9 +14,6 @@
 
 namespace asmer{
 
-bool Instruct::ready = false;
-    
-
 static unsigned short int opcode2[]=
     {
         //r,r   rm,r    r,rm    im,r
@@ -45,7 +42,7 @@ static unsigned char opcode0[]=
 void Instruct::append(unsigned char b) {
     //第一次单纯的收集label标签，并计算偏移量
     //第二次才是实际写入指令
-    if(ready)
+    if(parser->ready)
         bytes[size++] = b;
     parser->text_size += 1;
 }
@@ -93,11 +90,11 @@ bool Instruct::updateRel() {
     //表示数据的引用
     if(!is_func)//绝对重定位
     {
-//        if(ready && sym->externed){
+//        if(parser->ready && sym->externed){
         // 1. lea L0(%rip), %rax 需要重定位的数据
         // 2. jmp L2            不需要重定位的本地标签
         // is_rel 正是区分这种情况
-        if(ready && is_rel){
+        if(parser->ready && is_rel){
             parser->elf->addRel(".text",parser->text_size,name,R_X86_64_PC32);
             flag = true;
         }
@@ -106,8 +103,8 @@ bool Instruct::updateRel() {
     {
         //如果当前指令有函数标签，说明是函数调用
         //外部函数
-        if(ready){
-//         if(ready && sym->externed){
+        if(parser->ready){
+//         if(parser->ready && sym->externed){
             //R_X86_64_REX_GOTP  42
             parser->elf->addRel(".text",parser->text_size,name,42);
             flag = true;

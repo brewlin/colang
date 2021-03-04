@@ -19,10 +19,6 @@ Asmer::Asmer(std::string filename) :text(0),bytes(0){
 }
 Asmer::~Asmer() {
     if(elf) delete  elf;
-    bytes = 0;
-    data = 0;
-    text = 0;
-    Instruct::ready = false;
 }
 /**
  * start

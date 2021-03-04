@@ -8,13 +8,10 @@ int dataLen = 0;
 
 namespace asmer{
 
-Parser::Parser(const std::string filepath,ElfFile* elf)
+Parser::Parser(const std::string filepath,ElfFile* elf):elf(elf),data_size(0),text_size(0),ready(false)
 {
-    this->elf = elf;
     scanner = new Scanner(filepath);
     symtable = new SymTable();
-    data_size = 0;
-    text_size = 0;
 
     this->filepath = filepath;
 
@@ -32,10 +29,14 @@ void Parser::parse() {
 
     //扫描两次，修正未计算的引用偏移地址
     genInst();
-    Instruct::ready = true;
+    //第二次开始修正所有的label偏移量
+    ready      = true;
     text_size  = 0;
     genInst();
 }
+/**
+ * 遍历所有的指令，计算偏移量
+ */
 void Parser::genInst() {
     /**
      * 1. 翻译机器指令写入elf文件

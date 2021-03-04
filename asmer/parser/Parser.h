@@ -37,6 +37,8 @@ public:
     int                    data_size;
     //text段指令大小
     int                    text_size;
+    //操作指令需要扫描两次，修正所有的label偏移量
+    bool                   ready;
 public:
     explicit Parser(const std::string filepath,ElfFile* elf);
     ~Parser();

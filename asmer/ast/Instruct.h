@@ -50,8 +50,6 @@ class Parser;
 
     class Instruct{
     public:
-        static bool  ready;
-    public:
         Instruct(Token type,Parser* parser);
         //表示有引用
         bool        is_rel;

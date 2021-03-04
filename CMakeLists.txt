@@ -26,7 +26,7 @@ add_subdirectory(asmer/parser)
 add_subdirectory(asmer/ast)
 add_subdirectory(asmer)
 add_executable(co-asmer asmer.cpp)
-target_link_libraries(co-asmer  asmer asm_parser asm_ast lib -lstdc++fs)
+target_link_libraries(co-asmer  asmer asm_parser asmer asm_ast lib -lstdc++fs)
 
 # linker
 include_directories(. linker lib)
