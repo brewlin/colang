@@ -43,13 +43,13 @@ local test
 ```asciidoc
 > gcc -v
 gcc version 7.5.0 (Ubuntu 7.5.0-3ubuntu1~18.04) 
-> git clone https://github.com/brewlin/colang.git
-> export CO_SRC=/path/to/colang/runtime
-> cd tests/
-> ./co-compiler -s demo.co
-> ./co-asmer    -c demo.s
-> gcc -c $CO_SRC/internal/*.s & gcc -c $CO_SRC/syscall/*.s
-> ./co-linker -p .
+> git clone https://github.com/brewlin/colang.git & cd colang/tests
+> export CO_SRC=$(pwd)/../runtime 
+> cmake ../ & make
+> gcc -c $CO_SRC/internal/*.s $CO_SRC/syscall/*.s
+> ./co-compiler -s rt_os_gc.co
+> ./co-asmer    -p .
+> ./co-linker   -p .
 > chmod 777 a.out & ./a.out
 ```
 docker test
