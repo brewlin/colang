@@ -10,15 +10,17 @@ set (CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -g -w")
 set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++17 -g")
 
 # compiler
-include_directories(. compiler compiler/ast compiler/parser lib internal gc)
-add_subdirectory(compiler)
+include_directories(. compiler compiler/asm compiler/gen compiler/internal  compiler/ast compiler/parser lib internal gc)
+add_subdirectory(compiler/asm)
+add_subdirectory(compiler/gen)
+add_subdirectory(compiler/internal)
 add_subdirectory(compiler/ast)
 add_subdirectory(compiler/parser)
 add_subdirectory(lib)
 add_subdirectory(internal)
 add_subdirectory(gc)
 add_executable(co-compiler compiler.cpp)
-target_link_libraries(co-compiler co_parser compiler co_ast lib -lstdc++fs)
+target_link_libraries(co-compiler co_parser co_gen co_internal co_asm co_gen co_asm co_ast lib -lstdc++fs)
 
 # asmer
 include_directories(. asmer asmer/ast asmer/parser asmer/instruct asmer/elf lib)

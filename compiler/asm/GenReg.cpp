@@ -6,7 +6,7 @@
  **/
 
 #include "AsmGen.h"
-#include "Internal.h"
+#include "../internal/Internal.h"
 
 
 /**

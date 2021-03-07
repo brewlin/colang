@@ -1,7 +1,7 @@
 #include "Parser.h"
 #include <fstream>
 #include "Utils.h"
-#include "AsmGen.h"
+#include "asm/AsmGen.h"
 #include "Package.h"
 
 void Parser::asmgen()

@@ -4,8 +4,8 @@
  */
 #include "Statement.h"
 #include "Utils.h"
-#include "AsmGen.h"
-#include "Internal.h"
+#include "asm/AsmGen.h"
+#include "../internal/Internal.h"
 #include "Block.h"
 /**
  * if 控制语句执行

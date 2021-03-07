@@ -6,7 +6,7 @@
  **/
 #include "AsmGen.h"
 #include <cstdarg>
-#include "Internal.h"
+#include "../internal/Internal.h"
 #include "Package.h"
 #include "Parser.h"
 

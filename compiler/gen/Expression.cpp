@@ -3,9 +3,9 @@
  * @date   2020/9/6
  */
 #include "Expression.h"
-#include "AsmGen.h"
+#include "asm/AsmGen.h"
 #include "Log.h"
-#include "Internal.h"
+#include "internal/Internal.h"
 #include "Ast.h"
 #include "Value.h"
 #include "Parser.h"
