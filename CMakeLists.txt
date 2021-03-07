@@ -34,5 +34,6 @@ target_link_libraries(co-asmer  asmer asm_parser asm_elf asmer asm_instruct asm_
 include_directories(. linker lib)
 add_subdirectory(crt)
 add_subdirectory(linker)
+add_subdirectory(linker/elf)
 add_executable(co-linker linker.cpp)
-target_link_libraries(co-linker  linker lib -lstdc++fs)
+target_link_libraries(co-linker  linker link_elf lib -lstdc++fs)
