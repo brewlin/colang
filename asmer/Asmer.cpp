@@ -6,13 +6,12 @@
  **/
 #include "Asmer.h"
 #include "Sym.h"
-#include "ElfFile.h"
+#include "elf/ElfFile.h"
 #include "Log.h"
 
 Asmer::Asmer(std::string filename) :text(0),bytes(0){
     //初始化elf文件相关
     elf   = new ElfFile(this);
-
     parser = new Parser(filename,elf);
     //初始化 file.o文件
     out  = fopen(parser->outname.c_str(),"w");

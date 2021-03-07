@@ -15,7 +15,7 @@
 //#include "asmer/ast/Instruct.h"
 #include "asmer/ast/Sym.h"
 #include "asmer/ast/SymTable.h"
-#include "asmer/ElfFile.h"
+#include "asmer/elf/ElfFile.h"
 
 namespace asmer {
 

@@ -21,13 +21,14 @@ add_executable(co-compiler compiler.cpp)
 target_link_libraries(co-compiler co_parser compiler co_ast lib -lstdc++fs)
 
 # asmer
-include_directories(. asmer asmer/ast asmer/parser asmer/instruct lib)
+include_directories(. asmer asmer/ast asmer/parser asmer/instruct asmer/elf lib)
 add_subdirectory(asmer/parser)
 add_subdirectory(asmer/ast)
 add_subdirectory(asmer/instruct)
+add_subdirectory(asmer/elf)
 add_subdirectory(asmer)
 add_executable(co-asmer asmer.cpp)
-target_link_libraries(co-asmer  asmer asm_parser asmer asm_instruct asm_ast lib -lstdc++fs)
+target_link_libraries(co-asmer  asmer asm_parser asm_elf asmer asm_instruct asm_ast lib -lstdc++fs)
 
 # linker
 include_directories(. linker lib)

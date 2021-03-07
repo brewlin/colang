@@ -15,7 +15,7 @@
 #include "ast/Function.h"
 #include "instruct/Instruct.h"
 #include "ast/Token.h"
-#include "ElfFile.h"
+#include "elf/ElfFile.h"
 
 using namespace asmer;
 
