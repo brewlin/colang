@@ -1,7 +1,7 @@
 #ifndef COLANG_LINKER_H
 #define colang_LINKER_H
 
-#include "elf/ElfFile.h"
+#include "../elf/ElfFile.h"
 //STL模板库
 #include <map>
 #include <vector>

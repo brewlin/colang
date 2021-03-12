@@ -1,7 +1,7 @@
 #include <iostream>
 #include <string>
 #include <cstring>
-#include "linker/Linker.h"
+#include "link/Linker.h"
 #include <experimental/filesystem>
 
 namespace filesys = std::experimental::filesystem;
