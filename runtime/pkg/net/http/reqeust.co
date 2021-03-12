@@ -1,0 +1,15 @@
+package http
+
+class request{
+    #init req
+    _req
+    func init(req){
+        this._req = req
+    }
+    func type(){
+        return _.get_http_type(*_req)
+    }
+    func body(){
+
+    }
+}

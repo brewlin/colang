@@ -1,0 +1,21 @@
+package main
+
+import net.http
+import fmt
+
+func request(req,rsp){
+    if(req.type == "POST"){
+        fmt.println(request.type)
+    }
+    fmt.println(request.body)
+
+    rsp.json({"user":"test","id":1000,"age":23})
+}
+
+func main(){
+
+    srv = new http()
+    srv.start(8080)
+    #这里阻塞进行事件循环
+    srv.handler(request)
+}

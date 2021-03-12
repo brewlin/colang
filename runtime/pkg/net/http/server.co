@@ -1,0 +1,33 @@
+package http
+
+extern mixed http_init(int)
+
+class http{
+    #c socket
+    server
+    #user recv
+    recv
+    func start(port){
+        #初始化socket相关
+        this.server = _.http_init(*port)
+    }
+    func handler(recv){
+        #保存用户的回调函数
+        this.recv = recv
+        #进入事件循环
+        _.http_event(receive)
+    }
+    # http 接收到的完整的报文
+    func receive(rq){
+        #封装一个request对象
+        req = new request()
+        req.init(rq)
+
+        #封装一个response对象
+        rsp = new response()
+
+        #触发用户的回调函数
+        this.recv(req,rsp)
+
+    }
+}
