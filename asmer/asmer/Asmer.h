@@ -11,11 +11,11 @@
 #include <iostream>
 #include <string>
 
-#include "parser/Parser.h"
-#include "ast/Function.h"
-#include "instruct/Instruct.h"
-#include "ast/Token.h"
-#include "elf/ElfFile.h"
+#include "../parser/Parser.h"
+#include "../ast/Function.h"
+#include "../instruct/Instruct.h"
+#include "../ast/Token.h"
+#include "../elf/ElfFile.h"
 
 using namespace asmer;
 

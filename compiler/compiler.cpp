@@ -3,7 +3,7 @@
  *@Date 2020/9/2 0002 下午 3:23
  *@Version 1.0
  **/
-#include "compiler/asm/AsmGen.h"
+#include "asm/AsmGen.h"
 #include "Log.h"
 
 int print_help () {

@@ -62,6 +62,7 @@ read_dir(){
     done
 }
 install_env(){
+    export CO_SRC=$(pwd)/runtime
     cd tests
     cmake ..
     make

@@ -6,7 +6,7 @@
  **/
 #include "Asmer.h"
 #include "Sym.h"
-#include "elf/ElfFile.h"
+#include "../elf/ElfFile.h"
 #include "Log.h"
 
 Asmer::Asmer(std::string filename) :text(0),bytes(0){
