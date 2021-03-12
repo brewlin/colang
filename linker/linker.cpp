@@ -10,7 +10,7 @@ using namespace std;
 
 int print_help () {
     fprintf(stderr,
-            "usage: ./co-linker [options|file.o...] \n"
+            "usage: ./cld [options|file.o...] \n"
             "  -p       指定扫描目录下所有.0文件进行链接生成可执行程序\n"
             "  file.o   ... 手动指定多个file.o进行链接\n"
     );

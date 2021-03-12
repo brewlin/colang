@@ -30,4 +30,6 @@ tests/co
 tests/colang
 tests/*.s
 tests/src/*
-co-asmer
+cas
+co
+cld

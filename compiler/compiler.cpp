@@ -8,7 +8,7 @@
 
 int print_help () {
     fprintf(stderr,
-            "usage: ./co-compiler [options] file.  可用的选项:\n"
+            "usage: ./cld [options] file.  可用的选项:\n"
             "  run      编译成汇编后进行链接生成二进制可执行文件直接运行\n"
             "  -s       编译为X64汇编文件\n"
             "  -print   打印ast节点\n"

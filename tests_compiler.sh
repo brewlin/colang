@@ -18,40 +18,21 @@ check(){
     fi
 
 }
-
 assert(){
     expected="$1"
     input="$2"
-    log "[compile] ./co-compiler -s $input ..."
-    ./co-compiler -s $input
+    log "[compile] ./co -s $input ..."
+    ./co -s $input
     check
-    log "[asmer] ./co-asmer -p ."
-    ./co-asmer -p .
-    echo "start linking..."
-#    echo "gcc -c $CO_SRC/internal/*.s"
-    `gcc -c $CO_SRC/internal/*.s`
-#    echo "gcc -c $CO_SRC/syscall/*.s"
-    `gcc -c $CO_SRC/syscall/*.s`
-    log "[linker] ./co-linker -p ."
-    ./co-linker -p .
+    gcc -g *.s -L./internal -linternal -L./gc -lgc
     check
-    chmod 777 a.out
-    echo "exec a.out..."
     ./a.out
     check
     rm ./a.out
-    echo "exec done..."
+    rm *.s
 
     return
 #    failed "[compile] $input failed"
-}
-asmer(){
-    for s in `ls *.s`
-    do
-        ./co-asmer -c $s
-        check
-        log "[asmer] ./co-asmer -c $s passed!"
-    done    
 }
 read_dir(){
     for file in `ls *.co`
@@ -59,23 +40,21 @@ read_dir(){
      if [ -d $file ] ; then
         read_dir $file
      else
-         rm *.s
-         rm *.o
         assert "OK" $file
-        log "[compile] $file passed!\n"
+        log "[compile] $file passed!"
      fi
     done
-    rm *.s
-    rm *.o
 }
 install_env(){
     export CO_SRC=$(pwd)/runtime
     cd tests
     cmake ..
     make
+
     if [  "$?" != 0 ]; then
         failed "make failed"
     fi
+    rm *.s
 }
 install_env
 read_dir

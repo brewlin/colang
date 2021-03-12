@@ -22,11 +22,11 @@ check(){
 assert(){
     expected="$1"
     input="$2"
-    log "[compile] ./co-compiler -s $input ..."
-    ./co-compiler -s $input
+    log "[compile] ./co -s $input ..."
+    ./co -s $input
     check
-    log "[asmer] ./co-asmer -p ."
-    ./co-asmer -p .
+    log "[asmer] ./cas -p ."
+    ./cas -p .
     echo "start linking..."
     echo "gcc -g *.o -L./internal -linternal -L./gc -lgc"
     gcc -g *.o -L./internal -linternal -L./gc -lgc
@@ -43,9 +43,9 @@ assert(){
 asmer(){
     for s in `ls *.s`
     do
-        ./co-asmer -c $s
+        ./cas -c $s
         check
-        log "[asmer] ./co-asmer -c $s passed!"
+        log "[asmer] ./cas -c $s passed!"
     done    
 }
 read_dir(){

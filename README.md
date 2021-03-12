@@ -5,16 +5,16 @@
 
 Colang是一种编程语言，旨在创造一种动态语法的静态编译语言
 ```asciidoc
-./co-compiler [options] file.co        
+./co      [options] file.co        
     -s    file  ast -> asm       编译.co代码 生成.s汇编文件
     -run  file  ast -> asm       gcc编译后链接glic生成可执行程序
     -p    file                   打印token
-./co-asmer [options] file.s        
+./cas     [options] file.s        
     -c    file.s  -> file.o      编译.s自定义汇编语言,翻译机器码并生成.o elf文件
     -p    path path...           批量扫描目录编译.s文件生成.o elf文件
     -print                       打印token
-./co-linker [options|file.o...] 
-    -p      path ... -> a.out    指定多个目录,自动扫描所有.0文件进行链接生成可执行程序
+./cld     [options|file.o...] 
+    -p    path ... -> a.out      指定多个目录,自动扫描所有.0文件进行链接生成可执行程序
     file.o  ...-> a.out          指定多个file.o进行链接    
 ```
 ## progress
@@ -47,18 +47,18 @@ gcc version 7.5.0 (Ubuntu 7.5.0-3ubuntu1~18.04)
 > export CO_SRC=$(pwd)/../runtime 
 > cmake ../ & make
 > gcc -c $CO_SRC/internal/*.s $CO_SRC/syscall/*.s
-> ./co-compiler -s rt_os_gc.co
-> ./co-asmer    -p .
-> ./co-linker   -p .
+> ./co  -s rt_os_gc.co
+> ./cas -p .
+> ./cld -p .
 > chmod 777 a.out & ./a.out
 ```
 docker test
 ```asciidoc
 > docker build . -t brewlin/colang
 > docker run -it brewlin/colang /bin/bash
-> sh auto_tests_compiler.sh
-> sh auto_tests_asmer.sh
-> sh auto_tests_linker.sh
+> sh tests_compiler.sh
+> sh tests_asmer.sh
+> sh tests_linker.sh
 
 ```
 ## @data struct
