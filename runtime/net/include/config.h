@@ -1,32 +1,7 @@
 #ifndef __CONFIG_H_INCLUDE_
 #define __CONFIG_H_INCLUDE_
 
-#include <errno.h>
-#include <stdint.h>
-#include <sys/types.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <unistd.h>
-#define __USE_GNU
-#include <sys/socket.h>
-
-#include <string.h>
-#include <string.h>
-#include <fcntl.h>
-#include <signal.h>
-#include <netdb.h>
-#include <limits.h>
-#include <sys/stat.h>
-#include <stddef.h>
-
-#include <arpa/inet.h>
-#include <syslog.h>
-#include <time.h>
-#include <errno.h>
-#include <stdarg.h>
-#include <netinet/in.h>
-#include <assert.h>
-#include <ctype.h>
+#include "colang.h"
 
 #define OK                 0
 #define ERROR              -1

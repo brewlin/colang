@@ -1,0 +1,47 @@
+package net
+
+extern void net_init()
+extern void start_module()
+extern int  net_process_events(net)
+extern int  close_listening_sockets(net)
+extern int  register_http(port,net)
+
+import fmt
+
+#全局net
+global_net
+
+func init(){
+    #初始化全局net结构体
+    gloabl_net = _.net_init()
+}
+#注册监听事件
+func add_http(port){
+    return _.register_http(*port,global_net)
+}
+#启动所有模块
+func start(){
+    # 0 表示ok 启动各种事件完成
+    # 非0表示有错误出现
+    if(_.start_module(global_net) != 0){
+        return false
+    }
+    return true
+}
+#事件循环
+func event(){
+    #检查是是否发生错误
+    check = true
+    i = 1
+    while(check){
+        fmt.println("event time:" + i)
+        if(_.net_process_events(global_net) == -1){
+            fmt.println("something wrong")
+            check = false
+        }
+        i += 1
+    }
+    #关闭所有socket资源
+    _.close_listening_sockets(net)
+
+}

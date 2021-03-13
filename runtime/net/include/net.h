@@ -27,7 +27,6 @@ struct net_s {
     event_t              *read_events;
     event_t              *write_events;
 
-    int_t                is_daemon;
     log_t                *log;
 
 };

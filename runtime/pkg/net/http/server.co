@@ -7,9 +7,10 @@ class http{
     server
     #user recv
     recv
-    func start(port){
+    func init(port){
         #初始化socket相关
         this.server = _.http_init(*port)
+
     }
     func handler(recv){
         #保存用户的回调函数

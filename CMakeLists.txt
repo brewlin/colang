@@ -39,3 +39,10 @@ add_subdirectory(linker/link)
 add_subdirectory(linker/elf)
 add_executable(cld linker/linker.cpp)
 target_link_libraries(cld  linker link_elf lib -lstdc++fs)
+
+
+# runtime
+include_directories(runtime/net/include)
+add_subdirectory(runtime/net/core)
+add_subdirectory(runtime/net/event)
+add_subdirectory(runtime/net/http)

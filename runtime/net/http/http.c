@@ -21,15 +21,11 @@ module_t  http_core_module = {
     NULL,                                  /* exit process */
     NULL,                                  /* exit master */
 };
-
-//这里其实应该是核心http模块的启动，主要是启动监听端口
-//但是端口配置添加 listening_t 在nginx中是通过nginx.conf配置解析时添加的
-//我们这里作为演示就直接放到http core模块启动方法中
-static int_t http_process_init(net_t *net)
-{
-    log_info(net->log,"http: process init");
+//注册一个http监听事件
+Value* register_http(int port,net_t* net){
+    log_info(net->log,"http: register http server");
     http_listen_opt_t   lsopt;
-    struct sockaddr_in serv_addr;   
+    struct sockaddr_in serv_addr;
     memzero(&lsopt, sizeof(http_listen_opt_t));
     memzero(&serv_addr,sizeof(serv_addr));
     // listen 127.0.0.1:8000;
@@ -40,7 +36,8 @@ static int_t http_process_init(net_t *net)
 
     serv_addr.sin_family = AF_INET;
     serv_addr.sin_addr.s_addr = INADDR_ANY;
-    serv_addr.sin_port = htons(8089);
+    serv_addr.sin_port = htons(port);
+    //TODO:检查port重复注册
 
     lsopt.sockaddr = (struct sockaddr *)&serv_addr;
     lsopt.socklen = sizeof(serv_addr);
@@ -51,9 +48,21 @@ static int_t http_process_init(net_t *net)
 
     listening_t           *ls;
     ls = http_add_listening(net, &lsopt);
+
+    Value* ret = gc_malloc(sizeof(Value));
+    ret->type  = Int;
+    ret->data  = OK;
     if (ls == NULL) {
-        return ERROR;
+        ret->data = ERROR;
     }
+    return ret;
+}
+//这里其实应该是核心http模块的启动，主要是启动监听端口
+//但是端口配置添加 listening_t 在nginx中是通过nginx.conf配置解析时添加的
+//我们这里作为演示就直接放到http core模块启动方法中
+static int_t http_process_init(net_t *net)
+{
+    log_info(net->log,"http: process init");
     //初始化对应socket
     return open_listening_sockets(net);
 }

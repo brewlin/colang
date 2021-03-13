@@ -5,7 +5,6 @@
 #ifndef CO_LANG_AST_H
 #define CO_LANG_AST_H
 
-#include "colang.h"
 #include <string>
 #include "Token.h"
 
