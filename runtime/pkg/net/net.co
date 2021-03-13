@@ -1,6 +1,6 @@
 package net
 
-extern void net_init()
+extern void cnet_init()
 extern void start_module()
 extern int  net_process_events(net)
 extern int  close_listening_sockets(net)
@@ -13,7 +13,7 @@ global_net
 
 func init(){
     #初始化全局net结构体
-    gloabl_net = _.net_init()
+    gloabl_net = _.cnet_init()
 }
 #注册监听事件
 func add_http(port){
@@ -42,6 +42,6 @@ func event(){
         i += 1
     }
     #关闭所有socket资源
-    _.close_listening_sockets(net)
+    _.close_listening_sockets(global_net)
 
 }

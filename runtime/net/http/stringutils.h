@@ -17,7 +17,7 @@ string* string_init();
 string* string_init_str(const char *str);
 
 // 释放字符串分配的内存
-void string_free(string *s);
+//void string_free(string *s);
 
 // 重置字符串，将字符串清空，第一个字符设置为'\0'
 void string_reset(string *s);

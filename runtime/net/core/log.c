@@ -116,7 +116,7 @@ static void log_write(log_t *log, const char *type, const char *format, va_list 
         vsyslog(LOG_ERR, output->ptr, ap);
     }
 
-    string_free(output);
+//    string_free(output);
 }
 
 // 记录出错信息

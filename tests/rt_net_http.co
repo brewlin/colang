@@ -1,0 +1,18 @@
+package main
+
+import net
+import fmt
+
+
+func main(){
+    fmt.println("test http server")
+    #初始化net相关环境
+    net.init()
+    #监听一个http端口
+    net.add_http(8089)
+    #启动net相关环境 包括添加的http服务
+    net.start()
+    #开始事件循环
+    net.event()
+    fmt.println("http test end")
+}

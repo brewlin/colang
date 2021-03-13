@@ -34,12 +34,12 @@ string* string_init_str(const char *str) {
     return s;
 }
 
-void string_free(string *s) {
-    if (!s) return;
-
-    free(s->ptr);
-    free(s);
-}
+//void string_free(string *s) {
+//    if (!s) return;
+//
+//    free(s->ptr);
+//    free(s);
+//}
 
 void string_reset(string *s) {
     assert(s != NULL);

@@ -13,7 +13,7 @@ module_t* modules[] = {
 
 //创建初始化net 全局结构体
 //放回给co不需要包装，因为co也是只存储不进行运算
-net_t * net_init()
+net_t * cnet_init()
 {
     net_t * net = (net_t*) gc_malloc(sizeof(net_t));
     memzero(net,sizeof(net_t));
