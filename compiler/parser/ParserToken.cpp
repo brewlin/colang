@@ -87,6 +87,13 @@ std::tuple<Token,std::string> Parser::scan() {
     //    去掉注释
     //TODO: support // or /* */
     if(c == '#'){
+        //看看是否是有链接信息
+        char cn = peek();
+        if(cn == ':') {
+            //eat :
+            c = next();
+            return std::make_tuple(KW_EXTRA,"");
+        }
         comment:
         while(c != '\n' && c != EOF)
             c = next();

@@ -37,7 +37,8 @@ int asmgen(char* argv[],bool run = false)
     AsmGen gen(argv[2]);
     gen.execute();
     if(run){
-        system("gcc -g *.s -L/usr/local/lib/colib -linternal -lgc");
+        //查找所有申明的链接信息，进行链接
+        gen.link();
         system("rm *.s");
         system("./a.out");
     }

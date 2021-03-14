@@ -2,9 +2,10 @@ package main
 
 import net
 import fmt
+import os
 
-
-func main(){
+#启动httpserver
+func http(){
     fmt.println("test http server")
     #初始化net相关环境
     net.init()
@@ -15,4 +16,9 @@ func main(){
     #开始事件循环
     net.event()
     fmt.println("http test end")
+}
+
+func main(){
+    http()
+
 }

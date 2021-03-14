@@ -46,6 +46,7 @@ include_directories(runtime/net/include)
 add_subdirectory(runtime/net/core)
 add_subdirectory(runtime/net/event)
 add_subdirectory(runtime/net/http)
+add_subdirectory(runtime/os)
 
 #install
 install(TARGETS co cas cld

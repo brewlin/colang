@@ -57,8 +57,8 @@ enum Token {
     //if else true false while for null func return break continue new
     KW_IF,KW_ELSE,KW_TRUE,KW_FALSE,KW_WHILE,KW_FOR,KW_NULL,KW_FUNC,KW_RETURN,KW_BREAK,KW_CONTINUE,KW_NEW,
 
-    //extern import go  struct new  package dereference
-    KW_EXTERN,KW_IMPORT,KW_GO,KW_CLASS,KW_PACKAGE,TK_DELREF
+    //extern import go  struct new  package dereference #:(link,)
+    KW_EXTERN,KW_IMPORT,KW_GO,KW_CLASS,KW_PACKAGE,TK_DELREF,KW_EXTRA
 
 };
 #endif //CO_LANG_TOKEN_H

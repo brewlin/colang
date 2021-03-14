@@ -158,6 +158,27 @@ Function* Parser::parseExternDef()
     node->block    = nullptr;
     return node;
 }
+/**
+ * 解析注释里的附加信息如:
+ * 1. #:link -lhttp
+ * 在编译链接过程会将http静态库链接，且路径默认为 /usr/local/lib/colib ,也可以手动指定
+ */
+void Parser::parseExtra() {
+    Debug("found #: parser..");
+    assert(getCurrentToken() == KW_EXTRA);
+    //scan one
+    currentToken = scan();
+    //解析到了链接信息
+    if(getCurrentLexeme() == "link"){
+        auto lines = getline();
+        lines = lines.substr(0,lines.size()-1);
+        //推到数组里去
+        links.push_back(lines);
+        return;
+    }
+    //没有命中 说明格式错了, 直接去掉当前行
+    getline();
+}
 
 /**
  * 解析 import: import "string"

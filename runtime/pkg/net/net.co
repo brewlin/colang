@@ -1,5 +1,5 @@
 package net
-#link:-L./runtime/
+#:link -lcore -levent -lhttp
 
 extern void cnet_init()
 extern void start_module()

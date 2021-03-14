@@ -24,7 +24,8 @@ assert(){
     log "[compile] co -s $input ..."
     co -s $input
     check
-    gcc -g *.s -L/usr/local/lib/colib -linternal -lgc
+    echo "gcc -g *.s -L/usr/local/lib/colib -linternal -lgc -los"
+    gcc -g *.s -L/usr/local/lib/colib -linternal -lgc -los
     check
     ./a.out
     check

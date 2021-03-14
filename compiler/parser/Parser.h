@@ -49,6 +49,8 @@ public:
     std::unordered_map<std::string,Function*>  extern_funcs;
     //保存全局 静态字符串
     std::vector<StringExpr*>                   strs;
+    //保存全局的 link 连接附加信息
+    std::vector<std::string>                   links;
 public:
     void            addFunc(const std::string &name,   Function *f);
     bool            hasFunc(const std::string &name,   bool is_extern = false);
@@ -61,6 +63,7 @@ private:
     //get|peek next char
     char            next();
     char            peek();
+    std::string     getline();
     Token           getCurrentToken()const;
     std::string     getCurrentLexeme()const;
 
@@ -71,6 +74,7 @@ private:
     void            parseClassDef();
     void            parsePackageDef();
     void            parseGlobalDef();
+    void            parseExtra();
 
     //parse statement
     Statement*      parseStatement();

@@ -69,9 +69,12 @@ void Parser::parse()
             auto* f = parseFuncDef();
             this->addFunc(f->name,f);
         //解析外部函数申明 extern与interpret没关系，只影响 irgen
-        } else if(getCurrentToken() == KW_EXTERN){
-            auto* f = parseExternDef();
-            this->addFunc(f->name,f);
+        } else if(getCurrentToken() == KW_EXTERN) {
+            auto *f = parseExternDef();
+            this->addFunc(f->name, f);
+            //解析 注释里面特别指明的附加信息，如link： 链接外部库等
+        } else if(getCurrentToken() == KW_EXTRA){
+            parseExtra();
 		//解析import
         } else if(getCurrentToken() == KW_IMPORT){
 			parseImportDef();
@@ -90,6 +93,11 @@ void Parser::parse()
 char Parser::next() {
     column++;
     return static_cast<char>(fs.get());
+}
+std::string Parser::getline() {
+    std::string line;
+    std::getline(fs,line);
+    return line;
 }
 char Parser::peek() {
     return static_cast<char>(fs.peek());

@@ -98,7 +98,7 @@ static void log_write(log_t *log, const char *type, const char *format, va_list 
     // 写入时间，消息类型
     if (log->use_logfile) {
         string_append_ch(output, '[');
-        date_str(output);
+//        date_str(output);
         string_append(output, "] ");
     }
 

@@ -36,6 +36,20 @@ void AsmGen::execute()
         pkg->asmgen();
     }
 }
+void AsmGen::link() {
+
+    std::string links = "gcc -g *.s -L/usr/local/lib/colib -linternal -lgc ";
+    for(auto pk : Package::packages){
+        Package* pkg = pk.second;
+        for(auto pr : pkg->parsers){
+            Parser *p = pr.second;
+            for(auto l : p->links){
+                links += l;
+            }
+        }
+    }
+    system(links.c_str());
+}
 void AsmGen::registerMain()
 {
     writeln("    .global main");

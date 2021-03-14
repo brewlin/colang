@@ -1,9 +1,8 @@
 package os
-#link:-L./runtime/os -los
-
-
+#:link -los
 extern void daemonize()
+
 # 开启守护进程模式
 func daemon(){
-    #_.daemonize()
+    _.daemonize()
 }

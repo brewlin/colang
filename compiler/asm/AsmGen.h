@@ -31,6 +31,7 @@ public:
     explicit AsmGen(const std::string& filename);
     ~AsmGen();
     void execute();
+    void link();
 
 public:
     //为局部变量 计算栈偏移量

@@ -28,8 +28,8 @@ assert(){
     log "[asmer] cas -p ."
     cas -p .
     echo "start linking..."
-    echo "gcc -g *.o -L/usr/local/lib/colib -linternal -lgc"
-    gcc -g *.o -L/usr/local/lib/colib -linternal -lgc
+    echo "gcc -g *.o -L/usr/local/lib/colib -linternal -lgc -los"
+    gcc -g *.o -L/usr/local/lib/colib -linternal -lgc -los
     check
     echo "exec a.out..."
     ./a.out
