@@ -43,7 +43,7 @@ Scanner::Scanner(const std::string filepath)
     keywords["%rsp"]  = KW_RSP;
     keywords["%rbp"]  = KW_RBP;
     keywords["%rip"]  = KW_RIP;
-    fs.open(filepath);
+    fs.open(filepath,std::ios::in);
     if(!fs.is_open()){
         parse_err("ParserError: can not open script file :%s\n",filepath.c_str());
     }

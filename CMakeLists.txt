@@ -46,3 +46,13 @@ include_directories(runtime/net/include)
 add_subdirectory(runtime/net/core)
 add_subdirectory(runtime/net/event)
 add_subdirectory(runtime/net/http)
+
+#install
+install(TARGETS co cas cld
+        RUNTIME DESTINATION bin)
+install(DIRECTORY "${CMAKE_SOURCE_DIR}/runtime/pkg/"
+        DESTINATION lib/copkg)
+install(DIRECTORY "${CMAKE_SOURCE_DIR}/runtime/internal/"
+        DESTINATION lib/coasm)
+install(DIRECTORY "${CMAKE_SOURCE_DIR}/runtime/syscall/"
+        DESTINATION lib/coasm)

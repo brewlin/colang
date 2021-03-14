@@ -27,11 +27,12 @@ bool Package::parse()
     //先找当前，再去找全局
     if (!filesys::is_directory(abpath, ec)){
         //去全局目录库找
-        std::string srcpath = std::getenv("CO_SRC");
-        Debug("Parser: ENV PATH  CO_SRC:%s",srcpath.c_str());
-        if(srcpath.empty())
-            srcpath = "./";
-        abpath  = srcpath + "/pkg/" + package;
+//        std::string srcpath = std::getenv("CO_SRC");
+//        Debug("Parser: ENV PATH  CO_SRC:%s",srcpath.c_str());
+//        if(srcpath.empty())
+//            srcpath = "./";
+//        abpath  = srcpath + "/pkg/" + package;
+        abpath = "/usr/local/lib/copkg/" + package;
         Debug("Parser: package import:%s",abpath.c_str());
         if (!filesys::is_directory(abpath, ec))
             return false;  

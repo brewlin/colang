@@ -5,15 +5,15 @@
 
 Colang是一种编程语言，旨在创造一种动态语法的静态编译语言
 ```asciidoc
-./co      [options] file.co        
+co      [options] file.co        
     -s    file  ast -> asm       编译.co代码 生成.s汇编文件
     -run  file  ast -> asm       gcc编译后链接glic生成可执行程序
     -p    file                   打印token
-./cas     [options] file.s        
+cas     [options] file.s        
     -c    file.s  -> file.o      编译.s自定义汇编语言,翻译机器码并生成.o elf文件
     -p    path path...           批量扫描目录编译.s文件生成.o elf文件
     -print                       打印token
-./cld     [options|file.o...] 
+cld     [options|file.o...] 
     -p    path ... -> a.out      指定多个目录,自动扫描所有.0文件进行链接生成可执行程序
     file.o  ...-> a.out          指定多个file.o进行链接    
 ```
@@ -39,23 +39,29 @@ Colang是一种编程语言，旨在创造一种动态语法的静态编译语�
     - [ ] 优化采用 `golang`的多线程内存分配 + 增量式三色标记gc
   
 ## env & install & tests 
-local test
+`NOTICE`:environment install first
 ```asciidoc
 > gcc -v
-gcc version 7.5.0 (Ubuntu 7.5.0-3ubuntu1~18.04) 
+  gcc version 7.5.0 (Ubuntu 7.5.0-3ubuntu1~18.04) 
+> cmake -version
+  cmake version 3.10.2
 > git clone https://github.com/brewlin/colang.git & cd colang/tests
-> export CO_SRC=$(pwd)/../runtime 
-> cmake ../ & make
-> gcc -c $CO_SRC/internal/*.s $CO_SRC/syscall/*.s
-> ./co  -s rt_os_gc.co
-> ./cas -p .
-> ./cld -p .
-> chmod 777 a.out & ./a.out
+> cmake ../ & make & make install
+```
+compile|run source code
+```
+> gcc -c /usr/local/lib/coasm/*.s
+> co  -s rt_os_gc.co
+> cas -p .
+> cld -p .
+> chmod 777 a.out 
+> ./a.out
 ```
 docker test
 ```asciidoc
 > docker build . -t brewlin/colang
 > docker run -it brewlin/colang /bin/bash
+> cmake . & make & make install
 > sh tests_compiler.sh
 > sh tests_asmer.sh
 > sh tests_linker.sh

@@ -37,7 +37,7 @@ int asmgen(char* argv[],bool run = false)
     AsmGen gen(argv[2]);
     gen.execute();
     if(run){
-        system("gcc -g *.s -L./src/internal -linternal -L./src/gc -lgc");
+        system("gcc -g *.s -L/usr/local/lib/colib -linternal -lgc");
         system("rm *.s");
         system("./a.out");
     }

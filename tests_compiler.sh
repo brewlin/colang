@@ -21,10 +21,10 @@ check(){
 assert(){
     expected="$1"
     input="$2"
-    log "[compile] ./co -s $input ..."
-    ./co -s $input
+    log "[compile] co -s $input ..."
+    co -s $input
     check
-    gcc -g *.s -L./internal -linternal -L./gc -lgc
+    gcc -g *.s -L/usr/local/lib/colib -linternal -lgc
     check
     ./a.out
     check
@@ -46,11 +46,7 @@ read_dir(){
     done
 }
 install_env(){
-    export CO_SRC=$(pwd)/runtime
     cd tests
-    cmake ..
-    make
-
     if [  "$?" != 0 ]; then
         failed "make failed"
     fi

@@ -22,18 +22,15 @@ check(){
 assert(){
     expected="$1"
     input="$2"
-    log "[compile] ./co -s $input ..."
-    ./co -s $input
+    log "[compile] co -s $input ..."
+    co -s $input
     check
-    log "[asmer] ./cas -p ."
-    ./cas -p .
+    log "[asmer] cas -p ."
+    cas -p .
     echo "start linking..."
-#    echo "gcc -c $CO_SRC/internal/*.s"
-    `gcc -c $CO_SRC/internal/*.s`
-#    echo "gcc -c $CO_SRC/syscall/*.s"
-    `gcc -c $CO_SRC/syscall/*.s`
-    log "[linker] ./cld -p ."
-    ./cld -p .
+    `gcc -c /usr/local/lib/coasm/*.s`
+    log "[linker] cld -p ."
+    cld -p .
     check
     chmod 777 a.out
     echo "exec a.out..."
@@ -44,14 +41,6 @@ assert(){
 
     return
 #    failed "[compile] $input failed"
-}
-asmer(){
-    for s in `ls *.s`
-    do
-        ./cas -c $s
-        check
-        log "[asmer] ./cas -c $s passed!"
-    done    
 }
 read_dir(){
     for file in `ls *.co`
@@ -69,10 +58,7 @@ read_dir(){
     rm *.o
 }
 install_env(){
-    export CO_SRC=$(pwd)/runtime
     cd tests
-    cmake ..
-    make
     if [  "$?" != 0 ]; then
         failed "make failed"
     fi

@@ -1,4 +1,6 @@
 package os
+#link:-L./runtime/os -los
+
 
 extern void daemonize()
 # 开启守护进程模式

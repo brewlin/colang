@@ -31,11 +31,11 @@ filepath(filepath)
     keywords["continue"] = KW_CONTINUE;
     keywords["import"]   = KW_IMPORT;
     keywords["extern"]   = KW_EXTERN;
-    keywords["class"]   = KW_CLASS;
+    keywords["class"]    = KW_CLASS;
     keywords["new"]      = KW_NEW;
     keywords["go"]       = KW_GO;
     keywords["package"]  = KW_PACKAGE;
-    fs.open(filepath);
+    fs.open(filepath,std::ios::in);
 
     if(!fs.is_open()){
         parse_err("ParserError: can not open script file :%s\n",filepath.c_str());
