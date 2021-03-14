@@ -13,7 +13,7 @@ global_net
 
 func init(){
     #初始化全局net结构体
-    gloabl_net = _.cnet_init()
+    global_net = _.cnet_init()
 }
 #注册监听事件
 func add_http(port){
