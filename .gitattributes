@@ -1,5 +1,5 @@
 *.sh linguist-language=shell
-*.co linguist-language=colang
+*.co linguist-language=other
 *.c  linguist-language=c
 *.cpp linguist-language=cpp
 *.h  linguist-language=c
