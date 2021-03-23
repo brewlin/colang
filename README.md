@@ -46,7 +46,8 @@ cld     [options|file.o...]
 > cmake -version
   cmake version 3.10.2
 > git clone https://github.com/brewlin/colang.git & cd colang/tests
-> cmake ../ & make & make install
+> cmake ../ & make 
+> sudo make install
 ```
 compile|run source code
 ```
@@ -62,6 +63,7 @@ docker test
 > docker build . -t brewlin/colang
 > docker run -it brewlin/colang /bin/bash
 > cmake . & make & make install
+> dos2unix tests*
 > sh tests_compiler.sh
 > sh tests_asmer.sh
 > sh tests_linker.sh
@@ -84,7 +86,7 @@ class http{
     request
     # func
     func handler(){
-        fmt.println("hello world!")
+        fmt.println("hello world!",request)
         fmt.println(this.request)
     }
 }

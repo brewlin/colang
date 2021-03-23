@@ -179,25 +179,31 @@ void  VarExpr::asmgen(std::deque<Context*> ctx){
     }
 
     //变量遍历表 看是否存在
-    for(auto p = ctx.crbegin(); p != ctx.crend(); ++p){
-        auto* ctx = *p;
+    var = Context::getVar(ctx,this->varname);
+    if(var != nullptr){
+        Function* f = AsmGen::currentFunc;
+        //查看变量是属于参数变量还是函数块变量
+        if(f->locals.count(varname))
+            var = f->locals[varname];
+        else
+            var = f->params_var[varname];
 
-        if(auto* var = ctx->getVar(this->varname);var != nullptr)
-        {
-
-            Function* f = AsmGen::currentFunc;
-            //查看变量是属于哪种变量
-            if(f->locals.count(varname))
-                var = f->locals[varname];
-            else
-                var = f->params_var[varname];
-
-            AsmGen::GenAddr(var,is_delref);
-            //如果是解引用就需要在 读取变量了，否则这个变量是直接传递给下游
-            if(!is_delref)
-                AsmGen::Load();
-            return;
-        }
+        AsmGen::GenAddr(var,is_delref);
+        //如果是解引用就需要在 读取变量了，否则这个变量是直接传递给下游
+        if(!is_delref)
+            AsmGen::Load();
+        return;
+    }
+    //3. 到这里还有一种情况,成员变量可以隐式访问（如果本地变量没有定义覆盖的情况下）
+    if (auto *var = Context::getVar(ctx,"this");var != nullptr) {
+        //get var
+        //获取object对象
+        AsmGen::GenAddr(var);
+        AsmGen::Load();
+        AsmGen::Push();
+        //运算需要调用统一的方法
+        Internal::object_member_get(varname);
+        return;
     }
     parse_err("AsmError:use of undefined variable %s at line %d co %d\n",
           varname.c_str(),this->line,this->column);

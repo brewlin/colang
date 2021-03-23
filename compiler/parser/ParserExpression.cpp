@@ -343,7 +343,8 @@ Expression* Parser::parseVarExpr()
                 index->package     = var;
                 return index;
             }else{
-                //说明是跨包全局变量访问
+                //说明是跨包全局变量访问: pkg.var
+                //也有可能是对象成员变量访问:this.memeber
                 VarExpr* gvar    = new VarExpr(pfuncname,line,column);
                 gvar->package    = var;
                 gvar->is_local   = false;
