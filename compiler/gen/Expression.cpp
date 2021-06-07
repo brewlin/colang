@@ -161,13 +161,15 @@ void  VarExpr::asmgen(std::deque<Context*> ctx){
             Internal::object_member_get(varname);
             return;
         }
-        var  = Package::packages[package]->getGlobalVar(varname);
-        //显式进行全局变量调用则需要强制检查
-        if(!var) parse_err("AsmError:use of undefined global variable %s at line %d co %d\n",
-            varname.c_str(),this->line,this->column);
-        AsmGen::GenAddr(var,is_delref);
-        if(!is_delref) AsmGen::Load();
-        return;
+        if (Package::packages.count(package)){
+            var  = Package::packages[package]->getGlobalVar(varname);
+            //显式进行全局变量调用则需要强制检查
+            if(var){
+                AsmGen::GenAddr(var,is_delref);
+                if(!is_delref) AsmGen::Load();
+                return;
+            } 
+        }
     }
     //普通变量如果是一个全局变量则默认进行全局变量操作
     package = AsmGen::currentFunc->parser->getpkgname();
@@ -205,6 +207,31 @@ void  VarExpr::asmgen(std::deque<Context*> ctx){
         Internal::object_member_get(varname);
         return;
     }
+    //排除了以下的情况
+    //1. 全局变量   （同包）
+    //2. 全局包变量访问（不同包）
+    //3. 本地变量
+    //4. 隐式变量（当前在某个类的成员函数作用域内，默认会去寻找this.var）
+    //触发第5种条件，需要处理函数名作为变量的情况，也就是函数指针
+    Function* func = nullptr;
+    package = this->package;
+    if (Package::packages.count(package)){
+        func = Package::packages[package]->getFunc(varname,false);
+    }
+    if(!func){
+        package = AsmGen::currentFunc->parser->getpkgname();
+        if (Package::packages.count(package)){
+            func = Package::packages[package]->getFunc(varname,false);
+        }
+    }
+    if(func){
+        std::string funcname = package + "_" + func->name;
+        Debug("found function pointer:%s",funcname.c_str());
+        AsmGen::writeln("    mov %s@GOTPCREL(%%rip), %%rax", funcname.c_str());
+        return;
+    }
+
+
     parse_err("AsmError:use of undefined variable %s at line %d co %d\n",
           varname.c_str(),this->line,this->column);
 }
@@ -321,6 +348,18 @@ void  FunCallExpr::asmgen(std::deque<Context*> ctx)
         AsmGen::Push();
         Internal::object_func_addr(funcname);
         //获取到成员函数的函数地址
+        AsmGen::Push();
+        //构造一个假的function
+        func = new Function;
+        func->isExtern    = false;
+        func->isObj       = true;
+        func->is_variadic = false;
+    //函数名也是当前局域内的一个变量，说明是一种函数指针调用
+    }else if (auto *var = Context::getVar(ctx,funcname);var != nullptr) {
+        //get var
+        //获取var值
+        AsmGen::GenAddr(var);
+        AsmGen::Load();
         AsmGen::Push();
         //构造一个假的function
         func = new Function;

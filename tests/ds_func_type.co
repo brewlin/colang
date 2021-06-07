@@ -1,0 +1,16 @@
+package main
+
+import fmt
+import pkg1
+
+func test(){
+    fmt.println("this is test")
+}
+
+func main(){
+    b = test
+    b()
+    #FIXEME: pk1.test suppose throw exception 
+    c = pkg1.test
+    c()
+}
