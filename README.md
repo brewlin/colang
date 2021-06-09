@@ -77,6 +77,7 @@ docker test
 - [x] map
 - [x] array
 - [x] object
+- [ ] closure
 ```
 package main
 import fmt
@@ -90,19 +91,25 @@ class http{
         fmt.println(this.request)
     }
 }
+func closure(){
+    return func(){
+        return ["arr1","arr2",3,4]
+    }
+}
 func main(){
-    a = "this is a string"
+    a = "this is a string" //string
     fmt.println(a)
-    a = 1000
+    a = 1000 // int
     fmt.println(a)
-    a = ["1",2,"33",4,"some string word"]
-    fmt.print(a[0],a[1],a[2],a[3],a[4])
-    //or fmt.print(a)
-    b = {"sdfds":"sdfsd",1:2,"sdfds":3,"a":a}
+    a = ["1",2,"33",4,"some string word"] //array
+    fmt.print(a[0],a[1],a[2],a[3],a[4]) //or fmt.print(a)
+    b = {"sdfds":"sdfsd",1:2,"sdfds":3,"a":a} //map
     fmt.print(b["a"],b["sdfds"])
-    obj = new http()
+    obj = new http() // object
     obj.request = {"method":"POST"}
     obj.handler()
+    cfunc = closure() //closure
+    fmt.println(cfunc())
     
 }
 ```

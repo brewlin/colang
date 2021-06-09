@@ -1,11 +1,51 @@
 package main
 
 import fmt
+import os
+
+func string(){
+    return func(){
+        return "string"
+    }
+}
+
+func int(){
+    return func(){
+        return 100
+    }
+}
+func array(){
+    return func(){
+        #FIXME: local var cause segment fault
+        return ["first",1]
+    }
+}
 
 func main(){
     fmt.println("closure test")
+    a = string()
+    if(a() != "string"){
+        fmt.println("[failed] closure a()!= string")
+        os.exit(1)
+    }
+    fmt.println(a())
 
-    #b  = func(){
-    #    return "test"
-    #}
+    b = int()
+    if(b() != 100){
+        fmt.println("[failed] closure b()!= 100")
+        os.exit(1)
+    }
+    fmt.println(b())
+
+    c = array()
+    arr = c()
+    if(arr[0] != "first"){
+        fmt.println("[failed] closure c()!= first")
+        os.exit(1)
+    }
+    fmt.println(arr)
+
+    fmt.println("[pass] closure test")
+
+
 }
