@@ -97,18 +97,18 @@ func closure(){
     }
 }
 func main(){
-    a = "this is a string" //string
+    a = "this is a string" #string
     fmt.println(a)
-    a = 1000 // int
+    a = 1000 # int
     fmt.println(a)
-    a = ["1",2,"33",4,"some string word"] //array
-    fmt.print(a[0],a[1],a[2],a[3],a[4]) //or fmt.print(a)
-    b = {"sdfds":"sdfsd",1:2,"sdfds":3,"a":a} //map
+    a = ["1",2,"33",4,"some string word"] #array
+    fmt.print(a[0],a[1],a[2],a[3],a[4]) #or fmt.print(a)
+    b = {"sdfds":"sdfsd",1:2,"sdfds":3,"a":a} #map
     fmt.print(b["a"],b["sdfds"])
-    obj = new http() // object
+    obj = new http() #object
     obj.request = {"method":"POST"}
     obj.handler()
-    cfunc = closure() //closure
+    cfunc = closure() #closure
     fmt.println(cfunc())
     
 }
