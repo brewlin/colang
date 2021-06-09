@@ -132,6 +132,7 @@ std::string KVExpr::toString() {
 }
 
 std::string VarExpr::toString() { return "VarExpr(" + varname + ")"; }
+std::string ClosureExpr::toString() { return "ClosureExpr(" + varname + ")"; }
 
 std::string IndexExpr::toString() {
     std::string str = "IndexExpr(index=";

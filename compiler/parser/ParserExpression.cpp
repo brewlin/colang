@@ -113,7 +113,20 @@ Expression* Parser::parseUnaryExpr()
     }else if(anyone(getCurrentToken(),LIT_DOUBLE,LIT_INT,LIT_CHAR,LIT_STR,TK_VAR,TK_LPAREN,TK_LBRACKET,
                     TK_LBRACE,TK_RBRACE,KW_TRUE,KW_FALSE,KW_NULL,KW_NEW,TK_DOT,TK_DELREF)){
         return parsePrimaryExpr();
+    //处理嵌套闭包的情况
+    }else if(getCurrentToken() == KW_FUNC)
+    {
+        Function* prev    = currentFunc;
+        Function* closure = parseFuncDef(false,true);
+        prev->closures.push_back(closure);
+        //替换为一个ClosureExpression
+        ClosureExpr* var = new ClosureExpr("placeholder",line,column);
+        closure->receiver = var;
+        //恢复func
+        currentFunc = prev;
+        return var;
     }
+
     Debug("parseUnaryExpr: not found token:%d-%s",getCurrentToken(),getCurrentLexeme().c_str());
     return nullptr;
 }

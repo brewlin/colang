@@ -116,6 +116,15 @@ struct VarExpr : public Expression {
     void         asmgen( std::deque<Context*> ctx) override;
     std::string  toString() override;
 };
+struct ClosureExpr : public Expression {
+    explicit ClosureExpr(std::string varname, int line, int column)
+            : Expression(line, column),
+              varname(std::move(varname)){}
+    std::string  varname;
+
+    void         asmgen( std::deque<Context*> ctx) override;
+    std::string  toString() override;
+};
 
 struct IndexExpr : public Expression {
     explicit IndexExpr(int line, int column) 

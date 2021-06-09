@@ -33,4 +33,5 @@ func main(){
     p1()
     p2 = pkg1.test2
     p2()
+    #TODO: support func pointer pass
 }

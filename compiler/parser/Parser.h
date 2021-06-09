@@ -69,7 +69,7 @@ private:
 
     //parse keywords
     void 			parseImportDef();
-    Function*       parseFuncDef(bool member = false);
+    Function*       parseFuncDef(bool member = false,bool closure = false);
     Function*       parseExternDef();
     void            parseClassDef();
     void            parsePackageDef();

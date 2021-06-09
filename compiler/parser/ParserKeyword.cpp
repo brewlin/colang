@@ -88,26 +88,29 @@ void Parser::parseClassDef()
  * @param member 表示当前函数是否为成员函数
  * @return
  */
-Function* Parser::parseFuncDef(bool member)
+Function* Parser::parseFuncDef(bool member,bool closure)
 {
     Debug("found function. start parser..");
     //当前是否已经解析到 func 关键字
     assert(getCurrentToken() == KW_FUNC);
-    //获取函数名
+    //获取函数名|或者直接跳过
     currentToken = scan();
-    //检查是否重复定义
-    if(hasFunc(getCurrentLexeme()))
-        parse_err("SyntaxError: already define function :%s\n",getCurrentLexeme().c_str());
     auto* node = new Function;
-
     //set parser
     node->parser = this;
     //start parse function
     currentFunc = node;
 
-    node->name = getCurrentLexeme();
-    //指向 func name'(') 括号
-    currentToken = scan();
+    //闭包没有函数名
+    if(!closure){
+        //检查是否重复定义
+        if(hasFunc(getCurrentLexeme()))
+            parse_err("SyntaxError: already define function :%s\n",getCurrentLexeme().c_str());
+        node->name = getCurrentLexeme();
+        //指向 func name'(') 括号
+        currentToken = scan();
+    }
+
     assert(getCurrentToken() == TK_LPAREN);
 
     //如果为成员函数需要填充第一个 this 参数
@@ -117,6 +120,7 @@ Function* Parser::parseFuncDef(bool member)
         node->params_order_var.push_back(var);
         node->params.push_back("this");
     }
+
     auto params  = parseParameterList();
     //解析函数参数
     node->params.insert(node->params.end(),params.begin(),params.end());

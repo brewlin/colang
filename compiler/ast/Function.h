@@ -12,6 +12,7 @@
 
 struct Expression;
 struct VarExpr;
+struct ClosureExpr;
 class Parser;
 /**
  * 函数
@@ -44,6 +45,10 @@ struct Function{
     int                                        g_stack;
     //表示该函数所需要的栈空间 一般是本地变量的总和
     int                      stack_size;
+    //支持内嵌闭包函数，在codgen阶段会为所有的闭包函数生成随机签名
+    std::vector<Function*>   closures;
+    //每个闭包函数默认会被替换为一个ClosureExpression，在签名生成成功后会一并修改执行的VarExpression
+    ClosureExpr*             receiver;
 
     std::vector<std::string> params;
     Block* block{};
