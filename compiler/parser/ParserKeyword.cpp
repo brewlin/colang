@@ -175,7 +175,7 @@ void Parser::parseExtra() {
     //解析到了链接信息
     if(getCurrentLexeme() == "link"){
         auto lines = getline();
-        lines = lines.substr(0,lines.size()-1);
+        lines = lines.substr(0,lines.size());
         //推到数组里去
         links.push_back(lines);
         return;
