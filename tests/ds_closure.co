@@ -5,33 +5,36 @@ import os
 
 func string(){
     return func(){
-        return "string"
+        return "string00" + 100 + "string"
     }
 }
 
 func int(){
     return func(){
-        return 100
+        a = 100
+        a += 1
+        return a
     }
 }
 func array(){
     return func(){
-        #FIXME: local var cause segment fault
-        return ["first",1]
+        arr = ["first",1,2]
+        arr[] = "fourth"
+        return arr
     }
 }
 
 func main(){
     fmt.println("closure test")
     a = string()
-    if(a() != "string"){
+    if(a() != "string00100string"){
         fmt.println("[failed] closure a()!= string")
         os.exit(1)
     }
     fmt.println(a())
 
     b = int()
-    if(b() != 100){
+    if(b() != 101){
         fmt.println("[failed] closure b()!= 100")
         os.exit(1)
     }
@@ -39,8 +42,8 @@ func main(){
 
     c = array()
     arr = c()
-    if(arr[0] != "first"){
-        fmt.println("[failed] closure c()!= first")
+    if(arr[3] != "fourth"){
+        fmt.println("[failed] closure c()!= foruth")
         os.exit(1)
     }
     fmt.println(arr)
