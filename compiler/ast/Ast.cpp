@@ -301,6 +301,19 @@ std::string IfStmt::toString() {
     str += "])";
     return str;
 }
+std::string ForStmt::toString() {
+    std::string str = "ForStmt(";
+    str += " init="  + init->toString();
+    str += ",cond="  + cond->toString();
+    str += ",after=" + after->toString();
+    str += ",exprs=[";
+    for (auto& e : block->stmts) {
+        str += e->toString();
+        str += ",";
+    }
+    str += "])";
+    return str;
+}
 
 std::string ReturnStmt::toString() {
     std::string str = "ReturnStmt(";

@@ -48,6 +48,9 @@ void IfStmt::asmgen(std::deque<Context *> ctx)
     AsmGen::writeln("L.end.%d:", c);
 
 }
+void ForStmt::asmgen(std::deque<Context *> ctx)
+{
+}
 /**
  * 执行while 语句 该函数可能会递归调用因为存在多个嵌套while循环
  * @param ctx

@@ -130,6 +130,11 @@ std::tuple<Token,std::string> Parser::scan() {
         lexeme += c;
         return std::make_tuple(TK_COLON,lexeme);
     }
+    if(c == ';'){
+        std::string lexeme;
+        lexeme += c;
+        return std::make_tuple(TK_SEMICOLON,lexeme);
+    }
     //字符解析 只支持单个字符:'c'
     if (c == '\'') {
         std::string lexeme;

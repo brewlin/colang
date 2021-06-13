@@ -17,6 +17,10 @@ Statement* Parser::parseStatement()
             currentToken = scan();
             node = parseIfStmt();
             break;
+        case KW_FOR:
+            currentToken = scan();
+            node = parseForStmt();
+            break;
         case KW_WHILE:
             currentToken = scan();
             node = parseWhileStmt();
@@ -39,10 +43,9 @@ Statement* Parser::parseStatement()
     }
     return node;
 }
-
 /**
  * 解析if语句表达式
- * @param filename
+ * 
  */
 IfStmt*   Parser::parseIfStmt()
 {
@@ -65,6 +68,38 @@ IfStmt*   Parser::parseIfStmt()
     }
     return node;
 }
+/**
+ * 解析for语句表达式
+ * 
+ */
+ForStmt*   Parser::parseForStmt()
+{
+    auto* node = new ForStmt(line,column);
+    //去掉左括号
+    currentToken = scan();
+    //解析初始化表达式
+    node->init = parseExpression();
+    //去掉;
+    assert(getCurrentToken() == TK_SEMICOLON);
+    currentToken = scan();
+
+    //解析条件表达式
+    node->cond = parseExpression();
+    //去掉;
+    assert(getCurrentToken() == TK_SEMICOLON);
+    currentToken = scan();
+
+    //解析后置操作
+    node->after = parseExpression();
+
+    //去掉右括号
+    assert(getCurrentToken() == TK_RPAREN);
+    currentToken = scan();
+    //解析语句块
+    node->block = parseBlock();
+    return node;
+}
+
 
 /**
  * 解析while语句表达式

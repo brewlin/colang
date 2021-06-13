@@ -73,4 +73,15 @@ struct WhileStmt : public Statement {
     std::string  toString() override;
 };
 
+struct ForStmt : public Statement {
+    explicit     ForStmt(int line, int column) : Statement(line, column) {}
+    Expression*  init{};
+    Expression*  cond{};
+    Expression*  after{};
+    Block*       block{};
+
+    void         asmgen(std::deque<Context*> ctx) override;
+    std::string  toString() override;
+};
+
 #endif //CO_LANG_STATEMENT_H

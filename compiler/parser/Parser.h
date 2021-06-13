@@ -80,6 +80,7 @@ private:
     Statement*      parseStatement();
     ExpressionStmt* parseExpressionStmt();
     IfStmt*         parseIfStmt();
+    ForStmt*        parseForStmt();
     WhileStmt*      parseWhileStmt();
     ReturnStmt*     parseReturnStmt();
 
