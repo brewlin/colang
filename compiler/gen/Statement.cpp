@@ -50,6 +50,35 @@ void IfStmt::asmgen(std::deque<Context *> ctx)
 }
 void ForStmt::asmgen(std::deque<Context *> ctx)
 {
+    int c = AsmGen::count ++;
+    //初始化条件表达式
+    this->init->asmgen(ctx);
+    //表示循环开始的 标签：
+    AsmGen::writeln("L.for.begin.%d:", c);
+    //对判断条件的表达式求值
+    this->cond->asmgen(ctx);
+    Internal::isTrue();
+    AsmGen::CreateCmp();
+    AsmGen::writeln("    je  L.for.end.%d", c);
+
+    AsmGen::enterContext(ctx);
+    //设置当前ctx 所处的 count计数  用于定位标签
+    ctx.back()->point = c;
+    ctx.back()->end_str   = "L.for.end";
+    ctx.back()->start_str = "L.for.begin";
+    //内层循环不断执行 for语句块
+    //外层用于判断 条件是否继续为true
+    for(auto& stmt : block->stmts){
+//            std::cout << stmt->toString() <<std::endl;
+        stmt->asmgen(ctx);
+    }
+    //执行后置条件表达式
+    this->after->asmgen(ctx);
+    AsmGen::leaveContext(ctx);
+
+    AsmGen::writeln("    jmp L.for.begin.%d",c);
+    AsmGen::writeln("L.for.end.%d:", c);
+
 }
 /**
  * 执行while 语句 该函数可能会递归调用因为存在多个嵌套while循环

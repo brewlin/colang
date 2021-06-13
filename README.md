@@ -118,24 +118,22 @@ func main(){
 - [x] return
 - [x] package,import
 - [x] if 
-- [x] while
+- [x] while,for
 - [x] continue,break
 
 ```
 package main
 func main(){
-    a = "str"
-    if(a == "str"){
-    }
-    b = 10
-    while(b){
-        if(b == 5){
+    for(b = 1 ; b < 10 ; b += 1){
+        if ( b == 2){
+            fmt.println(b)
+        }
+        if (b == 5){
             continue
         }
-        if(b == 2){
+        if(b == 8){
             break
         }
-        b -= 1
     }
 }
 ```
