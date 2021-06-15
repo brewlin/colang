@@ -157,42 +157,7 @@ Expression* Parser::parsePrimaryExpr()
         //2 解析包名调用 : fmt.println()
         //3 解析全局调用 : fmt.variable
         return parseVarExpr();
-    }else if(getCurrentToken() == TK_DOT)
-    {
-        Debug("got token dot ");
-        auto* val = new MemberExpr(line,column);
-        val->varname = getCurrentLexeme();
-        //scan
-        currentToken = scan();
-        //must var
-        assert(getCurrentToken() == TK_VAR);
-        val->membername = getCurrentLexeme();
-        //check ()
-        currentToken = scan();
-
-        //可能是成员函数调用
-        if(getCurrentToken() == TK_LPAREN){
-
-            auto* mce = new MemberCallExpr(line,column);
-            mce->varname    = val->varname;
-            mce->membername = val->membername;
-            currentToken = scan();
-
-            //循环解析实参 func(1,2,3); while( c != ')');
-            while(getCurrentToken() != TK_RPAREN){
-                mce->args.push_back(parseExpression());
-                //ignore ','
-                if(getCurrentToken() == TK_COMMA)
-                    currentToken = scan();
-            }
-            //去掉 )
-            assert(getCurrentToken() == TK_RPAREN);
-            currentToken = scan();
-            return mce;
-        }
-        return val;
-    }
-    else if(getCurrentToken() == LIT_INT)
+    }else if(getCurrentToken() == LIT_INT)
     {
         //将 int 转换为 int
         auto val = atoi(getCurrentLexeme().c_str());
@@ -236,14 +201,6 @@ Expression* Parser::parsePrimaryExpr()
     {
         currentToken = scan();
         return new NullExpr(line,column);
-    }else if(getCurrentToken() == TK_LPAREN)
-    {
-        currentToken = scan();
-        //解析 {} block 块内的表达式
-        auto val     = parseExpression();
-        assert(getCurrentToken() == TK_RPAREN);
-        currentToken = scan();
-        return val;
     }else if(getCurrentToken() == TK_LBRACKET)
     {
         //解析数组 array

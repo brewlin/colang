@@ -5,7 +5,7 @@ import os
 
 func test_int(b){
     fmt.sprintf("test int return  %d \n",b)
-    if(b != 1)
+    if(b != 1){
         fmt.sprintf("Error %d\n",b)
         os.exit(1)
     }
