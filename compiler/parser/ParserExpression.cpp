@@ -15,7 +15,7 @@ Expression* Parser::parseExpression(short oldPrecedence)
     //解析一元表达式
     auto* p = parseUnaryExpr();
     //这里尝试优先去解析链式表达式
-    if(anyone(getCurrentToken(),TK_DOT,TK_LPAREN)){
+    if(anyone(getCurrentToken(),TK_DOT,TK_LPAREN,TK_LBRACKET)){
         //构造一颗右偏的二叉树
         ChainExpr* chainExpr = new ChainExpr(line,column);
         chainExpr->left = p;
@@ -131,8 +131,9 @@ Expression* Parser::parseUnaryExpr()
  */
 Expression* Parser::parsePrimaryExpr()
 {
+    Token tk = getCurrentToken();
     //说明是一个解引用操作，注意此操作非常危险 需要注意和c函数的交互
-    if(getCurrentToken() == TK_DELREF){
+    if(tk == TK_DELREF){
         Debug("find token delref");
         //eat *
         currentToken = scan();
@@ -145,11 +146,18 @@ Expression* Parser::parsePrimaryExpr()
         var->is_delref = true;
         return var;
     //单独出现在这里 . () [] 一般是只有在链式表达式才会出现在这里
-    }else if(anyone(getCurrentToken(),TK_DOT,TK_LPAREN)){
-        //在链式表达式中，没有明确的left，需要动态计算
-        return parseVarExpr("");
+    }else if(tk == TK_DOT){
+        currentToken = scan();
+        assert(getCurrentToken() == TK_VAR);
+        MemberExpr *me = new MemberExpr(line,column);
+        me->membername = getCurrentLexeme();
+        //next
+        currentToken = scan();
+        return me;
+    }else if(tk == TK_LPAREN){
+        return parseFuncallExpr("");
     //处理嵌套闭包的情况
-    }else if(getCurrentToken() == KW_FUNC)
+    }else if(tk == KW_FUNC)
     {
         Function* prev    = currentFunc;
         Function* closure = parseFuncDef(false,true);
@@ -160,13 +168,13 @@ Expression* Parser::parsePrimaryExpr()
         //恢复func
         currentFunc = prev;
         return var;
-    }else if(getCurrentToken() == TK_VAR)
+    }else if(tk == TK_VAR)
     {
         auto var = getCurrentLexeme();
         //去掉标识符
         currentToken = scan();
         return parseVarExpr(var);
-    }else if(getCurrentToken() == LIT_INT)
+    }else if(tk == LIT_INT)
     {
         //将 int 转换为 int
         auto val = atoi(getCurrentLexeme().c_str());
@@ -174,7 +182,7 @@ Expression* Parser::parsePrimaryExpr()
         auto* ret = new IntExpr(line,column);
         ret->literal = val;
         return ret;
-    }else if(getCurrentToken() == LIT_DOUBLE)
+    }else if(tk == LIT_DOUBLE)
     {
         //将字面值 转换为double
         auto val     = atof(getCurrentLexeme().c_str());
@@ -182,7 +190,7 @@ Expression* Parser::parsePrimaryExpr()
         auto* ret    = new DoubleExpr(line,column);
         ret->literal = val;
         return ret;
-    }else if(getCurrentToken() == LIT_STR){
+    }else if(tk == LIT_STR){
         //将字符串 ... 保存
         auto val     = getCurrentLexeme();
         currentToken = scan();
@@ -191,7 +199,7 @@ Expression* Parser::parsePrimaryExpr()
         strs.push_back(ret);
         ret->literal = val;
         return ret;
-    }else if(getCurrentToken() == LIT_CHAR)
+    }else if(tk == LIT_CHAR)
     {
         //保存char
         auto val     = getCurrentLexeme();
@@ -199,18 +207,18 @@ Expression* Parser::parsePrimaryExpr()
         auto* ret    = new CharExpr(line,column);
         ret->literal = val[0];
         return ret;
-    }else if(getCurrentToken() == KW_TRUE || getCurrentToken() == KW_FALSE)
+    }else if(tk == KW_TRUE || tk == KW_FALSE)
     {
         auto val     = (KW_TRUE == getCurrentToken());
         currentToken = scan();
         auto* ret    = new BoolExpr(line,column);
         ret->literal = val;
         return ret;
-    }else if(getCurrentToken() == KW_NULL)
+    }else if(tk == KW_NULL)
     {
         currentToken = scan();
         return new NullExpr(line,column);
-    }else if(getCurrentToken() == TK_LBRACKET)
+    }else if(tk == TK_LBRACKET)
     {
         //解析数组 array
         currentToken = scan();
@@ -232,7 +240,7 @@ Expression* Parser::parsePrimaryExpr()
         return ret;
 
     // 解析map = {}
-    }else if(getCurrentToken() == TK_LBRACE)
+    }else if(tk == TK_LBRACE)
     {
         currentToken = scan();
         auto* ret = new MapExpr(line,column);
@@ -261,7 +269,7 @@ Expression* Parser::parsePrimaryExpr()
         currentToken = scan();
         return ret;
         // 解析map = {}
-    }else if(getCurrentToken() == KW_NEW)
+    }else if(tk == KW_NEW)
     {
         //去掉 new
         currentToken = scan();

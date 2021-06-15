@@ -1,0 +1,17 @@
+package main 
+
+import fmt
+
+func builder(){
+	return func(){
+		return func(){
+			return 100
+		}
+	}
+}
+
+func main(){
+	cf = builder()
+	re = cf().p()[0]()
+	fmt.println(re)
+}

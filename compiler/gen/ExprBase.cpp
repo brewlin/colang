@@ -254,5 +254,5 @@ void  BinaryExpr::asmgen(std::deque<Context*> ctx)
  */
 void  ChainExpr::asmgen(std::deque<Context*> ctx)
 {
-
+    std::cout << this->toString() << std::endl;
 }
