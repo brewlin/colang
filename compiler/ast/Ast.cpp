@@ -142,6 +142,14 @@ std::string IndexExpr::toString() {
     return str;
 }
 
+std::string ChainExpr::toString() {
+    std::string str = "ChainExpr(";
+    str += "left=" + left->toString();
+    str += ",right=" + right->toString();
+    str += ")";
+    return str;
+}
+
 std::string BinaryExpr::toString() {
     std::string str = "BinaryExpr(";
     if (opt != INVALID) {

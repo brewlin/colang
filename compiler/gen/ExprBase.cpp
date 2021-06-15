@@ -246,3 +246,13 @@ void  BinaryExpr::asmgen(std::deque<Context*> ctx)
     Internal::call_operator(this->opt,"binary_operator");
 }
 
+
+/**
+ * 链式表达式
+ * @param ctx
+ * @return
+ */
+void  ChainExpr::asmgen(std::deque<Context*> ctx)
+{
+
+}

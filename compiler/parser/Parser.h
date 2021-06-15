@@ -88,7 +88,7 @@ private:
     Expression*     parseExpression(short oldPrecedence = 1);
     Expression*     parseUnaryExpr();
     Expression*     parsePrimaryExpr();
-    Expression*     parseVarExpr();
+    Expression*     parseVarExpr(std::string var);
     Expression*     parseFuncallExpr(std::string callname);
     Expression*     parseIndexExpr(std::string varname);
 

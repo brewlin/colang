@@ -14,7 +14,14 @@ Expression* Parser::parseExpression(short oldPrecedence)
 {
     //解析一元表达式
     auto* p = parseUnaryExpr();
-
+    //这里尝试优先去解析链式表达式
+    if(anyone(getCurrentToken(),TK_DOT,TK_LPAREN)){
+        //构造一颗右偏的二叉树
+        ChainExpr* chainExpr = new ChainExpr(line,column);
+        chainExpr->left = p;
+        chainExpr->right = parseExpression();
+        return chainExpr;
+    }
     //解析赋值 = 号
     if (anyone(getCurrentToken(), TK_ASSIGN, TK_PLUS_AGN, TK_MINUS_AGN,
                TK_MUL_AGN, TK_DIV_AGN, TK_MOD_AGN,TK_BITAND_AGN,TK_BITOR_AGN,TK_SHIFTL_AGN,TK_SHIFTR_AGN)) {
@@ -110,21 +117,9 @@ Expression* Parser::parseUnaryExpr()
         //返回后可以挂在一颗左子树上
         return val;
         //如果是字面值，标识符，等，就调用公共表达式解析
-    }else if(anyone(getCurrentToken(),LIT_DOUBLE,LIT_INT,LIT_CHAR,LIT_STR,TK_VAR,TK_LPAREN,TK_LBRACKET,
+    }else if(anyone(getCurrentToken(),LIT_DOUBLE,LIT_INT,LIT_CHAR,LIT_STR,TK_VAR,KW_FUNC,TK_LPAREN,TK_LBRACKET,
                     TK_LBRACE,TK_RBRACE,KW_TRUE,KW_FALSE,KW_NULL,KW_NEW,TK_DOT,TK_DELREF)){
         return parsePrimaryExpr();
-    //处理嵌套闭包的情况
-    }else if(getCurrentToken() == KW_FUNC)
-    {
-        Function* prev    = currentFunc;
-        Function* closure = parseFuncDef(false,true);
-        prev->closures.push_back(closure);
-        //替换为一个ClosureExpression
-        ClosureExpr* var = new ClosureExpr("placeholder",line,column);
-        closure->receiver = var;
-        //恢复func
-        currentFunc = prev;
-        return var;
     }
 
     Debug("parseUnaryExpr: not found token:%d-%s",getCurrentToken(),getCurrentLexeme().c_str());
@@ -140,7 +135,6 @@ Expression* Parser::parsePrimaryExpr()
     if(getCurrentToken() == TK_DELREF){
         Debug("find token delref");
         //eat *
-
         currentToken = scan();
         //接下来肯定是一个变量 否则就报错
         Expression *p = parsePrimaryExpr();
@@ -150,13 +144,28 @@ Expression* Parser::parsePrimaryExpr()
         VarExpr* var = dynamic_cast<VarExpr*>(p);
         var->is_delref = true;
         return var;
-
+    //单独出现在这里 . () [] 一般是只有在链式表达式才会出现在这里
+    }else if(anyone(getCurrentToken(),TK_DOT,TK_LPAREN)){
+        //在链式表达式中，没有明确的left，需要动态计算
+        return parseVarExpr("");
+    //处理嵌套闭包的情况
+    }else if(getCurrentToken() == KW_FUNC)
+    {
+        Function* prev    = currentFunc;
+        Function* closure = parseFuncDef(false,true);
+        prev->closures.push_back(closure);
+        //替换为一个ClosureExpression
+        ClosureExpr* var = new ClosureExpr("placeholder",line,column);
+        closure->receiver = var;
+        //恢复func
+        currentFunc = prev;
+        return var;
     }else if(getCurrentToken() == TK_VAR)
     {
-        //1 解析变量定义 : var
-        //2 解析包名调用 : fmt.println()
-        //3 解析全局调用 : fmt.variable
-        return parseVarExpr();
+        auto var = getCurrentLexeme();
+        //去掉标识符
+        currentToken = scan();
+        return parseVarExpr(var);
     }else if(getCurrentToken() == LIT_INT)
     {
         //将 int 转换为 int
@@ -271,11 +280,11 @@ Expression* Parser::parsePrimaryExpr()
     }
     return nullptr;
 }
-Expression* Parser::parseVarExpr()
+//1 解析变量定义 : var
+//2 解析包名调用 : fmt.println()
+//3 解析全局调用 : fmt.variable
+Expression* Parser::parseVarExpr(std::string var)
 {
-    auto var = getCurrentLexeme();
-    //去掉标识符
-    currentToken = scan();
     switch (getCurrentToken()){
 
         //1. fmt.println 说明是一种包名的函数调用

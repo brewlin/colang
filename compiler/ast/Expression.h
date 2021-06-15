@@ -94,6 +94,15 @@ struct KVExpr : public Expression {
     void         asmgen( std::deque<Context*> ctx) override;
     std::string  toString() override;
 };
+struct ChainExpr : public Expression {
+    explicit ChainExpr(int line,int column): Expression(line,column){}
+
+    Expression* left{};
+    Expression* right{};
+
+    void         asmgen( std::deque<Context*> ctx) override;
+    std::string  toString() override;
+};
 
 struct VarExpr : public Expression {
     explicit VarExpr(std::string varname, int line, int column)
