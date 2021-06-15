@@ -47,6 +47,7 @@ struct Function{
     int                      stack_size;
     //支持内嵌闭包函数，在codgen阶段会为所有的闭包函数生成随机签名
     std::vector<Function*>   closures;
+    static int               closureidx;
     //每个闭包函数默认会被替换为一个ClosureExpression，在签名生成成功后会一并修改执行的VarExpression
     ClosureExpr*             receiver;
 

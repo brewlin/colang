@@ -67,15 +67,20 @@ void AsmGen::registerMain()
     writeln("    ret");
 
 }
+void AsmGen::funcs_offsets(Function* fn){
+    //这里需要考虑闭包的情况
+    if(fn->closures.size()){
+        for(auto* closure : fn->closures){
+            funcs_offsets(closure);
+        }
+    }
+    //最后在计算本函数
+    assign_offsets(fn);
+
+}
 void AsmGen::funcs_offsets() {
     for (auto it : parser->funcs) {
-        //这里需要考虑闭包的情况
-        Function* fn = it.second;
-        for(auto* closure : fn->closures){
-            assign_offsets(closure);
-        }
-        //最后在计算本函数
-        assign_offsets(fn);
+        funcs_offsets(it.second);
     }
 
 }

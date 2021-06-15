@@ -23,9 +23,30 @@ func array(){
         return arr
     }
 }
+func embeded(){
+    r = func(){
+        c1 = func(){
+            c2 = func(){
+                c3 = func(){
+                    return "c3"
+                }
+                return c3() + "c2"
+            }
+            return c2() + "c1"
+        }
+        return c1() + "r"
+    }
+    str = r()
+    fmt.println(str)
+    if (str != "c3c2c1r"){
+        fmt.println("[failed] embeded closure str != c3c2c1r")
+        os.exit(1)
+    }
+}
 
 func main(){
     fmt.println("closure test")
+    embeded()
     a = string()
     if(a() != "string00100string"){
         fmt.println("[failed] closure a()!= string")

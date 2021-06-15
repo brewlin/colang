@@ -41,6 +41,7 @@ public:
 
     static void assign_offsets(Function* fn);
     static void funcs_offsets();
+    static void funcs_offsets(Function* fn);
     static void classs_offsets();
     static void registerMain();
     static void registerStrings();
@@ -49,6 +50,7 @@ public:
     static void CreateGlobalString(StringExpr* expr);
 
     static void registerFuncs();
+    static void registerFunc(Function* fn);
     static void CreateFunction(Function* fn,Class* c = nullptr);
     static void registerObjects();
     static void registerObjectFuncs(Class* c);

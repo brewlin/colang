@@ -10,37 +10,37 @@
 #include "Block.h"
 #include "Parser.h"
 
+void AsmGen::registerFunc(Function* fn)
+{
+    //这里需要先处理闭包函数
+    if(fn->closures.size())
+    {
+        for(auto* closure : fn->closures){
+            std::string funcname = "func_" + std::to_string(Function::closureidx ++);
+            closure->receiver->varname = fn->parser->getpkgname() + "_" + funcname;
+            closure->parser = fn->parser;
+            closure->name   = funcname;
+            //递归去创建
+            registerFunc(closure);
+        }
+    }
+    //最后创建当前函数
+    currentFunc = fn;
+    CreateFunction(fn);
+    currentFunc = nullptr;
+
+}
 
 /**
- *
+ * 扫描所有的parser下的函数并依次生成汇编码
  */
 void AsmGen::registerFuncs()
 {
     Debug("register functions")
     int sign = 0;
     for(auto p :parser->funcs){
-        Function* fn = p.second;
-        //这里需要先处理闭包函数
-        if(fn->closures.size())
-        {
-            for(auto* closure : fn->closures){
-                std::string funcname = "func_" + std::to_string(sign++);
-                closure->receiver->varname = fn->parser->getpkgname() + "_" + funcname;
-                closure->parser = fn->parser;
-                closure->name   = funcname;
-                //创建闭包函数
-                currentFunc = closure;
-                CreateFunction(closure);
-                currentFunc = nullptr;
-            }
-        }
-        //最后创建当前函数
-        currentFunc = fn;
-        CreateFunction(fn);
-        currentFunc = nullptr;
-
+        registerFunc(p.second);
     }
-
 }
 /**
  * 注册fn
