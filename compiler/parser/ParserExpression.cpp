@@ -18,8 +18,8 @@ Expression* Parser::parseExpression(short oldPrecedence)
     if(anyone(getCurrentToken(),TK_DOT,TK_LPAREN,TK_LBRACKET)){
         //构造一颗右偏的二叉树
         ChainExpr* chainExpr = new ChainExpr(line,column);
-        chainExpr->left = p;
-        chainExpr->right = parseExpression();
+        chainExpr->lhs = p;
+        chainExpr->rhs = parseExpression();
         return chainExpr;
     }
     //解析赋值 = 号

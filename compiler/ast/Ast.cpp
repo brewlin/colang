@@ -144,8 +144,8 @@ std::string IndexExpr::toString() {
 
 std::string ChainExpr::toString() {
     std::string str = "ChainExpr(";
-    str += "left=" + left->toString();
-    str += ",right=" + right->toString();
+    str += "left=" + lhs->toString();
+    str += ",right=" + rhs->toString();
     str += ")";
     return str;
 }

@@ -254,5 +254,10 @@ void  BinaryExpr::asmgen(std::deque<Context*> ctx)
  */
 void  ChainExpr::asmgen(std::deque<Context*> ctx)
 {
-    std::cout << this->toString() << std::endl;
+    //left codegen
+    this->lhs->asmgen(ctx);
+    AsmGen::Push();
+    // pass %rax 中间通过rax将各个节点链接起来
+    //righ codegen
+    this->rhs->asmgen(ctx);
 }

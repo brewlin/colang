@@ -12,6 +12,6 @@ func builder(){
 
 func main(){
 	cf = builder()
-	re = cf().p()[0]()
+	re = cf()()
 	fmt.println(re)
 }

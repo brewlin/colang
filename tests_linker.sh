@@ -28,6 +28,8 @@ assert(){
     log "[asmer] cas -p ."
     cas -p .
     echo "start linking..."
+    # cas目前未全部兼容GNU，运行时c库需要采用gcc打包为.o文件
+    # cas -p /usr/local/lib/coasm
     `gcc -c /usr/local/lib/coasm/*.s`
     log "[linker] cld -p ."
     cld -p .

@@ -15,14 +15,13 @@
  * @param ctx
  * @return
  */
-void  FunCallExpr::asmgen(std::deque<Context*> ctx)
+void funcexec(std::deque<Context*> ctx,Function* func,FunCallExpr* fce,std::string package)
 {
-    Debug("FunCallExpr: parsing... package:%s func:%s",package.c_str(),funcname.c_str());
-//    AsmGen::writeln("    .loc %d %d %d",AsmGen::parser->fileno,line,column);
+    auto args = fce->args;
+    std::string funcname = fce->funcname;
     //gp 通用寄存器个数统计
     //fp 浮点数寄存器个数统计
     int gp = 0, fp = 0;
-
     //判断是否有可变参数
     bool have_variadic = false;
     Function* cfunc = AsmGen::currentFunc;
@@ -36,75 +35,8 @@ void  FunCallExpr::asmgen(std::deque<Context*> ctx)
             }
         }
     }
-    //如果没有加包名 就默认加上当前包名进行调用
-    std::string package = this->package;
-    if(!is_pkgcall){
-        package      = cfunc->parser->getpkgname();
-    }
-
-    //判断是否是进行外部函数调用
-    bool is_extern = false;
-    if(this->package == "_"){
-        package      = cfunc->parser->getpkgname();
-        is_extern = true;
-    }
-
-    Function *func;
-    //说明这是一个对象成员函数调用
-    if (auto *var = Context::getVar(ctx,package);var != nullptr) {
-        //get var
-        //获取object对象
-        AsmGen::GenAddr(var);
-        AsmGen::Load();
-        AsmGen::Push();
-        Internal::object_func_addr(funcname);
-        //获取到成员函数的函数地址
-        AsmGen::Push();
-        //构造一个假的function
-        func = new Function;
-        func->isExtern    = false;
-        func->isObj       = true;
-        func->is_variadic = false;
-        //函数名也是当前局域内的一个变量，说明是一种函数指针调用
-    }else if (auto *var = Context::getVar(ctx,funcname);var != nullptr) {
-        //get var
-        //获取var值
-        AsmGen::GenAddr(var);
-        AsmGen::Load();
-        AsmGen::Push();
-        //构造一个假的function
-        func = new Function;
-        func->isExtern    = false;
-        func->isObj       = true;
-        func->is_variadic = false;
-    }else{
-        Package *pkg  = Package::packages[package];
-        if(!pkg){
-            parse_err(
-                    "AsmError: can not find package definition of %s "
-                    "line:%d column:%d \n\n"
-                    "expression:\n%s\n",
-                    package.c_str(),this->line,this->column,this->toString().c_str());
-        }
-        //函数查找
-        func = pkg->getFunc(funcname,is_extern);
-        if(!func)
-            parse_err(
-                    "AsmError: can not find package definition of %s "
-                    "line:%d column:%d \n\n"
-                    "expression:\n%s\n",
-                    package.c_str(),this->line,this->column,this->toString().c_str());
-        func->isObj       = false;
-        if(func == nullptr)
-            parse_err(
-                    "AsmError: can not find function definition of %s "
-                    "line:%d column:%d \n\n"
-                    "expression:\n%s\n",
-                    funcname.c_str(),this->line,this->column,this->toString().c_str());
-    }
-
     //只会进行提示，现在默认已实现不足6个参数会默认置0
-    if(func->params.size() != this->args.size())
+    if(func->params.size() != fce->args.size())
         Debug("ArgumentError: expects %d arguments but got %d\n",(int)func->params.size(),(int)this->args.size());
 
     int stack_args = AsmGen::Push_arg(ctx,args,func->is_variadic,funcname);
@@ -151,5 +83,84 @@ void  FunCallExpr::asmgen(std::deque<Context*> ctx)
 
     }
     return;
+}
 
+/**
+ * 函数调用求值
+ * @param ctx
+ * @return
+ */
+void  FunCallExpr::asmgen(std::deque<Context*> ctx)
+{
+    Debug("FunCallExpr: parsing... package:%s func:%s",package.c_str(),funcname.c_str());
+//    AsmGen::writeln("    .loc %d %d %d",AsmGen::parser->fileno,line,column);
+    Function* cfunc = AsmGen::currentFunc;
+    std::string package = this->package;
+    Function *func;
+    //1. 没有加包名
+    //2. 外部函数调用
+    //这里自动加上包名
+    if(!is_pkgcall || package == "_"){
+        package      = cfunc->parser->getpkgname();
+    }
+    //连函数名都没有说明可能是个链式表达式
+    if( funcname.empty()){
+        //构造一个假的function
+        func = new Function;
+        func->isExtern    = false;
+        func->isObj       = true;
+        func->is_variadic = false;
+    }else if (auto *var = Context::getVar(ctx,package);var != nullptr) {
+    //说明这是一个对象成员函数调用
+        //get var
+        //获取object对象
+        AsmGen::GenAddr(var);
+        AsmGen::Load();
+        AsmGen::Push();
+        Internal::object_func_addr(funcname);
+        //获取到成员函数的函数地址
+        AsmGen::Push();
+        //构造一个假的function
+        func = new Function;
+        func->isExtern    = false;
+        func->isObj       = true;
+        func->is_variadic = false;
+        //函数名也是当前局域内的一个变量，说明是一种函数指针调用
+    }else if (auto *var = Context::getVar(ctx,funcname);var != nullptr) {
+        //get var
+        //获取var值
+        AsmGen::GenAddr(var);
+        AsmGen::Load();
+        AsmGen::Push();
+        //构造一个假的function
+        func = new Function;
+        func->isExtern    = false;
+        func->isObj       = true;
+        func->is_variadic = false;
+    }else{
+        Package *pkg  = Package::packages[package];
+        if(!pkg){
+            parse_err(
+                    "AsmError: can not find package definition of %s "
+                    "line:%d column:%d \n\n"
+                    "expression:\n%s\n",
+                    package.c_str(),this->line,this->column,this->toString().c_str());
+        }
+        //函数查找 this->package == "_" && is_extern = true
+        func = pkg->getFunc(funcname,this->package == "_");
+        if(!func)
+            parse_err(
+                    "AsmError: can not find package definition of %s "
+                    "line:%d column:%d \n\n"
+                    "expression:\n%s\n",
+                    package.c_str(),this->line,this->column,this->toString().c_str());
+        func->isObj       = false;
+        if(func == nullptr)
+            parse_err(
+                    "AsmError: can not find function definition of %s "
+                    "line:%d column:%d \n\n"
+                    "expression:\n%s\n",
+                    funcname.c_str(),this->line,this->column,this->toString().c_str());
+    }
+    funcexec(ctx,func,this,package);
 }

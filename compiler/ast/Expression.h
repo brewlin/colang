@@ -97,8 +97,8 @@ struct KVExpr : public Expression {
 struct ChainExpr : public Expression {
     explicit ChainExpr(int line,int column): Expression(line,column){}
 
-    Expression* left{};
-    Expression* right{};
+    Expression* lhs{};
+    Expression* rhs{};
 
     void         asmgen( std::deque<Context*> ctx) override;
     std::string  toString() override;
