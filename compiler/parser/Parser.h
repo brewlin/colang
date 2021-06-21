@@ -95,7 +95,8 @@ private:
     short           precedence(Token op);
     Block*          parseBlock();
 
-    std::tuple <Token ,std::string> scan();
+    void                            scan();
+    std::tuple <Token ,std::string> get_next();
     std::tuple <Token ,std::string> parseNumber(char first);
     std::tuple <Token ,std::string> parseKeyword(char c);
     std::tuple <Token ,std::string> parseMulOrDelref(char c);
@@ -114,6 +115,8 @@ public:
     std::unordered_map<std::string,Token > keywords;
     //当前token
     std::tuple<Token ,std::string> currentToken;
+    //之前的token
+    std::tuple<Token ,std::string> prevToken;
     //当前所属的包
     Package* pkg;
 	//当前function

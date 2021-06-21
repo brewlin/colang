@@ -58,6 +58,7 @@ void  IndexExpr::asmgen(std::deque<Context*> ctx) {
 //    AsmGen::writeln("    .loc %d %d %d",AsmGen::parser->fileno,line,column);
     VarExpr* var;
     std::string   package = this->package;
+    std::cout << "varname:" << varname << std::endl;
     //看看是否是包变量调用
     if(is_pkgcall){
         var  = Package::packages[package]->getGlobalVar(varname);

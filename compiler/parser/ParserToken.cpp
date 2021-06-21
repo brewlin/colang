@@ -63,8 +63,13 @@ std::tuple<Token,std::string> Parser::parseMulOrDelref(char c)
     }
     return std::make_tuple(TK_MUL, "*");
 }
+//扫描下一个
+void Parser::scan(){
+    prevToken    = currentToken;
+    currentToken = get_next();
+}
 //逐字解析 直到找到合法的token
-std::tuple<Token,std::string> Parser::scan() {
+std::tuple<Token,std::string> Parser::get_next() {
     char c = next();
     //make_*开头一般是创建一个 智能指针
     if(c == EOF)
@@ -340,11 +345,11 @@ std::vector<Statement*> Parser::parseStatementList()
 Block* Parser::parseBlock()
 {
     Block* node{new Block};
-    currentToken = scan();
+    scan();
     node->stmts = parseStatementList();
     //判断是否 {} 闭合
     assert(getCurrentToken() == TK_RBRACE);
-    currentToken = scan();
+    scan();
     return node;
 }
 /**
@@ -354,10 +359,10 @@ Block* Parser::parseBlock()
 std::vector<std::string> Parser::parseParameterList()
 {
     std::vector<std::string> node;
-    currentToken = scan();
+    scan();
     //是否解析到 ')'
     if(getCurrentToken() == TK_RPAREN){
-        currentToken = scan();
+        scan();
         return std::move(node);
     }
 
@@ -372,7 +377,7 @@ std::vector<std::string> Parser::parseParameterList()
                 currentFunc->params_var[getCurrentLexeme()] = var;
                 currentFunc->params_order_var.push_back(var);
 
-                currentToken = scan();
+                scan();
                 //不是动态参数
                 if(getCurrentToken() == TK_COMMA) continue;
                 if(getCurrentToken() == TK_RPAREN) continue;
@@ -384,14 +389,14 @@ std::vector<std::string> Parser::parseParameterList()
                               line,column);
                 }
                 //去掉第二个点
-                currentToken = scan();
+                scan();
                 if(getCurrentToken() != TK_DOT){
                     parse_err("SynatxError: must be . but got :%s  line:%d column:%d\n",
                               getCurrentLexeme().c_str(),
                               line,column);
                 }
                 //去掉第三个点
-                currentToken = scan();
+                scan();
                 if(getCurrentToken() != TK_DOT){
                     parse_err("SynatxError: should be , or . but got :%s  line:%d column:%d\n",
                               getCurrentLexeme().c_str(),
@@ -407,10 +412,10 @@ std::vector<std::string> Parser::parseParameterList()
             assert(getCurrentToken() == TK_COMMA);
         }
         //继续下一个token读取
-        currentToken = scan();
+        scan();
     }
     //是否闭合
     assert(getCurrentToken() == TK_RPAREN);
-    currentToken = scan();
+    scan();
     return move(node);
 }

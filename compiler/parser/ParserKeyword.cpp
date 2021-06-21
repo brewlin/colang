@@ -23,7 +23,7 @@ void Parser::parsePackageDef()
                   line,column);
 
     //解析包名
-    currentToken = scan();
+    scan();
     assert(getCurrentToken() == TK_VAR);
     std::string pkgname = getCurrentLexeme();
     if(pkgname != this->package){
@@ -33,7 +33,7 @@ void Parser::parsePackageDef()
                   line,column);
     }
     //eat scan
-    currentToken = scan();
+    scan();
 }
 
 /**
@@ -44,23 +44,23 @@ void Parser::parseClassDef()
     Debug("found struct.start parser..");
     assert(getCurrentToken() == KW_CLASS);
     //解析结构体名
-    currentToken = scan();
+    scan();
     //must TK_VAR
     assert(getCurrentToken() == TK_VAR);
     Class *s = new Class();
     s->name  = getCurrentLexeme();
-    currentToken = scan();
+    scan();
 
     //must {
     assert(getCurrentToken() == TK_LBRACE);
 
-    currentToken = scan();
+    scan();
     //end for }
     while(getCurrentToken() != TK_RBRACE){
         //定义成员变量
         if(getCurrentToken() == TK_VAR){
             s->members.push_back(getCurrentLexeme());
-            currentToken = scan();
+            scan();
 
         // 定义成员函数函数
         }else if(getCurrentToken() == KW_FUNC){
@@ -81,7 +81,7 @@ void Parser::parseClassDef()
     }
     this->addClass(s->name,s);
     //eat }
-    currentToken = scan();
+    scan();
 }
 /**
  * 解析函数表达式
@@ -94,7 +94,7 @@ Function* Parser::parseFuncDef(bool member,bool closure)
     //当前是否已经解析到 func 关键字
     assert(getCurrentToken() == KW_FUNC);
     //获取函数名|或者直接跳过
-    currentToken = scan();
+    scan();
     auto* node = new Function;
     //set parser
     node->parser = this;
@@ -108,7 +108,7 @@ Function* Parser::parseFuncDef(bool member,bool closure)
             parse_err("SyntaxError: already define function :%s\n",getCurrentLexeme().c_str());
         node->name = getCurrentLexeme();
         //指向 func name'(') 括号
-        currentToken = scan();
+        scan();
     }
 
     assert(getCurrentToken() == TK_LPAREN);
@@ -146,15 +146,15 @@ Function* Parser::parseExternDef()
     node->parser   = this;
 
     //extern 一般是调用系统库 所以 需要固定返回类型
-    currentToken   = scan();
+    scan();
     node->rettype  = getCurrentLexeme();
 
     //获取函数名
-    currentToken   = scan();
+    scan();
     node->name     = getCurrentLexeme();
 
     //指向 func name'(') 括号
-    currentToken   = scan();
+    scan();
     assert(getCurrentToken() == TK_LPAREN);
     //解析函数参数
     node->params   = parseParameterList();
@@ -171,7 +171,7 @@ void Parser::parseExtra() {
     Debug("found #: parser..");
     assert(getCurrentToken() == KW_EXTRA);
     //scan one
-    currentToken = scan();
+    scan();
     //解析到了链接信息
     if(getCurrentLexeme() == "link"){
         auto lines = getline();
@@ -194,7 +194,7 @@ void Parser::parseImportDef()
     Debug("found import.start parser..");
     assert(getCurrentToken() == KW_IMPORT);
     //scan one
-    currentToken =  scan();
+     scan();
     //must tk_var
     assert(getCurrentToken() == TK_VAR);
     std::string package = getCurrentLexeme();
@@ -210,7 +210,7 @@ void Parser::parseImportDef()
         Package::packages[package] = pkg;
     }
     //eat next scan
-    currentToken = scan();
+    scan();
 
 }
 /**
@@ -226,7 +226,7 @@ void Parser::parseGlobalDef()
     }
     auto var = getCurrentLexeme();
     //去掉标识符
-    currentToken = scan();
+    scan();
 
     VarExpr* varexpr = new VarExpr(var,line,column);
     //没有在函数作用内之外的都为全局变量，存储在静态代码区

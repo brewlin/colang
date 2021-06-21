@@ -57,7 +57,7 @@ Parser::~Parser()
 void Parser::parse()
 {
     //第一行必须得是包名
-    currentToken = scan();
+    scan();
     parsePackageDef();
 
     if(getCurrentToken() == TK_EOF) return;
@@ -121,10 +121,10 @@ std::string Parser::getpkgname()
  */
 std::string Parser::printToken()
 {
-    auto  tk = scan();
+    auto  tk = get_next();
     while(std::get<0>(tk) != TK_EOF){
         std::cout << "" << getTokenString(std::get<0>(tk)) << " => " << std::get<1>(tk) << "\n";
-        tk = scan();
+        tk = get_next();
     }
 
 }

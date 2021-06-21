@@ -46,7 +46,7 @@ Expression* Parser::parseExpression(short oldPrecedence)
         // 左值
         assignExpr->lhs = p;
         // 去掉赋值符号
-        currentToken = scan();
+        scan();
         // 解析右值
         assignExpr->rhs = parseExpression();
         return assignExpr;
@@ -67,7 +67,7 @@ Expression* Parser::parseExpression(short oldPrecedence)
         tmp->lhs = p;
         // 去掉运算符
         tmp->opt = getCurrentToken();
-        currentToken = scan();
+        scan();
         // 右侧是一个也是一个表达式，所以parseExpression
         tmp->rhs = parseExpression(currentPrecedence + 1);
         // 关键来了，这里把刚刚创建的tmp赋值给之前的p，从意义上说相当于把当前这整个表达式作为一元表达式
@@ -109,7 +109,7 @@ Expression* Parser::parseUnaryExpr()
         auto val = new BinaryExpr(line,column);
         val->opt = getCurrentToken();
         //解析下一个token
-        currentToken = scan();
+        scan();
         //继续递归解析token
         val->lhs = parseUnaryExpr();
         //右子树默认为空
@@ -136,7 +136,7 @@ Expression* Parser::parsePrimaryExpr()
     if(tk == TK_DELREF){
         Debug("find token delref");
         //eat *
-        currentToken = scan();
+        scan();
         //接下来肯定是一个变量 否则就报错
         Expression *p = parsePrimaryExpr();
         if (typeid(*p) != typeid(VarExpr))
@@ -147,12 +147,12 @@ Expression* Parser::parsePrimaryExpr()
         return var;
     //单独出现在这里 . () [] 一般是只有在链式表达式才会出现在这里
     }else if(tk == TK_DOT){
-        currentToken = scan();
+        scan();
         assert(getCurrentToken() == TK_VAR);
         MemberExpr *me = new MemberExpr(line,column);
         me->membername = getCurrentLexeme();
         //next
-        currentToken = scan();
+        scan();
         return me;
     }else if(tk == TK_LPAREN){
         return parseFuncallExpr("");
@@ -172,13 +172,13 @@ Expression* Parser::parsePrimaryExpr()
     {
         auto var = getCurrentLexeme();
         //去掉标识符
-        currentToken = scan();
+        scan();
         return parseVarExpr(var);
     }else if(tk == LIT_INT)
     {
         //将 int 转换为 int
         auto val = atoi(getCurrentLexeme().c_str());
-        currentToken = scan();
+        scan();
         auto* ret = new IntExpr(line,column);
         ret->literal = val;
         return ret;
@@ -186,14 +186,14 @@ Expression* Parser::parsePrimaryExpr()
     {
         //将字面值 转换为double
         auto val     = atof(getCurrentLexeme().c_str());
-        currentToken = scan();
+        scan();
         auto* ret    = new DoubleExpr(line,column);
         ret->literal = val;
         return ret;
     }else if(tk == LIT_STR){
         //将字符串 ... 保存
         auto val     = getCurrentLexeme();
-        currentToken = scan();
+        scan();
         auto* ret    = new StringExpr(line,column);
         //将静态字符作为全局定义
         strs.push_back(ret);
@@ -203,25 +203,25 @@ Expression* Parser::parsePrimaryExpr()
     {
         //保存char
         auto val     = getCurrentLexeme();
-        currentToken = scan();
+        scan();
         auto* ret    = new CharExpr(line,column);
         ret->literal = val[0];
         return ret;
     }else if(tk == KW_TRUE || tk == KW_FALSE)
     {
         auto val     = (KW_TRUE == getCurrentToken());
-        currentToken = scan();
+        scan();
         auto* ret    = new BoolExpr(line,column);
         ret->literal = val;
         return ret;
     }else if(tk == KW_NULL)
     {
-        currentToken = scan();
+        scan();
         return new NullExpr(line,column);
     }else if(tk == TK_LBRACKET)
     {
         //解析数组 array
-        currentToken = scan();
+        scan();
         auto* ret = new ArrayExpr(line,column);
         if(getCurrentToken() != TK_RBRACKET){
             while(getCurrentToken() != TK_RBRACKET) {
@@ -229,20 +229,20 @@ Expression* Parser::parsePrimaryExpr()
                 ret->literal.push_back(parseExpression());
                 //解析[1,2,3] 中的 ,
                 if(getCurrentToken() == TK_COMMA)
-                    currentToken = scan();
+                    scan();
             }
             assert(getCurrentToken() == TK_RBRACKET);
-            currentToken = scan();
+            scan();
             return ret;
         }
         //表示是一个空数组
-        currentToken = scan();
+        scan();
         return ret;
 
     // 解析map = {}
     }else if(tk == TK_LBRACE)
     {
-        currentToken = scan();
+        scan();
         auto* ret = new MapExpr(line,column);
         if(getCurrentToken() != TK_RBRACE){
             while(getCurrentToken() != TK_RBRACE) {
@@ -252,38 +252,38 @@ Expression* Parser::parsePrimaryExpr()
                 //接下来必须是 : TK_COLON
                 if(getCurrentToken() != TK_COLON)
                     parse_err("ParserError: should be ':' token at line:%d column:%d\n",line,column);
-                currentToken = scan();
+                scan();
                 //解析value
                 kv->value  = parseExpression();
                 //将参数 push 到 node中
                 ret->literal.push_back(kv);
                 //解析[1,2,3] 中的 ,
                 if(getCurrentToken() == TK_COMMA)
-                    currentToken = scan();
+                    scan();
             }
             assert(getCurrentToken() == TK_RBRACE);
-            currentToken = scan();
+            scan();
             return ret;
         }
         //表示是一个空数组
-        currentToken = scan();
+        scan();
         return ret;
         // 解析map = {}
     }else if(tk == KW_NEW)
     {
         //去掉 new
-        currentToken = scan();
+        scan();
         Debug("got new keywords:%s",getCurrentLexeme().c_str());
         //must var
         assert(getCurrentToken() == TK_VAR);
         auto* ret = new NewExpr(line,column);
         ret->type = getCurrentLexeme();
         //must TK_LPAREN TK_RPAREN
-        currentToken = scan();
+        scan();
         assert(getCurrentToken() == TK_LPAREN);
-        currentToken = scan();
+        scan();
         assert(getCurrentToken() == TK_RPAREN);
-        currentToken = scan();
+        scan();
         return ret;
     }
     return nullptr;
@@ -299,12 +299,12 @@ Expression* Parser::parseVarExpr(std::string var)
         //2. fmt.global_var 说明是一种全局变量调用
         case TK_DOT:{
             //去掉.
-            currentToken = scan();
+            scan();
             assert(getCurrentToken() == TK_VAR);
             std::string pfuncname = getCurrentLexeme();
 
             //下一个如果是 `(` 则说明为跨包函数调用 | 或者内部函数调用
-            currentToken = scan();
+            scan();
             if( getCurrentToken() == TK_LPAREN)
             {
                 FunCallExpr* call = dynamic_cast<FunCallExpr*>(parseFuncallExpr(pfuncname));
@@ -351,7 +351,7 @@ Expression* Parser::parseVarExpr(std::string var)
 }
 Expression*     Parser::parseFuncallExpr(std::string callname)
 {
-    currentToken = scan();
+    scan();
     auto* val = new FunCallExpr(line,column);
     val->funcname = callname;
 
@@ -360,22 +360,22 @@ Expression*     Parser::parseFuncallExpr(std::string callname)
         val->args.push_back(parseExpression());
         //ignore ','
         if(getCurrentToken() == TK_COMMA)
-            currentToken = scan();
+            scan();
     }
     //去掉 )
     assert(getCurrentToken() == TK_RPAREN);
-    currentToken = scan();
+    scan();
     return val;  
 }
 Expression* Parser::parseIndexExpr(std::string varname){
     //去掉[
-    currentToken = scan();
+    scan();
     auto* val = new IndexExpr(line,column);
     val->varname = varname;
     //解析索引 没有索引则走新增操作
     val->index = parseExpression();
     assert(getCurrentToken() == TK_RBRACKET);
     //去掉]
-    currentToken = scan();
+    scan();
     return val;
 }
