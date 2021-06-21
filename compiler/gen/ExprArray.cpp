@@ -56,9 +56,18 @@ void  KVExpr::asmgen(std::deque<Context*> ctx){
  */
 void  IndexExpr::asmgen(std::deque<Context*> ctx) {
 //    AsmGen::writeln("    .loc %d %d %d",AsmGen::parser->fileno,line,column);
+    //在链式表达式中，前置条件不是一个变量而是一个数组地址
+    if(varname == ""){
+        //push index 计算索引
+        this->index->asmgen(ctx);
+        AsmGen::Push();
+
+        //call arr_get(arr,index)
+        Internal::kv_get();
+        return;
+    }
     VarExpr* var;
     std::string   package = this->package;
-    std::cout << "varname:" << varname << std::endl;
     //看看是否是包变量调用
     if(is_pkgcall){
         var  = Package::packages[package]->getGlobalVar(varname);

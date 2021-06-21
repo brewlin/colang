@@ -1,17 +1,49 @@
 package main 
 
 import fmt
+import os
 
-func builder(){
-	return func(){
+func call(){
+	ca =  func(){
 		return func(){
 			return 100
 		}
 	}
+	re = ca()()
+	if (re != 100){
+	    fmt.println("call()() test failed")
+		os.exit(-1)
+	}
+	fmt.println("test call success!",re)
+}
+func call_arr(){
+	ca =  func(){
+	    arr = ["first","second","third"]
+	    return arr
+	}
+	re = ca()[0]
+	if (re != "first"){
+	    fmt.println("call()[0] test failed")
+		os.exit(-1)
+	}
+	fmt.println("test call arr success!",re)
+}
+func arr_arr(){
+	ca =  func(){
+		arr1    = ["arr1","arr1"]
+	    arr2 = ["arr2",arr1]
+	    return arr2
+	}
+	re = ca()[1][0]
+	if (re != "arr1"){
+	    fmt.println("arr[1][1] test failed")
+		os.exit(-1)
+	}
+	fmt.println("test arr[][] success!",re)
 }
 
 func main(){
-	cf = builder()
-	re = cf()()
-	fmt.println(re)
+    call()
+    call_arr()
+	arr_arr()
 }

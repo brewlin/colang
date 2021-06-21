@@ -102,6 +102,9 @@ std::string Parser::getline() {
 char Parser::peek() {
     return static_cast<char>(fs.peek());
 }
+Token Parser::getPrevToken()const {
+    return std::get<Token >(prevToken);
+}
 Token Parser::getCurrentToken()const {
     return std::get<Token >(currentToken);
 }

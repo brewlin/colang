@@ -65,6 +65,7 @@ private:
     char            peek();
     std::string     getline();
     Token           getCurrentToken()const;
+    Token           getPrevToken()const ;
     std::string     getCurrentLexeme()const;
 
     //parse keywords

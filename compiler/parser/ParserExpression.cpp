@@ -131,7 +131,8 @@ Expression* Parser::parseUnaryExpr()
  */
 Expression* Parser::parsePrimaryExpr()
 {
-    Token tk = getCurrentToken();
+    Token tk   = getCurrentToken();
+    Token prev = getPrevToken();
     //说明是一个解引用操作，注意此操作非常危险 需要注意和c函数的交互
     if(tk == TK_DELREF){
         Debug("find token delref");
@@ -156,8 +157,12 @@ Expression* Parser::parsePrimaryExpr()
         return me;
     }else if(tk == TK_LPAREN){
         return parseFuncallExpr("");
+    //a()[] 和 a[0][] 这两种情况可能就会当作链式索引访问
+    }else if(tk == TK_LBRACKET && (prev == TK_RBRACKET || prev == TK_RPAREN)){
+        return parseIndexExpr("");
+    }
     //处理嵌套闭包的情况
-    }else if(tk == KW_FUNC)
+    else if(tk == KW_FUNC)
     {
         Function* prev    = currentFunc;
         Function* closure = parseFuncDef(false,true);
