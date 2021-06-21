@@ -52,6 +52,22 @@ void  NewExpr::asmgen(std::deque<Context*> ctx)
  */
 void  MemberExpr::asmgen(std::deque<Context*> ctx)
 {
+    //func().var 链式表达
+    if(varname == ""){
+        //运算需要调用统一的方法
+        Internal::object_member_get(membername);
+        return;
+
+    }
+    auto *var = Context::getVar(ctx,varname);
+    //get var
+    //获取object对象
+    AsmGen::GenAddr(var);
+    AsmGen::Load();
+    AsmGen::Push();
+    //运算需要调用统一的方法
+    Internal::object_member_get(membername);
+    return;
 }
 /**
  * TODO: asm struct call

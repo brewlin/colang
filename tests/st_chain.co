@@ -41,9 +41,48 @@ func arr_arr(){
 	}
 	fmt.println("test arr[][] success!",re)
 }
+class v
+{
+	var
+}
+func call_var(){
+	ca =  func(){
+		obj = new v() 
+		obj.var = "obj"
+		return obj
+	}
+	re = ca().var
+	if (re != "obj"){
+	    fmt.println("func().objmemeber test failed")
+		os.exit(-1)
+	}
+	fmt.println("test func().obj success!",re)
+
+}
+func all(){
+	fn = func(){
+		fn1 = func(){
+			arr = ["all"]
+			return arr
+		}
+		obj = new v()
+		obj.p = fn1
+		arr = [obj]
+		return arr
+	}
+	a = fn()[0].p()[0]
+	if (a != "all"){
+		fmt.println("func().[0].p()[0]")
+		os.exit(-1)
+	}
+	fmt.println("func().[0].p()[0] test sucess",a)
+
+}
 
 func main(){
     call()
     call_arr()
 	arr_arr()
+	call_var()
+	all()
 }
