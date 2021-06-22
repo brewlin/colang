@@ -115,9 +115,11 @@ public:
     //保存关键字
     std::unordered_map<std::string,Token > keywords;
     //当前token
-    std::tuple<Token ,std::string> currentToken;
+    std::string curLex;
+    Token       curToken;
     //之前的token
-    std::tuple<Token ,std::string> prevToken;
+    std::string preLex;
+    Token       preToken;
     //当前所属的包
     Package* pkg;
 	//当前function

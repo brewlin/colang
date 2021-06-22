@@ -65,8 +65,12 @@ std::tuple<Token,std::string> Parser::parseMulOrDelref(char c)
 }
 //扫描下一个
 void Parser::scan(){
-    prevToken    = currentToken;
-    currentToken = get_next();
+    preLex   = curLex;
+    preToken = curToken;
+
+    auto tk   = get_next();
+    curLex    = std::get<std::string>(tk);
+    curToken  = std::get<Token>(tk);
 }
 //逐字解析 直到找到合法的token
 std::tuple<Token,std::string> Parser::get_next() {

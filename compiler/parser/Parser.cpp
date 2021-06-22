@@ -103,13 +103,13 @@ char Parser::peek() {
     return static_cast<char>(fs.peek());
 }
 Token Parser::getPrevToken()const {
-    return std::get<Token >(prevToken);
+    return preToken;
 }
 Token Parser::getCurrentToken()const {
-    return std::get<Token >(currentToken);
+    return curToken;
 }
 std::string Parser::getCurrentLexeme()const {
-    return std::get<std::string>(currentToken);
+    return curLex;
 }
 /**
  * @return string package name
