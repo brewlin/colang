@@ -20,7 +20,7 @@ class  Parser;
 
 class Package {
 public:
-    explicit  Package(std::string package);
+    explicit  Package(std::string package,std::string path,bool multi = false);
     ~Package();
     bool      parse();
     void      asmgen();
@@ -31,6 +31,8 @@ public:
     //map[filepath + name] = parser
     std::unordered_map<std::string,Parser*> parsers;
 	std::string package;    
+    std::string path;
+    std::string full_package;
 
 public:
     static std::unordered_map<std::string,Package*> packages;

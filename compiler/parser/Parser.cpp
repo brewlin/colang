@@ -11,7 +11,7 @@ int Parser::count = 1;
  * 解析 脚本文件
  * @param filename
  */
-Parser::Parser(const std::string &filepath,Package* pkg,std::string package):
+Parser::Parser(const string &filepath,Package* pkg,string package,string full_package):
 pkg(pkg),
 //clear
 currentFunc(nullptr),
@@ -45,6 +45,9 @@ filepath(filepath)
     asmfile  = filename + ".s";
     if(package != "main")
         asmfile  = package + "_" + asmfile;
+    this->full_package = full_package;
+    //记录一下本身包名的映射
+    import[package] = full_package;
 }
 Parser::~Parser()
 {
@@ -116,7 +119,9 @@ std::string Parser::getCurrentLexeme()const {
  */
 std::string Parser::getpkgname()
 {
-    return package;
+    //这里返回完整的包名
+    return this->full_package;
+    // return package;
 }
 /**
  * 测试token解析

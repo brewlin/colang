@@ -11,6 +11,7 @@
 #include <iostream>
 #include <experimental/filesystem>
 #include "Package.h"
+using namespace std;
 /**
  * 解析包名是否正确
  */
@@ -27,7 +28,9 @@ void Parser::parsePackageDef()
     assert(getCurrentToken() == TK_VAR);
     std::string pkgname = getCurrentLexeme();
     if(pkgname != this->package){
-        parse_err("SynatxError: inconsistent package name token:%d string:%s  line:%d column:%d\n",
+        parse_err("SynatxError: inconsistent package name %s:%s token:%d string:%s  line:%d column:%d\n",
+                  pkgname.c_str(),
+                  this->package.c_str(),
                   getCurrentToken(),
                   getCurrentLexeme().c_str(),
                   line,column);
@@ -185,7 +188,7 @@ void Parser::parseExtra() {
 }
 
 /**
- * 解析 import: import "string"
+ * 解析 import: import string
  * 1. 解析 import {name}
  * 2. new Parser(name)
  */
@@ -197,20 +200,37 @@ void Parser::parseImportDef()
      scan();
     //must tk_var
     assert(getCurrentToken() == TK_VAR);
-    std::string package = getCurrentLexeme();
+    string path = getCurrentLexeme();
+    string package(path);
+    bool multi = false;
+    //可能是多级包结构，p.p1.p2.p3需要判断是否需要多层解析
+    scan();
+    while(getCurrentToken() == TK_DOT){
+        //eat .
+        scan();
+        // must be var
+        assert(getCurrentToken() == TK_VAR);
+        // FIXEME: platform directory seprate
+        path += "_" + getCurrentLexeme();
+        package = getCurrentLexeme();
+        multi = true;
+        //eat one
+        scan();
+    }
+
     //检查包是否已经解析过了
-    if(!Package::packages[package]){
-        Package *pkg = new Package(package);
+    if(!Package::packages[path]){
+        Package *pkg = new Package(package,path,multi);
         //扫描包下的源码，进行解析
         if(!pkg->parse()){
             parse_err("SyntaxError: package:%s not exist in local or global "
                       " line:%d column:%d\n",
-                package.c_str(),line,column);
+                path.c_str(),line,column);
         }
-        Package::packages[package] = pkg;
+        Package::packages[path] = pkg;
     }
-    //eat next scan
-    scan();
+    //每一次引入都要做一个包名映射，不是多级包的时候可能 k == v
+    import[package] = path;
 
 }
 /**

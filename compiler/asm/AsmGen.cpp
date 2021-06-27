@@ -17,8 +17,8 @@ Parser*        AsmGen::parser = nullptr;
 
 AsmGen::AsmGen(const std::string &filename) {
 
-    Package* pkg = new Package("main");
-    Parser *main_parser = new Parser(filename,pkg,"main");
+    Package* pkg = new Package("main","main");
+    Parser *main_parser = new Parser(filename,pkg,"main","main");
     //main 词法解析 语法解析
     // main_parser->fileno = Parser::count ++;
     main_parser->fileno = 1;

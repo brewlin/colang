@@ -4,12 +4,18 @@
 #include <iostream>
 #include <experimental/filesystem>
 #include "Parser.h"
+#include <regex>
+using namespace std;
 
 namespace filesys = std::experimental::filesystem;
 
 std::unordered_map<std::string,Package*> Package::packages;
 
-Package::Package(std::string name):package(name){
+Package::Package(string name,string path,bool multi)
+    :package(name),path(path),full_package(path){
+    if(multi){
+        this->path = regex_replace(path,regex("_"),"/");
+    }
 
 }
 Package::~Package(){
@@ -21,7 +27,7 @@ bool Package::parse()
     Debug("found import.start parser..");
 
     std::string abpath = filesys::current_path();
-    abpath += "/" + package;
+    abpath += "/" + path;
     std::error_code ec;
 
     //先找当前，再去找全局
@@ -32,10 +38,12 @@ bool Package::parse()
 //        if(srcpath.empty())
 //            srcpath = "./";
 //        abpath  = srcpath + "/pkg/" + package;
-        abpath = "/usr/local/lib/copkg/" + package;
+        abpath = "/usr/local/lib/copkg/" + path;
         Debug("Parser: package import:%s",abpath.c_str());
-        if (!filesys::is_directory(abpath, ec))
+        if (!filesys::is_directory(abpath, ec)){
+            parse_err("PackageError: package not exist :%s\n",abpath.c_str());
             return false;  
+        }
     }
 
     //包名一般是一个目录，当前会遍历目录下所有的文件进行解析
@@ -47,7 +55,7 @@ bool Package::parse()
             if(ext != ".co") continue;
 
             //不需要释放，在汇编生成的时候需要用到
-            Parser *parser = new Parser(filepath,this,package);
+            Parser *parser = new Parser(filepath,this,package,full_package);
             // parser->fileno = Parser::count ++;
             parser->fileno = 1;
             parser->parse();

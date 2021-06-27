@@ -6,6 +6,7 @@
  **/
 #include "Parser.h"
 #include "Log.h"
+using namespace std;
 /**
  * 解析条件表达式
  * @return
@@ -281,23 +282,41 @@ Expression* Parser::parsePrimaryExpr()
         Debug("got new keywords:%s",getCurrentLexeme().c_str());
         //must var
         assert(getCurrentToken() == TK_VAR);
-        auto* ret = new NewExpr(line,column);
-        ret->type = getCurrentLexeme();
-        //must TK_LPAREN TK_RPAREN
-        scan();
-        assert(getCurrentToken() == TK_LPAREN);
-        scan();
-        assert(getCurrentToken() == TK_RPAREN);
-        scan();
-        return ret;
+        return parseNewExpr();
+
     }
     return nullptr;
+}
+/**
+ * 1. obj = new p.p1.p2(a,b,d) class的创建
+ * 2. st  = new p.p1.p2.A      struct的创建
+ * 3. mem = len                内存的申请
+ * 4. mem = 100                内存的申请 字节是单位
+ */
+Expression* Parser::parseNewExpr()
+{
+    auto* ret = new NewExpr(line,column);
+    ret->type = getCurrentLexeme();
+    //must TK_LPAREN TK_RPAREN
+    scan();
+    assert(getCurrentToken() == TK_LPAREN);
+    scan();
+    assert(getCurrentToken() == TK_RPAREN);
+    scan();
+    return ret;
 }
 //1 解析变量定义 : var
 //2 解析包名调用 : fmt.println()
 //3 解析全局调用 : fmt.variable
 Expression* Parser::parseVarExpr(std::string var)
 {
+    //处理包名映射
+    string package(var);
+    //如果为包名调用则优先用包名
+    if(var != "_" && import.count(var)){
+        package = import[var];
+    }
+    
     switch (getCurrentToken()){
 
         //1. fmt.println 说明是一种包名的函数调用
@@ -314,7 +333,8 @@ Expression* Parser::parseVarExpr(std::string var)
             {
                 FunCallExpr* call = dynamic_cast<FunCallExpr*>(parseFuncallExpr(pfuncname));
                 call->is_pkgcall  = true;
-                call->package     = var;
+                //这里处理映射关系
+                call->package = package;
                 //这里判断如果 包名是之前的一个变量说明这个函数调用为成员函数调用
                 VarExpr* obj;
                 if(currentFunc->locals.count(var))
@@ -332,13 +352,13 @@ Expression* Parser::parseVarExpr(std::string var)
             }else if(getCurrentToken() == TK_LBRACKET){
                 IndexExpr* index = dynamic_cast<IndexExpr*>(parseIndexExpr(pfuncname));
                 index->is_pkgcall  = true;
-                index->package     = var;
+                index->package = package;
                 return index;
             }else{
                 //说明是跨包全局变量访问: pkg.var
                 //也有可能是对象成员变量访问:this.memeber
                 VarExpr* gvar    = new VarExpr(pfuncname,line,column);
-                gvar->package    = var;
+                gvar->package    = package;
                 gvar->is_local   = false;
                 return gvar;
             }

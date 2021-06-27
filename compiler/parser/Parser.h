@@ -18,6 +18,7 @@
 #include "Statement.h"
 #include <cstdlib>
 #include "Package.h"
+using namespace std;
 
 struct Function;
 struct Block;
@@ -31,7 +32,7 @@ public:
      * @param rt        全局table表 存储了所有的函数、变量等
      * @param package   当前文件对应的包名
      */
-    explicit Parser(const std::string& filepath,Package* rt,std::string package);
+    explicit Parser(const string& filepath,Package* rt,string package,string full_package);
     ~Parser();
     //获取包名
     std::string getpkgname();
@@ -92,6 +93,7 @@ private:
     Expression*     parseVarExpr(std::string var);
     Expression*     parseFuncallExpr(std::string callname);
     Expression*     parseIndexExpr(std::string varname);
+    Expression*     parseNewExpr();
 
     short           precedence(Token op);
     Block*          parseBlock();
@@ -125,10 +127,13 @@ public:
 	//当前function
 	Function* currentFunc;
 	//当前包名
+    std::string full_package;
 	std::string package;
     std::string filename;
     std::string asmfile;
     std::string filepath;
+    //引入的包名做一个映射以支持多级包名调用
+    unordered_map<string,string> import;
 
 };
 

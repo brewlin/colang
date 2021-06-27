@@ -27,7 +27,9 @@ void AsmGen::GenAddr(VarExpr *var,bool is_delref)
         writeln("    lea %d(%%rbp), %%rax", var->offset);
         return;
     }else{
-        std::string name = var->package + "_" + var->varname;
+        //处理包名映射
+        auto full = currentFunc->parser->import[var->package];
+        std::string name = full + "_" + var->varname;
         writeln("    lea %s(%%rip), %%rax", name.c_str());
         return;
 
