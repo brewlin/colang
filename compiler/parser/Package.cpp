@@ -137,3 +137,18 @@ Class* Package::getClass(const std::string &name)
         return f->second;
     return nullptr;
 }
+
+/**
+ * 检查函数是否存在
+ */
+bool   Package::checkClassFunc(string name,string func)
+{
+    if(auto f = classes.find(name);f == classes.end())
+        return false;
+    Class* cs = classes[name];
+    for(auto var : cs->funcs){
+        if(var->name == func)
+            return true;
+    }
+    return false;
+}

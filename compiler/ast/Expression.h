@@ -187,6 +187,7 @@ struct NewExpr : public Expression {
     explicit NewExpr(int line, int column) : Expression(line, column) {}
     std::string package;
     std::string type;
+    int         flag; // 0 class 1 struct 2 mem
 
     std::vector<Expression*> args;
     void         asmgen( std::deque<Context*> ctx) override;

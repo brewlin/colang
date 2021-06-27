@@ -309,6 +309,7 @@ Expression* Parser::parseNewExpr()
     }
     ret->type = type;
     assert(getCurrentToken() == TK_LPAREN);
+    ret->flag = 0;
     //eat (
     scan();
     //循环解析实参 func(1,2,3); while( c != ')');

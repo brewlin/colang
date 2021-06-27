@@ -31,6 +31,7 @@ public:
     void      addClass(const std::string &name, Class *f);
     bool      hasClass(const std::string &name);
     void      addClassFunc(string name,Function* f);
+    bool      checkClassFunc(string name,string func);
     Class*    getClass(const std::string &name);
 
 public:

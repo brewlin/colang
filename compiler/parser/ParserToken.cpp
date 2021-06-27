@@ -339,7 +339,44 @@ std::vector<Statement*> Parser::parseStatementList()
     std::vector<Statement*> node;
     Statement* p;
     while((p = parseStatement()) != nullptr)
+    {
         node.push_back(p);
+        //1. p = new(a,d,a) 类的创建 需要在后面手动构造一个 p.init()操作
+        if (typeid(*p) == typeid(ExpressionStmt)) {
+            auto pe = dynamic_cast<ExpressionStmt*>(p);
+            if (typeid(*pe->expr) != typeid(AssignExpr)) continue;
+            AssignExpr* expr = dynamic_cast<AssignExpr*>(pe->expr);
+            //形如 p = new(a,b,c)
+            if(typeid(*expr->rhs) == typeid(NewExpr) && typeid(*expr->lhs) == typeid(VarExpr)){
+                NewExpr* ne = dynamic_cast<NewExpr*>(expr->rhs);
+                VarExpr* obj = dynamic_cast<VarExpr*>(expr->lhs);
+                if(ne->flag != 0) continue;
+                //检查一下函数是否存在
+                Package* pkg = this->pkg;
+                if(ne->package != ""){
+                    string package = this->import[ne->package];
+                    pkg = Package::packages[package];
+                }
+                if(!pkg->checkClassFunc(ne->type,"init"))
+                    continue;
+                //构造一个函数调用
+                auto* call = new FunCallExpr(expr->line,expr->column);
+                call->package = obj->varname;
+                call->funcname = "init";
+                call->args = ne->args;
+                call->is_pkgcall = true;
+                auto params = call->args;
+                call->args.clear();
+                call->args.push_back(obj);
+                call->args.insert(call->args.end(),params.begin(),params.end());
+
+                auto nd = new ExpressionStmt(call,call->line,call->column);
+                node.push_back(nd);
+            }
+            
+        }
+
+    }
     return node;
 }
 /**
