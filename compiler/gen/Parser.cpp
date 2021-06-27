@@ -16,7 +16,8 @@ void Parser::asmgen()
     AsmGen::writeln(".data");
     //1 计算变量的栈偏移量
     AsmGen::funcs_offsets();
-    AsmGen::classs_offsets();
+    if(!pkg->genclass)
+        AsmGen::classs_offsets();
     //2 注册全局 var
     AsmGen::registerVars();
     //3 注册全局 string
@@ -31,11 +32,15 @@ void Parser::asmgen()
     //4 注册 函数信息
     AsmGen::registerFuncs();
     //5 注册 对象
-    AsmGen::registerObjects();
+    if(!pkg->genclass)
+        AsmGen::registerObjects();
     AsmGen::parser = nullptr;
 
 
     out.close();
     AsmGen::out = nullptr;
+
+    if(!pkg->genclass)
+        pkg->genclass = true;
 
 }

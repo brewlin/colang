@@ -39,34 +39,3 @@ Function* Parser::getFunc(const std::string &name, bool is_extern)
     }
     return nullptr;
 }
-
-
-/**
- * 添加一个结构体
- * @param name
- * @param f
- */
-void Parser::addClass(const std::string &name, Class *f)
-{
-    classs.insert(std::make_pair(name,f));
-}
-/**
- * 检查是否存在该结构体
- * @param name
- * @return
- */
-bool Parser::hasClass(const std::string &name)
-{
-    return classs.count(name) == 1;
-}
-/**
- * 获取一个Class
- * @param name
- * @return
- */
-Class* Parser::getClass(const std::string &name)
-{
-    if(auto f = classs.find(name);f != classs.end())
-        return f->second;
-    return nullptr;
-}

@@ -23,8 +23,18 @@ void  NewExpr::asmgen(std::deque<Context*> ctx)
 
 //    AsmGen::writeln("    .loc %d %d %d",AsmGen::parser->fileno,line,column);
     Debug("new expr got: type:%s",this->type.c_str());
-    //获取struct 类型
-    Class* s = AsmGen::parser->getClass(this->type);
+    //获取class 类型
+    //处理映射
+    Class* s = nullptr;
+    if(package != ""){
+        string realPkg = AsmGen::parser->import[package];
+        Package* pkg = Package::packages[realPkg];
+        if(pkg){
+            s = pkg->getClass(this->type);
+        }
+    }else{
+        s = AsmGen::parser->pkg->getClass(this->type);
+    }
     if(!s){
         parse_err(
                 "AsmError: class is not define of %s "

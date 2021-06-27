@@ -185,8 +185,10 @@ struct AssignExpr : public Expression {
 
 struct NewExpr : public Expression {
     explicit NewExpr(int line, int column) : Expression(line, column) {}
+    std::string package;
     std::string type;
 
+    std::vector<Expression*> args;
     void         asmgen( std::deque<Context*> ctx) override;
     std::string  toString() override;
 };

@@ -296,11 +296,29 @@ Expression* Parser::parsePrimaryExpr()
 Expression* Parser::parseNewExpr()
 {
     auto* ret = new NewExpr(line,column);
-    ret->type = getCurrentLexeme();
+    //有可能是包的方式进行访问
+    string type = getCurrentLexeme();
     //must TK_LPAREN TK_RPAREN
     scan();
+    if(getCurrentToken() == TK_DOT){
+        scan();
+        assert(getCurrentToken() == TK_VAR);
+        ret->package = type;
+        type = getCurrentLexeme();
+        scan();
+    }
+    ret->type = type;
     assert(getCurrentToken() == TK_LPAREN);
+    //eat (
     scan();
+    //循环解析实参 func(1,2,3); while( c != ')');
+    while(getCurrentToken() != TK_RPAREN){
+        ret->args.push_back(parseExpression());
+        //ignore ','
+        if(getCurrentToken() == TK_COMMA)
+            scan();
+    }
+    //去掉 )
     assert(getCurrentToken() == TK_RPAREN);
     scan();
     return ret;

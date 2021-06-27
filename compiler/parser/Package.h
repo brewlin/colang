@@ -18,6 +18,8 @@ struct Function;
 struct Block;
 class  Parser;
 
+using namespace std;
+
 class Package {
 public:
     explicit  Package(std::string package,std::string path,bool multi = false);
@@ -26,6 +28,10 @@ public:
     void      asmgen();
     Function* getFunc(const std::string &name, bool is_extern);
     VarExpr*  getGlobalVar(const std::string &name);
+    void      addClass(const std::string &name, Class *f);
+    bool      hasClass(const std::string &name);
+    void      addClassFunc(string name,Function* f);
+    Class*    getClass(const std::string &name);
 
 public:
     //map[filepath + name] = parser
@@ -33,6 +39,10 @@ public:
 	std::string package;    
     std::string path;
     std::string full_package;
+    //在codegen阶段 多个parser是属于同一个packge下，只需要执行一次class codgen
+    bool        genclass;
+
+    std::unordered_map<std::string,Class*> classes;
 
 public:
     static std::unordered_map<std::string,Package*> packages;

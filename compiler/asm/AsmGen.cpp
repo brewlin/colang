@@ -85,7 +85,7 @@ void AsmGen::funcs_offsets() {
 
 }
 void AsmGen::classs_offsets() {
-    for(auto it :parser->classs){
+    for(auto it :parser->pkg->classes){
         Class* c = it.second;
         for(auto fn : c->funcs){
             assign_offsets(fn);

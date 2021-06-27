@@ -82,7 +82,8 @@ void Parser::parseClassDef()
         }
 
     }
-    this->addClass(s->name,s);
+    //追加到当前package 下去管理
+    pkg->addClass(s->name,s);
     //eat }
     scan();
 }
@@ -234,7 +235,8 @@ void Parser::parseImportDef()
 
 }
 /**
- * 解析 全局定义
+ * 1. 解析 全局定义 变量
+ * 2. 也有可能是 Class::func
  * package import func 之外的部分
  * 
  */
@@ -242,12 +244,23 @@ void Parser::parseGlobalDef()
 {
     if(getCurrentToken() != TK_VAR){
         parse_err("SyntaxError: global var define invalid  "
-                      " line:%d column:%d\n",line,column);
+                      " line:%d column:%d file:%s\n",line,column,filepath.c_str());
     }
     auto var = getCurrentLexeme();
     //去掉标识符
     scan();
-
+    //说明是 Class::func定义
+    if(getCurrentToken() == TK_COLON){
+        scan();
+        assert(getCurrentToken() == TK_COLON);
+        // 兼容funcParser 手动更新当前为kw_func
+        curToken  = KW_FUNC;
+        //解析成员函数
+        Function *f = parseFuncDef(true);
+        assert(f != nullptr);
+        pkg->addClassFunc(var,f);
+        return;
+    }
     VarExpr* varexpr = new VarExpr(var,line,column);
     //没有在函数作用内之外的都为全局变量，存储在静态代码区
     gvars[var] = varexpr;

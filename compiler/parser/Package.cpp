@@ -12,7 +12,7 @@ namespace filesys = std::experimental::filesystem;
 std::unordered_map<std::string,Package*> Package::packages;
 
 Package::Package(string name,string path,bool multi)
-    :package(name),path(path),full_package(path){
+    :package(name),path(path),full_package(path),genclass(false){
     if(multi){
         this->path = regex_replace(path,regex("_"),"/");
     }
@@ -76,6 +76,47 @@ Function* Package::getFunc(const std::string &name, bool is_extern){
     return nullptr;
 }
 
+/**
+ * 添加一个类定义
+ * @param name
+ * @param f
+ */
+void Package::addClass(const std::string &name, Class *f)
+{
+    //在顶层package 需要统一管理所有的定义
+    //如果之前已经有则 直接拷贝过去
+    if(classes.count(name)){
+        for(auto i : classes[name]->funcs)
+            f->funcs.push_back(i);
+    }
+    classes[name] = f;
+}
+/**
+ * 外部定义的函数需要增加到类里面
+ */
+void Package::addClassFunc(string name,Function* f)
+{
+    //先检查class是否存在
+    if(classes.count(name)){
+        //将成员函数追加进去
+        classes[name]->funcs.push_back(f);
+        return;
+    }
+    //临时创建一个class加入进去
+    Class *s = new Class();
+    s->name  = name;
+    classes.insert(make_pair(name,s));
+}
+/**
+ * 检查是否存在该类
+ * @param name
+ * @return
+ */
+bool Package::hasClass(const std::string &name)
+{
+    return classes.count(name) == 1;
+}
+
 VarExpr*  Package::getGlobalVar(const std::string &name){
     for(auto it : parsers){
         Parser* parser = it.second;
@@ -83,5 +124,16 @@ VarExpr*  Package::getGlobalVar(const std::string &name){
             return parser->gvars[name];
         }
     }
+    return nullptr;
+}
+/**
+ * 获取一个Class
+ * @param name
+ * @return
+ */
+Class* Package::getClass(const std::string &name)
+{    
+    if(auto f = classes.find(name);f != classes.end())
+        return f->second;
     return nullptr;
 }

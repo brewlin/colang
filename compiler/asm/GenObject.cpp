@@ -17,7 +17,7 @@
 void AsmGen::registerObjects()
 {
     Debug("register objects")
-    for(auto p :parser->classs){
+    for(auto p :parser->pkg->classes){
         registerObjectFuncs(p.second);
     }
 
