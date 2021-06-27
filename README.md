@@ -17,6 +17,38 @@ cld     [options|file.o...]
     -p    path ... -> a.out      指定多个目录,自动扫描所有.0文件进行链接生成可执行程序
     file.o  ...-> a.out          指定多个file.o进行链接    
 ```
+```
+package main
+import fmt
+class http{
+    # member
+    request
+    func handler(){
+        fmt.println("hello world!",request,this.request)
+    }
+}
+http::closure(){
+    return func(){
+        return ["arr1","arr2",3,4]
+    }
+}
+func main(){
+    a = "this is a string" #string
+    fmt.println(a)
+    a = 1000 # int
+    fmt.println(a)
+    a = ["1",2,"33",4,"some string word"] #array
+    fmt.print(a[0],a[1],a[2],a[3],a[4]) #or fmt.print(a)
+    b = {"sdfds":"sdfsd",1:2,"sdfds":3,"a":a} #map
+    fmt.print(b["a"],b["sdfds"])
+    obj = new http() #object
+    obj.request = {"method":"POST"}
+    obj.handler()
+    cfunc = obj.closure() #closure
+    fmt.println(cfunc())
+    
+}
+```
 ## progress
 更多语法测试用例在`/tests`目录下，包含了各种数据结构、运算、gc、demo测试
 
@@ -78,41 +110,7 @@ docker test
 - [x] array
 - [x] object
 - [ ] closure
-```
-package main
-import fmt
 
-class http{
-    # member
-    request
-    # func
-    func handler(){
-        fmt.println("hello world!",request)
-        fmt.println(this.request)
-    }
-}
-func closure(){
-    return func(){
-        return ["arr1","arr2",3,4]
-    }
-}
-func main(){
-    a = "this is a string" #string
-    fmt.println(a)
-    a = 1000 # int
-    fmt.println(a)
-    a = ["1",2,"33",4,"some string word"] #array
-    fmt.print(a[0],a[1],a[2],a[3],a[4]) #or fmt.print(a)
-    b = {"sdfds":"sdfsd",1:2,"sdfds":3,"a":a} #map
-    fmt.print(b["a"],b["sdfds"])
-    obj = new http() #object
-    obj.request = {"method":"POST"}
-    obj.handler()
-    cfunc = closure() #closure
-    fmt.println(cfunc())
-    
-}
-```
 ## @keywords
 - [x] func
 - [x] return
