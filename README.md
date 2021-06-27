@@ -81,17 +81,14 @@ docker test
 ```
 package main
 import fmt
-
 class http{
     # member
     request
-    # func
     func handler(){
-        fmt.println("hello world!",request)
-        fmt.println(this.request)
+        fmt.println("hello world!",request,this.request)
     }
 }
-func closure(){
+http::closure(){
     return func(){
         return ["arr1","arr2",3,4]
     }
@@ -108,7 +105,7 @@ func main(){
     obj = new http() #object
     obj.request = {"method":"POST"}
     obj.handler()
-    cfunc = closure() #closure
+    cfunc = obj.closure() #closure
     fmt.println(cfunc())
     
 }
