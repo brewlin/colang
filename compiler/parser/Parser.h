@@ -109,8 +109,6 @@ public:
     int fileno = 1;
     //打开脚本文件
     std::fstream fs;
-    //保存关键字
-    std::unordered_map<std::string,Token > keywords;
     //当前token
     std::string curLex;
     Token       curToken;
@@ -132,6 +130,5 @@ public:
 
 };
 
-
-
+extern unordered_map<std::string,Token > keywords;
 #endif //CO_LANG_PARSER_H

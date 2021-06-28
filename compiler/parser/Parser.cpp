@@ -6,37 +6,32 @@
 #include "Block.h"
 #include "Log.h"
 
+using namespace std;
+
 int Parser::count = 1;
+
+unordered_map<std::string,Token > keywords = 
+{
+    {"if",KW_IF},         {"else",KW_ELSE},     {"else",KW_ELSE},
+    {"while", KW_WHILE},  {"for", KW_FOR},      {"false", KW_FALSE},
+    {"true", KW_TRUE},    {"null", KW_NULL},    {"func", KW_FUNC},
+    {"return", KW_RETURN},{"break", KW_BREAK},  {"continue", KW_CONTINUE},
+    {"import", KW_IMPORT},{"extern", KW_EXTERN},{"class", KW_CLASS},
+    {"new", KW_NEW},      {"go", KW_GO},        {"package", KW_PACKAGE},
+    {"struct",KW_STRUCT},
+};
 /**
  * 解析 脚本文件
  * @param filename
  */
-Parser::Parser(const string &filepath,Package* pkg,string package,string full_package):
-pkg(pkg),
+Parser::Parser(const string &filepath,Package* pkg,string package,string full_package)
+:pkg(pkg),
 //clear
 currentFunc(nullptr),
 package(package),
 filepath(filepath)
 {
-    keywords["if"]       = KW_IF;
-    keywords["else"]     = KW_ELSE;
-    keywords["while"]    = KW_WHILE;
-    keywords["for"]      = KW_FOR;
-    keywords["false"]    = KW_FALSE;
-    keywords["true"]     = KW_TRUE;
-    keywords["null"]     = KW_NULL;
-    keywords["func"]     = KW_FUNC;
-    keywords["return"]   = KW_RETURN;
-    keywords["break"]    = KW_BREAK;
-    keywords["continue"] = KW_CONTINUE;
-    keywords["import"]   = KW_IMPORT;
-    keywords["extern"]   = KW_EXTERN;
-    keywords["class"]    = KW_CLASS;
-    keywords["new"]      = KW_NEW;
-    keywords["go"]       = KW_GO;
-    keywords["package"]  = KW_PACKAGE;
     fs.open(filepath,std::ios::in);
-
     if(!fs.is_open()){
         parse_err("ParserError: can not open script file :%s\n",filepath.c_str());
     }

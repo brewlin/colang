@@ -9,6 +9,8 @@
 class Context;
 class Runtime;
 
+using namespace std;
+
 struct  Expression : public Ast {
     using Ast::Ast;
     virtual              ~Expression() = default;
@@ -121,6 +123,9 @@ struct VarExpr : public Expression {
     bool         is_delref;
     //当前变量为全局变量时 所属包名
     std::string  package;
+    //当前变量被强制申请为 struct内存结构
+    string       structpkg;
+    string       structname;
 
     void         asmgen( std::deque<Context*> ctx) override;
     std::string  toString() override;
