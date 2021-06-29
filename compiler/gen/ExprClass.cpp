@@ -10,6 +10,14 @@
 #include "Value.h"
 #include "Parser.h"
 
+/**
+ * new struct
+ * new 200
+ */
+void  NewExpr::asmgen(std::deque<Context*> ctx)
+{
+
+}
 
 /**
  * TODO: new expr
@@ -18,11 +26,11 @@
  * @param ctx
  * @return
  */
-void  NewExpr::asmgen(std::deque<Context*> ctx)
+void  NewClassExpr::asmgen(std::deque<Context*> ctx)
 {
 
 //    AsmGen::writeln("    .loc %d %d %d",AsmGen::parser->fileno,line,column);
-    Debug("new expr got: type:%s",this->type.c_str());
+    Debug("new expr got: type:%s",this->name.c_str());
     //获取class 类型
     //处理映射
     Class* s = nullptr;
@@ -30,16 +38,16 @@ void  NewExpr::asmgen(std::deque<Context*> ctx)
         string realPkg = AsmGen::parser->import[package];
         Package* pkg = Package::packages[realPkg];
         if(pkg){
-            s = pkg->getClass(this->type);
+            s = pkg->getClass(this->name);
         }
     }else{
-        s = AsmGen::parser->pkg->getClass(this->type);
+        s = AsmGen::parser->pkg->getClass(this->name);
     }
     if(!s){
         parse_err(
                 "AsmError: class is not define of %s "
                 "line:%d column:%d \n\n",
-                type.c_str(),this->line,this->column);
+                name.c_str(),this->line,this->column);
     }
     Internal::newobject(Object,s->funcs.size());
     AsmGen::Push();

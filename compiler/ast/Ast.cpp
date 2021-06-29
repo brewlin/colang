@@ -250,12 +250,23 @@ std::string AssignExpr::toString() {
     str += ")";
     return str;
 }
-std::string NewExpr::toString(){
+std::string NewClassExpr::toString(){
     std::string str = "NewExpr(";
-    str += type;
+    str += package;
+    str += ",";
+    str += name;
     str += ")";
     return str;
 }
+std::string NewExpr::toString(){
+    std::string str = "NewExpr(";
+    str += package;
+    str += ",";
+    str += name;
+    str += ")";
+    return str;
+}
+
 std::string MemberExpr::toString(){
     std::string str = "MemberExpr(";
     str += varname;

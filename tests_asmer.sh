@@ -67,6 +67,8 @@ for dir in `ls`
 do
     if [ -d $dir ] ; then
         read_dir $dir
+        rm $dir/*.o
+        rm $dir/*.s
     fi
 done 
 log "all passing...."

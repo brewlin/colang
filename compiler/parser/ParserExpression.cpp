@@ -295,21 +295,35 @@ Expression* Parser::parsePrimaryExpr()
  */
 Expression* Parser::parseNewExpr()
 {
-    auto* ret = new NewExpr(line,column);
+    if(curToken == LIT_INT){
+        auto ret = new NewExpr(line,column);
+        ret->len = atoi(curLex.c_str());
+        return ret;
+    }
+
     //有可能是包的方式进行访问
-    string type = getCurrentLexeme();
+    string package = "";
+    string name    = getCurrentLexeme();
     //must TK_LPAREN TK_RPAREN
     scan();
     if(getCurrentToken() == TK_DOT){
         scan();
         assert(getCurrentToken() == TK_VAR);
-        ret->package = type;
-        type = getCurrentLexeme();
+        package = name;
+        name = getCurrentLexeme();
         scan();
     }
-    ret->type = type;
-    assert(getCurrentToken() == TK_LPAREN);
-    ret->flag = 0;
+    // p<struct> = new struct 这种就没有括号 需要提前结束
+    if(curToken != TK_LPAREN) {
+        auto ret = new NewExpr(line,column);
+        ret->package = package;
+        ret->name    = name;
+        return ret;
+    }
+    auto ret = new NewClassExpr(line,column);
+    ret->package = package;
+    ret->name = name;
+    // p = new class(a,b,c) 这种还需要继续解析
     //eat (
     scan();
     //循环解析实参 func(1,2,3); while( c != ')');
@@ -388,6 +402,26 @@ Expression* Parser::parseVarExpr(std::string var)
         //解析 var[i] 索引表达式
         case TK_LBRACKET:
             return parseIndexExpr(var);
+        //解析 var<name> 结构体表达式
+        // case TK_LT:{
+        //     VarExpr* expr = new VarExpr(var,line,column);
+        //     expr->structtype = true;
+        //     scan();
+        //     assert(curToken == TK_VAR);
+        //     string sname = curLex;
+        //     expr->structname = sname;
+        //     scan();
+        //     if(curToken == TK_DOT){
+        //         scan();
+        //         assert(curToken == TK_VAR);
+        //         expr->package = sname;
+        //         expr->structname = move(curLex);
+        //         scan();
+        //     }
+        //     assert(curToken == TK_GT);
+        //     scan();
+        //     return expr;
+        // }
         default:
             VarExpr* varexpr = new VarExpr(var,line,column);
             return varexpr;

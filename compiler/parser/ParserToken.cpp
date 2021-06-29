@@ -347,17 +347,16 @@ std::vector<Statement*> Parser::parseStatementList()
             if (typeid(*pe->expr) != typeid(AssignExpr)) continue;
             AssignExpr* expr = dynamic_cast<AssignExpr*>(pe->expr);
             //形如 p = new(a,b,c)
-            if(typeid(*expr->rhs) == typeid(NewExpr) && typeid(*expr->lhs) == typeid(VarExpr)){
-                NewExpr* ne = dynamic_cast<NewExpr*>(expr->rhs);
+            if(typeid(*expr->rhs) == typeid(NewClassExpr) && typeid(*expr->lhs) == typeid(VarExpr)){
+                NewClassExpr* ne = dynamic_cast<NewClassExpr*>(expr->rhs);
                 VarExpr* obj = dynamic_cast<VarExpr*>(expr->lhs);
-                if(ne->flag != 0) continue;
                 //检查一下函数是否存在
                 Package* pkg = this->pkg;
                 if(ne->package != ""){
                     string package = this->import[ne->package];
                     pkg = Package::packages[package];
                 }
-                if(!pkg->checkClassFunc(ne->type,"init"))
+                if(!pkg->checkClassFunc(ne->name,"init"))
                     continue;
                 //构造一个函数调用
                 auto* call = new FunCallExpr(expr->line,expr->column);

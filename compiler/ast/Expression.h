@@ -112,23 +112,24 @@ struct VarExpr : public Expression {
             varname(std::move(varname)),
             is_local(true),
             is_variadic(false),
-            is_delref(false){}
+            is_delref(false),
+            structtype(false){}
     std::string  varname;
     //在 asm generate 时 作为 bp 偏移量
     int          offset;
     //在asm  generate 时作为 唯一标号
-    std::string  name;
+    string       name;
     bool         is_local;
     bool         is_variadic;
     bool         is_delref;
     //当前变量为全局变量时 所属包名
-    std::string  package;
+    string       package;
     //当前变量被强制申请为 struct内存结构
-    string       structpkg;
     string       structname;
+    bool         structtype;
 
     void         asmgen( std::deque<Context*> ctx) override;
-    std::string  toString() override;
+    string       toString() override;
 };
 struct ClosureExpr : public Expression {
     explicit ClosureExpr(std::string varname, int line, int column)
@@ -188,16 +189,27 @@ struct AssignExpr : public Expression {
     std::string  toString() override;
 };
 
-struct NewExpr : public Expression {
-    explicit NewExpr(int line, int column) : Expression(line, column) {}
+struct NewClassExpr : public Expression {
+    explicit NewClassExpr(int line, int column) : Expression(line, column) {}
     std::string package;
-    std::string type;
-    int         flag; // 0 class 1 struct 2 mem
+    std::string name;
 
     std::vector<Expression*> args;
     void         asmgen( std::deque<Context*> ctx) override;
     std::string  toString() override;
 };
+struct NewExpr : public Expression {
+    explicit NewExpr(int line, int column) : Expression(line, column) {}
+    std::string package;
+    std::string name;
+
+    int         len;//申请的字节大小
+
+    void         asmgen( std::deque<Context*> ctx) override;
+    std::string  toString() override;
+};
+
+
 struct MemberExpr : public Expression {
     explicit MemberExpr(int line, int column) : Expression(line, column) {}
     std::string  varname;
