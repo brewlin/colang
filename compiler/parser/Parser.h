@@ -69,6 +69,7 @@ private:
     Function*       parseFuncDef(bool member = false,bool closure = false);
     Function*       parseExternDef();
     void            parseClassDef();
+    void            parseStructDef();
     void            parsePackageDef();
     void            parseGlobalDef();
     void            parseExtra();

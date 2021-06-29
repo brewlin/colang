@@ -18,7 +18,9 @@ unordered_map<std::string,Token > keywords =
     {"return", KW_RETURN},{"break", KW_BREAK},  {"continue", KW_CONTINUE},
     {"import", KW_IMPORT},{"extern", KW_EXTERN},{"class", KW_CLASS},
     {"new", KW_NEW},      {"go", KW_GO},        {"package", KW_PACKAGE},
-    {"struct",KW_STRUCT},
+    {"struct",KW_STRUCT}, 
+    {"i8",KW_I8},         {"i16",KW_I16},       {"i32",KW_I32},       {"i64",KW_I64},
+    {"u8",KW_U8},         {"u16",KW_U16},       {"u32",KW_U32},       {"u64",KW_U64},
 };
 /**
  * 解析 脚本文件
@@ -59,34 +61,49 @@ void Parser::parse()
     parsePackageDef();
 
     if(getCurrentToken() == TK_EOF) return;
-    do{
-        //import 引入文件解析
-        //解析函数定义
-        if(getCurrentToken() == KW_FUNC)
+    do
+    {
+        switch(getCurrentToken())
         {
-            auto* f = parseFuncDef();
-            this->addFunc(f->name,f);
-        //解析外部函数申明 extern与interpret没关系，只影响 irgen
-        } else if(getCurrentToken() == KW_EXTERN) {
-            auto *f = parseExternDef();
-            this->addFunc(f->name, f);
-            //解析 注释里面特别指明的附加信息，如link： 链接外部库等
-        } else if(getCurrentToken() == KW_EXTRA){
-            parseExtra();
-		//解析import
-        } else if(getCurrentToken() == KW_IMPORT){
-			parseImportDef();
-		//解析结构体类定义
-		} else if(getCurrentToken() == KW_CLASS){
-            parseClassDef();
-        //解析全局变量定义
-        }else{
-            parseGlobalDef();
+            case KW_FUNC:{
+                //import 引入文件解析
+                //解析函数定义
+                auto* f = parseFuncDef();
+                this->addFunc(f->name,f);
+                break;
+            }
+            case KW_EXTERN:{
+                //解析外部函数申明 extern与interpret没关系，只影响 irgen
+                auto *f = parseExternDef();
+                this->addFunc(f->name, f);
+                break;
+            }
+            case KW_EXTRA:{
+                //解析 注释里面特别指明的附加信息，如link： 链接外部库等
+                parseExtra();
+                break;
+            }
+            case KW_IMPORT:{
+		        //解析import
+			    parseImportDef();
+                break;
+            }
+            case KW_CLASS:{
+		        //解析结构体类定义
+                parseClassDef();
+                break;
+            }
+            case KW_STRUCT:{
+                //解析struct内存结构
+                parseStructDef();
+                break;
+            }
+            default:{
+                //解析全局定义: global var, class::func
+                parseGlobalDef();
+            }
         }
-
     }while(getCurrentToken() != TK_EOF);
-
-
 }
 char Parser::next() {
     column++;

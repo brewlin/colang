@@ -40,13 +40,13 @@ void Parser::parsePackageDef()
 }
 
 /**
- * 解析结构体定义
+ * 解析class定义
  */
 void Parser::parseClassDef()
 {
-    Debug("found struct.start parser..");
+    Debug("found class start parser..");
     assert(getCurrentToken() == KW_CLASS);
-    //解析结构体名
+    //解析class名
     scan();
     //must TK_VAR
     assert(getCurrentToken() == TK_VAR);
@@ -84,6 +84,60 @@ void Parser::parseClassDef()
     }
     //追加到当前package 下去管理
     pkg->addClass(s->name,s);
+    //eat }
+    scan();
+}
+/**
+ * 解析struct 内存结构
+ */
+void Parser::parseStructDef()
+{
+    // struct header
+    // {
+    // 	i8   a
+    // 	i16  b
+    // 	i32  c:20
+    // 	i32  c:12
+    // 	u64 d
+    // }
+    Debug("found struct start parser..");
+    assert(getCurrentToken() == KW_STRUCT);
+    //解析结构体名
+    scan();
+    //must TK_VAR
+    assert(getCurrentToken() == TK_VAR);
+    Struct* s = new Struct();
+    s->name  = getCurrentLexeme();
+    scan();
+    //must {
+    assert(getCurrentToken() == TK_LBRACE);
+    scan();
+    //end for }
+    while(getCurrentToken() != TK_RBRACE)
+    {
+        //每次都是一对一对的解析
+        //key 必须是 i8 - u64的结构
+        assert(curToken >= KW_I8 && curToken <= KW_U64);
+        Member *member = new Member();
+        member->type = curToken;
+
+        scan();
+        assert(curToken == TK_VAR);
+        member->name = curLex;
+
+        //这里可能还有: 冒号  可能是一个位图
+        scan();
+        if(curToken == TK_COLON){
+            scan();
+            assert(curToken == LIT_INT);
+            member->bitfield = true;
+            member->bitwidth = atoi(curLex.c_str());
+            scan();
+        }
+        s->member.push_back(member);
+    }
+    //追加到当前package 下去管理
+    pkg->addStruct(s->name,s);
     //eat }
     scan();
 }

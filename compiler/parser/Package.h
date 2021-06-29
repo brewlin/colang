@@ -28,11 +28,14 @@ public:
     void      asmgen();
     Function* getFunc(const std::string &name, bool is_extern);
     VarExpr*  getGlobalVar(const std::string &name);
-    void      addClass(const std::string &name, Class *f);
-    bool      hasClass(const std::string &name);
+
+    void      addStruct(const string &name, Struct *f);
+
+    void      addClass(const string &name, Class *f);
+    bool      hasClass(const string &name);
     void      addClassFunc(string name,Function* f);
     bool      checkClassFunc(string name,string func);
-    Class*    getClass(const std::string &name);
+    Class*    getClass(const string &name);
 
 public:
     //map[filepath + name] = parser
@@ -43,7 +46,8 @@ public:
     //在codegen阶段 多个parser是属于同一个packge下，只需要执行一次class codgen
     bool        genclass;
 
-    std::unordered_map<std::string,Class*> classes;
+    std::unordered_map<std::string,Class*>  classes;
+    std::unordered_map<std::string,Struct*> structs;
 
 public:
     static std::unordered_map<std::string,Package*> packages;

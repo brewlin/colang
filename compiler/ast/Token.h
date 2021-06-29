@@ -27,37 +27,29 @@
 enum Token {
     //invalid identifier eof
     INVALID = 0, TK_VAR, TK_EOF,
-
     //int string double char
     LIT_INT,   LIT_STR,  LIT_DOUBLE, LIT_CHAR,
-
     // & | ^ ~
     TK_BITAND, TK_BITOR,TK_BITXOR,TK_BITNOT ,
     // &= |=
     TK_BITAND_AGN, TK_BITOR_AGN ,
-
     // << >> <<= >>=
     TK_SHIFTL, TK_SHIFTR,TK_SHIFTL_AGN,TK_SHIFTR_AGN,
-
     //&& || !
     TK_LOGAND, TK_LOGOR,  TK_LOGNOT,
-
     // ==  != > >= < <=
     TK_EQ,TK_NE,TK_GT,TK_GE,TK_LT,TK_LE,
-
     //+ - * / %
     TK_PLUS,   TK_MINUS,  TK_MUL, TK_DIV, TK_MOD,
-
     //= += -= *= /= %=
     TK_ASSIGN,TK_PLUS_AGN,TK_MINUS_AGN,TK_MUL_AGN,TK_DIV_AGN,TK_MOD_AGN,
-
     //, ( ) { } [ ] . :
     TK_COMMA,TK_LPAREN,TK_RPAREN,TK_LBRACE,TK_RBRACE,TK_LBRACKET,TK_RBRACKET,TK_DOT,TK_COLON,TK_SEMICOLON,
-
     //if else true false while for null func return break continue new
     KW_IF,KW_ELSE,KW_TRUE,KW_FALSE,KW_WHILE,KW_FOR,KW_NULL,KW_FUNC,KW_RETURN,KW_BREAK,KW_CONTINUE,KW_NEW,
-
     //extern import go  new  package dereference #:(link,),struct
-    KW_EXTERN,KW_IMPORT,KW_GO,KW_CLASS,KW_PACKAGE,TK_DELREF,KW_EXTRA,KW_STRUCT
+    KW_EXTERN,KW_IMPORT,KW_GO,KW_CLASS,KW_PACKAGE,TK_DELREF,KW_EXTRA,KW_STRUCT,
+    //i8,i16,i32,i64,u8,u16,u32,u64
+    KW_I8,KW_I16,KW_I32,KW_I64,KW_U8,KW_U16,KW_U32,KW_U64,
 };
 #endif //CO_LANG_TOKEN_H

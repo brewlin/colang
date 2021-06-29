@@ -18,10 +18,7 @@ Package::Package(string name,string path,bool multi)
     }
 
 }
-Package::~Package(){
-
-}
-
+Package::~Package(){}
 bool Package::parse()
 {
     Debug("found import.start parser..");
@@ -90,6 +87,18 @@ void Package::addClass(const std::string &name, Class *f)
             f->funcs.push_back(i);
     }
     classes[name] = f;
+}
+/**
+ * record struct
+ */
+void Package::addStruct(const string &name, Struct *f)
+{
+    //在顶层package 需要统一管理所有的定义
+    //如果之前已经有则 直接拷贝过去
+    if(structs.count(name)){
+        return;
+    }
+    structs[name] = f;
 }
 /**
  * 外部定义的函数需要增加到类里面
