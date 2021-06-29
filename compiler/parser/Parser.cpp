@@ -41,7 +41,7 @@ filepath(filepath)
     filename = fullname.substr(0,fullname.size() - 3);
     asmfile  = filename + ".s";
     if(package != "main")
-        asmfile  = package + "_" + asmfile;
+        asmfile  = "co_" + package + "_" + asmfile;
     this->full_package = full_package;
     //记录一下本身包名的映射
     import[package] = full_package;

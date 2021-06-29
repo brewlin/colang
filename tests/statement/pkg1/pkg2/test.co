@@ -1,0 +1,12 @@
+package pkg2
+
+import fmt
+
+obj
+
+
+func test()
+{
+	fmt.println("path:/pkg1/pkg2/test.co")	
+	obj = "pkg1.pkg2.obj"
+}

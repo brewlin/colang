@@ -29,6 +29,16 @@ tests/do
 tests/co
 tests/colang
 tests/*.s
+tests/class/*.s
+tests/class/*.o
+tests/datastruct/*.s
+tests/datastruct/*.o
+tests/internalpkg/*.s
+tests/internalpkg/*.o
+tests/operation/*.s
+tests/operation/*.o
+tests/statement/*.s
+tests/statement/*.o
 tests/src/*
 cas
 co

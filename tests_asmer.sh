@@ -41,6 +41,8 @@ assert(){
 #    failed "[compile] $input failed"
 }
 read_dir(){
+    $ir = "$1"
+    cd $dir
     for file in `ls *.co`
     do
      if [ -d $file ] ; then
@@ -52,6 +54,7 @@ read_dir(){
         log "[compile] $file passed!\n"
      fi
     done
+    cd ..
 }
 install_env(){
     cd tests
@@ -60,5 +63,10 @@ install_env(){
     fi
 }
 install_env
-read_dir
+for dir in `ls`
+do
+    if [ -d $dir ] ; then
+        read_dir $dir
+    fi
+done 
 log "all passing...."
