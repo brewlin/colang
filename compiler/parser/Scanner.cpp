@@ -22,6 +22,18 @@ fs(filepath),pos(0)
 Scanner::~Scanner(){
     fs.close();
 }
+void Scanner::transaction()
+{
+    txpos = pos;
+    txtk  = curToken;
+    txlex = curLex;
+}
+void Scanner::rollback()
+{
+    pos = txpos;
+    curToken = txtk;
+    curLex = txlex;
+}
 char Scanner::next() {
     if(pos >= buffer.str().length()){
         return EOF;

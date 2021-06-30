@@ -403,25 +403,38 @@ Expression* Parser::parseVarExpr(std::string var)
         case TK_LBRACKET:
             return parseIndexExpr(var);
         //解析 var<name> 结构体表达式
-        // case TK_LT:{
-        //     VarExpr* expr = new VarExpr(var,line,column);
-        //     expr->structtype = true;
-        //     scanner->scan();
-        //     assert(scanner->curToken == TK_VAR);
-        //     string sname = scanner->curLex;
-        //     expr->structname = sname;
-        //     scanner->scan();
-        //     if(scanner->curToken == TK_DOT){
-        //         scanner->scan();
-        //         assert(scanner->curToken == TK_VAR);
-        //         expr->package = sname;
-        //         expr->structname = move(scanner->curLex);
-        //         scanner->scan();
-        //     }
-        //     assert(scanner->curToken == TK_GT);
-        //     scanner->scan();
-        //     return expr;
-        // }
+        //如果 不是这种就需要回退 < varname > 
+        case TK_LT:{
+            scanner->transaction();
+
+            VarExpr* expr = new VarExpr(var,line,column);
+            VarExpr* varexpr = new VarExpr(var,line,column);
+            expr->structtype = true;
+            scanner->scan();
+            // var<p
+            if(scanner->curToken == TK_VAR){
+                string sname = scanner->curLex;
+                expr->structname = sname;
+                scanner->scan();
+                if(scanner->curToken == TK_DOT){
+                    scanner->scan();
+                    assert(scanner->curToken == TK_VAR);
+                    expr->package = sname;
+                    expr->structname = move(scanner->curLex);
+                    scanner->scan();
+                }
+                //如果不为 > 说明不满足  var<struct> || var<pkg.struct> 则回滚
+                if(scanner->curToken != TK_GT){
+                    scanner->rollback();
+                    return varexpr;
+                }
+                scanner->scan();
+                return expr;
+            }
+            //到这里说明肯定不是 p<struct>这种结构
+            scanner->rollback();
+            return varexpr;
+        }
         default:
             VarExpr* varexpr = new VarExpr(var,line,column);
             return varexpr;

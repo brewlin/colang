@@ -28,6 +28,9 @@ struct Scanner
 	ifstream     fs;
 	stringstream buffer;
 	int 		 pos;
+	int 		 txpos;
+	Token	     txtk;
+	string 		 txlex;
 
 	Token	     prevToken;
 	string	     prevLex;
@@ -43,6 +46,8 @@ public:
     char      next();
     char      peek();
 	void  	  print();
+	void 	  transaction();
+	void 	  rollback();
 
 	string    consumeLine(); 			
 	short precedence(Token op);
