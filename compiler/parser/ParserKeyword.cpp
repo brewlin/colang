@@ -18,25 +18,25 @@ using namespace std;
 void Parser::parsePackageDef()
 {
     Debug("check package is correct..");
-    if(getCurrentToken() != KW_PACKAGE)
+    if(scanner->curToken != KW_PACKAGE)
         parse_err("SynatxError: need :package but got :%s  line:%d column:%d\n",
-                  getCurrentLexeme().c_str(),
+                  scanner->curLex.c_str(),
                   line,column);
 
     //解析包名
-    scan();
-    assert(getCurrentToken() == TK_VAR);
-    std::string pkgname = getCurrentLexeme();
+    scanner->scan();
+    assert(scanner->curToken == TK_VAR);
+    std::string pkgname = scanner->curLex;
     if(pkgname != this->package){
         parse_err("SynatxError: inconsistent package name %s:%s token:%d string:%s  line:%d column:%d\n",
                   pkgname.c_str(),
                   this->package.c_str(),
-                  getCurrentToken(),
-                  getCurrentLexeme().c_str(),
+                  scanner->curToken,
+                  scanner->curLex.c_str(),
                   line,column);
     }
     //eat scan
-    scan();
+    scanner->scan();
 }
 
 /**
@@ -45,28 +45,28 @@ void Parser::parsePackageDef()
 void Parser::parseClassDef()
 {
     Debug("found class start parser..");
-    assert(getCurrentToken() == KW_CLASS);
+    assert(scanner->curToken == KW_CLASS);
     //解析class名
-    scan();
+    scanner->scan();
     //must TK_VAR
-    assert(getCurrentToken() == TK_VAR);
+    assert(scanner->curToken == TK_VAR);
     Class *s = new Class();
-    s->name  = getCurrentLexeme();
-    scan();
+    s->name  = scanner->curLex;
+    scanner->scan();
 
     //must {
-    assert(getCurrentToken() == TK_LBRACE);
+    assert(scanner->curToken == TK_LBRACE);
 
-    scan();
+    scanner->scan();
     //end for }
-    while(getCurrentToken() != TK_RBRACE){
+    while(scanner->curToken != TK_RBRACE){
         //定义成员变量
-        if(getCurrentToken() == TK_VAR){
-            s->members.push_back(getCurrentLexeme());
-            scan();
+        if(scanner->curToken == TK_VAR){
+            s->members.push_back(scanner->curLex);
+            scanner->scan();
 
         // 定义成员函数函数
-        }else if(getCurrentToken() == KW_FUNC){
+        }else if(scanner->curToken == KW_FUNC){
             //解析成员函数
             Function *f = parseFuncDef(true);
             assert(f != nullptr);
@@ -76,8 +76,8 @@ void Parser::parseClassDef()
             s->funcs.push_back(f);
         }else{
             parse_err("SynatxError: token:%d string:%s  line:%d column:%d\n",
-                getCurrentToken(),
-                getCurrentLexeme().c_str(),
+                scanner->curToken,
+                scanner->curLex.c_str(),
                 line,column);
         }
 
@@ -85,7 +85,7 @@ void Parser::parseClassDef()
     //追加到当前package 下去管理
     pkg->addClass(s->name,s);
     //eat }
-    scan();
+    scanner->scan();
 }
 /**
  * 解析struct 内存结构
@@ -101,45 +101,45 @@ void Parser::parseStructDef()
     // 	u64 d
     // }
     Debug("found struct start parser..");
-    assert(getCurrentToken() == KW_STRUCT);
+    assert(scanner->curToken == KW_STRUCT);
     //解析结构体名
-    scan();
+    scanner->scan();
     //must TK_VAR
-    assert(getCurrentToken() == TK_VAR);
+    assert(scanner->curToken == TK_VAR);
     Struct* s = new Struct();
-    s->name  = getCurrentLexeme();
-    scan();
+    s->name  = scanner->curLex;
+    scanner->scan();
     //must {
-    assert(getCurrentToken() == TK_LBRACE);
-    scan();
+    assert(scanner->curToken == TK_LBRACE);
+    scanner->scan();
     //end for }
-    while(getCurrentToken() != TK_RBRACE)
+    while(scanner->curToken != TK_RBRACE)
     {
         //每次都是一对一对的解析
         //key 必须是 i8 - u64的结构
-        assert(curToken >= KW_I8 && curToken <= KW_U64);
+        assert(scanner->curToken >= KW_I8 && scanner->curToken <= KW_U64);
         Member *member = new Member();
-        member->type = curToken;
+        member->type = scanner->curToken;
 
-        scan();
-        assert(curToken == TK_VAR);
-        member->name = curLex;
+        scanner->scan();
+        assert(scanner->curToken == TK_VAR);
+        member->name = scanner->curLex;
 
         //这里可能还有: 冒号  可能是一个位图
-        scan();
-        if(curToken == TK_COLON){
-            scan();
-            assert(curToken == LIT_INT);
+        scanner->scan();
+        if(scanner->curToken == TK_COLON){
+            scanner->scan();
+            assert(scanner->curToken == LIT_INT);
             member->bitfield = true;
-            member->bitwidth = atoi(curLex.c_str());
-            scan();
+            member->bitwidth = atoi(scanner->curLex.c_str());
+            scanner->scan();
         }
         s->member.push_back(member);
     }
     //追加到当前package 下去管理
     pkg->addStruct(s->name,s);
     //eat }
-    scan();
+    scanner->scan();
 }
 /**
  * 解析函数表达式
@@ -150,9 +150,9 @@ Function* Parser::parseFuncDef(bool member,bool closure)
 {
     Debug("found function. start parser..");
     //当前是否已经解析到 func 关键字
-    assert(getCurrentToken() == KW_FUNC);
+    assert(scanner->curToken == KW_FUNC);
     //获取函数名|或者直接跳过
-    scan();
+    scanner->scan();
     auto* node = new Function;
     //set parser
     node->parser = this;
@@ -162,14 +162,14 @@ Function* Parser::parseFuncDef(bool member,bool closure)
     //闭包没有函数名
     if(!closure){
         //检查是否重复定义
-        if(hasFunc(getCurrentLexeme()))
-            parse_err("SyntaxError: already define function :%s\n",getCurrentLexeme().c_str());
-        node->name = getCurrentLexeme();
+        if(hasFunc(scanner->curLex))
+            parse_err("SyntaxError: already define function :%s\n",scanner->curLex.c_str());
+        node->name = scanner->curLex;
         //指向 func name'(') 括号
-        scan();
+        scanner->scan();
     }
 
-    assert(getCurrentToken() == TK_LPAREN);
+    assert(scanner->curToken == TK_LPAREN);
 
     //如果为成员函数需要填充第一个 this 参数
     if(member){
@@ -198,22 +198,22 @@ Function* Parser::parseExternDef()
 {
     Debug("found extern .start parser..");
     //当前是否已经解析到 func 关键字
-    assert(getCurrentToken() == KW_EXTERN);
+    assert(scanner->curToken == KW_EXTERN);
     auto* node     = new Function;
     node->isExtern = true;
     node->parser   = this;
 
     //extern 一般是调用系统库 所以 需要固定返回类型
-    scan();
-    node->rettype  = getCurrentLexeme();
+    scanner->scan();
+    node->rettype  = scanner->curLex;
 
     //获取函数名
-    scan();
-    node->name     = getCurrentLexeme();
+    scanner->scan();
+    node->name     = scanner->curLex;
 
     //指向 func name'(') 括号
-    scan();
-    assert(getCurrentToken() == TK_LPAREN);
+    scanner->scan();
+    assert(scanner->curToken == TK_LPAREN);
     //解析函数参数
     node->params   = parseParameterList();
     //解析block 函数主体表达式
@@ -227,19 +227,19 @@ Function* Parser::parseExternDef()
  */
 void Parser::parseExtra() {
     Debug("found #: parser..");
-    assert(getCurrentToken() == KW_EXTRA);
+    assert(scanner->curToken == KW_EXTRA);
     //scan one
-    scan();
+    scanner->scan();
     //解析到了链接信息
-    if(getCurrentLexeme() == "link"){
-        auto lines = getline();
+    if(scanner->curLex == "link"){
+        auto lines = scanner->consumeLine();
         lines = lines.substr(0,lines.size());
         //推到数组里去
         links.push_back(lines);
         return;
     }
     //没有命中 说明格式错了, 直接去掉当前行
-    getline();
+    scanner->consumeLine();
 }
 
 /**
@@ -250,27 +250,27 @@ void Parser::parseExtra() {
 void Parser::parseImportDef()
 {
     Debug("found import.start parser..");
-    assert(getCurrentToken() == KW_IMPORT);
+    assert(scanner->curToken == KW_IMPORT);
     //scan one
-     scan();
+     scanner->scan();
     //must tk_var
-    assert(getCurrentToken() == TK_VAR);
-    string path = getCurrentLexeme();
+    assert(scanner->curToken == TK_VAR);
+    string path = scanner->curLex;
     string package(path);
     bool multi = false;
     //可能是多级包结构，p.p1.p2.p3需要判断是否需要多层解析
-    scan();
-    while(getCurrentToken() == TK_DOT){
+    scanner->scan();
+    while(scanner->curToken == TK_DOT){
         //eat .
-        scan();
+        scanner->scan();
         // must be var
-        assert(getCurrentToken() == TK_VAR);
+        assert(scanner->curToken == TK_VAR);
         // FIXEME: platform directory seprate
-        path += "_" + getCurrentLexeme();
-        package = getCurrentLexeme();
+        path += "_" + scanner->curLex;
+        package = scanner->curLex;
         multi = true;
         //eat one
-        scan();
+        scanner->scan();
     }
 
     //检查包是否已经解析过了
@@ -296,19 +296,19 @@ void Parser::parseImportDef()
  */
 void Parser::parseGlobalDef()
 {
-    if(getCurrentToken() != TK_VAR){
+    if(scanner->curToken != TK_VAR){
         parse_err("SyntaxError: global var define invalid  "
                       " line:%d column:%d file:%s\n",line,column,filepath.c_str());
     }
-    auto var = getCurrentLexeme();
+    auto var = scanner->curLex;
     //去掉标识符
-    scan();
+    scanner->scan();
     //说明是 Class::func定义
-    if(getCurrentToken() == TK_COLON){
-        scan();
-        assert(getCurrentToken() == TK_COLON);
+    if(scanner->curToken == TK_COLON){
+        scanner->scan();
+        assert(scanner->curToken == TK_COLON);
         // 兼容funcParser 手动更新当前为kw_func
-        curToken  = KW_FUNC;
+        scanner->curToken  = KW_FUNC;
         //解析成员函数
         Function *f = parseFuncDef(true);
         assert(f != nullptr);

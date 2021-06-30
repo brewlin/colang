@@ -12,29 +12,29 @@
 Statement* Parser::parseStatement()
 {
     Statement* node;
-    switch (getCurrentToken()){
+    switch (scanner->curToken){
         case KW_IF:
-            scan();
+            scanner->scan();
             node = parseIfStmt();
             break;
         case KW_FOR:
-            scan();
+            scanner->scan();
             node = parseForStmt();
             break;
         case KW_WHILE:
-            scan();
+            scanner->scan();
             node = parseWhileStmt();
             break;
         case KW_RETURN:
-            scan();
+            scanner->scan();
             node = parseReturnStmt();
             break;
         case KW_BREAK:
-            scan();
+            scanner->scan();
             node = new BreakStmt(line,column);
             break;
         case KW_CONTINUE:
-            scan();
+            scanner->scan();
             node = new ContinueStmt(line,column);
             break;
         default:
@@ -51,18 +51,18 @@ IfStmt*   Parser::parseIfStmt()
 {
     auto* node = new IfStmt(line,column);
     //去掉左括号
-    scan();
+    scanner->scan();
     //解析条件表达式
     node->cond = parseExpression();
     //去掉右括号
-    assert(getCurrentToken() == TK_RPAREN);
-    scan();
+    assert(scanner->curToken == TK_RPAREN);
+    scanner->scan();
     //解析语句块
     node->block = parseBlock();
     //如果当前关键字是else， 则继续解析else语句块
-    if(getCurrentToken() == KW_ELSE){
+    if(scanner->curToken == KW_ELSE){
         //去掉else关键字
-        scan();
+        scanner->scan();
         //解析else语句块
         node->elseBlock = parseBlock();
     }
@@ -76,25 +76,25 @@ ForStmt*   Parser::parseForStmt()
 {
     auto* node = new ForStmt(line,column);
     //去掉左括号
-    scan();
+    scanner->scan();
     //解析初始化表达式
     node->init = parseExpression();
     //去掉;
-    assert(getCurrentToken() == TK_SEMICOLON);
-    scan();
+    assert(scanner->curToken == TK_SEMICOLON);
+    scanner->scan();
 
     //解析条件表达式
     node->cond = parseExpression();
     //去掉;
-    assert(getCurrentToken() == TK_SEMICOLON);
-    scan();
+    assert(scanner->curToken == TK_SEMICOLON);
+    scanner->scan();
 
     //解析后置操作
     node->after = parseExpression();
 
     //去掉右括号
-    assert(getCurrentToken() == TK_RPAREN);
-    scan();
+    assert(scanner->curToken == TK_RPAREN);
+    scanner->scan();
     //解析语句块
     node->block = parseBlock();
     return node;
@@ -108,12 +108,12 @@ ForStmt*   Parser::parseForStmt()
 WhileStmt* Parser::parseWhileStmt() {
     auto* node = new WhileStmt(line, column);
     // 去掉左括号
-    scan();
+    scanner->scan();
     // 解析条件表达式
     node->cond = parseExpression();
     // 去掉右括号
-    assert(getCurrentToken() == TK_RPAREN);
-    scan();
+    assert(scanner->curToken == TK_RPAREN);
+    scanner->scan();
     // 解析语句块
     node->block = parseBlock();
     return node;

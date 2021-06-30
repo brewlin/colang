@@ -46,7 +46,7 @@ int asmgen(char* argv[],bool run = false)
 }
 int print_ast(char* argv[]){
     Parser p(argv[2], nullptr,"main","main");
-    p.printToken();
+    p.scanner->print();
     return 0;
 }
 

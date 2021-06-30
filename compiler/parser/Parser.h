@@ -18,6 +18,7 @@
 #include "Statement.h"
 #include <cstdlib>
 #include "Package.h"
+#include "Scanner.h"
 using namespace std;
 
 struct Function;
@@ -35,35 +36,25 @@ public:
     explicit Parser(const string& filepath,Package* rt,string package,string full_package);
     ~Parser();
     //获取包名
-    std::string getpkgname();
-    //执行文件解析生成ast树
-    std::string printToken();
+    string getpkgname();
     void parse();
     void asmgen();
 
     //全局变量
-    std::unordered_map<std::string,VarExpr*>   gvars;
+    unordered_map<string,VarExpr*>   gvars;
     //存储全局函数
-    std::unordered_map<std::string,Function*>  funcs;
-    std::unordered_map<std::string,Function*>  extern_funcs;
+    unordered_map<string,Function*>  funcs;
+    unordered_map<string,Function*>  extern_funcs;
     //保存全局 静态字符串
-    std::vector<StringExpr*>                   strs;
+    vector<StringExpr*>                   strs;
     //保存全局的 link 连接附加信息
-    std::vector<std::string>                   links;
+    vector<string>                   links;
 public:
-    void            addFunc(const std::string &name,   Function *f);
-    bool            hasFunc(const std::string &name,   bool is_extern = false);
-    Function*       getFunc(const std::string &name,   bool is_extern);
+    void            addFunc(const string &name,   Function *f);
+    bool            hasFunc(const string &name,   bool is_extern = false);
+    Function*       getFunc(const string &name,   bool is_extern);
 
 private:
-    //get|peek next char
-    char            next();
-    char            peek();
-    std::string     getline();
-    Token           getCurrentToken()const;
-    Token           getPrevToken()const ;
-    std::string     getCurrentLexeme()const;
-
     //parse keywords
     void 			parseImportDef();
     Function*       parseFuncDef(bool member = false,bool closure = false);
@@ -86,50 +77,35 @@ private:
     Expression*     parseExpression(short oldPrecedence = 1);
     Expression*     parseUnaryExpr();
     Expression*     parsePrimaryExpr();
-    Expression*     parseVarExpr(std::string var);
-    Expression*     parseFuncallExpr(std::string callname);
-    Expression*     parseIndexExpr(std::string varname);
+    Expression*     parseVarExpr(string var);
+    Expression*     parseFuncallExpr(string callname);
+    Expression*     parseIndexExpr(string varname);
     Expression*     parseNewExpr();
 
-    short           precedence(Token op);
     Block*          parseBlock();
 
-    void                            scan();
-    std::tuple <Token ,std::string> get_next();
-    std::tuple <Token ,std::string> parseNumber(char first);
-    std::tuple <Token ,std::string> parseKeyword(char c);
-    std::tuple <Token ,std::string> parseMulOrDelref(char c);
-
-    std::vector<std::string> parseParameterList();
-    std::vector<Statement*>  parseStatementList();
+    vector<string> parseParameterList();
+    vector<Statement*>  parseStatementList();
 public:
     static int count;
     //记录当前词法分析行|列
     int line = 1;
     int column = 0;
     int fileno = 1;
-    //打开脚本文件
-    std::fstream fs;
-    //当前token
-    std::string curLex;
-    Token       curToken;
-    //之前的token
-    std::string preLex;
-    Token       preToken;
     //当前所属的包
     Package* pkg;
 	//当前function
 	Function* currentFunc;
 	//当前包名
-    std::string full_package;
-	std::string package;
-    std::string filename;
-    std::string asmfile;
-    std::string filepath;
+    string    full_package;
+	string    package;
+    string    filename;
+    string    asmfile;
+    string    filepath;
+    //当前scanner
+    Scanner*  scanner;
     //引入的包名做一个映射以支持多级包名调用
     unordered_map<string,string> import;
 
 };
-
-extern unordered_map<std::string,Token > keywords;
 #endif //CO_LANG_PARSER_H
