@@ -23,10 +23,16 @@ Scanner::~Scanner(){
     fs.close();
 }
 char Scanner::next() {
+    if(pos >= buffer.str().length()){
+        return EOF;
+    }
     column++;
 	return  buffer.str()[pos++];
 }
 char Scanner::peek() {
+    if(pos >= buffer.str().length()){
+        return EOF;
+    }
 	int p = pos;
 	return buffer.str()[p];
 }
