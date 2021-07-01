@@ -14,6 +14,10 @@ unordered_map<std::string,Token > keywords =
     {"u8",KW_U8},         {"u16",KW_U16},       {"u32",KW_U32},       {"u64",KW_U64},
 };
 
+unordered_map<Token,int> 	typesize = {
+    {KW_I8,1} , {KW_I16,2} ,{KW_I32,4}, {KW_I64,8},
+    {KW_U8,1} , {KW_U16,2} ,{KW_U32,4}, {KW_U64,8},
+};
 Scanner::Scanner(const string filepath):
 fs(filepath),pos(0)
 {

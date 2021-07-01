@@ -113,13 +113,16 @@ void Parser::parseStructDef()
     assert(scanner->curToken == TK_LBRACE);
     scanner->scan();
     //end for }
+    int idx = 0;
     while(scanner->curToken != TK_RBRACE)
     {
         //每次都是一对一对的解析
         //key 必须是 i8 - u64的结构
         assert(scanner->curToken >= KW_I8 && scanner->curToken <= KW_U64);
         Member *member = new Member();
+        member->idx    = idx ++;
         member->type = scanner->curToken;
+        member->size = typesize[scanner->curToken];
 
         scanner->scan();
         assert(scanner->curToken == TK_VAR);

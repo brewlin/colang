@@ -25,6 +25,7 @@ struct Member
 {
     string  name;
     Token   type;
+    int     size;
 
     int     idx;
     int     align;
@@ -38,6 +39,7 @@ struct Struct
 {
     string  pkg;
     string  name;
+    int     size;
     //成员
     vector<Member*> member;
 };

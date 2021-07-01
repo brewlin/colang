@@ -13,7 +13,7 @@
 #include "Parser.h"
 
 #define ALIGN_UP(x,a) (((x) + (a - 1)) & ~(a - 1))
-
+#define ALIGN_DOWN(x,a) (ALIGN_UP(x-a+1,a))
 
 class AsmGen {
     std::deque<Context*> ctx;
@@ -54,6 +54,7 @@ public:
     static void CreateFunction(Function* fn,Class* c = nullptr);
     static void registerObjects();
     static void registerObjectFuncs(Class* c);
+    static void genStruct();
     //寄存器相关
     static void Store_gp(int r, int offset, int sz);
     static void Store();

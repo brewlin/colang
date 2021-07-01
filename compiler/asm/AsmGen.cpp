@@ -30,6 +30,8 @@ AsmGen::~AsmGen() {
 }
 void AsmGen::execute()
 {
+    //计算struct
+    genStruct();
     //register package
     for(auto it : Package::packages){
         Package* pkg = it.second;

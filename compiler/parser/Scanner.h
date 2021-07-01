@@ -60,5 +60,6 @@ private:
 };
 
 extern unordered_map<string,Token > keywords;
+extern unordered_map<Token,int> 	typesize;
 
 #endif //CO_LANG_PARSER_H
