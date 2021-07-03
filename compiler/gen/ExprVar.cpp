@@ -41,8 +41,8 @@ void  VarExpr::asmgen(std::deque<Context*> ctx){
             var  = Package::packages[package]->getGlobalVar(varname);
             //显式进行全局变量调用则需要强制检查
             if(var){
-                AsmGen::GenAddr(var,is_delref);
-                if(!is_delref) AsmGen::Load();
+                AsmGen::GenAddr(var);
+                AsmGen::Load();
                 return;
             } 
         }
@@ -51,8 +51,8 @@ void  VarExpr::asmgen(std::deque<Context*> ctx){
     package = AsmGen::currentFunc->parser->getpkgname();
     var  = Package::packages[package]->getGlobalVar(varname);
     if(var){
-        AsmGen::GenAddr(var,is_delref);
-        if(!is_delref) AsmGen::Load();
+        AsmGen::GenAddr(var);
+        AsmGen::Load();
         return;
     }
 
@@ -66,10 +66,8 @@ void  VarExpr::asmgen(std::deque<Context*> ctx){
         else
             var = f->params_var[varname];
 
-        AsmGen::GenAddr(var,is_delref);
-        //如果是解引用就需要在 读取变量了，否则这个变量是直接传递给下游
-        if(!is_delref)
-            AsmGen::Load();
+        AsmGen::GenAddr(var);
+        AsmGen::Load();
         return;
     }
     //3. 到这里还有一种情况,成员变量可以隐式访问（如果本地变量没有定义覆盖的情况下）

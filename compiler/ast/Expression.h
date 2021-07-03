@@ -112,7 +112,6 @@ struct VarExpr : public Expression {
             varname(move(varname)),
             is_local(true),
             is_variadic(false),
-            is_delref(false),
             structtype(false){}
     string  varname;
     //在 asm generate 时 作为 bp 偏移量
@@ -121,7 +120,6 @@ struct VarExpr : public Expression {
     string       name;
     bool         is_local;
     bool         is_variadic;
-    bool         is_delref;
     //当前变量为全局变量时 所属包名
     string       package;
     //当前变量被强制申请为 struct内存结构
@@ -152,7 +150,7 @@ struct StructMemberExpr : public Expression {
     string  toString() override;
 };
 struct DelRefExpr : public Expression {
-    explicit DelRefExpr(string varname,int line,int column)
+    explicit DelRefExpr(int line,int column)
             : Expression(line,column){}
     Expression* expr;
 

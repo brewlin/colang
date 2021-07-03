@@ -55,7 +55,7 @@ public:
     //寄存器相关
     static void Store_gp(int r, int offset, int sz);
     static void Store();
-    static void GenAddr(VarExpr* var,bool is_delref = false);
+    static void GenAddr(VarExpr* var);
     static void Load();
     static void CreateCmp();
     static void Push();

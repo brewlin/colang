@@ -13,16 +13,10 @@
 * 加载变量 计算变量
 * @param expr
 */
-void AsmGen::GenAddr(VarExpr *var,bool is_delref)
+void AsmGen::GenAddr(VarExpr *var)
 {
     // 局部变量 的栈偏移量之前就已经计算出来了 这里只需要
     if (var->is_local) {
-        //如果需要解引用
-        if(is_delref){
-            writeln("      mov %d(%%rbp),%%rax",var->offset);
-            Internal::get_object_value();
-            return;
-        }
         writeln("    lea %d(%%rbp), %%rax", var->offset);
         return;
     }else{
@@ -108,13 +102,11 @@ AsmGen::Push_arg(deque<Context *> prevCtxChain,Function* func,FunCallExpr* fce)
             //保存所有的寄存器
             for (int i = 0; i < 5; ++i) {
                 writeln("    mov %d(%%rbp),%%rax",params);
-                // if(need_delref->is_delref)
-                    Internal::get_object_value();
+                Internal::get_object_value();
                 writeln("    mov %%rax,%s",AsmGen::argreg64[i]);
                 params += -8;
             }
 
-            //  Internal::get_object_value();
             writeln("    mov %%rax,%%r9");
 
             //对于printf这种函数 超过6个参数以后 从rbp+24开始保存栈(因为第一个参数是size 需要去掉)
@@ -128,8 +120,6 @@ AsmGen::Push_arg(deque<Context *> prevCtxChain,Function* func,FunCallExpr* fce)
             //保存所有的寄存器
             for (int i = 0; i < 6; ++i) {
                 writeln("    mov %d(%%rbp),%%rax",params);
-                // if(need_delref->is_delref)
-                    // Internal::get_object_value();
                 writeln("    mov %%rax,%s",AsmGen::argreg64[i]);
                 params += -8;
             }
@@ -139,7 +129,6 @@ AsmGen::Push_arg(deque<Context *> prevCtxChain,Function* func,FunCallExpr* fce)
         //忽略第一个参数从第二个参数开始算起来
         //如果要读取上层的变量值 需要调用get_object_value 切记
         writeln("    mov -8(%%rbp),%%rax");
-//        if(need_delref->is_delref)
         Internal::get_object_value();
 
         //减去寄存器的参数
@@ -166,8 +155,6 @@ AsmGen::Push_arg(deque<Context *> prevCtxChain,Function* func,FunCallExpr* fce)
 
         writeln("    add %d(%%rbp),%%rax",currentFunc->stack);
         writeln("    mov (%%rax),%%rax");
-        // if(need_delref->is_delref)
-            // Internal::get_object_value();
         writeln("    push %%rax");
 
         writeln("    sub $1,%d(%%rbp)",currentFunc->size);

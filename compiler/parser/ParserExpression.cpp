@@ -141,12 +141,9 @@ Expression* Parser::parsePrimaryExpr()
         scanner->scan();
         //接下来肯定是一个变量 否则就报错
         Expression *p = parsePrimaryExpr();
-        if (typeid(*p) != typeid(VarExpr))
-            parse_err("SyntaxError: for del reference should be var not to be %s"
-                      " line:%d column:%d\n", typeid(*p).name(),line,column);
-        VarExpr* var = dynamic_cast<VarExpr*>(p);
-        var->is_delref = true;
-        return var;
+        DelRefExpr *delref = new DelRefExpr(line,column);
+        delref->expr = p;
+        return delref;
     //单独出现在这里 . () [] 一般是只有在链式表达式才会出现在这里
     }else if(tk == TK_DOT){
         scanner->scan();

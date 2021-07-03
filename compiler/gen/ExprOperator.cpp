@@ -202,7 +202,7 @@ void  ChainExpr::asmgen(std::deque<Context*> ctx)
 void  DelRefExpr::asmgen(std::deque<Context*> ctx){
     this->expr->asmgen(ctx);
     //这里判断下如果是常规var 则去获取var->data
-    if (typeid(*expr) != typeid(VarExpr)){
+    if (typeid(*expr) == typeid(VarExpr)){
         VarExpr* var = dynamic_cast<VarExpr*>(expr);
         //普通变量
         if(var->structname == ""){
