@@ -346,7 +346,7 @@ Expression* Parser::parseVarExpr(std::string var)
     //处理包名映射
     string package(var);
     //如果为包名调用则优先用包名
-    if(var != "_" && import.count(var)){
+    if(var != "_" && var != "__" && import.count(var)){
         package = import[var];
     }
     
@@ -368,6 +368,9 @@ Expression* Parser::parseVarExpr(std::string var)
                 call->is_pkgcall  = true;
                 //这里处理映射关系
                 call->package = package;
+               if(package == "_" || package == "__")
+                    call->is_extern = true;
+                call->is_delref = package == "__";
                 //这里判断如果 包名是之前的一个变量说明这个函数调用为成员函数调用
                 VarExpr* obj;
                 if(currentFunc->locals.count(var))

@@ -39,6 +39,8 @@ assert(){
     ./a.out
     check
     rm ./a.out
+    rm *.s
+    rm *.o
     echo "exec done..."
 
     return

@@ -10,6 +10,9 @@
 #include "Value.h"
 #include "Parser.h"
 
+void ClosureExpr::asmgen(std::deque<Context*> ctx){
+    AsmGen::writeln("    mov %s@GOTPCREL(%%rip), %%rax", varname.c_str());
+}
 /**
  * 函数调用求值
  * @param ctx
@@ -39,7 +42,7 @@ void funcexec(std::deque<Context*> ctx,Function* func,FunCallExpr* fce,std::stri
     if(func->params.size() != fce->args.size())
         Debug("ArgumentError: expects %d arguments but got %d\n",(int)func->params.size(),(int)this->args.size());
 
-    int stack_args = AsmGen::Push_arg(ctx,args,func->is_variadic,funcname);
+    int stack_args = AsmGen::Push_arg(ctx,func,fce);
 
     //如果没有可变参数传参  默认执行 通用寄存器赋值即可
     if(!cfunc || !cfunc->is_variadic || !have_variadic)
@@ -100,7 +103,7 @@ void  FunCallExpr::asmgen(std::deque<Context*> ctx)
     //1. 没有加包名
     //2. 外部函数调用
     //这里自动加上包名
-    if(!is_pkgcall || package == "_"){
+    if(!is_pkgcall || is_extern){
         package      = cfunc->parser->getpkgname();
     }
     //连函数名都没有说明可能是个链式表达式
@@ -147,7 +150,7 @@ void  FunCallExpr::asmgen(std::deque<Context*> ctx)
                     package.c_str(),this->line,this->column,this->toString().c_str());
         }
         //函数查找 this->package == "_" && is_extern = true
-        func = pkg->getFunc(funcname,this->package == "_");
+        func = pkg->getFunc(funcname,is_extern);
         if(!func)
             parse_err(
                     "AsmError: can not find package definition of %s "

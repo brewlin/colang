@@ -35,6 +35,8 @@ assert(){
     ./a.out
     check
     rm ./a.out
+    rm *.s
+    rm *.o
     echo "exec done..."
 
     return
@@ -48,8 +50,8 @@ read_dir(){
      if [ -d $file ] ; then
         read_dir $file
      else
-         rm *.s
-         rm *.o
+        rm *.s
+        rm *.o
         assert "OK" $file
         log "[compile] $file passed!\n"
      fi

@@ -31,7 +31,7 @@ assert(){
     check
     rm ./a.out
     rm *.s
-
+    rm *.o
     return
 #    failed "[compile] $input failed"
 }
@@ -44,6 +44,8 @@ read_dir(){
      if [ -d $file ] ; then
         read_dir $file
      else
+        rm *.s
+        rm *.o
         assert "OK" $file
         log "[compile] $file passed!"
      fi

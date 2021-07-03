@@ -23,16 +23,14 @@ void AsmGen::GenAddr(VarExpr *var,bool is_delref)
             Internal::get_object_value();
             return;
         }
-
         writeln("    lea %d(%%rbp), %%rax", var->offset);
         return;
     }else{
         //处理包名映射
         auto full = currentFunc->parser->import[var->package];
-        std::string name = full + "_" + var->varname;
+        string name = full + "_" + var->varname;
         writeln("    lea %s(%%rip), %%rax", name.c_str());
         return;
-
     }
     parse_err("AsmError:not support global variable read :%s at line %d co %d\n",
               var->varname.c_str(),var->line,var->column);
@@ -76,26 +74,19 @@ void AsmGen::Pop(const char *arg)
  * @return
  */
 int
-AsmGen::Push_arg(
-    std::deque<Context *> prevCtxChain,
-    std::vector<Expression *> &args,
-    bool is_variadic,
-    std::string funcname)
+AsmGen::Push_arg(deque<Context *> prevCtxChain,Function* func,FunCallExpr* fce)
 {
     int stack = 0, gp = 0;
 
     //查看当前调用函数参数里有没有可变参数
     bool current_call_have_im = false;
-    //判断当前可变参数是否需要解引用传递
-    VarExpr* need_delref;
     //查看当前函数里是否有可变参数
-    for(auto arg : args){
+    for(auto arg : fce->args){
         if (typeid(*arg) == typeid(VarExpr) && currentFunc){
             VarExpr* var = dynamic_cast<VarExpr*>(arg);
             if(auto res = currentFunc->params_var.find(var->varname) ; res != currentFunc->params_var.end()){
                 VarExpr* var2  = res->second;
                 if(var2->is_variadic){
-                    need_delref = var;
                     current_call_have_im = true;
                 }
             }
@@ -109,22 +100,21 @@ AsmGen::Push_arg(
         int stack_offset;
 
         //如果是printf 第一个参数不需要传
-        if(funcname == "printf")
+        // if(funcname == "printf")
+        if(fce->is_delref)
         {
             //第一个参数是从 -16算起，因为-8是参数个数需要忽略
             int params = -16;
             //保存所有的寄存器
             for (int i = 0; i < 5; ++i) {
                 writeln("    mov %d(%%rbp),%%rax",params);
-                if(need_delref->is_delref)
+                // if(need_delref->is_delref)
                     Internal::get_object_value();
                 writeln("    mov %%rax,%s",AsmGen::argreg64[i]);
                 params += -8;
             }
 
-            writeln("    mov 16(%%rbp),%%rax");
-            if(need_delref->is_delref)
-                Internal::get_object_value();
+            //  Internal::get_object_value();
             writeln("    mov %%rax,%%r9");
 
             //对于printf这种函数 超过6个参数以后 从rbp+24开始保存栈(因为第一个参数是size 需要去掉)
@@ -138,8 +128,8 @@ AsmGen::Push_arg(
             //保存所有的寄存器
             for (int i = 0; i < 6; ++i) {
                 writeln("    mov %d(%%rbp),%%rax",params);
-                if(need_delref->is_delref)
-                    Internal::get_object_value();
+                // if(need_delref->is_delref)
+                    // Internal::get_object_value();
                 writeln("    mov %%rax,%s",AsmGen::argreg64[i]);
                 params += -8;
             }
@@ -176,8 +166,8 @@ AsmGen::Push_arg(
 
         writeln("    add %d(%%rbp),%%rax",currentFunc->stack);
         writeln("    mov (%%rax),%%rax");
-        if(need_delref->is_delref)
-            Internal::get_object_value();
+        // if(need_delref->is_delref)
+            // Internal::get_object_value();
         writeln("    push %%rax");
 
         writeln("    sub $1,%d(%%rbp)",currentFunc->size);
@@ -190,24 +180,24 @@ AsmGen::Push_arg(
     //不需要对可变参数进行解引用，顺序存储寄存器即可
     }else{
         //小于6个参数，也需要把6个参数寄存器给补齐了
-        if(args.size() < 6)
-            for (int i = 0; i < (6 - (int)args.size()); ++i)
+        if(fce->args.size() < 6)
+            for (int i = 0; i < (6 - (int)fce->args.size()); ++i)
                 writeln("    push $0");
 
         //尽可能的加载跟多参数到寄存器  需要倒序
-        for (int i = args.size() - 1; i >= 0; i--) {
+        for (int i = fce->args.size() - 1; i >= 0; i--) {
             //栈参数
             if (gp++ >= GP_MAX) {
                 stack++;
             }
             //读取每个变量到rax寄存器上
-            args[i]->asmgen(prevCtxChain);
+            fce->args[i]->asmgen(prevCtxChain);
             Push();
         }
         //如果是可变参数，第一个参数填充数字个数
-        if(is_variadic){
+        if(func->is_variadic){
             stack -- ;
-            Internal::newobject(Int,args.size());
+            Internal::newobject(Int,fce->args.size());
 //            writeln("    mov $%d,%%rax",args.size());
             Push();
         }

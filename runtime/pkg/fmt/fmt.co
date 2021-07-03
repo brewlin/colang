@@ -6,7 +6,7 @@ extern int print(string)
 
 #format
 func sprintf(args...){
-   _.printf(*args)
+   __.printf(args)
 }
 # each elements with the \n
 func println(size,args...){

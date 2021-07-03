@@ -7,7 +7,7 @@
 #include "Statement.h"
 #include "Block.h"
 
-std::string getTokenString(Token tk){
+string getTokenString(Token tk){
     //invalid identifier eof
     switch (tk) {
         case INVALID:    return "invalid";
@@ -78,32 +78,32 @@ std::string getTokenString(Token tk){
     }
 }
 
-std::string Expression::toString() { return "Expr()"; }
+string Expression::toString() { return "Expr()"; }
 
-std::string Statement::toString() { return "Stmt()"; }
+string Statement::toString() { return "Stmt()"; }
 
-std::string BoolExpr::toString() {
-    return "BoolExpr(" + std::to_string(literal) + ")";
+string BoolExpr::toString() {
+    return "BoolExpr(" + to_string(literal) + ")";
 }
 
-std::string CharExpr::toString() {
-    return "CharExpr(" + std::to_string(literal) + ")";
+string CharExpr::toString() {
+    return "CharExpr(" + to_string(literal) + ")";
 }
 
-std::string NullExpr::toString() { return "NullExpr()"; }
+string NullExpr::toString() { return "NullExpr()"; }
 
-std::string IntExpr::toString() {
-    return std::to_string(literal);
+string IntExpr::toString() {
+    return to_string(literal);
 }
 
-std::string DoubleExpr::toString() {
-    return "DoubleExpr(" + std::to_string(literal) + ")";
+string DoubleExpr::toString() {
+    return "DoubleExpr(" + to_string(literal) + ")";
 }
 
-std::string StringExpr::toString() { return "StringExpr(" + literal + ")"; }
+string StringExpr::toString() { return "StringExpr(" + literal + ")"; }
 
-std::string ArrayExpr::toString() {
-    std::string str = "ArrayExpr(elements=[";
+string ArrayExpr::toString() {
+    string str = "ArrayExpr(elements=[";
     if (literal.size() != 0) {
         for (auto& e : literal) {
             str += e->toString();
@@ -112,8 +112,8 @@ std::string ArrayExpr::toString() {
     str += "])";
     return str;
 }
-std::string MapExpr::toString() {
-    std::string str = "MapExpr(elements={";
+string MapExpr::toString() {
+    string str = "MapExpr(elements={";
     if (literal.size() != 0) {
         for (auto& e : literal) {
             str += e->toString();
@@ -122,8 +122,8 @@ std::string MapExpr::toString() {
     str += "})";
     return str;
 }
-std::string KVExpr::toString() {
-    std::string str = "{";
+string KVExpr::toString() {
+    string str = "{";
     if (key)   str += key->toString();
     str += ":";
     if (value) str += value->toString();
@@ -131,27 +131,34 @@ std::string KVExpr::toString() {
     return str;
 }
 
-std::string VarExpr::toString() { return "VarExpr(" + varname + ")"; }
-std::string ClosureExpr::toString() { return "ClosureExpr(" + varname + ")"; }
+string VarExpr::toString() { return "VarExpr(" + varname + ")"; }
+string ClosureExpr::toString() { return "ClosureExpr(" + varname + ")"; }
 
-std::string IndexExpr::toString() {
-    std::string str = "IndexExpr(index=";
+string DelRefExpr::toString(){
+    return "DelRefExpr(" + expr->toString() + ")";
+}
+string StructMemberExpr::toString(){
+    return "StructMemberExpr(" + varname + "<"+structname+">"+"."+member+")";
+}
+
+string IndexExpr::toString() {
+    string str = "IndexExpr(index=";
     if(index)
         str += index->toString();
     str += ")";
     return str;
 }
 
-std::string ChainExpr::toString() {
-    std::string str = "ChainExpr(";
+string ChainExpr::toString() {
+    string str = "ChainExpr(";
     str += "left=" + lhs->toString();
     str += ",right=" + rhs->toString();
     str += ")";
     return str;
 }
 
-std::string BinaryExpr::toString() {
-    std::string str = "BinaryExpr(";
+string BinaryExpr::toString() {
+    string str = "BinaryExpr(";
     if (opt != INVALID) {
         str += "opt=";
         switch (opt) {
@@ -210,7 +217,7 @@ std::string BinaryExpr::toString() {
                 str += "=";
                 break;
             default:
-                str += std::to_string(opt);
+                str += to_string(opt);
                 break;
         }
     }
@@ -228,8 +235,8 @@ std::string BinaryExpr::toString() {
     return str;
 }
 
-std::string FunCallExpr::toString() {
-    std::string str = "FunCallExpr[func = ";
+string FunCallExpr::toString() {
+    string str = "FunCallExpr[func = ";
     str += package + "." + funcname;
     str += ",args = (";
     for (auto& arg : args) {
@@ -240,8 +247,8 @@ std::string FunCallExpr::toString() {
     return str;
 }
 
-std::string AssignExpr::toString() {
-    std::string str = "AssignExpr(lhs=";
+string AssignExpr::toString() {
+    string str = "AssignExpr(lhs=";
     if(lhs)
         str += lhs->toString();
     str += ",rhs=";
@@ -250,16 +257,16 @@ std::string AssignExpr::toString() {
     str += ")";
     return str;
 }
-std::string NewClassExpr::toString(){
-    std::string str = "NewExpr(";
+string NewClassExpr::toString(){
+    string str = "NewExpr(";
     str += package;
     str += ",";
     str += name;
     str += ")";
     return str;
 }
-std::string NewExpr::toString(){
-    std::string str = "NewExpr(";
+string NewExpr::toString(){
+    string str = "NewExpr(";
     str += package;
     str += ",";
     str += name;
@@ -267,16 +274,16 @@ std::string NewExpr::toString(){
     return str;
 }
 
-std::string MemberExpr::toString(){
-    std::string str = "MemberExpr(";
+string MemberExpr::toString(){
+    string str = "MemberExpr(";
     str += varname;
     str += ".";
     str += membername;
     str += ")";
     return str;
 }
-std::string MemberCallExpr::toString() {
-    std::string str = "MemberCallExpr(varname=";
+string MemberCallExpr::toString() {
+    string str = "MemberCallExpr(varname=";
     str += varname;
     str += ",func=";
     str += membername;
@@ -290,15 +297,15 @@ std::string MemberCallExpr::toString() {
 }
 
 
-std::string ExpressionStmt::toString() {
-    std::string str = "ExpressionStmt(expr=";
+string ExpressionStmt::toString() {
+    string str = "ExpressionStmt(expr=";
     str += expr->toString();
     str += ")";
     return str;
 }
 
-std::string WhileStmt::toString() {
-    std::string str = "WhileStmt(cond=";
+string WhileStmt::toString() {
+    string str = "WhileStmt(cond=";
     str += cond->toString();
     str += ",exprs=[";
     for (auto& e : block->stmts) {
@@ -309,8 +316,8 @@ std::string WhileStmt::toString() {
     return str;
 }
 
-std::string IfStmt::toString() {
-    std::string str = "IfStmt(cond=";
+string IfStmt::toString() {
+    string str = "IfStmt(cond=";
     str += cond->toString();
     str += ",exprs=[";
     for (auto& e : block->stmts) {
@@ -320,8 +327,8 @@ std::string IfStmt::toString() {
     str += "])";
     return str;
 }
-std::string ForStmt::toString() {
-    std::string str = "ForStmt(";
+string ForStmt::toString() {
+    string str = "ForStmt(";
     str += " init="  + init->toString();
     str += ",cond="  + cond->toString();
     str += ",after=" + after->toString();
@@ -334,8 +341,8 @@ std::string ForStmt::toString() {
     return str;
 }
 
-std::string ReturnStmt::toString() {
-    std::string str = "ReturnStmt(";
+string ReturnStmt::toString() {
+    string str = "ReturnStmt(";
     if (ret) {
         str += "ret=";
         str += ret->toString();
@@ -344,6 +351,6 @@ std::string ReturnStmt::toString() {
     return str;
 }
 
-std::string BreakStmt::toString() { return "BreakStmt()"; }
+string BreakStmt::toString() { return "BreakStmt()"; }
 
-std::string ContinueStmt::toString() { return "ContinueStmt()"; }
+string ContinueStmt::toString() { return "ContinueStmt()"; }

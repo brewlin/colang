@@ -15,39 +15,39 @@ struct  Expression : public Ast {
     using Ast::Ast;
     virtual              ~Expression() = default;
 
-    virtual void              asmgen(std::deque<Context*> ctx) = 0;
-    virtual std::string       toString() = 0;
+    virtual void         asmgen(deque<Context*> ctx) = 0;
+    virtual string       toString() = 0;
 };
 
 struct BoolExpr : public Expression{
     explicit BoolExpr(int line,int column):Expression(line,column){}
     bool literal;
 
-    void         asmgen(std::deque<Context*> ctx) override;
-    std::string  toString() override;
+    void    asmgen(deque<Context*> ctx) override;
+    string  toString() override;
 };
 
 struct CharExpr : public Expression {
     explicit CharExpr(int line, int column) : Expression(line, column) {}
     char literal;
 
-    void         asmgen( std::deque<Context*> ctx) override;
-    std::string  toString() override;
+    void    asmgen( deque<Context*> ctx) override;
+    string  toString() override;
 };
 
 struct NullExpr : public Expression {
     explicit     NullExpr(int line, int column) : Expression(line, column) {}
 
-    void         asmgen( std::deque<Context*> ctx) override;
-    std::string  toString() override;
+    void    asmgen( deque<Context*> ctx) override;
+    string  toString() override;
 };
 
 struct IntExpr : public Expression {
     explicit     IntExpr(int line, int column) : Expression(line, column) {}
     int          literal;
 
-    void         asmgen( std::deque<Context*> ctx) override;
-    std::string  toString() override;
+    void    asmgen( deque<Context*> ctx) override;
+    string  toString() override;
 };
 
 struct DoubleExpr : public Expression {
@@ -55,8 +55,8 @@ struct DoubleExpr : public Expression {
 
     double       literal;
 
-    void         asmgen( std::deque<Context*> ctx) override;
-    std::string  toString() override;
+    void    asmgen( deque<Context*> ctx) override;
+    string  toString() override;
 };
 /**
  * 纯字符表示
@@ -64,28 +64,28 @@ struct DoubleExpr : public Expression {
 struct StringExpr : public Expression {
     explicit     StringExpr(int line, int column) : Expression(line, column) {}
 
-    std::string  literal;
+    string  literal;
     //在asm 阶段会自动标记生成
-    std::string  name;
+    string  name;
     int          offset;
 
-    void         asmgen( std::deque<Context*> ctx) override;
-    std::string  toString() override;
+    void    asmgen( deque<Context*> ctx) override;
+    string  toString() override;
 };
 
 struct ArrayExpr : public Expression {
     explicit     ArrayExpr(int line, int column) : Expression(line, column) {}
-    std::vector<Expression*> literal;
+    vector<Expression*> literal;
 
-    void         asmgen( std::deque<Context*> ctx) override;
-    std::string  toString() override;
+    void    asmgen( deque<Context*> ctx) override;
+    string  toString() override;
 };
 struct MapExpr : public Expression {
     explicit     MapExpr(int line, int column) : Expression(line, column) {}
-    std::vector<Expression*> literal;
+    vector<Expression*> literal;
 
-    void         asmgen( std::deque<Context*> ctx) override;
-    std::string  toString() override;
+    void    asmgen( deque<Context*> ctx) override;
+    string  toString() override;
 };
 struct KVExpr : public Expression {
     explicit KVExpr(int line, int column) : Expression(line, column) {}
@@ -93,8 +93,8 @@ struct KVExpr : public Expression {
     Expression*  key{};
     Expression*  value{};
 
-    void         asmgen( std::deque<Context*> ctx) override;
-    std::string  toString() override;
+    void         asmgen( deque<Context*> ctx) override;
+    string  toString() override;
 };
 struct ChainExpr : public Expression {
     explicit ChainExpr(int line,int column): Expression(line,column){}
@@ -102,19 +102,19 @@ struct ChainExpr : public Expression {
     Expression* lhs{};
     Expression* rhs{};
 
-    void         asmgen( std::deque<Context*> ctx) override;
-    std::string  toString() override;
+    void    asmgen( deque<Context*> ctx) override;
+    string  toString() override;
 };
 
 struct VarExpr : public Expression {
-    explicit VarExpr(std::string varname, int line, int column)
+    explicit VarExpr(string varname, int line, int column)
             : Expression(line, column),
-            varname(std::move(varname)),
+            varname(move(varname)),
             is_local(true),
             is_variadic(false),
             is_delref(false),
             structtype(false){}
-    std::string  varname;
+    string  varname;
     //在 asm generate 时 作为 bp 偏移量
     int          offset;
     //在asm  generate 时作为 唯一标号
@@ -128,31 +128,50 @@ struct VarExpr : public Expression {
     string       structname;
     bool         structtype;
 
-    void         asmgen( std::deque<Context*> ctx) override;
+    void         asmgen( deque<Context*> ctx) override;
     string       toString() override;
 };
 struct ClosureExpr : public Expression {
-    explicit ClosureExpr(std::string varname, int line, int column)
+    explicit ClosureExpr(string varname, int line, int column)
             : Expression(line, column),
-              varname(std::move(varname)){}
-    std::string  varname;
+              varname(move(varname)){}
+    string  varname;
 
-    void         asmgen( std::deque<Context*> ctx) override;
-    std::string  toString() override;
+    void    asmgen( deque<Context*> ctx) override;
+    string  toString() override;
+};
+
+struct StructMemberExpr : public Expression {
+    explicit StructMemberExpr(string varname ,int line,int column)
+            : Expression(line,column){}
+    string  varname;
+    string  member;
+    string  structname;
+
+    void    asmgen( deque<Context*> ctx) override;
+    string  toString() override;
+};
+struct DelRefExpr : public Expression {
+    explicit DelRefExpr(string varname,int line,int column)
+            : Expression(line,column){}
+    Expression* expr;
+
+    void    asmgen( deque<Context*> ctx) override;
+    string  toString() override;
 };
 
 struct IndexExpr : public Expression {
     explicit IndexExpr(int line, int column) 
     : Expression(line, column),is_pkgcall(false) {}
 
-    std::string varname;
+    string varname;
     Expression* index{};
     //可能进行包变量调用
     bool        is_pkgcall;
-    std::string package;
+    string package;
 
-    void         asmgen( std::deque<Context*> ctx) override;
-    std::string  toString() override;
+    void    asmgen( deque<Context*> ctx) override;
+    string  toString() override;
 };
 
 struct BinaryExpr : public Expression {
@@ -161,20 +180,26 @@ struct BinaryExpr : public Expression {
     Token        opt{};
     Expression*  rhs{};
 
-    void         asmgen( std::deque<Context*> ctx) override;
-    std::string  toString() override;
+    void    asmgen( deque<Context*> ctx) override;
+    string  toString() override;
 };
 
 struct FunCallExpr : public Expression {
     explicit FunCallExpr(int line, int column)
-    : Expression(line, column),is_pkgcall(false) {}
-    std::string funcname;
-    std::string package;
-    std::vector<Expression*> args;
+    : Expression(line, column),
+      is_pkgcall(false) ,
+      is_extern(false),
+      is_delref(false)
+    {}
+    string funcname;
+    string package;
+    vector<Expression*> args;
+    bool    is_pkgcall;
+    bool    is_extern;
+    bool    is_delref;
 
-    bool         is_pkgcall;
-    void         asmgen( std::deque<Context*> ctx) override;
-    std::string  toString() override;
+    void    asmgen( deque<Context*> ctx) override;
+    string  toString() override;
 };
 
 struct AssignExpr : public Expression {
@@ -185,48 +210,48 @@ struct AssignExpr : public Expression {
     Expression*  rhs{};
 
 
-    void         asmgen( std::deque<Context*> ctx) override;
-    std::string  toString() override;
+    void    asmgen( deque<Context*> ctx) override;
+    string  toString() override;
 };
 
 struct NewClassExpr : public Expression {
     explicit NewClassExpr(int line, int column) : Expression(line, column) {}
-    std::string package;
-    std::string name;
+    string package;
+    string name;
+    vector<Expression*> args;
 
-    std::vector<Expression*> args;
-    void         asmgen( std::deque<Context*> ctx) override;
-    std::string  toString() override;
+    void    asmgen( deque<Context*> ctx) override;
+    string  toString() override;
 };
 struct NewExpr : public Expression {
     explicit NewExpr(int line, int column) : Expression(line, column) {}
-    std::string package;
-    std::string name;
+    string package;
+    string name;
 
-    int         len;//申请的字节大小
+    int    len;//申请的字节大小
 
-    void         asmgen( std::deque<Context*> ctx) override;
-    std::string  toString() override;
+    void   asmgen( deque<Context*> ctx) override;
+    string toString() override;
 };
 
 
 struct MemberExpr : public Expression {
     explicit MemberExpr(int line, int column) : Expression(line, column) {}
-    std::string  varname;
-    std::string  membername;
+    string  varname;
+    string  membername;
 
-    void         asmgen( std::deque<Context*> ctx) override;
-    std::string  toString() override;
+    void    asmgen( deque<Context*> ctx) override;
+    string  toString() override;
 };
 struct MemberCallExpr : public Expression {
     explicit MemberCallExpr(int line, int column) : Expression(line, column) {}
-    std::string  varname;
-    std::string  membername;
+    string  varname;
+    string  membername;
 
-    std::vector<Expression*> args;
+    vector<Expression*> args;
 
-    void         asmgen( std::deque<Context*> ctx) override;
-    std::string  toString() override;
+    void    asmgen( deque<Context*> ctx) override;
+    string  toString() override;
 };
 
 
