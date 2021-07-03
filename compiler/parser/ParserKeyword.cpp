@@ -139,6 +139,7 @@ void Parser::parseStructDef()
         }
         s->member.push_back(member);
     }
+    s->compute();
     //追加到当前package 下去管理
     pkg->addStruct(s->name,s);
     //eat }

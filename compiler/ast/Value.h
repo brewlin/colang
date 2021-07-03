@@ -11,6 +11,9 @@
 #include "Token.h"
 using namespace std;
 
+#define ALIGN_UP(x,a) (((x) + (a - 1)) & ~(a - 1))
+#define ALIGN_DOWN(x,a) (ALIGN_UP(x-a+1,a))
+
 struct Class 
 {
     //函数定义 函数声明  外部函数
@@ -42,6 +45,7 @@ struct Struct
     int     size;
     //成员
     vector<Member*> member;
+    void compute();
 };
 
 struct Value

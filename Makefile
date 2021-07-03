@@ -1,5 +1,7 @@
 test:
-	sh test*.sh
+	sh tests_compiler.sh
+	sh tests_asmer.sh
+	sh tests_linker.sh
 install:
 	mkdir bin
 	cd bin
