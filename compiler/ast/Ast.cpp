@@ -135,7 +135,7 @@ string VarExpr::toString() { return "VarExpr(" + varname + ")"; }
 string ClosureExpr::toString() { return "ClosureExpr(" + varname + ")"; }
 
 string AddrExpr::toString(){
-    return "AddrExpr(" + package + "." + varname + ")";
+    return "AddrExpr(&(" + package + ")." + varname + ")";
 }
 string DelRefExpr::toString(){
     return "DelRefExpr(" + expr->toString() + ")";

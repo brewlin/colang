@@ -215,7 +215,16 @@ void  DelRefExpr::asmgen(std::deque<Context*> ctx){
 /**
  * &a || &p.b
  * 取地址比较特殊，不能嵌套子Expression 需要自己处理 var 和 struct的地址引用
+ * TODO: &addr
  */
 void  AddrExpr::asmgen(std::deque<Context*> ctx){
+    // 1. &var 变量的直接取地址
+    // 2. &p.var 全局变量的直接取地址
+    // 3. &p<struct>.var 成员变量取地址
+    // 4. &p<struct>  直接取地址
+
+    // 异常情况:
+    // 1. &obj.var 变量的成员变量取地址
+    
 
 }

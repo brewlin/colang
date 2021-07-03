@@ -125,6 +125,7 @@ Token Scanner::scan(){
     auto tk   = get_next();
     curLex    = get<string>(tk);
     curToken  = get<Token>(tk);
+    return curToken;
 }
 //逐字解析 直到找到合法的token
 tuple<Token,string> Scanner::get_next() {

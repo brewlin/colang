@@ -119,7 +119,7 @@ Expression* Parser::parseUnaryExpr()
         return val;
         //如果是字面值，标识符，等，就调用公共表达式解析
     }else if(anyone(scanner->curToken,LIT_DOUBLE,LIT_INT,LIT_CHAR,LIT_STR,TK_VAR,KW_FUNC,TK_LPAREN,TK_LBRACKET,
-                    TK_LBRACE,TK_RBRACE,KW_TRUE,KW_FALSE,KW_NULL,KW_NEW,TK_DOT,TK_DELREF)){
+                    TK_LBRACE,TK_RBRACE,KW_TRUE,KW_FALSE,KW_NULL,KW_NEW,TK_DOT,TK_DELREF,TK_BITAND)){
         return parsePrimaryExpr();
     }
 
@@ -134,6 +134,23 @@ Expression* Parser::parsePrimaryExpr()
 {
     Token tk   = scanner->curToken;
     Token prev = scanner->prevToken;
+    //& 取地址
+    if(tk == TK_BITAND){
+        auto addr = new AddrExpr(scanner->line,scanner->column);
+        tk = scanner->scan();
+        if(tk == TK_VAR){
+            addr->varname = scanner->curLex;
+        }
+        scanner->scan();
+        if(tk == TK_DOT){
+            addr->package = addr->varname;
+            scanner->scan();
+            assert(scanner->curToken == TK_VAR);
+            addr->varname = scanner->curLex;
+            scanner->scan();
+        }
+        return addr;
+    }
     //说明是一个解引用操作，注意此操作非常危险 需要注意和c函数的交互
     if(tk == TK_DELREF){
         Debug("find token delref");
