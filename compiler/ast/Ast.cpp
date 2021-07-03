@@ -141,7 +141,7 @@ string DelRefExpr::toString(){
     return "DelRefExpr(" + expr->toString() + ")";
 }
 string StructMemberExpr::toString(){
-    return "StructMemberExpr(" + varname + "<"+structname+">"+"."+member+")";
+    return "StructMemberExpr(" + varname + "<"+var->package+"."+var->structname+">"+"."+member+")";
 }
 
 string IndexExpr::toString() {

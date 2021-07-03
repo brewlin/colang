@@ -407,6 +407,17 @@ Expression* Parser::parseVarExpr(std::string var)
             }else{
                 //说明是跨包全局变量访问: pkg.var
                 //也有可能是对象成员变量访问:this.memeber
+                //也有可能是struct成员变量访问
+                //检查一下package是不是object
+                VarExpr* mvar;
+                if((mvar = currentFunc->getVar(package)) && mvar->structname != ""){
+                    //找到成员变量访问了
+                    StructMemberExpr* mexpr = new StructMemberExpr(package,scanner->line,scanner->column);
+                    //去找到struct
+                    mexpr->var = mvar;
+                    mexpr->member = pfuncname;
+                    return mexpr;
+                }
                 VarExpr* gvar    = new VarExpr(pfuncname,line,column);
                 gvar->package    = package;
                 gvar->is_local   = false;
@@ -437,7 +448,7 @@ Expression* Parser::parseVarExpr(std::string var)
                     scanner->scan();
                     assert(scanner->curToken == TK_VAR);
                     expr->package = sname;
-                    expr->structname = move(scanner->curLex);
+                    expr->structname = scanner->curLex;
                     scanner->scan();
                 }
                 //如果不为 > 说明不满足  var<struct> || var<pkg.struct> 则回滚

@@ -144,7 +144,8 @@ struct StructMemberExpr : public Expression {
             : Expression(line,column){}
     string  varname;
     string  member;
-    string  structname;
+    //varname 对应的 expr
+    VarExpr* var;
 
     void    asmgen( deque<Context*> ctx) override;
     string  toString() override;

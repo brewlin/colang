@@ -31,6 +31,8 @@ filepath(filepath)
     scanner = new Scanner(filepath);
     //记录一下本身包名的映射
     import[package] = full_package;
+    //fix 本地匿名访问当前package
+    import[""]  = full_package;
 }
 Parser::~Parser()
 {

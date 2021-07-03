@@ -30,6 +30,7 @@ public:
     VarExpr*  getGlobalVar(const std::string &name);
 
     void      addStruct(const string &name, Struct *f);
+    Struct*   getStruct(const string &name);
 
     void      addClass(const string &name, Class *f);
     bool      hasClass(const string &name);

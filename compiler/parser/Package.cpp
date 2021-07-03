@@ -101,6 +101,17 @@ void Package::addStruct(const string &name, Struct *f)
     structs[name] = f;
 }
 /**
+ * 获取一个Struct
+ * @param name
+ * @return
+ */
+Struct* Package::getStruct(const std::string &name)
+{    
+    if(auto f = structs.find(name);f != structs.end())
+        return f->second;
+    return nullptr;
+}
+/**
  * 外部定义的函数需要增加到类里面
  */
 void Package::addClassFunc(string name,Function* f)

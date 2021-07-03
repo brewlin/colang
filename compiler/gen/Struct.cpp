@@ -16,5 +16,6 @@
  */
 void  StructMemberExpr::asmgen(std::deque<Context*> ctx)
 {
+	cout << toString() <<endl;
 }
 
