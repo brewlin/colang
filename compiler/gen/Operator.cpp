@@ -212,3 +212,10 @@ void  DelRefExpr::asmgen(std::deque<Context*> ctx){
     }
     AsmGen::Load();
 }
+/**
+ * &a || &p.b
+ * 取地址比较特殊，不能嵌套子Expression 需要自己处理 var 和 struct的地址引用
+ */
+void  AddrExpr::asmgen(std::deque<Context*> ctx){
+
+}

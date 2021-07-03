@@ -149,6 +149,16 @@ struct StructMemberExpr : public Expression {
     void    asmgen( deque<Context*> ctx) override;
     string  toString() override;
 };
+//&a || &p.b
+struct AddrExpr   : public Expression {
+    explicit AddrExpr(int line,int column)
+            :Expression(line,column){}
+    string package;
+    string varname;
+
+    void    asmgen( deque<Context*> ctx) override;
+    string  toString() override;
+};
 struct DelRefExpr : public Expression {
     explicit DelRefExpr(int line,int column)
             : Expression(line,column){}
