@@ -47,6 +47,7 @@ void Internal::malloc(size_t size)
     AsmGen::writeln("    mov $%ld, %%rdi", size);
     call("malloc");
 }
+
 /**
  * @return
  */
@@ -58,6 +59,22 @@ void Internal::newobject(int type, long data)
     AsmGen::writeln("    mov $%ld, %%rdi", type);
     if(type != String)
         AsmGen::writeln("    mov $%ld, %%rsi", data);
+
+    call("newobject");
+
+    AsmGen::writeln("    pop %%rsi");
+    AsmGen::writeln("    pop %%rdi");
+}
+/**
+ * @return
+ */
+void Internal::newobject2(int type)
+{
+    AsmGen::writeln("    push %%rdi");
+    AsmGen::writeln("    push %%rsi");
+
+    AsmGen::writeln("    mov $%ld, %%rdi", type);
+    AsmGen::writeln("    mov %%rax, %%rsi");
 
     call("newobject");
 

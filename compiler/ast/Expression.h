@@ -141,14 +141,17 @@ struct ClosureExpr : public Expression {
 
 struct StructMemberExpr : public Expression {
     explicit StructMemberExpr(string varname ,int line,int column)
-            : Expression(line,column){}
+            : Expression(line,column),assign(false){}
     string  varname;
     string  member;
     //varname 对应的 expr
     VarExpr* var;
+    bool    assign;
 
     void    asmgen( deque<Context*> ctx) override;
     string  toString() override;
+    Member* getMember();
+    Struct* getStruct();
 };
 //&a || &p.b
 struct AddrExpr   : public Expression {

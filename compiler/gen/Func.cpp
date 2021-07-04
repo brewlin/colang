@@ -10,8 +10,16 @@
 #include "Value.h"
 #include "Parser.h"
 
-void BuiltinFuncExpr::asmgen(std::deque<Context*> ctx){
-    cout << funcname << ":" << this->expr->toString() <<endl;
+void BuiltinFuncExpr::asmgen(deque<Context*> ctx){
+    // %rax
+    this->expr->asmgen(ctx);
+    if(funcname == "string"){
+        Internal::newobject2(String);
+        return;
+    }else if(funcname == "int"){
+        Internal::newobject2(Int);
+        return;
+    }
 }
 
 void ClosureExpr::asmgen(std::deque<Context*> ctx){

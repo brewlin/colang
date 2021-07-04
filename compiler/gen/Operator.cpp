@@ -9,7 +9,9 @@
 #include "Ast.h"
 #include "Value.h"
 #include "Parser.h"
+using namespace std;
 
+void struct_assign(deque<Context*> ctx,AssignExpr* assign);
 /**
  * 赋值运算符 求值
  * @param ctx
@@ -144,6 +146,10 @@ void  AssignExpr::asmgen(std::deque<Context*> ctx){
         Internal::kv_update();
         //rm unuse 
         AsmGen::Pop("%rdi");
+        return;
+    }else if(typeid(*lhs) == typeid(StructMemberExpr))
+    {
+        struct_assign(ctx,this);
         return;
     }
     parse_err("SyntaxError: can not assign to %s at line %d, %col\n", typeid(lhs).name(),line,column);

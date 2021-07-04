@@ -60,6 +60,7 @@ public:
     static void CreateCmp();
     static void Push();
     static void PushS(const char* arg);
+    static void PushV(int v);
     static void Pop(const char* arg);
     static int  Push_arg(deque<Context *> prevCtxChain,Function* func,FunCallExpr* fce);
     static void Pop_arg(std::vector<Expression *> &args);

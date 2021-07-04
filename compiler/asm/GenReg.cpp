@@ -48,6 +48,11 @@ void AsmGen::CreateCmp()
 {
     writeln("    cmp $0, %%rax");
 }
+void AsmGen::PushV(int v)
+{
+    writeln("    mov $%d,%%rax",v);
+    Push();
+}
 void AsmGen::PushS(const char *arg)
 {
     writeln("    push %s",arg);

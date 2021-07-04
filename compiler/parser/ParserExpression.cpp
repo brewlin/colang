@@ -29,8 +29,14 @@ Expression* Parser::parseExpression(short oldPrecedence)
         // 确保赋值左边是一个变量或者数组索引（arr[x]=5这种)
         if (typeid(*p) != typeid(VarExpr) &&
             typeid(*p) != typeid(IndexExpr) &&
-            typeid(*p) != typeid(MemberExpr)) {
+            typeid(*p) != typeid(MemberExpr) &&
+            typeid(*p) != typeid(StructMemberExpr)) {
             parse_err("SyntaxError: can not assign to %s\n", typeid(*p).name());
+        }
+        //结构体赋值
+        if (typeid(*p) == typeid(StructMemberExpr) && currentFunc){
+            StructMemberExpr* sm = dynamic_cast<StructMemberExpr*>(p);
+            sm->assign = true;
         }
         if (typeid(*p) == typeid(VarExpr) && currentFunc){
             VarExpr* var = dynamic_cast<VarExpr*>(p);
@@ -140,7 +146,7 @@ Expression* Parser::parsePrimaryExpr()
         assert(scanner->scan() == TK_LPAREN);
         scanner->scan();
         builtinfunc->expr = parsePrimaryExpr();
-        assert(scanner->scan() == TK_RPAREN);
+        assert(scanner->curToken == TK_RPAREN);
         scanner->scan();
         return builtinfunc;
     }
