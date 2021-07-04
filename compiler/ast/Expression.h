@@ -232,6 +232,15 @@ struct NewClassExpr : public Expression {
     void    asmgen( deque<Context*> ctx) override;
     string  toString() override;
 };
+struct BuiltinFuncExpr : public Expression {
+    explicit BuiltinFuncExpr(string name,int line,int column) 
+    : Expression(line,column),funcname(name){}
+    string funcname;
+    Expression* expr;
+
+    void   asmgen( deque<Context*> ctx) override;
+    string toString() override;
+};
 struct NewExpr : public Expression {
     explicit NewExpr(int line, int column) : Expression(line, column) {}
     string package;

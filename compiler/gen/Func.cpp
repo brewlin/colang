@@ -10,6 +10,10 @@
 #include "Value.h"
 #include "Parser.h"
 
+void BuiltinFuncExpr::asmgen(std::deque<Context*> ctx){
+    cout << funcname << ":" << this->expr->toString() <<endl;
+}
+
 void ClosureExpr::asmgen(std::deque<Context*> ctx){
     AsmGen::writeln("    mov %s@GOTPCREL(%%rip), %%rax", varname.c_str());
 }

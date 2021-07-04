@@ -214,14 +214,26 @@ Function* Parser::parseExternDef()
     //获取函数名
     scanner->scan();
     node->name     = scanner->curLex;
+    node->block    = nullptr;
 
     //指向 func name'(') 括号
     scanner->scan();
     assert(scanner->curToken == TK_LPAREN);
     //解析函数参数
-    node->params   = parseParameterList();
-    //解析block 函数主体表达式
-    node->block    = nullptr;
+    scanner->scan();
+    //是否解析到 ')'
+    if(scanner->curToken == TK_RPAREN){
+        scanner->scan();
+        return node;
+    }
+    //解析所有括号内的参数 (..,..,..)
+    while(scanner->curToken != TK_RPAREN){
+        //继续下一个token读取
+        scanner->scan();
+    }
+    //是否闭合
+    assert(scanner->curToken == TK_RPAREN);
+    scanner->scan();
     return node;
 }
 /**

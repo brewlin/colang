@@ -3,15 +3,15 @@ using namespace std;
 
 unordered_map<std::string,Token > keywords = 
 {
-    {"if",KW_IF},         {"else",KW_ELSE},     {"else",KW_ELSE},
-    {"while", KW_WHILE},  {"for", KW_FOR},      {"false", KW_FALSE},
-    {"true", KW_TRUE},    {"null", KW_NULL},    {"func", KW_FUNC},
-    {"return", KW_RETURN},{"break", KW_BREAK},  {"continue", KW_CONTINUE},
-    {"import", KW_IMPORT},{"extern", KW_EXTERN},{"class", KW_CLASS},
-    {"new", KW_NEW},      {"go", KW_GO},        {"package", KW_PACKAGE},
-    {"struct",KW_STRUCT}, 
-    {"i8",KW_I8},         {"i16",KW_I16},       {"i32",KW_I32},       {"i64",KW_I64},
-    {"u8",KW_U8},         {"u16",KW_U16},       {"u32",KW_U32},       {"u64",KW_U64},
+    {"if",KW_IF},           {"else",KW_ELSE},     {"else",KW_ELSE},
+    {"while", KW_WHILE},    {"for", KW_FOR},      {"false", KW_FALSE},
+    {"true", KW_TRUE},      {"null", KW_NULL},    {"func", KW_FUNC},
+    {"return", KW_RETURN},  {"break", KW_BREAK},  {"continue", KW_CONTINUE},
+    {"import", KW_IMPORT},  {"extern", KW_EXTERN},{"class", KW_CLASS},
+    {"new", KW_NEW},        {"go", KW_GO},        {"package", KW_PACKAGE},   {"struct",KW_STRUCT}, 
+    {"i8",KW_I8},           {"i16",KW_I16},       {"i32",KW_I32},            {"i64",KW_I64},
+    {"u8",KW_U8},           {"u16",KW_U16},       {"u32",KW_U32},            {"u64",KW_U64},
+    {"string",BUILTIN_FUNC},{"int",BUILTIN_FUNC},
 };
 
 unordered_map<Token,int> 	typesize = {

@@ -140,6 +140,9 @@ string AddrExpr::toString(){
 string DelRefExpr::toString(){
     return "DelRefExpr(" + expr->toString() + ")";
 }
+string BuiltinFuncExpr::toString(){
+    return "BuiltinFuncExpr:" + funcname +"("+expr->toString() + ")";
+}
 string StructMemberExpr::toString(){
     return "StructMemberExpr(" + varname + "<"+var->package+"."+var->structname+">"+"."+member+")";
 }

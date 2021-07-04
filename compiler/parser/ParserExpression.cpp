@@ -119,7 +119,7 @@ Expression* Parser::parseUnaryExpr()
         return val;
         //如果是字面值，标识符，等，就调用公共表达式解析
     }else if(anyone(scanner->curToken,LIT_DOUBLE,LIT_INT,LIT_CHAR,LIT_STR,TK_VAR,KW_FUNC,TK_LPAREN,TK_LBRACKET,
-                    TK_LBRACE,TK_RBRACE,KW_TRUE,KW_FALSE,KW_NULL,KW_NEW,TK_DOT,TK_DELREF,TK_BITAND)){
+                    TK_LBRACE,TK_RBRACE,KW_TRUE,KW_FALSE,KW_NULL,KW_NEW,TK_DOT,TK_DELREF,TK_BITAND,BUILTIN_FUNC)){
         return parsePrimaryExpr();
     }
 
@@ -134,6 +134,16 @@ Expression* Parser::parsePrimaryExpr()
 {
     Token tk   = scanner->curToken;
     Token prev = scanner->prevToken;
+    //string(),int()
+    if(tk == BUILTIN_FUNC){
+        BuiltinFuncExpr* builtinfunc = new BuiltinFuncExpr(scanner->curLex,scanner->line,scanner->column);
+        assert(scanner->scan() == TK_LPAREN);
+        scanner->scan();
+        builtinfunc->expr = parsePrimaryExpr();
+        assert(scanner->scan() == TK_RPAREN);
+        scanner->scan();
+        return builtinfunc;
+    }
     //& 取地址
     if(tk == TK_BITAND){
         auto addr = new AddrExpr(scanner->line,scanner->column);
