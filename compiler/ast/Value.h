@@ -45,7 +45,8 @@ struct Struct
     int     size;
     //成员
     vector<Member*> member;
-    void compute();
+    void    compute();
+    Member* getMember(string name);
 };
 
 struct Value

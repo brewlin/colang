@@ -1,5 +1,15 @@
 #include "Value.h"
-
+/**
+ * find member
+ */
+Member* Struct::getMember(string name)
+{
+  for(auto i : member){
+    if(i->name == name)
+      return i;
+  }
+  return nullptr;
+}
 void Struct::compute()
 {
   //分配偏移量
