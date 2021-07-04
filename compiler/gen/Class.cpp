@@ -12,16 +12,24 @@
 
 /**
  * new struct
+ * 针对结构体的变量new
  * new 200
  */
 void  NewExpr::asmgen(std::deque<Context*> ctx)
 {
-
+    //查看是不是结构体变量
+    string package = AsmGen::parser->import[this->package];
+    if(Package::packages.count(package) > 0){
+        Struct* s = nullptr;
+        if((s = Package::packages[package]->getStruct(name)) && s != nullptr){
+            Internal::gc_malloc(s->size);
+            return;
+        }
+    }
+    AsmGen::writeln("   mov $0,%%rax");
 }
 
 /**
- * TODO: new expr
- * 针对结构体的变量定义
  * b = new Http
  * @param ctx
  * @return

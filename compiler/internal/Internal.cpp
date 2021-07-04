@@ -37,9 +37,14 @@ void Internal::call_object_operator(Token opt, std::string name,std::string meth
     AsmGen::Pop("%rsi");
     call(method);
 }
-void Internal::gc_malloc()
+void Internal::gc_malloc(size_t size)
 {
-    AsmGen::writeln("    mov $%ld, %%rdi", sizeof(Value));
+    AsmGen::writeln("    mov $%ld, %%rdi", size);
+    call("gc_malloc");
+}
+void Internal::malloc(size_t size)
+{
+    AsmGen::writeln("    mov $%ld, %%rdi", size);
     call("malloc");
 }
 /**

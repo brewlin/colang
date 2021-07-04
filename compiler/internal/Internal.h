@@ -13,7 +13,8 @@ class Internal
 public:
     static void call_operator(Token opt,std::string name);
     static void newobject(int type,long data);
-    static void gc_malloc();
+    static void gc_malloc(size_t size);
+    static void malloc(size_t size);
     static void isTrue();
     static void get_object_value();
     static void call(std::string funcname);

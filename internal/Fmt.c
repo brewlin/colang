@@ -33,7 +33,7 @@ int println(Value *count,...){
                 printf("%s",arr_tostring(var));
                 break;
             default:
-                printf("undefine");
+                printf("<p>:%p",var);
         }
         printf("\n");
     }
@@ -70,7 +70,7 @@ int print(Value *count,...){
                 printf("%s",arr_tostring(var));
                 break;
             default:
-                printf("undefine");
+                printf("<p>:%p",var);
         }
     }
     va_end (ap);
