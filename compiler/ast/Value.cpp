@@ -31,6 +31,7 @@ void Struct::compute()
       bits += mem->bitwidth;
     } else 
     {
+        bits = ALIGN_UP(bits,8);
         mem->offset = bits / 8;
         bits += mem->size * 8;
     }

@@ -22,6 +22,10 @@ void  NewExpr::asmgen(std::deque<Context*> ctx)
     if(Package::packages.count(package) > 0){
         Struct* s = nullptr;
         if((s = Package::packages[package]->getStruct(name)) && s != nullptr){
+            // cout << s->size <<endl;
+            // for(auto i : s->member){
+                // cout << i->name <<":" << i->offset <<endl;
+            // }
             Internal::gc_malloc(s->size);
             return;
         }

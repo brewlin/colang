@@ -1,0 +1,25 @@
+package main
+
+import fmt
+
+struct test
+{
+	i8 a
+	u8 b
+	i16 c
+	u32 d
+	i32 e
+	u32 f
+	i64 g
+	u64 h
+}
+# FIXME: bus error core dumped
+func main(){
+	p<test> = new test
+	p.a = 100
+	#fmt.println(int(p.a))
+	#if(int(p.a) != -1){ fmt.fatal("p.a != -1 ",int(p.a)) }
+	#p.a = 100
+	#if(int(p.a) != -1){ fmt.fatal("p.a != 100 ",int(p.a)) }
+
+}

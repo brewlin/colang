@@ -39,6 +39,8 @@ tests/operation/*.s
 tests/operation/*.o
 tests/statement/*.s
 tests/statement/*.o
+tests/memory/*.o
+tests/memory/*.s
 tests/src/*
 cas
 co
