@@ -101,9 +101,17 @@ void  StructMemberExpr::asmgen(std::deque<Context*> ctx)
 	//指针类型
 	AsmGen::Load();
 	//加载偏移量
-	AsmGen::writeln("  add $%d, %%rax", m->offset);
+	AsmGen::writeln("	add $%d, %%rax", m->offset);
 	//如果不是出现在赋值语句中 则自动读取内存
-	if(!assign)
+	if(!assign){
 		AsmGen::Load();
+		if (m->bitfield) {
+			AsmGen::writeln("	shl $%d, %%rax", 64 - m->bitwidth - m->bitoffset);
+      		if (m->isunsigned)
+        		AsmGen::writeln("	shr $%d, %%rax", 64 - m->bitwidth);
+      		else
+       		 	AsmGen::writeln("	sar $%d, %%rax", 64 - m->bitwidth);
+    	}
+	}
 }
 

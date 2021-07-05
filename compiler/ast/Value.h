@@ -29,6 +29,7 @@ struct Member
     string  name;
     Token   type;
     int     size;
+    bool    isunsigned;
 
     int     idx;
     int     align;

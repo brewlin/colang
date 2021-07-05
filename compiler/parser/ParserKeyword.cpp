@@ -120,6 +120,9 @@ void Parser::parseStructDef()
         //key 必须是 i8 - u64的结构
         assert(scanner->curToken >= KW_I8 && scanner->curToken <= KW_U64);
         Member *member = new Member();
+        member->isunsigned = false;
+        if(scanner->curToken >= KW_U8 && scanner->curToken <= KW_U64)
+            member->isunsigned = true;
         member->idx    = idx ++;
         member->type = scanner->curToken;
         member->size = typesize[scanner->curToken];
