@@ -13,7 +13,7 @@
 /**
  * 处理  p.a = (expression)
  */
-void struct_assign(deque<Context*> ctx,AssignExpr* assign)
+void struct_member_assign(deque<Context*> ctx,AssignExpr* assign)
 {
 
 	//左边必须是 Struct.Member 表达式
@@ -54,6 +54,28 @@ void struct_assign(deque<Context*> ctx,AssignExpr* assign)
     }
 	//不是位操作直接存储即可
     AsmGen::Store();
+}
+/**
+ * 处理p<struct> = (expression|int,bool,pointer)等这种优化
+ * 不需要再调用binary_operator来进行统一处理
+ */
+void struct_assign(deque<Context*> ctx,AssignExpr* assign)
+{
+	//左边必须是 var<Struct> 表达式
+    if(typeid(*assign->lhs) != typeid(VarExpr))
+        parse_err("assign: struct.member: lhs not structExpr %s \n",assign->lhs->toString().c_str());
+	VarExpr* var = dynamic_cast<VarExpr*>(assign->lhs);
+	if(!var->structtype)
+        parse_err("assign: struct.member: lhs not structExpr %s \n",assign->lhs->toString().c_str());
+
+	//左边求值
+	AsmGen::GenAddr(var);
+	AsmGen::Push();
+	//右边求值
+	assign->rhs->asmgen(ctx);
+	//执行赋值
+	AsmGen::Store();
+
 }
 Member* StructMemberExpr::getMember()
 {

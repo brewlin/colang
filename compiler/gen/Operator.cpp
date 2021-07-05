@@ -11,6 +11,7 @@
 #include "Parser.h"
 using namespace std;
 
+void struct_member_assign(deque<Context*> ctx,AssignExpr* assign);
 void struct_assign(deque<Context*> ctx,AssignExpr* assign);
 /**
  * 赋值运算符 求值
@@ -39,6 +40,9 @@ void  AssignExpr::asmgen(std::deque<Context*> ctx){
         VarExpr* varExpr = dynamic_cast<VarExpr*>(lhs);
         std::string package = AsmGen::currentFunc->parser->getpkgname() ;
         std::string varname = varExpr->varname;
+        //如果左值是一个struct，需要优化:p<header> = （expression)| int
+        if(varExpr->structtype)
+            return struct_assign(ctx,this);
         /*
          *1. 是否是包变量访问
          *2. 是否是类成员变量访问
@@ -149,7 +153,7 @@ void  AssignExpr::asmgen(std::deque<Context*> ctx){
         return;
     }else if(typeid(*lhs) == typeid(StructMemberExpr))
     {
-        struct_assign(ctx,this);
+        struct_member_assign(ctx,this);
         return;
     }
     parse_err("SyntaxError: can not assign to %s at line %d, %col\n", typeid(lhs).name(),line,column);
