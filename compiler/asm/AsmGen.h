@@ -53,10 +53,13 @@ public:
     static void registerObjects();
     static void registerObjectFuncs(Class* c);
     //寄存器相关
+    static void Cast(Token from ,Token to);
     static void Store_gp(int r, int offset, int sz);
     static void Store();
+    static void Store(int size);
     static void GenAddr(VarExpr* var);
     static void Load();
+    static void Load(int size,bool isunsigned);
     static void CreateCmp();
     static void Push();
     static void PushS(const char* arg);

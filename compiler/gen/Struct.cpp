@@ -12,6 +12,7 @@
 
 /**
  * 处理  p.a = (expression)
+ * 1. 右值需要 根据左值进行强制转换
  */
 void struct_member_assign(deque<Context*> ctx,AssignExpr* assign)
 {
@@ -43,17 +44,20 @@ void struct_member_assign(deque<Context*> ctx,AssignExpr* assign)
       	AsmGen::writeln("	shl $%d, %%rdi", m->bitoffset);
 
       	AsmGen::writeln("   mov (%%rsp), %%rax");
-		AsmGen::Load();
+		AsmGen::Load(m->size,m->isunsigned);
       	long mask = ((1L << m->bitwidth) - 1) << m->bitoffset;
       	AsmGen::writeln("  mov $%ld, %%r9", ~mask);
       	AsmGen::writeln("  and %%r9, %%rax");
       	AsmGen::writeln("  or %%rdi, %%rax");
-		AsmGen::Store();
+		//左值的类型
+		AsmGen::Store(m->size);
       	AsmGen::writeln("  mov %%r8, %%rax");
       return;
     }
+	//进行一次转换
+	// AsmGen::Cast()
 	//不是位操作直接存储即可
-    AsmGen::Store();
+    AsmGen::Store(m->size);
 }
 /**
  * 处理p<struct> = (expression|int,bool,pointer)等这种优化
@@ -126,7 +130,7 @@ void  StructMemberExpr::asmgen(std::deque<Context*> ctx)
 	AsmGen::writeln("	add $%d, %%rax", m->offset);
 	//如果不是出现在赋值语句中 则自动读取内存
 	if(!assign){
-		AsmGen::Load();
+		AsmGen::Load(m->size,m->isunsigned);
 		if (m->bitfield) {
 			AsmGen::writeln("	shl $%d, %%rax", 64 - m->bitwidth - m->bitoffset);
       		if (m->isunsigned)

@@ -1,6 +1,7 @@
 package main
 
 import fmt
+import os
 
 struct test
 {
@@ -13,13 +14,21 @@ struct test
 	i64 g
 	u64 h
 }
-# FIXME: bus error core dumped
+func i8_assign(p<test>){
+	p.a = 100
+	if(int(p.a) != 100){ 
+		fmt.println("p.a != 100 ",int(p.a)) 
+		os.exit(-1)
+	}
+	p.b = 100
+	if(int(p.b) != 100){ 
+		fmt.println("p.a != 100 ",int(p.b)) 
+		os.exit(-1)
+	}
+	fmt.println("test i8_assign successful")
+}
 func main(){
 	p<test> = new test
-	p.a = 100
-	#fmt.println(int(p.a))
-	#if(int(p.a) != -1){ fmt.fatal("p.a != -1 ",int(p.a)) }
-	#p.a = 100
-	#if(int(p.a) != -1){ fmt.fatal("p.a != 100 ",int(p.a)) }
-
+	
+	i8_assign(p)
 }

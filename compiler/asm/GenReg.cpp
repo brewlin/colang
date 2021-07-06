@@ -41,6 +41,32 @@ void AsmGen::Load()
     writeln("    mov (%%rax), %%rax");
 
 }
+void AsmGen::Load(int size,bool isunsigned)
+{
+    string prefix = isunsigned ? "movz" : "movs";
+    switch(size){
+        case 1:{
+            writeln("   %sbl (%%rax), %%eax",prefix.c_str());
+            break;
+        }
+        case 2:{
+            writeln("   %swl (%%rax), %%eax",prefix.c_str());
+            break;
+        }
+        case 4:{
+            writeln("  movsxd (%%rax), %%rax");
+            break;
+        }
+        case 8:{
+            writeln("  mov (%%rax), %%rax");
+            break;
+        }
+        default:{
+            parse_err("Load size error :%d ",size);
+        }
+    }
+
+}
 /**
  * @param type
  */

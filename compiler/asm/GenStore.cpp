@@ -54,3 +54,15 @@ void AsmGen::Store()
     writeln("    mov %%rax, (%%rdi)");
 
 }
+void AsmGen::Store(int size)
+{
+    Pop("%rdi");
+    if (size == 1)
+        writeln("   mov %%al, (%%rdi)");
+    else if (size == 2)
+        writeln("   mov %%ax, (%%rdi)");
+    else if (size == 4)
+        writeln("   mov %%eax, (%%rdi)");
+    else
+        writeln("   mov %%rax, (%%rdi)");
+}
