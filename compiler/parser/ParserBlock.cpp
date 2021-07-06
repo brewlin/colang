@@ -98,6 +98,26 @@ std::vector<std::string> Parser::parseParameterList()
                 currentFunc->params_order_var.push_back(var);
 
                 scanner->scan();
+                //判断有没有声明为memory结构
+                if(scanner->curToken == TK_LT){
+                    var->structtype = true;
+                    scanner->scan();
+                    assert(scanner->curToken == TK_VAR);
+                    string sname = scanner->curLex;
+                    var->structname = sname;
+                    scanner->scan();
+                    if(scanner->curToken == TK_DOT){
+                        scanner->scan();
+                        assert(scanner->curToken == TK_VAR);
+                        var->package = sname;
+                        var->structname = scanner->curLex;
+                        scanner->scan();
+                    }
+                    assert(scanner->curToken == TK_GT);
+                    scanner->scan();
+                    //下面不允许在由... 格式了
+                    continue;
+                }
                 //不是动态参数
                 if(scanner->curToken == TK_COMMA) continue;
                 if(scanner->curToken == TK_RPAREN) continue;
