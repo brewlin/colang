@@ -228,9 +228,40 @@ void  DelRefExpr::asmgen(std::deque<Context*> ctx){
  * TODO: &addr
  */
 void  AddrExpr::asmgen(std::deque<Context*> ctx){
-    // 1. &var 变量的直接取地址
+    if(package != ""){
+    //如果package 不为空
+    // 1. &p<struct>.var 成员变量取地址
+    VarExpr* var = Context::getVar(ctx,this->package);
+    if(var != nullptr && var->structtype){
+        //get member
+        StructMemberExpr sm(package,line,column);
+        sm.member = varname;
+        sm.var    = var;
+        Member* m = sm.getMember();
+        if(m != nullptr){
+            //获取到首地址
+            AsmGen::GenAddr(var);
+            //指针类型
+            AsmGen::Load();
+            //加载偏移量
+            AsmGen::writeln("	add $%d, %%rax", m->offset);
+            //如果不是出现在赋值语句中 则自动读取内存
+            if(m->bitfield){
+                parse_err(
+                    "AsmError: adress to bitfield error! "
+                    "line:%d column:%d \n\n"
+                    "expression:\n%s\n",
+                    this->line,this->column,this->toString().c_str());
+            }
+            return;
+        }
+    }
+
     // 2. &p.var 全局变量的直接取地址
-    // 3. &p<struct>.var 成员变量取地址
+
+
+    }
+    // 1. &var 变量的直接取地址
     // 4. &p<struct>  直接取地址
 
     // 异常情况:

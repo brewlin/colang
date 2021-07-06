@@ -157,7 +157,7 @@ Expression* Parser::parsePrimaryExpr()
         if(tk == TK_VAR){
             addr->varname = scanner->curLex;
         }
-        scanner->scan();
+        tk = scanner->scan();
         if(tk == TK_DOT){
             addr->package = addr->varname;
             scanner->scan();
