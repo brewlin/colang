@@ -13,6 +13,7 @@ using namespace std;
 
 void struct_member_assign(deque<Context*> ctx,AssignExpr* assign);
 void struct_assign(deque<Context*> ctx,AssignExpr* assign,VarExpr* var);
+VarExpr* realVar(deque<Context*> ctx,VarExpr* origin);
 /**
  * 赋值运算符 求值
  * @param ctx
@@ -215,6 +216,7 @@ void  DelRefExpr::asmgen(std::deque<Context*> ctx){
     //支持对变量的解引用
     if (typeid(*expr) == typeid(VarExpr)){
         VarExpr* var = dynamic_cast<VarExpr*>(expr);
+        var = realVar(ctx,var);
         //普通变量
         if(!var->structtype){
             Internal::get_object_value(); return;
@@ -222,10 +224,6 @@ void  DelRefExpr::asmgen(std::deque<Context*> ctx){
         if(var->size != 1 && var->size != 2 && var->size != 4 && var->size != 8){
             parse_err("type must be [i8 - u64]:%s\n",this->expr->toString().c_str());
         }
-        //内存指针访问 需要对类型做限制
-        AsmGen::GenAddr(var);
-        //获取指针
-        AsmGen::Load();
         //获取指针指向的值
         AsmGen::Load(var->size,var->isunsigned);
         return;

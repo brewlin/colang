@@ -4,21 +4,71 @@ import fmt
 import os
 
 struct header{
-	i8* a
-	u64 b
+	i8*  a
+	u8   b
+	i16* c
+	u16  d
+	i32* e
+	u32  f
+	i64* g
+	u64  h
 }
-
-func main()
+// 测试一下指针的读写
+func test_assign(p<header>)
 {
-	p<header>  = new header
-	p.b = 100
+	fmt.println("test struct pointer member assign")
 	p.a = &p.b
+	p.c = &p.d
+	p.e = &p.f
+	p.g = &p.h
 
-	if(int(*p.a) != 100){
-		a = int(*p.a)
-		fmt.println("*p.a != 100",a)
+	p.b = 100
+	p.d = 200
+	p.f = 300
+	p.h = 400
+
+	if(int(p.b) != 100){
+		fmt.println("p.b != 100",int(p.b))
 		os.exit(-1)
 	}
-	fmt.println(&p.a)
-	fmt.println(&p.b)
+	if(int(p.d) != 200){
+		fmt.println("p.d != 200",int(p.d))
+		os.exit(-1)
+	}
+	if(int(p.f) != 300){
+		fmt.println("p.f != 300",int(p.f))
+		os.exit(-1)
+	}
+	if(int(p.h) != 400){
+		fmt.println("p.h != 400",int(p.h))
+		os.exit(-1)
+	}
+	fmt.println("test struct pointer member success")
+}
+func test_read(p<header>){
+	fmt.println("test struct pointer member read")
+
+	if(int(*p.a) != 100){
+		fmt.println("*p.a != 100",int(*p.a))
+		os.exit(-1)
+	}
+	if(int(*p.c) != 200){
+		fmt.println("*p.c != 200",int(*p.c))
+		os.exit(-1)
+	}
+	if(int(*p.e) != 300){
+		fmt.println("*p.e != 300",int(*p.e))
+		os.exit(-1)
+	}
+	if(int(*p.g) != 400){
+		fmt.println("*p.g != 400",int(*p.g))
+		os.exit(-1)
+	}
+	fmt.println("test struct pointer member read success")
+}
+func main(){
+	p<header> = new header
+	test_assign(p)
+	test_read(p)
+	fmt.println(p.a,int(p.b),p.c,int(p.d),p.e,int(p.f),p.g,int(p.h))
 }
