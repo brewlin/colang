@@ -17,6 +17,7 @@ void BuiltinFuncExpr::asmgen(deque<Context*> ctx){
         Internal::newobject2(String);
         return;
     }else if(funcname == "int"){
+        //TODO: cast i8 i16 i 32  to  i64
         Internal::newobject2(Int);
         return;
     }

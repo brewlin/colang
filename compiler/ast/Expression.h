@@ -113,7 +113,8 @@ struct VarExpr : public Expression {
             is_local(true),
             is_variadic(false),
             structtype(false),
-            pointer(false){}
+            pointer(false),
+            isunsigned(false){}
     string  varname;
     //在 asm generate 时 作为 bp 偏移量
     int          offset;
@@ -246,6 +247,8 @@ struct BuiltinFuncExpr : public Expression {
     : Expression(line,column),funcname(name){}
     string funcname;
     Expression* expr;
+
+    Token  from;
 
     void   asmgen( deque<Context*> ctx) override;
     string toString() override;
