@@ -128,6 +128,11 @@ void Parser::parseStructDef()
         member->size = typesize[scanner->curToken];
 
         scanner->scan();
+        //有可能是指针类型 i8* 
+        if(scanner->curToken == TK_MUL){
+            member->pointer = true;
+            scanner->scan();
+        }
         assert(scanner->curToken == TK_VAR);
         member->name = scanner->curLex;
 

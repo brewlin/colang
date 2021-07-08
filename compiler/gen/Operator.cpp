@@ -12,7 +12,7 @@
 using namespace std;
 
 void struct_member_assign(deque<Context*> ctx,AssignExpr* assign);
-void struct_assign(deque<Context*> ctx,AssignExpr* assign);
+void struct_assign(deque<Context*> ctx,AssignExpr* assign,VarExpr* var);
 /**
  * 赋值运算符 求值
  * @param ctx
@@ -82,7 +82,7 @@ void  AssignExpr::asmgen(std::deque<Context*> ctx){
         }
         //如果左值是一个struct，需要优化:p<header> = （expression)| int
         if(varExpr->structtype)
-            return struct_assign(ctx,this);
+            return struct_assign(ctx,this,varExpr);
 
         //f->locals 保存了本地变量的 唯一偏移量，所以需要通过name 来找到对应的 变量
         AsmGen::GenAddr(varExpr);
@@ -212,24 +212,34 @@ void  ChainExpr::asmgen(std::deque<Context*> ctx)
  */
 void  DelRefExpr::asmgen(std::deque<Context*> ctx){
     this->expr->asmgen(ctx);
-    //目前只支持对变量的解引用
-    if (typeid(*expr) != typeid(VarExpr)){
-        parse_err("only support del ref for varExpr :%s\n",this->expr->toString());
+    //支持对变量的解引用
+    if (typeid(*expr) == typeid(VarExpr)){
+        VarExpr* var = dynamic_cast<VarExpr*>(expr);
+        //普通变量
+        if(!var->structtype){
+            Internal::get_object_value(); return;
+        }
+        if(var->size != 1 && var->size != 2 && var->size != 4 && var->size != 8){
+            parse_err("type must be [i8 - u64]:%s\n",this->expr->toString().c_str());
+        }
+        //内存指针访问 需要对类型做限制
+        AsmGen::GenAddr(var);
+        //获取指针
+        AsmGen::Load();
+        //获取指针指向的值
+        AsmGen::Load(var->size,var->isunsigned);
+        return;
+    }else if(typeid(*expr) == typeid(StructMemberExpr)){
+        StructMemberExpr* sm = dynamic_cast<StructMemberExpr*>(expr);
+        Member* m = sm->getMember();
+        if(m == nullptr){
+            parse_err("del ref can't find the struct member:%s\n",this->expr->toString().c_str());
+        }
+        //获取指针指向的值
+        AsmGen::Load(m->size,m->isunsigned);
+        return;
     }
-    VarExpr* var = dynamic_cast<VarExpr*>(expr);
-    //普通变量
-    if(!var->structtype){
-        Internal::get_object_value(); return;
-    }
-    if(var->size != 1 && var->size != 2 && var->size != 4 && var->size != 8){
-        parse_err("type must be [i8 - u64]:%s\n",this->expr->toString());
-    }
-    //内存指针访问 需要对类型做限制
-    AsmGen::GenAddr(var);
-    //获取指针
-    AsmGen::Load();
-    //获取指针指向的值
-    AsmGen::Load(var->size,var->isunsigned);
+    parse_err("only support del ref for expression :%s\n",this->expr->toString().c_str());
 }
 /**
  * &a || &p.b

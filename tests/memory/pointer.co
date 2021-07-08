@@ -1,0 +1,24 @@
+package main
+
+import fmt
+import os
+
+struct header{
+	i8* a
+	u64 b
+}
+
+func main()
+{
+	p<header>  = new header
+	p.b = 100
+	p.a = &p.b
+
+	if(int(*p.a) != 100){
+		a = int(*p.a)
+		fmt.println("*p.a != 100",a)
+		os.exit(-1)
+	}
+	fmt.println(&p.a)
+	fmt.println(&p.b)
+}

@@ -30,6 +30,7 @@ struct Member
     Token   type;
     int     size;
     bool    isunsigned;
+    bool    pointer;
 
     int     idx;
     int     align;

@@ -57,18 +57,18 @@ void struct_member_assign(deque<Context*> ctx,AssignExpr* assign)
 	//进行一次转换
 	// AsmGen::Cast()
 	//不是位操作直接存储即可
-    AsmGen::Store(m->size);
+	//如果是指针则存储8为
+	int size = m->size;
+	if(m->pointer)
+		size = 8;
+    AsmGen::Store(size);
 }
 /**
  * 处理p<struct> = (expression|int,bool,pointer)等这种优化
  * 不需要再调用binary_operator来进行统一处理
  */
-void struct_assign(deque<Context*> ctx,AssignExpr* assign)
+void struct_assign(deque<Context*> ctx,AssignExpr* assign,VarExpr* var)
 {
-	//左边必须是 var<Struct> 表达式
-    if(typeid(*assign->lhs) != typeid(VarExpr))
-        parse_err("assign: struct.member: lhs not structExpr %s \n",assign->lhs->toString().c_str());
-	VarExpr* var = dynamic_cast<VarExpr*>(assign->lhs);
 	if(!var->structtype)
         parse_err("assign: struct.member: lhs not structExpr %s \n",assign->lhs->toString().c_str());
 
@@ -130,7 +130,11 @@ void  StructMemberExpr::asmgen(std::deque<Context*> ctx)
 	AsmGen::writeln("	add $%d, %%rax", m->offset);
 	//如果不是出现在赋值语句中 则自动读取内存
 	if(!assign){
-		AsmGen::Load(m->size,m->isunsigned);
+		//如果是指针需要加载8字节
+		if(m->pointer)
+			AsmGen::Load(8,true);
+		else
+			AsmGen::Load(m->size,m->isunsigned);
 		if (m->bitfield) {
 			AsmGen::writeln("	shl $%d, %%rax", 64 - m->bitwidth - m->bitoffset);
       		if (m->isunsigned)

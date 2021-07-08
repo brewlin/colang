@@ -467,13 +467,7 @@ Expression* Parser::parseVarExpr(std::string var)
                     expr->structname = scanner->curLex;
                     scanner->scan();
                 }
-                //如果不为 > 说明不满足  var<struct> || var<pkg.struct> 则回滚
-                if(scanner->curToken != TK_GT){
-                    scanner->rollback();
-                    return varexpr;
-                }
-                scanner->scan();
-                //判断一下可能类型为基础类型i8-u64
+                //判断一下可能类型为基础类型i8-u64 而且有可能是指针
                 if(keywords.count(expr->structname) > 0){
                     auto i = keywords[expr->structname];
                     assert(i >= KW_I8 && i <= KW_U64);
@@ -481,7 +475,18 @@ Expression* Parser::parseVarExpr(std::string var)
 
                     if(i >= KW_U8 && i <= KW_U64)
                         expr->isunsigned = true;
+                    if(scanner->curToken == TK_MUL){
+                        expr->pointer = true;
+                        scanner->scan();
+                    }
+                }                
+                //如果不为 > 说明不满足  var<struct> || var<pkg.struct> 则回滚
+                if(scanner->curToken != TK_GT){
+                    scanner->rollback();
+                    return varexpr;
                 }
+                scanner->scan();
+
                 return expr;
             }
             //到这里说明肯定不是 p<struct>这种结构

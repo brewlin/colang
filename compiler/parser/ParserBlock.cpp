@@ -113,6 +113,18 @@ std::vector<std::string> Parser::parseParameterList()
                         var->structname = scanner->curLex;
                         scanner->scan();
                     }
+                    //判断一下可能类型为基础类型i8-u64 而且有可能是指针
+                    if(keywords.count(var->structname) > 0){
+                        auto i = keywords[var->structname];
+                        assert(i >= KW_I8 && i <= KW_U64);
+                        var->size = typesize[i];
+                        if(i >= KW_U8 && i <= KW_U64)
+                            var->isunsigned = true;
+                        if(scanner->curToken == TK_MUL){
+                            var->pointer = true;
+                            scanner->scan();
+                        }
+                    }
                     assert(scanner->curToken == TK_GT);
                     scanner->scan();
                     //下面不允许在由... 格式了

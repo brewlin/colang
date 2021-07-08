@@ -112,7 +112,8 @@ struct VarExpr : public Expression {
             varname(move(varname)),
             is_local(true),
             is_variadic(false),
-            structtype(false){}
+            structtype(false),
+            pointer(false){}
     string  varname;
     //在 asm generate 时 作为 bp 偏移量
     int          offset;
@@ -125,6 +126,7 @@ struct VarExpr : public Expression {
     //当前变量被强制申请为 struct内存结构
     string       structname;
     bool         structtype;
+    bool         pointer;
 
     //作为指针变量的时候会用到
     int          size;

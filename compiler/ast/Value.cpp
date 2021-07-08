@@ -33,7 +33,11 @@ void Struct::compute()
     {
         bits = ALIGN_UP(bits,8);
         mem->offset = bits / 8;
-        bits += mem->size * 8;
+        //如果是指针的话默认是8字节
+        if(mem->pointer)
+          bits += 8 * 8;
+        else
+          bits += mem->size * 8;
     }
   }
   //计算出struct的对齐后的总大小
