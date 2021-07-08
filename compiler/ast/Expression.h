@@ -126,6 +126,10 @@ struct VarExpr : public Expression {
     string       structname;
     bool         structtype;
 
+    //作为指针变量的时候会用到
+    int          size;
+    bool         isunsigned;
+
     void         asmgen( deque<Context*> ctx) override;
     string       toString() override;
 };

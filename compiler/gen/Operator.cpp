@@ -205,22 +205,31 @@ void  ChainExpr::asmgen(std::deque<Context*> ctx)
     //righ codegen
     this->rhs->asmgen(ctx);
 }
-
 /**
- * *var
+ * 1. *var 这种是对动态变量对解引用
+ * 2. *p   这种是对内存对指针访问
+ * 3.
  */
 void  DelRefExpr::asmgen(std::deque<Context*> ctx){
     this->expr->asmgen(ctx);
-    //这里判断下如果是常规var 则去获取var->data
-    if (typeid(*expr) == typeid(VarExpr)){
-        VarExpr* var = dynamic_cast<VarExpr*>(expr);
-        //普通变量
-        if(var->structname == ""){
-            Internal::get_object_value();
-            return;
-        }
+    //目前只支持对变量的解引用
+    if (typeid(*expr) != typeid(VarExpr)){
+        parse_err("only support del ref for varExpr :%s\n",this->expr->toString());
     }
+    VarExpr* var = dynamic_cast<VarExpr*>(expr);
+    //普通变量
+    if(!var->structtype){
+        Internal::get_object_value(); return;
+    }
+    if(var->size != 1 && var->size != 2 && var->size != 4 && var->size != 8){
+        parse_err("type must be [i8 - u64]:%s\n",this->expr->toString());
+    }
+    //内存指针访问 需要对类型做限制
+    AsmGen::GenAddr(var);
+    //获取指针
     AsmGen::Load();
+    //获取指针指向的值
+    AsmGen::Load(var->size,var->isunsigned);
 }
 /**
  * &a || &p.b
