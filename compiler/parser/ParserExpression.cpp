@@ -479,6 +479,7 @@ Expression* Parser::parseVarExpr(std::string var)
             // var<i8 - u64>
             //判断一下可能类型为基础类型i8-u64 而且有可能是指针
                 expr->size = typesize[scanner->curToken];
+                expr->type = scanner->curToken;
                 if(scanner->curToken >= KW_U8 && scanner->curToken <= KW_U64)
                     expr->isunsigned = true;
                 scanner->scan();

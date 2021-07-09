@@ -130,6 +130,7 @@ struct VarExpr : public Expression {
     bool         pointer;
 
     //作为指针变量的时候会用到
+    Token        type;
     int          size;
     bool         isunsigned;
 

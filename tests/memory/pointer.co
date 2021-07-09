@@ -71,9 +71,17 @@ func test_var(p<header>)
 	# a,c,e,g
 	p.h = -100
 	a<i8> = p.g
-	fmt.println(int(p.h))
-	fmt.println(int(*a))
-
+	if(int(*a) != -100){
+		fmt.println("*a<i8> != -100",int(*a))
+		os.exit(-1)
+	}
+	p.h = -100000
+	b<i64> = p.g
+	if(int(*b) != -100000){
+		fmt.println("*b<i64> != -100000",int(*b))
+		os.exit(-1)
+	}
+	fmt.println("test var del ref  cast success")
 }
 func main(){
 	p<header> = new header

@@ -102,29 +102,35 @@ std::vector<std::string> Parser::parseParameterList()
                 if(scanner->curToken == TK_LT){
                     var->structtype = true;
                     scanner->scan();
-                    assert(scanner->curToken == TK_VAR);
-                    string sname = scanner->curLex;
-                    var->structname = sname;
-                    scanner->scan();
-                    if(scanner->curToken == TK_DOT){
+                    if(scanner->curToken == TK_VAR){
+                        string sname = scanner->curLex;
+                        var->structname = sname;
                         scanner->scan();
-                        assert(scanner->curToken == TK_VAR);
-                        var->package = sname;
-                        var->structname = scanner->curLex;
-                        scanner->scan();
-                    }
+                        if(scanner->curToken == TK_DOT){
+                            scanner->scan();
+                            assert(scanner->curToken == TK_VAR);
+                            var->package = sname;
+                            var->structname = scanner->curLex;
+                            scanner->scan();
+                        }
+                    }else if(scanner->curToken >= KW_I8 && scanner->curToken <= KW_U64){
                     //判断一下可能类型为基础类型i8-u64 而且有可能是指针
-                    if(keywords.count(var->structname) > 0){
-                        auto i = keywords[var->structname];
+                        Token i = scanner->curToken;
                         assert(i >= KW_I8 && i <= KW_U64);
                         var->size = typesize[i];
+                        var->type = i;
+
                         if(i >= KW_U8 && i <= KW_U64)
                             var->isunsigned = true;
                         if(scanner->curToken == TK_MUL){
                             var->pointer = true;
                             scanner->scan();
                         }
+
+                    }else{
+                        parse_err("unknown token %d",scanner->curToken);
                     }
+   
                     assert(scanner->curToken == TK_GT);
                     scanner->scan();
                     //下面不允许在由... 格式了
