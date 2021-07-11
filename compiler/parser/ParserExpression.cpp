@@ -168,7 +168,7 @@ Expression* Parser::parsePrimaryExpr()
         return addr;
     }
     //说明是一个解引用操作，注意此操作非常危险 需要注意和c函数的交互
-    if(tk == TK_DELREF){
+    if(tk == TK_DELREF || tk == TK_MUL){
         Debug("find token delref");
         //eat *
         scanner->scan();

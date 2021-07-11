@@ -1,8 +1,67 @@
 package main
 
-extern int printf(string)
+import fmt
+import os
+
+func test_var(){
+    var1 = 100
+    var2 = int(*var1)
+    if(var1 != var2){
+        fmt.print("*var test failed ",var1,var2,"\n")
+        os.exit(-1)
+    }
+    fmt.println(var1,var2)
+
+    var1 = -100
+    var2 = int(*var1)
+    if(var1 != var2){
+        fmt.print("*var test failed ",var1,var2,"\n")
+        os.exit(-1)
+    }
+    fmt.println("test del ref dynamic var success")
+}
+struct t{
+    i8* a
+    u64 b
+}
+# FIXME: 当变量名为 struct 名时要优化异常处理
+func test_memeory(){
+    var<t> = new t 
+    var.a = &var.b
+
+    var.b = -100
+    if(int(*var.a) != -100){
+        fmt.print("*memory test failed ",int(var.b),int(*var.a),"\n")
+        os.exit(-1)
+    }
+    fmt.println("test memory del ref success")
+}
+struct t2{
+    u64* a
+    i8* b
+    i8* c
+    i64 d
+}
+func test_multi(){
+    var<t2> = new t2
+    var.a = &var.b
+    var.b = &var.c
+    var.c = &var.d
+
+    var.d = -100
+    
+    delref = int(***var.a)
+    if(delref != -100){
+        fmt.print("multi delref ***(var) test failed ",int(var.d),delref,"\n")
+        os.exit(-1)
+    }
+    fmt.println("test del ref (***p) successful")
+}
 
 func main(){
-    str = "test"
-    _.printf(*str)
+    test_var()
+    test_memeory()
+    test_multi()
+    fmt.println("test del ref (*p) successful")
+
 }

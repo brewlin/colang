@@ -217,14 +217,14 @@ Expression*  DelRefExpr::asmgen(std::deque<Context*> ctx){
         VarExpr* var = dynamic_cast<VarExpr*>(ret);
         //普通变量
         if(!var->structtype){
-            Internal::get_object_value(); return nullptr;
+            Internal::get_object_value(); return ret;
         }
         if(var->size != 1 && var->size != 2 && var->size != 4 && var->size != 8){
             parse_err("type must be [i8 - u64]:%s\n",this->expr->toString().c_str());
         }
         //获取指针指向的值
         AsmGen::Load(var->size,var->isunsigned);
-        return var;
+        return ret;
     }else if(typeid(*ret) == typeid(StructMemberExpr)){
         StructMemberExpr* sm = dynamic_cast<StructMemberExpr*>(ret);
         Member* m = sm->ret;
@@ -233,7 +233,7 @@ Expression*  DelRefExpr::asmgen(std::deque<Context*> ctx){
         }
         //获取指针指向的值
         AsmGen::Load(m->size,m->isunsigned);
-        return sm;
+        return ret;
     }
     parse_err("only support del ref for expression :%s\n",this->expr->toString().c_str());
 }
