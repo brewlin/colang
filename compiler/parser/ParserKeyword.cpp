@@ -321,8 +321,8 @@ void Parser::parseImportDef()
 void Parser::parseGlobalDef()
 {
     if(scanner->curToken != TK_VAR){
-        parse_err("SyntaxError: global var define invalid  "
-                      " line:%d column:%d file:%s\n",line,column,filepath.c_str());
+        parse_err("SyntaxError: global var define invalid token:%s "
+                      " line:%d column:%d file:%s\n",getTokenString(scanner->curToken).c_str(), scanner->line,scanner->column,filepath.c_str());
     }
     auto var = scanner->curLex;
     //去掉标识符
