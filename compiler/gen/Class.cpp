@@ -15,7 +15,7 @@
  * 针对结构体的变量new
  * new 200
  */
-void  NewExpr::asmgen(std::deque<Context*> ctx)
+Expression*  NewExpr::asmgen(std::deque<Context*> ctx)
 {
     //查看是不是结构体变量
     string package = AsmGen::parser->import[this->package];
@@ -27,7 +27,7 @@ void  NewExpr::asmgen(std::deque<Context*> ctx)
                 // cout << i->name <<":" << i->offset <<endl;
             // }
             Internal::gc_malloc(s->size);
-            return;
+            return nullptr;
         }
     }
     AsmGen::writeln("   mov $0,%%rax");
@@ -38,7 +38,7 @@ void  NewExpr::asmgen(std::deque<Context*> ctx)
  * @param ctx
  * @return
  */
-void  NewClassExpr::asmgen(std::deque<Context*> ctx)
+Expression*  NewClassExpr::asmgen(std::deque<Context*> ctx)
 {
 
 //    AsmGen::writeln("    .loc %d %d %d",AsmGen::parser->fileno,line,column);
@@ -80,13 +80,13 @@ void  NewClassExpr::asmgen(std::deque<Context*> ctx)
  * @param ctx
  * @return
  */
-void  MemberExpr::asmgen(std::deque<Context*> ctx)
+Expression*  MemberExpr::asmgen(std::deque<Context*> ctx)
 {
     //func().var 链式表达
     if(varname == ""){
         //运算需要调用统一的方法
         Internal::object_member_get(membername);
-        return;
+        return nullptr;
 
     }
     auto *var = Context::getVar(ctx,varname);
@@ -97,14 +97,14 @@ void  MemberExpr::asmgen(std::deque<Context*> ctx)
     AsmGen::Push();
     //运算需要调用统一的方法
     Internal::object_member_get(membername);
-    return;
+    return nullptr;
 }
 /**
  * TODO: asm struct call
  * @param ctx
  * @return
  */
-void  MemberCallExpr::asmgen(std::deque<Context*> ctx)
+Expression*  MemberCallExpr::asmgen(std::deque<Context*> ctx)
 {
     Debug("membercall : ")
 }

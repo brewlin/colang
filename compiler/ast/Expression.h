@@ -15,39 +15,39 @@ struct  Expression : public Ast {
     using Ast::Ast;
     virtual              ~Expression() = default;
 
-    virtual void         asmgen(deque<Context*> ctx) = 0;
-    virtual string       toString() = 0;
+    virtual Expression*         asmgen(deque<Context*> ctx) = 0;
+    virtual string              toString() = 0;
 };
 
 struct BoolExpr : public Expression{
     explicit BoolExpr(int line,int column):Expression(line,column){}
     bool literal;
 
-    void    asmgen(deque<Context*> ctx) override;
-    string  toString() override;
+    Expression*    asmgen(deque<Context*> ctx) override;
+    string         toString() override;
 };
 
 struct CharExpr : public Expression {
     explicit CharExpr(int line, int column) : Expression(line, column) {}
     char literal;
 
-    void    asmgen( deque<Context*> ctx) override;
-    string  toString() override;
+    Expression*    asmgen( deque<Context*> ctx) override;
+    string         toString() override;
 };
 
 struct NullExpr : public Expression {
     explicit     NullExpr(int line, int column) : Expression(line, column) {}
 
-    void    asmgen( deque<Context*> ctx) override;
-    string  toString() override;
+    Expression*    asmgen( deque<Context*> ctx) override;
+    string         toString() override;
 };
 
 struct IntExpr : public Expression {
     explicit     IntExpr(int line, int column) : Expression(line, column) {}
     int          literal;
 
-    void    asmgen( deque<Context*> ctx) override;
-    string  toString() override;
+    Expression*    asmgen( deque<Context*> ctx) override;
+    string         toString() override;
 };
 
 struct DoubleExpr : public Expression {
@@ -55,8 +55,8 @@ struct DoubleExpr : public Expression {
 
     double       literal;
 
-    void    asmgen( deque<Context*> ctx) override;
-    string  toString() override;
+    Expression*  asmgen( deque<Context*> ctx) override;
+    string       toString() override;
 };
 /**
  * 纯字符表示
@@ -69,23 +69,23 @@ struct StringExpr : public Expression {
     string  name;
     int          offset;
 
-    void    asmgen( deque<Context*> ctx) override;
-    string  toString() override;
+    Expression*  asmgen( deque<Context*> ctx) override;
+    string       toString() override;
 };
 
 struct ArrayExpr : public Expression {
     explicit     ArrayExpr(int line, int column) : Expression(line, column) {}
     vector<Expression*> literal;
 
-    void    asmgen( deque<Context*> ctx) override;
-    string  toString() override;
+    Expression*  asmgen( deque<Context*> ctx) override;
+    string       toString() override;
 };
 struct MapExpr : public Expression {
     explicit     MapExpr(int line, int column) : Expression(line, column) {}
     vector<Expression*> literal;
 
-    void    asmgen( deque<Context*> ctx) override;
-    string  toString() override;
+    Expression*  asmgen( deque<Context*> ctx) override;
+    string       toString() override;
 };
 struct KVExpr : public Expression {
     explicit KVExpr(int line, int column) : Expression(line, column) {}
@@ -93,8 +93,8 @@ struct KVExpr : public Expression {
     Expression*  key{};
     Expression*  value{};
 
-    void         asmgen( deque<Context*> ctx) override;
-    string  toString() override;
+    Expression*  asmgen( deque<Context*> ctx) override;
+    string       toString() override;
 };
 struct ChainExpr : public Expression {
     explicit ChainExpr(int line,int column): Expression(line,column){}
@@ -102,8 +102,8 @@ struct ChainExpr : public Expression {
     Expression* lhs{};
     Expression* rhs{};
 
-    void    asmgen( deque<Context*> ctx) override;
-    string  toString() override;
+    Expression* asmgen( deque<Context*> ctx) override;
+    string      toString() override;
 };
 
 struct VarExpr : public Expression {
@@ -134,7 +134,7 @@ struct VarExpr : public Expression {
     int          size;
     bool         isunsigned;
 
-    void         asmgen( deque<Context*> ctx) override;
+    Expression*  asmgen( deque<Context*> ctx) override;
     string       toString() override;
 };
 struct ClosureExpr : public Expression {
@@ -143,8 +143,8 @@ struct ClosureExpr : public Expression {
               varname(move(varname)){}
     string  varname;
 
-    void    asmgen( deque<Context*> ctx) override;
-    string  toString() override;
+    Expression*  asmgen( deque<Context*> ctx) override;
+    string       toString() override;
 };
 
 struct StructMemberExpr : public Expression {
@@ -156,10 +156,10 @@ struct StructMemberExpr : public Expression {
     VarExpr* var;
     bool    assign;
 
-    void    asmgen( deque<Context*> ctx) override;
-    string  toString() override;
-    Member* getMember();
-    Struct* getStruct();
+    Expression*    asmgen( deque<Context*> ctx) override;
+    string         toString() override;
+    Member*        getMember();
+    Struct*        getStruct();
 };
 //&a || &p.b
 struct AddrExpr   : public Expression {
@@ -168,16 +168,16 @@ struct AddrExpr   : public Expression {
     string package;
     string varname;
 
-    void    asmgen( deque<Context*> ctx) override;
-    string  toString() override;
+    Expression*  asmgen( deque<Context*> ctx) override;
+    string       toString() override;
 };
 struct DelRefExpr : public Expression {
     explicit DelRefExpr(int line,int column)
             : Expression(line,column){}
     Expression* expr;
 
-    void    asmgen( deque<Context*> ctx) override;
-    string  toString() override;
+    Expression* asmgen( deque<Context*> ctx) override;
+    string      toString() override;
 };
 
 struct IndexExpr : public Expression {
@@ -190,8 +190,8 @@ struct IndexExpr : public Expression {
     bool        is_pkgcall;
     string package;
 
-    void    asmgen( deque<Context*> ctx) override;
-    string  toString() override;
+    Expression* asmgen( deque<Context*> ctx) override;
+    string      toString() override;
 };
 
 struct BinaryExpr : public Expression {
@@ -200,8 +200,8 @@ struct BinaryExpr : public Expression {
     Token        opt{};
     Expression*  rhs{};
 
-    void    asmgen( deque<Context*> ctx) override;
-    string  toString() override;
+    Expression* asmgen( deque<Context*> ctx) override;
+    string      toString() override;
 };
 
 struct FunCallExpr : public Expression {
@@ -218,8 +218,8 @@ struct FunCallExpr : public Expression {
     bool    is_extern;
     bool    is_delref;
 
-    void    asmgen( deque<Context*> ctx) override;
-    string  toString() override;
+    Expression*  asmgen( deque<Context*> ctx) override;
+    string       toString() override;
 };
 
 struct AssignExpr : public Expression {
@@ -230,8 +230,8 @@ struct AssignExpr : public Expression {
     Expression*  rhs{};
 
 
-    void    asmgen( deque<Context*> ctx) override;
-    string  toString() override;
+    Expression*  asmgen( deque<Context*> ctx) override;
+    string       toString() override;
 };
 
 struct NewClassExpr : public Expression {
@@ -240,8 +240,8 @@ struct NewClassExpr : public Expression {
     string name;
     vector<Expression*> args;
 
-    void    asmgen( deque<Context*> ctx) override;
-    string  toString() override;
+    Expression*  asmgen( deque<Context*> ctx) override;
+    string       toString() override;
 };
 struct BuiltinFuncExpr : public Expression {
     explicit BuiltinFuncExpr(string name,int line,int column) 
@@ -251,8 +251,8 @@ struct BuiltinFuncExpr : public Expression {
 
     Token  from;
 
-    void   asmgen( deque<Context*> ctx) override;
-    string toString() override;
+    Expression*  asmgen( deque<Context*> ctx) override;
+    string       toString() override;
 };
 struct NewExpr : public Expression {
     explicit NewExpr(int line, int column) : Expression(line, column) {}
@@ -261,8 +261,8 @@ struct NewExpr : public Expression {
 
     int    len;//申请的字节大小
 
-    void   asmgen( deque<Context*> ctx) override;
-    string toString() override;
+    Expression*  asmgen( deque<Context*> ctx) override;
+    string       toString() override;
 };
 
 
@@ -271,8 +271,8 @@ struct MemberExpr : public Expression {
     string  varname;
     string  membername;
 
-    void    asmgen( deque<Context*> ctx) override;
-    string  toString() override;
+    Expression*  asmgen( deque<Context*> ctx) override;
+    string       toString() override;
 };
 struct MemberCallExpr : public Expression {
     explicit MemberCallExpr(int line, int column) : Expression(line, column) {}
@@ -281,8 +281,8 @@ struct MemberCallExpr : public Expression {
 
     vector<Expression*> args;
 
-    void    asmgen( deque<Context*> ctx) override;
-    string  toString() override;
+    Expression*  asmgen( deque<Context*> ctx) override;
+    string       toString() override;
 };
 
 

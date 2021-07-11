@@ -11,15 +11,15 @@
 #include "Parser.h"
 using namespace std;
 
-void struct_member_assign(deque<Context*> ctx,AssignExpr* assign);
-void struct_assign(deque<Context*> ctx,AssignExpr* assign,VarExpr* var);
+Expression* struct_member_assign(deque<Context*> ctx,AssignExpr* assign);
+Expression* struct_assign(deque<Context*> ctx,AssignExpr* assign,VarExpr* var);
 VarExpr* realVar(deque<Context*> ctx,VarExpr* origin);
 /**
  * 赋值运算符 求值
  * @param ctx
  * @return
  */
-void  AssignExpr::asmgen(std::deque<Context*> ctx){
+Expression*  AssignExpr::asmgen(std::deque<Context*> ctx){
 
 //    AsmGen::writeln("    .loc %d %d %d",AsmGen::parser->fileno,line,column);
     Debug("AssignExpr: parsing... lhs:%s opt:%s rhs:%s",
@@ -61,7 +61,7 @@ void  AssignExpr::asmgen(std::deque<Context*> ctx){
                 AsmGen::Push();
                 //运算需要调用统一的方法
                 Internal::call_object_operator(this->opt,varname,"object_unary_operator");
-                return;
+                return nullptr;
             }
             //说明这是一个跨包访问
             varExpr = Package::packages[package]->getGlobalVar(varname);
@@ -96,7 +96,7 @@ void  AssignExpr::asmgen(std::deque<Context*> ctx){
         //运算需要调用统一的方法
         Internal::call_operator(this->opt,"unary_operator");
 
-        return;
+        return nullptr;
     //索引赋值  a[0] = 1
     // arr_updateone(arr,index,var)
     }else if(typeid(*lhs) == typeid(IndexExpr))
@@ -138,7 +138,7 @@ void  AssignExpr::asmgen(std::deque<Context*> ctx){
 
             Internal::arr_pushone();
             AsmGen::Pop("%rdi");
-           return;
+           return nullptr;
         }
 
         index->index->asmgen(ctx);
@@ -151,11 +151,11 @@ void  AssignExpr::asmgen(std::deque<Context*> ctx){
         Internal::kv_update();
         //rm unuse 
         AsmGen::Pop("%rdi");
-        return;
+        return nullptr;
     }else if(typeid(*lhs) == typeid(StructMemberExpr))
     {
         struct_member_assign(ctx,this);
-        return;
+        return nullptr;
     }
     parse_err("SyntaxError: can not assign to %s at line %d, %col\n", typeid(lhs).name(),line,column);
 }
@@ -165,7 +165,7 @@ void  AssignExpr::asmgen(std::deque<Context*> ctx){
  * @param ctx
  * @return
  */
-void  BinaryExpr::asmgen(std::deque<Context*> ctx)
+Expression*  BinaryExpr::asmgen(std::deque<Context*> ctx)
 {
 //    AsmGen::writeln("    .loc %d %d %d",AsmGen::parser->fileno,line,column);
     Debug("BinaryExpr: parsing... lhs:%s opt:%s rhs:%s",
@@ -197,7 +197,7 @@ void  BinaryExpr::asmgen(std::deque<Context*> ctx)
  * @param ctx
  * @return
  */
-void  ChainExpr::asmgen(std::deque<Context*> ctx)
+Expression*  ChainExpr::asmgen(std::deque<Context*> ctx)
 {
     //left codegen
     this->lhs->asmgen(ctx);
@@ -211,7 +211,7 @@ void  ChainExpr::asmgen(std::deque<Context*> ctx)
  * 2. *p   这种是对内存对指针访问
  * 3.
  */
-void  DelRefExpr::asmgen(std::deque<Context*> ctx){
+Expression*  DelRefExpr::asmgen(std::deque<Context*> ctx){
     this->expr->asmgen(ctx);
     //支持对变量的解引用
     if (typeid(*expr) == typeid(VarExpr)){
@@ -219,14 +219,14 @@ void  DelRefExpr::asmgen(std::deque<Context*> ctx){
         var = realVar(ctx,var);
         //普通变量
         if(!var->structtype){
-            Internal::get_object_value(); return;
+            Internal::get_object_value(); return nullptr;
         }
         if(var->size != 1 && var->size != 2 && var->size != 4 && var->size != 8){
             parse_err("type must be [i8 - u64]:%s\n",this->expr->toString().c_str());
         }
         //获取指针指向的值
         AsmGen::Load(var->size,var->isunsigned);
-        return;
+        return nullptr;
     }else if(typeid(*expr) == typeid(StructMemberExpr)){
         StructMemberExpr* sm = dynamic_cast<StructMemberExpr*>(expr);
         Member* m = sm->getMember();
@@ -235,7 +235,7 @@ void  DelRefExpr::asmgen(std::deque<Context*> ctx){
         }
         //获取指针指向的值
         AsmGen::Load(m->size,m->isunsigned);
-        return;
+        return nullptr;
     }
     parse_err("only support del ref for expression :%s\n",this->expr->toString().c_str());
 }
@@ -244,7 +244,7 @@ void  DelRefExpr::asmgen(std::deque<Context*> ctx){
  * 取地址比较特殊，不能嵌套子Expression 需要自己处理 var 和 struct的地址引用
  * TODO: &addr
  */
-void  AddrExpr::asmgen(std::deque<Context*> ctx){
+Expression*  AddrExpr::asmgen(std::deque<Context*> ctx){
     if(package != ""){
     //如果package 不为空
     // 1. &p<struct>.var 成员变量取地址
@@ -270,7 +270,7 @@ void  AddrExpr::asmgen(std::deque<Context*> ctx){
                     "expression:\n%s\n",
                     this->line,this->column,this->toString().c_str());
             }
-            return;
+            return nullptr;
         }
     }
 

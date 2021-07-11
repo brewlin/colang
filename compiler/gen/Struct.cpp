@@ -14,7 +14,7 @@
  * 处理  p.a = (expression)
  * 1. 右值需要 根据左值进行强制转换
  */
-void struct_member_assign(deque<Context*> ctx,AssignExpr* assign)
+Expression* struct_member_assign(deque<Context*> ctx,AssignExpr* assign)
 {
 
 	//左边必须是 Struct.Member 表达式
@@ -52,7 +52,7 @@ void struct_member_assign(deque<Context*> ctx,AssignExpr* assign)
 		//左值的类型
 		AsmGen::Store(m->size);
       	AsmGen::writeln("  mov %%r8, %%rax");
-      return;
+      return nullptr;
     }
 	//进行一次转换
 	// AsmGen::Cast()
@@ -67,7 +67,7 @@ void struct_member_assign(deque<Context*> ctx,AssignExpr* assign)
  * 处理p<struct> = (expression|int,bool,pointer)等这种优化
  * 不需要再调用binary_operator来进行统一处理
  */
-void struct_assign(deque<Context*> ctx,AssignExpr* assign,VarExpr* var)
+Expression* struct_assign(deque<Context*> ctx,AssignExpr* assign,VarExpr* var)
 {
 	if(!var->structtype)
         parse_err("assign: struct.member: lhs not structExpr %s \n",assign->lhs->toString().c_str());
@@ -114,7 +114,7 @@ Struct* StructMemberExpr::getStruct()
  * @param ctx
  * @return
  */
-void  StructMemberExpr::asmgen(std::deque<Context*> ctx)
+Expression*  StructMemberExpr::asmgen(std::deque<Context*> ctx)
 {
 	string filename = AsmGen::parser->filename;
 	//判断成员变量

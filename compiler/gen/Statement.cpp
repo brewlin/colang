@@ -13,7 +13,7 @@
  * @param ctx
  * @return
  */
-void IfStmt::asmgen(std::deque<Context *> ctx)
+Expression* IfStmt::asmgen(std::deque<Context *> ctx)
 {
     int c = AsmGen::count ++;
     //对判断条件的表达式求值
@@ -48,7 +48,7 @@ void IfStmt::asmgen(std::deque<Context *> ctx)
     AsmGen::writeln("L.end.%d:", c);
 
 }
-void ForStmt::asmgen(std::deque<Context *> ctx)
+Expression* ForStmt::asmgen(std::deque<Context *> ctx)
 {
     int c = AsmGen::count ++;
     //初始化条件表达式
@@ -85,7 +85,7 @@ void ForStmt::asmgen(std::deque<Context *> ctx)
  * @param ctx
  * @return
  */
-void WhileStmt::asmgen(std::deque<Context *> ctx)
+Expression* WhileStmt::asmgen(std::deque<Context *> ctx)
 {
 
     int c = AsmGen::count ++;
@@ -118,7 +118,7 @@ void WhileStmt::asmgen(std::deque<Context *> ctx)
  * @param ctx
  * @return
  */
-void ExpressionStmt::asmgen(std::deque<Context *> ctx)
+Expression* ExpressionStmt::asmgen(std::deque<Context *> ctx)
 {
 
 //    std::cout << expr->toString() <<std::endl;
@@ -132,7 +132,7 @@ void ExpressionStmt::asmgen(std::deque<Context *> ctx)
  * @param ctx
  * @return
  */
-void ReturnStmt::asmgen(std::deque<Context *> ctx)
+Expression* ReturnStmt::asmgen(std::deque<Context *> ctx)
 {
     this->ret->asmgen(ctx);
     for(auto p = ctx.crbegin(); p != ctx.crend(); ++p) {
@@ -147,7 +147,7 @@ void ReturnStmt::asmgen(std::deque<Context *> ctx)
  * @param ctx
  * @return
  */
-void BreakStmt::asmgen(std::deque<Context *> ctx)
+Expression* BreakStmt::asmgen(std::deque<Context *> ctx)
 {
     //判断当前是否处在循环中
 //    Context* c = ctx.back();
@@ -167,7 +167,7 @@ void BreakStmt::asmgen(std::deque<Context *> ctx)
  * @param ctx
  * @return
  */
-void ContinueStmt::asmgen(std::deque<Context *> ctx)
+Expression* ContinueStmt::asmgen(std::deque<Context *> ctx)
 {
     //判断当前是否处在循环中
     for(auto p = ctx.crbegin(); p != ctx.crend(); ++p) {

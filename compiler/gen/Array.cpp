@@ -15,7 +15,7 @@
  * @param ctx
  * @return
  */
-void  ArrayExpr::asmgen(std::deque<Context*> ctx){
+Expression*  ArrayExpr::asmgen(std::deque<Context*> ctx){
 //    AsmGen::writeln("    .loc %d %d %d",AsmGen::parser->fileno,line,column);
     //new array & push array
     Internal::newobject(Array, 0);
@@ -37,7 +37,7 @@ void  ArrayExpr::asmgen(std::deque<Context*> ctx){
  * asm gen key value
  * @param ctx
  */
-void  KVExpr::asmgen(std::deque<Context*> ctx){
+Expression*  KVExpr::asmgen(std::deque<Context*> ctx){
     Debug("KVExpr: gen... k:%s v:%s",key->toString().c_str(),value->toString());
 //    AsmGen::writeln("    .loc %d %d %d",AsmGen::parser->fileno,line,column);
 
@@ -54,7 +54,7 @@ void  KVExpr::asmgen(std::deque<Context*> ctx){
  * @param ctx
  * @return
  */
-void  IndexExpr::asmgen(std::deque<Context*> ctx) {
+Expression*  IndexExpr::asmgen(std::deque<Context*> ctx) {
 //    AsmGen::writeln("    .loc %d %d %d",AsmGen::parser->fileno,line,column);
     //在链式表达式中，前置条件不是一个变量而是一个数组地址
     if(varname == ""){
@@ -64,7 +64,7 @@ void  IndexExpr::asmgen(std::deque<Context*> ctx) {
 
         //call arr_get(arr,index)
         Internal::kv_get();
-        return;
+        return nullptr;
     }
     VarExpr* var;
     std::string   package = this->package;
@@ -91,7 +91,7 @@ void  IndexExpr::asmgen(std::deque<Context*> ctx) {
 
         //call arr_get(arr,index)
         Internal::kv_get();
-        return;
+        return nullptr;
     }
     //接下来就是本地变量和 本地函数参数
     for (auto p = ctx.crbegin(); p != ctx.crend(); ++p) {
@@ -116,7 +116,7 @@ void  IndexExpr::asmgen(std::deque<Context*> ctx) {
 
             //call arr_get(arr,index)
             Internal::kv_get();
-            return;
+            return nullptr;
         }
     }
     //没找到 数组变量 抛出异常 exit退出

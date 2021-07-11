@@ -64,7 +64,7 @@ VarExpr* realVar(deque<Context*> ctx,VarExpr* origin)
  * @param ctx
  * @return
  */
-void  VarExpr::asmgen(deque<Context*> ctx){
+Expression*  VarExpr::asmgen(deque<Context*> ctx){
 //    AsmGen::writeln("    .loc %d %d %d",AsmGen::parser->fileno,line,column);
     VarExpr* var;
     //检查全局变量,1s_local有两层含义
@@ -81,7 +81,7 @@ void  VarExpr::asmgen(deque<Context*> ctx){
             AsmGen::Push();
             //运算需要调用统一的方法
             Internal::object_member_get(varname);
-            return;
+            return nullptr;
         }
         if (Package::packages.count(package)){
             var  = Package::packages[package]->getGlobalVar(varname);
@@ -89,7 +89,7 @@ void  VarExpr::asmgen(deque<Context*> ctx){
             if(var){
                 AsmGen::GenAddr(var);
                 AsmGen::Load();
-                return;
+                return nullptr;
             } 
         }
     }
@@ -99,7 +99,7 @@ void  VarExpr::asmgen(deque<Context*> ctx){
     if(var){
         AsmGen::GenAddr(var);
         AsmGen::Load();
-        return;
+        return nullptr;
     }
 
     //变量遍历表 看是否存在
@@ -114,7 +114,7 @@ void  VarExpr::asmgen(deque<Context*> ctx){
 
         AsmGen::GenAddr(var);
         AsmGen::Load();
-        return;
+        return nullptr;
     }
     //3. 到这里还有一种情况,成员变量可以隐式访问（如果本地变量没有定义覆盖的情况下）
     if (auto *var = Context::getVar(ctx,"this");var != nullptr) {
@@ -125,7 +125,7 @@ void  VarExpr::asmgen(deque<Context*> ctx){
         AsmGen::Push();
         //运算需要调用统一的方法
         Internal::object_member_get(varname);
-        return;
+        return nullptr;
     }
     //排除了以下的情况
     //1. 全局变量   （同包）
@@ -148,7 +148,7 @@ void  VarExpr::asmgen(deque<Context*> ctx){
         string funcname = package + "_" + func->name;
         Debug("found function pointer:%s",funcname.c_str());
         AsmGen::writeln("    mov %s@GOTPCREL(%%rip), %%rax", funcname.c_str());
-        return;
+        return nullptr;
     }
 
 

@@ -12,7 +12,7 @@
 
 VarExpr* realVar(deque<Context*> ctx,VarExpr* origin);
 
-void BuiltinFuncExpr::asmgen(deque<Context*> ctx){
+Expression* BuiltinFuncExpr::asmgen(deque<Context*> ctx){
     //获取到 数据类型
     Token tk = KW_I64;
     if(typeid(*this->expr) == typeid(DelRefExpr)){
@@ -48,16 +48,16 @@ void BuiltinFuncExpr::asmgen(deque<Context*> ctx){
     this->expr->asmgen(ctx);
     if(funcname == "string"){
         Internal::newobject2(String);
-        return;
+        return nullptr;
     }else if(funcname == "int"){
         //TODO: cast i8 i16 i 32  to  i64
         AsmGen::Cast(tk,KW_I64);
         Internal::newobject2(Int);
-        return;
+        return nullptr;
     }
 }
 
-void ClosureExpr::asmgen(std::deque<Context*> ctx){
+Expression* ClosureExpr::asmgen(std::deque<Context*> ctx){
     AsmGen::writeln("    mov %s@GOTPCREL(%%rip), %%rax", varname.c_str());
 }
 /**
@@ -65,7 +65,7 @@ void ClosureExpr::asmgen(std::deque<Context*> ctx){
  * @param ctx
  * @return
  */
-void funcexec(std::deque<Context*> ctx,Function* func,FunCallExpr* fce,std::string package)
+Expression* funcexec(std::deque<Context*> ctx,Function* func,FunCallExpr* fce,std::string package)
 {
     auto args = fce->args;
     std::string funcname = fce->funcname;
@@ -132,7 +132,7 @@ void funcexec(std::deque<Context*> ctx,Function* func,FunCallExpr* fce,std::stri
         AsmGen::writeln("    add $%d, %%rsp", stack_args * 8);
 
     }
-    return;
+    return nullptr;
 }
 
 /**
@@ -140,7 +140,7 @@ void funcexec(std::deque<Context*> ctx,Function* func,FunCallExpr* fce,std::stri
  * @param ctx
  * @return
  */
-void  FunCallExpr::asmgen(std::deque<Context*> ctx)
+Expression*  FunCallExpr::asmgen(std::deque<Context*> ctx)
 {
     Debug("FunCallExpr: parsing... package:%s func:%s",package.c_str(),funcname.c_str());
 //    AsmGen::writeln("    .loc %d %d %d",AsmGen::parser->fileno,line,column);

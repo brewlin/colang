@@ -11,9 +11,9 @@
 #include "Parser.h"
 
 //===---------------------------------------------------------------------===//
-// 计算所有的表达式 并返回一个 void  结构，
+// 计算所有的表达式 并返回一个 Expression*  结构，
 
-void  NullExpr::asmgen(std::deque<Context*> ctx)
+Expression*  NullExpr::asmgen(std::deque<Context*> ctx)
 {
 //    AsmGen::writeln("    .loc %d %d %d",AsmGen::parser->fileno,line,column);
     Internal::newobject(Null,0);
@@ -21,7 +21,7 @@ void  NullExpr::asmgen(std::deque<Context*> ctx)
 //    AsmGen::writeln("    mov $%ld, (%%rax)", Null);
 
 }
-void  BoolExpr::asmgen(std::deque<Context*> ctx)
+Expression*  BoolExpr::asmgen(std::deque<Context*> ctx)
 {
 //    AsmGen::writeln("    .loc %d %d %d",AsmGen::parser->fileno,line,column);
     Internal::newobject(Bool,this->literal);
@@ -29,7 +29,7 @@ void  BoolExpr::asmgen(std::deque<Context*> ctx)
 //    AsmGen::writeln("    mov $%ld, (%%rax)", Bool);
 //    AsmGen::writeln("    mov $%ld, %d(%%rax)", this->literal,25);
 }
-void  CharExpr::asmgen(
+Expression*  CharExpr::asmgen(
                          std::deque<Context*> ctx) {
 //    AsmGen::writeln("    .loc %d %d %d",AsmGen::parser->fileno,line,column);
 
@@ -40,7 +40,7 @@ void  CharExpr::asmgen(
 
 }
 
-void  IntExpr::asmgen( std::deque<Context*> ctx) {
+Expression*  IntExpr::asmgen( std::deque<Context*> ctx) {
 //    AsmGen::writeln("    .loc %d %d %d",AsmGen::parser->fileno,line,column);
 
     Internal::newobject(Int,this->literal);
@@ -52,7 +52,7 @@ void  IntExpr::asmgen( std::deque<Context*> ctx) {
 
 }
 
-void  DoubleExpr::asmgen(std::deque<Context*> ctx) {
+Expression*  DoubleExpr::asmgen(std::deque<Context*> ctx) {
 //    AsmGen::writeln("    .loc %d %d %d",AsmGen::parser->fileno,line,column);
     Internal::newobject(Double,this->literal);
 //    Internal::gc_malloc();
@@ -60,7 +60,7 @@ void  DoubleExpr::asmgen(std::deque<Context*> ctx) {
 //    AsmGen::writeln("    mov $%ld, %d(%%rax)", this->literal,8);
 }
 
-void  StringExpr::asmgen(std::deque<Context*> ctx) {
+Expression*  StringExpr::asmgen(std::deque<Context*> ctx) {
 
 //    AsmGen::writeln("    .loc %d %d %d",AsmGen::parser->fileno,line,column);
     //string类型 传的是地址 需要调用方构造

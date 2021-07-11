@@ -14,7 +14,7 @@
  * asm gen map
  * @param ctx
  */
-void  MapExpr::asmgen(std::deque<Context*> ctx){
+Expression*  MapExpr::asmgen(std::deque<Context*> ctx){
     Debug("MapExpr: gen... ");
 //    AsmGen::writeln("    .loc %d %d %d",AsmGen::parser->fileno,line,column);
 
