@@ -136,6 +136,8 @@ struct VarExpr : public Expression {
 
     Expression*  asmgen( deque<Context*> ctx) override;
     string       toString() override;
+
+    VarExpr*     ret;
 };
 struct ClosureExpr : public Expression {
     explicit ClosureExpr(string varname, int line, int column)
@@ -160,6 +162,8 @@ struct StructMemberExpr : public Expression {
     string         toString() override;
     Member*        getMember();
     Struct*        getStruct();
+
+    Member*   ret;
 };
 //&a || &p.b
 struct AddrExpr   : public Expression {

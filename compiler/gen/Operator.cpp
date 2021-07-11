@@ -13,7 +13,6 @@ using namespace std;
 
 Expression* struct_member_assign(deque<Context*> ctx,AssignExpr* assign);
 Expression* struct_assign(deque<Context*> ctx,AssignExpr* assign,VarExpr* var);
-VarExpr* realVar(deque<Context*> ctx,VarExpr* origin);
 /**
  * 赋值运算符 求值
  * @param ctx
@@ -209,14 +208,13 @@ Expression*  ChainExpr::asmgen(std::deque<Context*> ctx)
 /**
  * 1. *var 这种是对动态变量对解引用
  * 2. *p   这种是对内存对指针访问
- * 3.
+ * 3. 支持递归解引用  ****var
  */
 Expression*  DelRefExpr::asmgen(std::deque<Context*> ctx){
-    this->expr->asmgen(ctx);
+    Expression* ret = this->expr->asmgen(ctx);
     //支持对变量的解引用
-    if (typeid(*expr) == typeid(VarExpr)){
-        VarExpr* var = dynamic_cast<VarExpr*>(expr);
-        var = realVar(ctx,var);
+    if (typeid(*ret) == typeid(VarExpr)){
+        VarExpr* var = dynamic_cast<VarExpr*>(ret);
         //普通变量
         if(!var->structtype){
             Internal::get_object_value(); return nullptr;
@@ -226,16 +224,16 @@ Expression*  DelRefExpr::asmgen(std::deque<Context*> ctx){
         }
         //获取指针指向的值
         AsmGen::Load(var->size,var->isunsigned);
-        return nullptr;
-    }else if(typeid(*expr) == typeid(StructMemberExpr)){
-        StructMemberExpr* sm = dynamic_cast<StructMemberExpr*>(expr);
-        Member* m = sm->getMember();
+        return var;
+    }else if(typeid(*ret) == typeid(StructMemberExpr)){
+        StructMemberExpr* sm = dynamic_cast<StructMemberExpr*>(ret);
+        Member* m = sm->ret;
         if(m == nullptr){
             parse_err("del ref can't find the struct member:%s\n",this->expr->toString().c_str());
         }
         //获取指针指向的值
         AsmGen::Load(m->size,m->isunsigned);
-        return nullptr;
+        return sm;
     }
     parse_err("only support del ref for expression :%s\n",this->expr->toString().c_str());
 }

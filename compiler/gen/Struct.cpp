@@ -143,5 +143,7 @@ Expression*  StructMemberExpr::asmgen(std::deque<Context*> ctx)
        		 	AsmGen::writeln("	sar $%d, %%rax", 64 - m->bitwidth);
     	}
 	}
+	this->ret = m;
+	return this;
 }
 

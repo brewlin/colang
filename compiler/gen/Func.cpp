@@ -10,42 +10,27 @@
 #include "Value.h"
 #include "Parser.h"
 
-VarExpr* realVar(deque<Context*> ctx,VarExpr* origin);
 
 Expression* BuiltinFuncExpr::asmgen(deque<Context*> ctx){
+    // %rax
+    Expression* ret = this->expr->asmgen(ctx);
+
     //获取到 数据类型
     Token tk = KW_I64;
-    if(typeid(*this->expr) == typeid(DelRefExpr)){
-        auto dr = dynamic_cast<DelRefExpr*>(this->expr);
-        //1. *var<type>
-        //2. *struct.member
-        if(typeid(*dr->expr) == typeid(VarExpr)){
-            auto v = dynamic_cast<VarExpr*>(dr->expr);
-            v = realVar(ctx,v);
-            tk = v->type;
-        }else if(typeid(*dr->expr) == typeid(StructMemberExpr)){
-
-            StructMemberExpr* sm = dynamic_cast<StructMemberExpr*>(dr->expr);
-            Member* m = sm->getMember();
-            if(m == nullptr){
-                parse_err("del ref can't find the struct member:%s\n",this->expr->toString().c_str());
-            }
-            tk = m->type;
-        }
-    }else if(typeid(*this->expr) == typeid(VarExpr)){
-        auto v = dynamic_cast<VarExpr*>(this->expr);
-        v = realVar(ctx,v);
+    //1. var<type>
+    if(typeid(*ret) == typeid(VarExpr)){
+        auto v = dynamic_cast<VarExpr*>(ret);
         tk = v->type;
-    }else if(typeid(*this->expr) == typeid(StructMemberExpr)){
-        StructMemberExpr* sm = dynamic_cast<StructMemberExpr*>(expr);
-        Member* m = sm->getMember();
+    }
+    //2. struct.member
+    else if(typeid(*ret) == typeid(StructMemberExpr)){
+        StructMemberExpr* sm = dynamic_cast<StructMemberExpr*>(ret);
+        Member* m = sm->ret;
         if(m == nullptr){
             parse_err("del ref can't find the struct member:%s\n",this->expr->toString().c_str());
         }
         tk = m->type;
     }
-    // %rax
-    this->expr->asmgen(ctx);
     if(funcname == "string"){
         Internal::newobject2(String);
         return nullptr;
