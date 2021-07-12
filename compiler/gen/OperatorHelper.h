@@ -30,9 +30,8 @@ public:
 
 	Expression* gen();
 private:
-	Expression* assign();
-	Expression* structAssign();
-	Expression* structMemberAssign();
+	Expression* genLeft();
+	Expression* genRight();
 };
 
 
