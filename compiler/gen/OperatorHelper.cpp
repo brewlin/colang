@@ -28,9 +28,11 @@ Expression* OperatorHelper::gen()
 
 	// 右值的大小,默认8字节
 	int  size = 8;
+	bool isunsigned = false;
 	//左边是成员变量
 	if(smember){
 		m = smember->getMember();
+		isunsigned = m->isunsigned;
 		size = m->size;
 		if(m->pointer) size = 8;
 	}
@@ -46,6 +48,17 @@ Expression* OperatorHelper::gen()
 		AsmGen::writeln("  and %%r9, %%rax");
 		AsmGen::writeln("  or %%rdi, %%rax");
 	}
+	string ax,di,dx;
+	//如果left 足够大就用8字节的寄存器
+	if (size == 8) {
+		ax = "%rax";
+		di = "%rdi";
+		dx = "%rdx";
+	} else {
+		ax = "%eax";
+		di = "%edi";
+		dx = "%edx";
+	}
 	switch(opt)
 	{
 		case TK_ASSIGN:{ 	// lhs = rhs
@@ -53,7 +66,13 @@ Expression* OperatorHelper::gen()
 			return nullptr;
 		}
 		case TK_PLUS_AGN:{  // lhs += rhs
-			
+			AsmGen::writeln("	mov %%rax,%%rdi");
+			AsmGen::Pop("%rax");
+			AsmGen::Push();
+			AsmGen::Load(size,isunsigned);
+			AsmGen::writeln("	add %s, %s", di.c_str(), ax.c_str());
+			AsmGen::Store(size);
+			return nullptr;
 		}
 	}
 	return nullptr;
