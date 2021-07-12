@@ -9,10 +9,9 @@
 #include "Ast.h"
 #include "Value.h"
 #include "Parser.h"
+#include "OperatorHelper.h"
 using namespace std;
 
-Expression* struct_member_assign(deque<Context*> ctx,AssignExpr* assign);
-Expression* struct_assign(deque<Context*> ctx,AssignExpr* assign,VarExpr* var);
 /**
  * 赋值运算符 求值
  * @param ctx
@@ -81,8 +80,11 @@ Expression*  AssignExpr::asmgen(std::deque<Context*> ctx){
             (ctx.back())->createVar(varExpr->varname,varExpr);
         }
         //如果左值是一个struct，需要优化:p<header> = （expression)| int
-        if(varExpr->structtype)
-            return struct_assign(ctx,this,varExpr);
+        if(varExpr->structtype){
+            OperatorHelper oh(ctx,lhs,rhs,this->opt);
+            oh.var = varExpr;
+            return oh.gen();
+        }
 
         //f->locals 保存了本地变量的 唯一偏移量，所以需要通过name 来找到对应的 变量
         AsmGen::GenAddr(varExpr);
@@ -153,8 +155,8 @@ Expression*  AssignExpr::asmgen(std::deque<Context*> ctx){
         return nullptr;
     }else if(typeid(*lhs) == typeid(StructMemberExpr))
     {
-        struct_member_assign(ctx,this);
-        return nullptr;
+        OperatorHelper oh(ctx,lhs,rhs,this->opt);
+        return oh.gen();
     }
     parse_err("SyntaxError: can not assign to %s at line %d, %col\n", typeid(lhs).name(),line,column);
 }
