@@ -221,6 +221,10 @@ Expression*  DelRefExpr::asmgen(std::deque<Context*> ctx){
         if(!var->structtype){
             Internal::get_object_value(); return ret;
         }
+        //对变量解引用必须是 指针类型，这里强制要求一下
+        if(!var->pointer){
+            parse_err("var must be pointer %s\n",this->expr->toString().c_str());
+        }
         if(var->size != 1 && var->size != 2 && var->size != 4 && var->size != 8){
             parse_err("type must be [i8 - u64]:%s\n",this->expr->toString().c_str());
         }

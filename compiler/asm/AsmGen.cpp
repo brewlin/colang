@@ -119,7 +119,12 @@ void AsmGen::assign_offsets(Function* fn)
         } else{
             top = ALIGN_UP(top, 8);
             var->offset = top;
-            top += 8;
+            //如果不是指针 且 i8-u64的基础类型
+            if(var->structtype && !var->pointer && var->type <= KW_U64 && var->type >= KW_I8){
+                top += var->size;
+            }else{
+                top += 8;
+            }
         }
     }
     //如果是可变参数强制空出6个空闲栈即可
@@ -129,7 +134,12 @@ void AsmGen::assign_offsets(Function* fn)
     //计算本地变量的栈偏移量
     for(auto local:fn->locals){
         VarExpr* var = local.second;
-        bottom += 8;
+        //如果不是指针 且 i8-u64的基础类型
+        if(var->structtype && !var->pointer && var->type <= KW_U64 && var->type >= KW_I8){
+            bottom += var->size;
+        }else{
+            bottom += 8;
+        }
         bottom = ALIGN_UP(bottom, 8);
         var->offset = -bottom;
     }

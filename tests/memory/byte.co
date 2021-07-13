@@ -20,7 +20,7 @@ func assert(a,b,str){
 	}
 }
 func byte_assign(b<byte>){
-	a<u8> = b
+	a<u8*> = b
 	# 1 0 0 0 0 0 0 0 => 1
 	b.a1 = 1
 	assert(1,int(*a),"test byte_assign failed u8 != 1")
@@ -57,10 +57,10 @@ func byte_assign(b<byte>){
 }
 
 func test_unsigned(b<byte>){
-	a<u8> = b
+	a<u8*> = b
 	assert(255,int(*a),"test failed u8 != 255")
 
-	a2<i8> = b
+	a2<i8*> = b
 	assert(-1,int(*a2),"test failed i8 != -1")
 
 	fmt.println("test byte unsigned success")
