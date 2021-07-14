@@ -20,7 +20,8 @@ Expression* BuiltinFuncExpr::asmgen(deque<Context*> ctx){
     //1. var<type>
     if(typeid(*ret) == typeid(VarExpr)){
         auto v = dynamic_cast<VarExpr*>(ret);
-        tk = v->type;
+        if(v->type >= KW_I8 && v->type <= KW_U64)
+            tk = v->type;
     }
     //2. struct.member
     else if(typeid(*ret) == typeid(StructMemberExpr)){

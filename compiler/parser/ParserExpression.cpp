@@ -41,7 +41,8 @@ Expression* Parser::parseExpression(short oldPrecedence)
         if (typeid(*p) == typeid(VarExpr) && currentFunc){
             VarExpr* var = dynamic_cast<VarExpr*>(p);
             //先判断一下这个变量是否是属于参数变量，否则不需要在本地存储一份 不然在栈偏移量计算的时候会出错
-            if(!currentFunc->params_var.count(var->varname)){
+            //如果当前block，之前已经声明过了就不能在覆盖了
+            if(!currentFunc->params_var.count(var->varname) && !currentFunc->locals.count(var->varname)){
                 currentFunc->locals[var->varname] = var;
             }
         }
@@ -213,10 +214,10 @@ Expression* Parser::parsePrimaryExpr()
     }else if(tk == LIT_INT)
     {
         //将 int 转换为 int
-        auto val = atoi(scanner->curLex.c_str());
-        scanner->scan();
         auto* ret = new IntExpr(line,column);
-        ret->literal = val;
+        ret->literal = scanner->curLex;
+        // auto val = atoi(scanner->curLex.c_str());
+        scanner->scan();
         return ret;
     }else if(tk == LIT_DOUBLE)
     {

@@ -86,6 +86,8 @@ private:
 
     vector<string> parseParameterList();
     vector<Statement*>  parseStatementList();
+
+    void            check(bool check);
 public:
     static int count;
     //记录当前词法分析行|列
@@ -106,6 +108,5 @@ public:
     Scanner*  scanner;
     //引入的包名做一个映射以支持多级包名调用
     unordered_map<string,string> import;
-
 };
 #endif //CO_LANG_PARSER_H

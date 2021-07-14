@@ -13,6 +13,7 @@ class Internal
 public:
     static void call_operator(Token opt,std::string name);
     static void newobject(int type,long data);
+    static void newint(int type,std::string data);
     static void newobject2(int type);
     static void gc_malloc(size_t size);
     static void malloc(size_t size);

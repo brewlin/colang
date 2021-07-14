@@ -2,6 +2,7 @@
 #include "asm/AsmGen.h"
 #include <functional>
 #include <string>
+using namespace std;
 /**
  * rsp 栈顶是 lhs
  * rax 寄存器是 rhs
@@ -62,6 +63,20 @@ void Internal::newobject(int type, long data)
 
     call("newobject");
 
+    AsmGen::writeln("    pop %%rsi");
+    AsmGen::writeln("    pop %%rdi");
+}
+/**
+ * 单独给int用
+ */
+void Internal::newint(int type, string data)
+{
+    AsmGen::writeln("    push %%rdi");
+    AsmGen::writeln("    push %%rsi");
+
+    AsmGen::writeln("    mov $%ld, %%rdi", type);
+    AsmGen::writeln("    mov $%s, %%rsi", data.c_str());
+    call("newobject");
     AsmGen::writeln("    pop %%rsi");
     AsmGen::writeln("    pop %%rdi");
 }

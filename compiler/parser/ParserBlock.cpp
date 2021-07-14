@@ -68,7 +68,7 @@ Block* Parser::parseBlock()
     scanner->scan();
     node->stmts = parseStatementList();
     //判断是否 {} 闭合
-    assert(scanner->curToken == TK_RBRACE);
+    check(scanner->curToken == TK_RBRACE);
     scanner->scan();
     return node;
 }
@@ -122,10 +122,9 @@ std::vector<std::string> Parser::parseParameterList()
 
                         if(i >= KW_U8 && i <= KW_U64)
                             var->isunsigned = true;
-                        if(scanner->curToken == TK_MUL){
+                        if(scanner->curToken == TK_MUL)
                             var->pointer = true;
-                            scanner->scan();
-                        }
+                        scanner->scan();
 
                     }else{
                         parse_err("unknown token %d",scanner->curToken);

@@ -56,7 +56,7 @@ Expression*  VarExpr::asmgen(deque<Context*> ctx){
         return var;
     }
 
-    //变量遍历表 看是否存在
+    //通用本地变量|参数变量 变量遍历表 看是否存在
     var = Context::getVar(ctx,this->varname);
     if(var != nullptr){
         Function* f = AsmGen::currentFunc;
@@ -67,7 +67,11 @@ Expression*  VarExpr::asmgen(deque<Context*> ctx){
             var = f->params_var[varname];
 
         AsmGen::GenAddr(var);
-        AsmGen::Load();
+        //如果是var<i8-u64>基础类型则需要转换
+        if(var->structtype && !var->pointer && var->type <= KW_U64 && var->type >= KW_I8)    
+            AsmGen::Load(var->size,var->isunsigned);
+        else                                    
+            AsmGen::Load();
         return var;
     }
     //3. 到这里还有一种情况,成员变量可以隐式访问（如果本地变量没有定义覆盖的情况下）

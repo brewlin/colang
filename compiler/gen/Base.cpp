@@ -43,7 +43,7 @@ Expression*  CharExpr::asmgen(
 Expression*  IntExpr::asmgen( std::deque<Context*> ctx) {
 //    AsmGen::writeln("    .loc %d %d %d",AsmGen::parser->fileno,line,column);
 
-    Internal::newobject(Int,this->literal);
+    Internal::newint(Int,this->literal);
 //    Internal::gc_malloc();
 //    AsmGen::writeln("    mov $%ld,%%rdi",Int);
 //    AsmGen::writeln("    mov %%rdi, (%%rax)");

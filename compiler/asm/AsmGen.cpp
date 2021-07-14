@@ -38,7 +38,7 @@ void AsmGen::execute()
 }
 void AsmGen::link() {
 
-    std::string links = "gcc -g *.s -L/usr/local/lib/colib -linternal -lgc ";
+    std::string links = "gcc -g *.s -L/usr/local/lib/colib -linternal -lgc -linternal ";
     for(auto pk : Package::packages){
         Package* pkg = pk.second;
         for(auto pr : pkg->parsers){

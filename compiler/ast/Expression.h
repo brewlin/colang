@@ -44,7 +44,7 @@ struct NullExpr : public Expression {
 
 struct IntExpr : public Expression {
     explicit     IntExpr(int line, int column) : Expression(line, column) {}
-    int          literal;
+    string       literal;
 
     Expression*    asmgen( deque<Context*> ctx) override;
     string         toString() override;

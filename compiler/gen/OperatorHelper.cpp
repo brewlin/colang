@@ -109,7 +109,8 @@ Expression* OperatorHelper::genRight()
 	// TODO: only for int
 	if(typeid(*rhs) == typeid(IntExpr)){
 		IntExpr* ie = dynamic_cast<IntExpr*>(rhs);	
-		AsmGen::writeln("	mov $%d,%%rax",ie->literal);
+		// AsmGen::writeln("	mov $%ld,%%rax",ie->literal);
+		AsmGen::writeln("	mov $%s,%%rax",ie->literal.c_str());
 		return ie;
 	}else{
 	//其他的统一求值即可

@@ -103,3 +103,12 @@ std::string Parser::getpkgname()
     // return package;
 }
 
+void Parser::check(bool check)
+{
+    if(!check){
+        parse_err("parse: found token error token:%s line:%d column:%d\n",
+        getTokenString(scanner->curToken).c_str(),scanner->line,scanner->column);
+        exit(-1);
+    }
+}
+

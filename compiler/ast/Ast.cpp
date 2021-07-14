@@ -93,7 +93,7 @@ string CharExpr::toString() {
 string NullExpr::toString() { return "NullExpr()"; }
 
 string IntExpr::toString() {
-    return to_string(literal);
+    return "int(" + literal + ")";
 }
 
 string DoubleExpr::toString() {
