@@ -1,4 +1,6 @@
 #include "Value.h"
+#include <iostream>
+using namespace std;
 /**
  * find member
  */
@@ -14,6 +16,7 @@ void Struct::compute()
 {
   //分配偏移量
   int bits = 0;
+  int align = 1;
   //这里就是开始按照对齐方式来计算没给字段偏移量
   for(auto mem : member){
     //位图为0则为特殊含义，仅仅是为了对齐
@@ -31,7 +34,8 @@ void Struct::compute()
       bits += mem->bitwidth;
     } else 
     {
-        bits = ALIGN_UP(bits,8);
+        //不考虑压缩的话就根据当前类型进行对齐
+        bits = ALIGN_UP(bits,mem->align * 8);
         mem->offset = bits / 8;
         //如果是指针的话默认是8字节
         if(mem->pointer)
@@ -39,8 +43,10 @@ void Struct::compute()
         else
           bits += mem->size * 8;
     }
+    if(align < mem->align)
+      align = mem->align;
   }
   //计算出struct的对齐后的总大小
-  this->size = ALIGN_UP(bits, 8) / 8;
+  this->size = ALIGN_UP(bits, align * 8) / 8;
 
 }

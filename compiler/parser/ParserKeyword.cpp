@@ -126,10 +126,12 @@ void Parser::parseStructDef()
         member->idx    = idx ++;
         member->type = scanner->curToken;
         member->size = typesize[scanner->curToken];
+        member->align = typesize[scanner->curToken];
 
         scanner->scan();
         //有可能是指针类型 i8* 
         if(scanner->curToken == TK_MUL){
+            member->align = 8;
             member->pointer = true;
             scanner->scan();
         }
