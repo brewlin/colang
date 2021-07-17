@@ -60,18 +60,18 @@ Expression*  StructMemberExpr::asmgen(std::deque<Context*> ctx)
 	AsmGen::writeln("	add $%d, %%rax", m->offset);
 	//如果不是出现在赋值语句中 则自动读取内存
 	if(!assign){
-		//如果是指针需要加载8字节
-		if(m->pointer)
-			AsmGen::Load(8,true);
-		else
-			AsmGen::Load(m->size,m->isunsigned);
-		if (m->bitfield) {
-			AsmGen::writeln("	shl $%d, %%rax", 64 - m->bitwidth - m->bitoffset);
-      		if (m->isunsigned)
-        		AsmGen::writeln("	shr $%d, %%rax", 64 - m->bitwidth);
-      		else
-       		 	AsmGen::writeln("	sar $%d, %%rax", 64 - m->bitwidth);
-    	}
+		// //如果是指针需要加载8字节
+		// if(m->pointer)
+		// 	AsmGen::Load(8,true);
+		// else
+		// 	AsmGen::Load(m->size,m->isunsigned);
+		// if (m->bitfield) {
+		// 	AsmGen::writeln("	shl $%d, %%rax", 64 - m->bitwidth - m->bitoffset);
+      	// 	if (m->isunsigned)
+        // 		AsmGen::writeln("	shr $%d, %%rax", 64 - m->bitwidth);
+      	// 	else
+       	// 	 	AsmGen::writeln("	sar $%d, %%rax", 64 - m->bitwidth);
+    	// }
 	}
 	this->ret = m;
 	return this;

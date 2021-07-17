@@ -59,6 +59,7 @@ public:
     static void Store(int size);
     static void GenAddr(VarExpr* var);
     static void Load();
+    static void Load(Member* m);
     static void Load(int size,bool isunsigned);
     static void CreateCmp();
     static void Push();

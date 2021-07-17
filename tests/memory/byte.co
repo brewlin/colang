@@ -20,6 +20,7 @@ func assert(a,b,str){
 	}
 }
 func byte_assign(b<byte>){
+	fmt.println("byte_assign test")
 	a<u8*> = b
 	# 1 0 0 0 0 0 0 0 => 1
 	b.a1 = 1

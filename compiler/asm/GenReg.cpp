@@ -33,6 +33,23 @@ void AsmGen::GenAddr(VarExpr *var)
 
 }
 /**
+ * 加载struct member 值
+ */
+void AsmGen::Load(Member* m){
+    //如果是指针需要加载8字节
+    if(m->pointer)
+        Load(8,true);
+    else
+        Load(m->size,m->isunsigned);
+    if (m->bitfield) {
+        writeln("	shl $%d, %%rax", 64 - m->bitwidth - m->bitoffset);
+        if (m->isunsigned)
+            writeln("	shr $%d, %%rax", 64 - m->bitwidth);
+        else
+            writeln("	sar $%d, %%rax", 64 - m->bitwidth);
+    }
+}
+/**
  *
  * @param type
  */

@@ -27,6 +27,10 @@ Expression* BuiltinFuncExpr::asmgen(deque<Context*> ctx){
     else if(typeid(*ret) == typeid(StructMemberExpr)){
         StructMemberExpr* sm = dynamic_cast<StructMemberExpr*>(ret);
         Member* m = sm->ret;
+        //如果右边是DelExpr 就不需要再次load了
+        if(typeid(*this->expr) != typeid(DelRefExpr)){
+            AsmGen::Load(m);
+        }
         if(m == nullptr){
             parse_err("del ref can't find the struct member:%s\n",this->expr->toString().c_str());
         }

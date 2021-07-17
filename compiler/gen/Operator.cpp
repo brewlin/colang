@@ -237,6 +237,10 @@ Expression*  DelRefExpr::asmgen(std::deque<Context*> ctx){
         if(m == nullptr){
             parse_err("del ref can't find the struct member:%s\n",this->expr->toString().c_str());
         }
+        if(typeid(*expr) != typeid(DelRefExpr)){
+            //结构体现在统一返回的是地址，需要再次load
+            AsmGen::Load(m);
+        }
         //获取指针指向的值
         AsmGen::Load(m->size,m->isunsigned);
         return ret;
@@ -250,38 +254,38 @@ Expression*  DelRefExpr::asmgen(std::deque<Context*> ctx){
  */
 Expression*  AddrExpr::asmgen(std::deque<Context*> ctx){
     if(package != ""){
-    //如果package 不为空
-    // 1. &p<struct>.var 成员变量取地址
-    VarExpr* var = Context::getVar(ctx,this->package);
-    if(var != nullptr && var->structtype){
-        //get member
-        StructMemberExpr sm(package,line,column);
-        sm.member = varname;
-        sm.var    = var;
-        Member* m = sm.getMember();
-        if(m != nullptr){
-            //获取到首地址
-            AsmGen::GenAddr(var);
-            //指针类型
-            AsmGen::Load();
-            //加载偏移量
-            AsmGen::writeln("	add $%d, %%rax", m->offset);
-            //如果不是出现在赋值语句中 则自动读取内存
-            if(m->bitfield){
-                parse_err(
-                    "AsmError: adress to bitfield error! "
-                    "line:%d column:%d \n\n"
-                    "expression:\n%s\n",
-                    this->line,this->column,this->toString().c_str());
+        //如果package 不为空
+        // 1. &p<struct>.var 成员变量取地址
+        VarExpr* var = Context::getVar(ctx,this->package);
+        if(var != nullptr && var->structtype){
+            //get member
+            StructMemberExpr sm(package,line,column);
+            sm.member = varname;
+            sm.var    = var;
+            Member* m = sm.getMember();
+            if(m != nullptr){
+                //获取到首地址
+                AsmGen::GenAddr(var);
+                //指针类型
+                AsmGen::Load();
+                //加载偏移量
+                AsmGen::writeln("	add $%d, %%rax", m->offset);
+                //如果不是出现在赋值语句中 则自动读取内存
+                if(m->bitfield){
+                    parse_err(
+                        "AsmError: adress to bitfield error! "
+                        "line:%d column:%d \n\n"
+                        "expression:\n%s\n",
+                        this->line,this->column,this->toString().c_str());
+                }
+                return this;
             }
-            return nullptr;
         }
-    }
 
     // 2. &p.var 全局变量的直接取地址
-
-
     }
+    parse_err("only support & struct.menber\n");
+    return this;
     // 1. &var 变量的直接取地址
     // 4. &p<struct>  直接取地址
 

@@ -31,18 +31,14 @@ enum Token {
     LIT_INT,   LIT_STR,  LIT_DOUBLE, LIT_CHAR,
     // & | ^ ~
     TK_BITAND, TK_BITOR,TK_BITXOR,TK_BITNOT ,
-    // &= |=
-    TK_BITAND_AGN, TK_BITOR_AGN ,
-    // << >> <<= >>=
-    TK_SHIFTL, TK_SHIFTR,TK_SHIFTL_AGN,TK_SHIFTR_AGN,
-    //&& || !
-    TK_LOGAND, TK_LOGOR,  TK_LOGNOT,
+    // << >> <<= >>= && || !
+    TK_SHIFTL, TK_SHIFTR,TK_LOGAND, TK_LOGOR,  TK_LOGNOT,
     // ==  != > >= < <=
     TK_EQ,TK_NE,TK_GT,TK_GE,TK_LT,TK_LE,
     //+ - * / %
     TK_PLUS,   TK_MINUS,  TK_MUL, TK_DIV, TK_MOD,
-    //= += -= *= /= %=
-    TK_ASSIGN,TK_PLUS_AGN,TK_MINUS_AGN,TK_MUL_AGN,TK_DIV_AGN,TK_MOD_AGN,
+    //= += -= *= /= %= <<= >>= &= |=
+    TK_ASSIGN,TK_PLUS_AGN,TK_MINUS_AGN,TK_MUL_AGN,TK_DIV_AGN,TK_MOD_AGN,TK_SHIFTL_AGN,TK_SHIFTR_AGN,TK_BITAND_AGN, TK_BITOR_AGN ,
     //, ( ) { } [ ] . :
     TK_COMMA,TK_LPAREN,TK_RPAREN,TK_LBRACE,TK_RBRACE,TK_LBRACKET,TK_RBRACKET,TK_DOT,TK_COLON,TK_SEMICOLON,
     //if else true false while for null func return break continue new

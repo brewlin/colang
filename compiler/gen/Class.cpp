@@ -27,10 +27,11 @@ Expression*  NewExpr::asmgen(std::deque<Context*> ctx)
                 // cout << i->name <<":" << i->offset <<endl;
             // }
             Internal::gc_malloc(s->size);
-            return nullptr;
+            return this;
         }
     }
     AsmGen::writeln("   mov $0,%%rax");
+    return this;
 }
 
 /**

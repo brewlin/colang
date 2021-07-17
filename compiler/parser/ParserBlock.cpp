@@ -94,6 +94,10 @@ std::vector<std::string> Parser::parseParameterList()
             //将参数单独保存一份 需要计算 栈偏移量
             if(currentFunc){
                 VarExpr* var = new VarExpr(scanner->curLex,line,column);
+                //默认无符号 64位
+                var->type = KW_U64;
+                var->size = 8;
+                var->isunsigned = true;
                 currentFunc->params_var[scanner->curLex] = var;
                 currentFunc->params_order_var.push_back(var);
 
@@ -119,7 +123,7 @@ std::vector<std::string> Parser::parseParameterList()
                         assert(i >= KW_I8 && i <= KW_U64);
                         var->size = typesize[i];
                         var->type = i;
-
+                        var->isunsigned = false;
                         if(i >= KW_U8 && i <= KW_U64)
                             var->isunsigned = true;
                         if(scanner->curToken == TK_MUL)
