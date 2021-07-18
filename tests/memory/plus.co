@@ -1,0 +1,43 @@
+package  main
+
+import fmt
+
+struct test{
+	i8 a
+	i8 b
+	i8 c
+	i8 d
+	i8 e
+	i8 f
+	i8 g
+	i8 h
+}
+struct pointer{
+	i8* up
+}
+func member(p<test>){
+	pp<pointer> = new pointer
+	pp.up = p
+	for(i = 1 ; i <= 8 ; i += 1 ){
+		fmt.assert(int(*pp.up),i)
+		pp.up += 1
+	}
+	# FIXME: block when miss ) in func call() 
+	fmt.println("test member pointer + success")
+}
+# 测试 变量指针 +
+func var(p<test>){
+	p.a = 1 p.b = 2 p.c = 3 p.d = 4 p.e = 5 p.f = 6 p.g = 7 p.h = 8
+	pp<i8*> = p
+	for(i = 1 ; i <= 8 ; i += 1 ){
+		fmt.assert(int(*pp),i)
+		pp += 1
+	}
+	fmt.println("test var pointer + success")
+}
+
+func main(){
+	p<test> = new test
+	var(p)
+	member(p)
+}

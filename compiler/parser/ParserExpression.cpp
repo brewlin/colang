@@ -144,10 +144,10 @@ Expression* Parser::parsePrimaryExpr()
     //string(),int()
     if(tk == BUILTIN_FUNC){
         BuiltinFuncExpr* builtinfunc = new BuiltinFuncExpr(scanner->curLex,scanner->line,scanner->column);
-        assert(scanner->scan() == TK_LPAREN);
+        check(scanner->scan() == TK_LPAREN);
         scanner->scan();
         builtinfunc->expr = parsePrimaryExpr();
-        assert(scanner->curToken == TK_RPAREN);
+        check(scanner->curToken == TK_RPAREN);
         scanner->scan();
         return builtinfunc;
     }

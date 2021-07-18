@@ -95,6 +95,16 @@ Expression* OperatorHelper::binary()
 			AsmGen::writeln("	add %s, %s", di.c_str(), ax.c_str());
 			break;
 		}
+		case TK_MINUS_AGN:
+		case TK_MINUS:{
+			AsmGen::Cast(rtoken,base);
+			AsmGen::writeln("	mov %%rax,%%rdi");
+
+			AsmGen::Pop("%rax");
+			AsmGen::Cast(ltoken,base);
+			AsmGen::writeln("	sub %s,%s,",di.c_str(),ax.c_str());
+			break;
+		}
 		default:{
 		}
 	}
@@ -178,6 +188,7 @@ Expression* OperatorHelper::initcond(bool left,int typesize,int varsize,Token ty
 		ltoken    = type;
 		lisunsigned = isunsigned;
 		lispointer  = ispointer;
+		if(ispointer) ltoken = KW_U64;
 		return nullptr;
 	}
 	rtypesize = typesize;
@@ -185,5 +196,6 @@ Expression* OperatorHelper::initcond(bool left,int typesize,int varsize,Token ty
 	rtoken    = type;
 	risunsigned = isunsigned;
 	rispointer  = ispointer;
+	if(ispointer) rtoken = KW_U64;
 
 }

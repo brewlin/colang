@@ -126,15 +126,17 @@ std::vector<std::string> Parser::parseParameterList()
                         var->isunsigned = false;
                         if(i >= KW_U8 && i <= KW_U64)
                             var->isunsigned = true;
-                        if(scanner->curToken == TK_MUL)
-                            var->pointer = true;
                         scanner->scan();
+                        if(scanner->curToken == TK_MUL){
+                            var->pointer = true;
+                            scanner->scan();
+                        }
 
                     }else{
                         parse_err("unknown token %d",scanner->curToken);
                     }
    
-                    assert(scanner->curToken == TK_GT);
+                    check(scanner->curToken == TK_GT);
                     scanner->scan();
                     //下面不允许在由... 格式了
                     continue;
