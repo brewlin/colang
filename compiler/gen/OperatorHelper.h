@@ -44,7 +44,7 @@ public:
 
 public:
 	OperatorHelper(deque<Context*> ctx,Expression* lhs,Expression* rhs,Token opt);
-
+	static bool	memoryOp(Expression* lhs,Expression* rhs);
 	Expression* gen();
 private:
 	Expression* genLeft();

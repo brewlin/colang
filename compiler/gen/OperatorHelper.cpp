@@ -26,6 +26,20 @@ OperatorHelper::OperatorHelper(deque<Context*> ctx,Expression* lhs,Expression* r
 		needassign = true;
 }
 
+/**
+ * 检查是否需要直接运算
+ */
+bool OperatorHelper::memoryOp(Expression* lhs,Expression* rhs)
+{
+	//1. (struct.member) op *
+	//2. * op (struct.member)
+	//3. (struct) op *
+	//4. * op (struct)
+	//5. (delref) op *
+	//6. * op (delref)
+	return true;
+
+}
 Expression* OperatorHelper::gen()
 {
 	Expression* left  = genLeft();

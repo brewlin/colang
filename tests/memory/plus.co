@@ -22,7 +22,6 @@ func member(p<test>){
 		fmt.assert(int(*pp.up),i)
 		pp.up += 1
 	}
-	# FIXME: block when miss ) in func call() 
 	fmt.println("test member pointer + success")
 }
 # 测试 变量指针 +

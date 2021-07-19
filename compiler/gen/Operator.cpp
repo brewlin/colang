@@ -160,7 +160,11 @@ Expression*  AssignExpr::asmgen(std::deque<Context*> ctx){
     }
     parse_err("SyntaxError: can not assign to %s at line %d, %col\n", typeid(lhs).name(),line,column);
 }
+// Token BinaryExpr::getType(deque<Context*> ctx)
+// {
+    //解析 lhs，和 rhs，判断两个操作应该返回什么类型
 
+// }
 /**
  * 二元运算符求值
  * @param ctx
@@ -179,6 +183,7 @@ Expression*  BinaryExpr::asmgen(std::deque<Context*> ctx)
             "line:%d column:%d \n\n"
             "expression:\n%s\n",
             this->line,this->column,this->toString().c_str());
+    //如果左右两边有一个
 
     //保存rax寄存器的值 因为下面右值计算的时候会用到rax寄存器
     this->lhs->asmgen(ctx);

@@ -106,6 +106,13 @@ struct ChainExpr : public Expression {
     string      toString() override;
 };
 
+enum VarType
+{
+   Var_Obj_Member = 0, //成员函数调用
+   Var_Extern_Global, Var_Local_Global, // 内部全局变量，外部全局变量
+   Var_Local, //本地变量
+   Var_Func,
+};
 struct VarExpr : public Expression {
     explicit VarExpr(string varname, int line, int column)
             : Expression(line, column),
@@ -136,8 +143,11 @@ struct VarExpr : public Expression {
 
     Expression*  asmgen( deque<Context*> ctx) override;
     string       toString() override;
-
+    VarType      getVarType(deque<Context*> ctx);
+    //给返回值使用
     VarExpr*     ret;
+    string       funcpkg;
+    string       funcname;
 };
 struct ClosureExpr : public Expression {
     explicit ClosureExpr(string varname, int line, int column)
@@ -206,6 +216,7 @@ struct BinaryExpr : public Expression {
 
     Expression* asmgen( deque<Context*> ctx) override;
     string      toString() override;
+    // Token       getType();
 };
 
 struct FunCallExpr : public Expression {
