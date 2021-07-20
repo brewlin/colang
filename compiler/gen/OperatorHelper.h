@@ -46,9 +46,9 @@ public:
 	OperatorHelper(deque<Context*> ctx,Expression* lhs,Expression* rhs,Token opt);
 	static bool	memoryOp(Expression* lhs,Expression* rhs);
 	Expression* gen();
-private:
+	
 	Expression* genLeft();
-	Expression* genRight();
+	Expression* genRight(bool isleft,Expression* expr);
 
 	Expression* assign();
 	Expression* binary();

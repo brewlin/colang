@@ -74,6 +74,15 @@ string getTokenString(Token tk){
         case KW_CLASS:	return "class";
         case KW_PACKAGE:	return "package";
         case TK_DELREF:	return "(*)var";
+        //i8-u64
+        case KW_I8: return "i8";
+        case KW_I16: return "i16";
+        case KW_I32: return "i32";
+        case KW_I64: return "i64";
+        case KW_U8: return "u8";
+        case KW_U16: return "u16";
+        case KW_U32: return "u32";
+        case KW_U64: return "u64";
         default:	return "undefine";
     }
 }

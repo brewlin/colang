@@ -160,11 +160,6 @@ Expression*  AssignExpr::asmgen(std::deque<Context*> ctx){
     }
     parse_err("SyntaxError: can not assign to %s at line %d, %col\n", typeid(lhs).name(),line,column);
 }
-// Token BinaryExpr::getType(deque<Context*> ctx)
-// {
-    //解析 lhs，和 rhs，判断两个操作应该返回什么类型
-
-// }
 /**
  * 二元运算符求值
  * @param ctx
@@ -183,7 +178,33 @@ Expression*  BinaryExpr::asmgen(std::deque<Context*> ctx)
             "line:%d column:%d \n\n"
             "expression:\n%s\n",
             this->line,this->column,this->toString().c_str());
-    //如果左右两边有一个
+    //如果左右两边有一个 结构体值则 默认进行memory 运算
+    bool mhandle = false;
+    VarExpr* var;
+    //结构体成员访问
+    if(typeid(*this->lhs) == typeid(StructMemberExpr) || typeid(*this->rhs) == typeid(StructMemberExpr))
+        mhandle = true;
+    //指针解引用 
+    if(typeid(*this->lhs) == typeid(DelRefExpr) || typeid(*this->rhs) == typeid(DelRefExpr))
+        mhandle = true;
+    //变量
+    if(typeid(*this->lhs) == typeid(VarExpr)){
+        var = dynamic_cast<VarExpr*>(this->lhs);
+        var = var->getVar(ctx);
+        if(var->structtype)
+            mhandle = true;
+    }
+    if(typeid(*this->rhs) == typeid(VarExpr)){
+        var = dynamic_cast<VarExpr*>(this->rhs);
+        var = var->getVar(ctx);
+        if(var->structtype)
+            mhandle = true;
+    }
+    //需要处理
+    if(mhandle){
+        OperatorHelper oh(ctx,lhs,rhs,this->opt);
+        return oh.gen();
+    }
 
     //保存rax寄存器的值 因为下面右值计算的时候会用到rax寄存器
     this->lhs->asmgen(ctx);

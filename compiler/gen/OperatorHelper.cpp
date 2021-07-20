@@ -42,21 +42,24 @@ bool OperatorHelper::memoryOp(Expression* lhs,Expression* rhs)
 }
 Expression* OperatorHelper::gen()
 {
-	Expression* left  = genLeft();
 	//1 += 这种 需要存储 lhs, (lhs)
 	//2 (lh + rhs) 只需要存储 （lhs)
 	//3 lhs = rhs  只需要存储 lhs
-	if(needassign)
+	if(needassign){
+		genLeft();
 		AsmGen::Push(); //save left
-
-	//不是单纯但赋值 都需要读取右边值顺便读取一下左边的值 给运算过程使用
-	if(opt != TK_ASSIGN){
-		if(lmember) AsmGen::Load(lmember);
-		else        AsmGen::Load(ltypesize,lisunsigned);
+		//不是单纯但赋值 都需要读取右边值顺便读取一下左边的值 给运算过程使用
+		if(opt != TK_ASSIGN){
+			if(lmember) AsmGen::Load(lmember);
+			else        AsmGen::Load(ltypesize,lisunsigned);
+			AsmGen::Push();
+		}
+	}else{
+		genRight(true,lhs);
 		AsmGen::Push();
 	}
 
-	Expression* right = genRight(); 
+	genRight(false,rhs); 
 
 	//如果left 足够大就用8字节的寄存器
 	if (ltypesize != 8) {
@@ -64,8 +67,8 @@ Expression* OperatorHelper::gen()
 		di = "%edi";
 		dx = "%edx";
 	}
-	//去运算
-	return assign();
+	if(needassign) return assign();
+	else	 	   return binary();
 }
 Expression* OperatorHelper::assign()
 {
@@ -152,38 +155,45 @@ Expression* OperatorHelper::genLeft()
 	}
 	parse_err("genLeft: unknow left type");
 }
-Expression* OperatorHelper::genRight()
+Expression* OperatorHelper::genRight(bool isleft,Expression* expr)
 {
 	//如果右边是字面值 可以直接 直接优化直接赋值
 	// TODO: only for int
-	if(typeid(*rhs) == typeid(IntExpr)){
-		IntExpr* ie = dynamic_cast<IntExpr*>(rhs);	
+	if(typeid(*expr) == typeid(IntExpr)){
+		IntExpr* ie = dynamic_cast<IntExpr*>(expr);	
 		// AsmGen::writeln("	mov $%ld,%%rax",ie->literal);
 		AsmGen::writeln("	mov $%s,%%rax",ie->literal.c_str());
-		initcond(false,8,8,KW_I64,false,false);
+		initcond(isleft,8,8,KW_I64,false,false);
 		return ie;
 	}
 	//其他的统一求值即可
-	Expression* ret = rhs->asmgen(ctx);
-	if(typeid(*rhs) == typeid(AddrExpr)){
-		initcond(false,8,8,KW_U64,true,true);
+	Expression* ret = expr->asmgen(ctx);
+	if(typeid(*expr) == typeid(BinaryExpr)){
+		Token t = expr->getType(ctx);
+		int size = typesize[t];
+		bool iu = false;
+		if(t == KW_U8 || t == KW_U16 || t == KW_U32 || t == KW_U64)
+			iu = true;
+		initcond(isleft,size,size,t,iu,false);
+	}else if(typeid(*expr) == typeid(AddrExpr)){
+		initcond(isleft,8,8,KW_U64,true,true);
 	}else if(typeid(*ret) == typeid(NewExpr)){
 		//申请内存
-		initcond(false,8,8,KW_U64,true,false);
+		initcond(isleft,8,8,KW_U64,true,false);
 	}else if(typeid(*ret) == typeid(VarExpr))
 	{
 		auto v = dynamic_cast<VarExpr*>(ret);
 		if(!v->structtype)
-			initcond(false,8,8,KW_I64,false,false);
+			initcond(isleft,8,8,KW_I64,false,false);
 		else
-			initcond(false,v->pointer ? 8 : v->size,v->size,v->type,v->isunsigned,v->pointer);
+			initcond(isleft,v->pointer ? 8 : v->size,v->size,v->type,v->isunsigned,v->pointer);
 	}else if(typeid(*ret) == typeid(StructMemberExpr))
 	{
 		auto m = dynamic_cast<StructMemberExpr*>(ret);
 		auto v = m->getMember(); 
-		initcond(false,v->pointer ? 8 : v->size,v->size,v->type,v->isunsigned,v->pointer);
+		initcond(isleft,v->pointer ? 8 : v->size,v->size,v->type,v->isunsigned,v->pointer);
 		//目前所有的struct.member都需要自己load 值,除非遇到&地址引用
-		if(typeid(*rhs) != typeid(AddrExpr)){
+		if(typeid(*expr) != typeid(AddrExpr)){
 			AsmGen::Load(v);
 		}
 	}else{

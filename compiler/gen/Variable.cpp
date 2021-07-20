@@ -12,6 +12,10 @@
 
 using namespace std;
 
+VarExpr* VarExpr::getVar(deque<Context*> ctx){
+    getVarType(ctx);
+    return ret;
+}
 /**
  * 获取真正的var，from local or params
  */
