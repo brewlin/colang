@@ -30,6 +30,7 @@ Expression* Parser::parseExpression(short oldPrecedence)
         if (typeid(*p) != typeid(VarExpr) &&
             typeid(*p) != typeid(IndexExpr) &&
             typeid(*p) != typeid(MemberExpr) &&
+            typeid(*p) != typeid(DelRefExpr) &&
             typeid(*p) != typeid(StructMemberExpr)) {
             parse_err("SyntaxError: can not assign to %s\n", typeid(*p).name());
         }

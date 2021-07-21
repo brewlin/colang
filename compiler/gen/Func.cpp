@@ -49,6 +49,7 @@ Expression* BuiltinFuncExpr::asmgen(deque<Context*> ctx){
 
 Expression* ClosureExpr::asmgen(std::deque<Context*> ctx){
     AsmGen::writeln("    mov %s@GOTPCREL(%%rip), %%rax", varname.c_str());
+    return nullptr;
 }
 /**
  * 函数调用求值
@@ -203,4 +204,5 @@ Expression*  FunCallExpr::asmgen(std::deque<Context*> ctx)
                     funcname.c_str(),this->line,this->column,this->toString().c_str());
     }
     funcexec(ctx,func,this,package);
+    return nullptr;
 }

@@ -157,6 +157,9 @@ Expression*  AssignExpr::asmgen(std::deque<Context*> ctx){
     {
         OperatorHelper oh(ctx,lhs,rhs,this->opt);
         return oh.gen();
+    }else if(typeid(*lhs) == typeid(DelRefExpr)){
+        OperatorHelper oh(ctx,lhs,rhs,this->opt);
+        return oh.gen();
     }
     parse_err("SyntaxError: can not assign to %s at line %d, %col\n", typeid(lhs).name(),line,column);
 }
@@ -216,6 +219,7 @@ Expression*  BinaryExpr::asmgen(std::deque<Context*> ctx)
 
     //运算需要调用统一的方法
     Internal::call_operator(this->opt,"binary_operator");
+    return nullptr;
 }
 
 
@@ -232,6 +236,7 @@ Expression*  ChainExpr::asmgen(std::deque<Context*> ctx)
     // pass %rax 中间通过rax将各个节点链接起来
     //righ codegen
     this->rhs->asmgen(ctx);
+    return nullptr;
 }
 /**
  * 1. *var 这种是对动态变量对解引用

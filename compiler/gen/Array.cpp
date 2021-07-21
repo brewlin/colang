@@ -31,6 +31,7 @@ Expression*  ArrayExpr::asmgen(std::deque<Context*> ctx){
     //pop array
     AsmGen::Pop("%rax");
 
+    return nullptr;
 }
 
 /**
@@ -47,6 +48,7 @@ Expression*  KVExpr::asmgen(std::deque<Context*> ctx){
     //push value
     this->value->asmgen(ctx);
     AsmGen::Push();
+    return nullptr;
 }
 
 /**

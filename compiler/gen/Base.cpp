@@ -19,6 +19,7 @@ Expression*  NullExpr::asmgen(std::deque<Context*> ctx)
     Internal::newobject(Null,0);
 //    Internal::gc_malloc();
 //    AsmGen::writeln("    mov $%ld, (%%rax)", Null);
+    return nullptr;
 
 }
 Expression*  BoolExpr::asmgen(std::deque<Context*> ctx)
@@ -28,6 +29,7 @@ Expression*  BoolExpr::asmgen(std::deque<Context*> ctx)
 //    Internal::gc_malloc();
 //    AsmGen::writeln("    mov $%ld, (%%rax)", Bool);
 //    AsmGen::writeln("    mov $%ld, %d(%%rax)", this->literal,25);
+    return nullptr;
 }
 Expression*  CharExpr::asmgen(
                          std::deque<Context*> ctx) {
@@ -37,6 +39,7 @@ Expression*  CharExpr::asmgen(
 //    Internal::gc_malloc();
 //    AsmGen::writeln("    mov $%ld, (%%rax)", Char);
 //    AsmGen::writeln("    mov $%ld, %d(%%rax)", this->literal,16);
+    return nullptr;
 
 }
 
@@ -49,6 +52,7 @@ Expression*  IntExpr::asmgen( std::deque<Context*> ctx) {
 //    AsmGen::writeln("    mov %%rdi, (%%rax)");
 //    AsmGen::writeln("    mov $%ld,%%rdi",this->literal);
 //    AsmGen::writeln("    mov %%rdi, %d(%%rax)", this->literal,4);
+    return nullptr;
 
 }
 
@@ -58,6 +62,7 @@ Expression*  DoubleExpr::asmgen(std::deque<Context*> ctx) {
 //    Internal::gc_malloc();
 //    AsmGen::writeln("    mov $%ld, (%%rax)", Double);
 //    AsmGen::writeln("    mov $%ld, %d(%%rax)", this->literal,8);
+    return nullptr;
 }
 
 Expression*  StringExpr::asmgen(std::deque<Context*> ctx) {
@@ -72,4 +77,5 @@ Expression*  StringExpr::asmgen(std::deque<Context*> ctx) {
 //
 //    AsmGen::writeln("    lea %s(%%rip), %%rdi", name.c_str());
 //    AsmGen::writeln("    mov %%rdi, %d(%%rax)", 17);
+    return nullptr;
 }

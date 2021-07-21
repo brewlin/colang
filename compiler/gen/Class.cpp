@@ -74,6 +74,7 @@ Expression*  NewClassExpr::asmgen(std::deque<Context*> ctx)
     }
     AsmGen::Pop("%rax");
 
+    return nullptr;
 }
 /**
  *
@@ -108,5 +109,6 @@ Expression*  MemberExpr::asmgen(std::deque<Context*> ctx)
 Expression*  MemberCallExpr::asmgen(std::deque<Context*> ctx)
 {
     Debug("membercall : ")
+    return nullptr;
 }
 

@@ -130,11 +130,24 @@ Expression* OperatorHelper::binary()
 /**
  * 处理  p.a = (expression)
  * 1. 右值需要 根据左值进行强制转换
+ * 2. 只有赋值的时候会有出现左边解析的情况
  */
 Expression* OperatorHelper::genLeft()
 {
 	//如果是var<struct>.member
-	if(typeid(*lhs) == typeid(StructMemberExpr)){
+	if(typeid(*lhs) == typeid(DelRefExpr)){
+		//规定 *var = expression 赋值时左边必须是struct变量的解引用否则直接报错
+		auto dr = dynamic_cast<DelRefExpr*>(lhs);
+		auto ret = dr->expr->asmgen(ctx);
+		if(ret == nullptr || typeid(*ret) != typeid(VarExpr))
+			parse_err("not VarExpr,only support *(struct var) = expression :%s\n",lhs->toString().c_str());
+		auto rv = dynamic_cast<VarExpr*>(ret);
+		if(!rv->structtype)
+			parse_err("not structtype,only support *(struct var) = expression :%s\n",lhs->toString().c_str());
+		//这个var asignExpr传过来的
+		initcond(true,rv->pointer ? 8 : rv->size,rv->size,rv->type,rv->isunsigned,rv->pointer);
+		return rv;
+	}else if(typeid(*lhs) == typeid(StructMemberExpr)){
 		StructMemberExpr* smember = dynamic_cast<StructMemberExpr*>(lhs);
 		//左边求值
 		smember->asmgen(ctx);

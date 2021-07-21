@@ -30,4 +30,5 @@ Expression*  MapExpr::asmgen(std::deque<Context*> ctx){
 
     //pop array
     AsmGen::Pop("%rax");
+    return nullptr;
 }

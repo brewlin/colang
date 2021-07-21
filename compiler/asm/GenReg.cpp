@@ -226,7 +226,13 @@ AsmGen::Push_arg(deque<Context *> prevCtxChain,Function* func,FunCallExpr* fce)
                 stack++;
             }
             //读取每个变量到rax寄存器上
-            fce->args[i]->asmgen(prevCtxChain);
+            Expression* ret = fce->args[i]->asmgen(prevCtxChain);
+            //如果是struct.member需要再次load
+            if(ret != nullptr && typeid(*ret) == typeid(StructMemberExpr)){
+                auto sm = dynamic_cast<StructMemberExpr*>(ret);
+                Load(sm->getMember());
+            }
+
             Push();
         }
         //如果是可变参数，第一个参数填充数字个数
